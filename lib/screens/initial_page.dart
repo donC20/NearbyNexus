@@ -1,4 +1,6 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class InitialPage extends StatelessWidget {
   const InitialPage({Key? key})
@@ -13,20 +15,28 @@ class InitialPage extends StatelessWidget {
           children: [
             Column(
               children: [
-                const Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(25, 50, 0, 0),
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(25, 50, 0, 0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Find or work for the best services\nat one place.",
-                        style: TextStyle(
-                            fontSize: 25, fontWeight: FontWeight.bold),
+                      // ignore: deprecated_member_use
+                      TypewriterAnimatedTextKit(
+                        text: const [
+                          'Find or work for the best services\nat one place.'
+                        ],
+                        isRepeatingAnimation: false,
+                        speed: const Duration(milliseconds: 50),
+                        pause: const Duration(milliseconds: 1000),
+                        textStyle: GoogleFonts.poppins(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
-                      Text(
+                      const Text(
                         "We help you to connect with various services and people near to you.",
                         style: TextStyle(
                             fontSize: 14,
