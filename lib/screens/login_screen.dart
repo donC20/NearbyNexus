@@ -134,12 +134,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (value!.isEmpty) {
                         return "You left this field empty!";
                       }
-                      bool passwordRegex =
-                          RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$')
-                              .hasMatch(value);
-                      if (!passwordRegex) {
-                        return "Invalid password. Password must contain at least 1 letter, 1 digit, and be at least 8 characters long.";
-                      }
                       return null;
                     },
                   ),
@@ -277,7 +271,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, "registration_screen");
+                        Navigator.popAndPushNamed(
+                            context, "registration_screen");
                       },
                       child: Text(
                         'Sign Up',

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:nearbynexus/screens/initial_page.dart';
-import 'package:nearbynexus/screens/login_screen.dart';
-import 'package:nearbynexus/screens/registration_screen.dart';
-import 'package:nearbynexus/screens/splash_screen.dart';
-import 'package:nearbynexus/screens/user_or_vendor.dart';
+import 'package:NearbyNexus/screens/initial_page.dart';
+import 'package:NearbyNexus/screens/login_screen.dart';
+import 'package:NearbyNexus/screens/registration_screen.dart';
+import 'package:NearbyNexus/screens/splash_screen.dart';
+import 'package:NearbyNexus/screens/user_or_vendor.dart';
 
 void main() {
   runApp(const MyApp());

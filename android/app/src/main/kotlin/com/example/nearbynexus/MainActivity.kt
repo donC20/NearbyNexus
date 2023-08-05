@@ -1,4 +1,4 @@
-package com.example.nearbynexus
+package com.hexated.nearbynexus
 
 import io.flutter.embedding.android.FlutterActivity
 
