@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -309,7 +310,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         if (_fieldKey.currentState!.validate() &&
                             selectedValue!.isNotEmpty &&
                             selectedValue != null) {
-                          // Form validation passed, process the form
+                          final auth = FirebaseAuth.instance;
+                          auth.createUserWithEmailAndPassword(
+                            email: _emailController.text,
+                            password: _passController.text,
+                          );
                           print("Successfully submitted");
                           _emailController.clear();
                           _passController.clear();

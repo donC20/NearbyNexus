@@ -1,7 +1,6 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-package="com.hexated.nearbynexus">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="nearbynexus"
+        android:label="NearbyNexus"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

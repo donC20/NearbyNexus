@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:NearbyNexus/screens/initial_page.dart';
 import 'package:NearbyNexus/screens/login_screen.dart';
@@ -5,7 +6,9 @@ import 'package:NearbyNexus/screens/registration_screen.dart';
 import 'package:NearbyNexus/screens/splash_screen.dart';
 import 'package:NearbyNexus/screens/user_or_vendor.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
