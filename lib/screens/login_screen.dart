@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,6 +13,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formField = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final passController = TextEditingController();
+  // snack bar
+  void showSnackbar(String message, Color backgroundColor) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      backgroundColor: backgroundColor,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   bool _isObscure = true;
   @override
   Widget build(BuildContext context) {
@@ -147,7 +157,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         // Navigator.pushNamed(context, "user_or_vendor");
                         if (_formField.currentState!.validate()) {
-                          print("successfully");
+                          // user logion validation
+                          FirebaseAuth.instance
+                              .signInWithEmailAndPassword(
+                                  email: emailController.text,
+                                  password: passController.text)
+                              .then((value) {
+                            // Login success
+                            showSnackbar("Login successful", Colors.green);
+                          }).catchError((error) {
+                            // Login error
+                            String errorMessage;
+                            if (error.message.contains(
+                                "The password is invalid or the user does not have a password.")) {
+                              errorMessage =
+                                  "The password is invalid or the user does not have";
+                            } else {
+                              errorMessage = "Error: ${error.message}";
+                            }
+                            showSnackbar(errorMessage, Colors.red);
+                          });
                           emailController.clear();
                           passController.clear();
                         }

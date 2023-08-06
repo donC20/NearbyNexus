@@ -1,5 +1,6 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,13 +18,44 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final GlobalKey<DropdownButton2State<String>> _dropdownKey = GlobalKey();
   bool showError = false;
   String? errorMessage = "Error";
+  String userType = "general_user";
   Color borderColor = Colors.black26;
   final _emailController = TextEditingController();
   final _passController = TextEditingController();
   final _repassController = TextEditingController();
   String? selectedValue;
   List<String> listItems = ['Here for hire', 'Here for work'];
-  @override
+// function for user Registration with email and password
+  Future<void> registerUser(
+      String email, String password, String userType) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      String uid = userCredential.user?.uid ?? "";
+
+      Map<String, dynamic> userData = {
+        'uid': uid,
+        'email': email,
+        'userType': userType,
+      };
+
+      print(uid);
+      Navigator.popAndPushNamed(context, "complete_registration",
+          arguments: userData);
+      // await FirebaseFirestore.instance.collection('users').doc(uid).set({
+      //   'name': name,
+      //   'age': age,
+      //   'userType': userType,
+      // });
+
+      // Registration and data storage successful
+    } catch (e) {
+      // Handle registration or data storage error
+      print("the error that occured  ${e}");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // check if the screen is opened from the user or vendor screen
@@ -139,12 +171,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       if (value!.isEmpty) {
                         return "You left this field empty!";
                       }
-                      bool passwordRegex = RegExp(
-                              r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
-                          .hasMatch(value);
-                      if (!passwordRegex) {
-                        return "Invalid password. Password must contain at least 1 letter, 1 digit, and be at least 8 characters long.";
-                      }
+                      // bool passwordRegex = RegExp(
+                      //         r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
+                      //     .hasMatch(value);
+                      // if (!passwordRegex) {
+                      //   return "Invalid password. Password must contain at least 1 letter, 1 digit, and be at least 8 characters long.";
+                      // }
                       return null;
                     },
                   ),
@@ -292,34 +324,43 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     height: 60,
                     child: ElevatedButton(
                       onPressed: () {
+                        Navigator.popAndPushNamed(
+                            context, "complete_registration");
                         // Check if drop-down value is empty using GlobalKey
-                        if (selectedValue == null || selectedValue!.isEmpty) {
-                          // Show error message in TextFormField
-                          setState(() {
-                            showError = true;
-                            borderColor = Colors.red;
-                            errorMessage = "You must select an option";
-                          });
-                        } else {
-                          setState(() {
-                            showError = false;
-                            borderColor = Colors.black26;
-                          });
-                        }
+                        // if (selectedValue == null || selectedValue!.isEmpty) {
+                        //   // Show error message in TextFormField
+                        //   setState(() {
+                        //     showError = true;
+                        //     borderColor = Colors.red;
+                        //     errorMessage = "You must select an option";
+                        //   });
+                        // } else {
+                        //   setState(() {
+                        //     showError = false;
+                        //     borderColor = Colors.black26;
+                        //   });
+                        // }
 
-                        if (_fieldKey.currentState!.validate() &&
-                            selectedValue!.isNotEmpty &&
-                            selectedValue != null) {
-                          final auth = FirebaseAuth.instance;
-                          auth.createUserWithEmailAndPassword(
-                            email: _emailController.text,
-                            password: _passController.text,
-                          );
-                          print("Successfully submitted");
-                          _emailController.clear();
-                          _passController.clear();
-                          _repassController.clear();
-                        }
+                        // if (_fieldKey.currentState!.validate() &&
+                        //     selectedValue!.isNotEmpty &&
+                        //     selectedValue != null) {
+                        //   // check user type
+
+                        //   if (selectedValue == "Here for work") {
+                        //     setState(() {
+                        //       userType = "vendor";
+                        //     });
+                        //   } else {
+                        //     setState(() {
+                        //       userType = "general_user";
+                        //     });
+                        //   }
+                        //   registerUser(_emailController.text,
+                        //       _passController.text, userType);
+                        //   _emailController.clear();
+                        //   _passController.clear();
+                        //   _repassController.clear();
+                        // }
                       },
                       style: ElevatedButton.styleFrom(
                         textStyle: const TextStyle(

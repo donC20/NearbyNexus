@@ -1,3 +1,4 @@
+import 'package:NearbyNexus/screens/complete_registration.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:NearbyNexus/screens/initial_page.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         "initial_page": (context) => const InitialPage(),
         "user_or_vendor": (context) => const UserOrVendor(),
         "registration_screen": (context) => const RegistrationScreen(),
+        "complete_registration": (context) => const CompleteRegistration(),
         "login_screen": (context) => const LoginScreen(),
       },
       initialRoute: "splashScreen",

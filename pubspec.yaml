@@ -41,6 +41,9 @@ dependencies:
   dropdown_button2: ^2.3.7
   firebase_auth: ^4.7.2
   firebase_core: ^2.15.0
+  cloud_firestore: ^4.8.4
+  geolocator: ^9.0.2
+  geocoding: ^2.1.0
 
 dev_dependencies:
   flutter_test:
