@@ -1,10 +1,11 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
 // import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
@@ -15,7 +16,8 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _fieldKey = GlobalKey<FormState>();
-  final GlobalKey<DropdownButton2State<String>> _dropdownKey = GlobalKey();
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
   bool showError = false;
   String? errorMessage = "Error";
   String userType = "general_user";
@@ -24,10 +26,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _passController = TextEditingController();
   final _repassController = TextEditingController();
   String? selectedValue;
-  List<String> listItems = ['Here for hire', 'Here for work'];
 // function for user Registration with email and password
-  Future<void> registerUser(
-      String email, String password, String userType) async {
+  Future<void> registerUser(String email, String password) async {
     try {
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
@@ -37,16 +37,38 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       Map<String, dynamic> userData = {
         'uid': uid,
         'email': email,
-        'userType': userType,
       };
 
-      print(uid);
       Navigator.popAndPushNamed(context, "complete_registration",
           arguments: userData);
       // Registration and data storage successful
     } catch (e) {
       // Handle registration or data storage error
       print("the error that occured  ${e}");
+    }
+  }
+
+  // register with google
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleSignInAccount =
+          await _googleSignIn.signIn();
+
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication =
+            await googleSignInAccount.authentication;
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleSignInAuthentication.accessToken,
+          idToken: googleSignInAuthentication.idToken,
+        );
+
+        return await FirebaseAuth.instance.signInWithCredential(credential);
+      }
+
+      return null;
+    } catch (e) {
+      print("Error signing in with Google: $e");
+      return null;
     }
   }
 
@@ -215,102 +237,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: 15),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: Column(
-                    children: [
-                      DropdownButtonHideUnderline(
-                        child: DropdownButton2<String>(
-                          key: _dropdownKey,
-                          isExpanded: true,
-                          hint: const Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  'What you are looking for?',
-                                  style: TextStyle(
-                                      color: Color.fromARGB(182, 0, 0, 0),
-                                      fontSize: 14),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
-                          items: listItems
-                              .map((String item) => DropdownMenuItem<String>(
-                                    value: item,
-                                    child: Text(
-                                      item,
-                                      style: const TextStyle(
-                                          color: Color.fromARGB(182, 0, 0, 0),
-                                          fontSize: 14),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ))
-                              .toList(),
-                          value: selectedValue,
-                          onChanged: (String? value) {
-                            setState(() {
-                              selectedValue = value;
-                            });
-                          },
-                          buttonStyleData: ButtonStyleData(
-                            height: 60,
-                            padding: const EdgeInsets.only(left: 14, right: 14),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(50),
-                              border: Border.all(
-                                color: borderColor,
-                              ),
-                              color: Colors.white,
-                            ),
-                            elevation: 0,
-                          ),
-                          iconStyleData: const IconStyleData(
-                            icon: Icon(
-                              Icons.arrow_forward_ios_outlined,
-                            ),
-                            iconSize: 14,
-                            iconEnabledColor: Color.fromARGB(255, 0, 0, 0),
-                            iconDisabledColor: Colors.grey,
-                          ),
-                          dropdownStyleData: DropdownStyleData(
-                            padding: const EdgeInsets.only(left: 15),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              color: Colors.white,
-                            ),
-                            scrollbarTheme: ScrollbarThemeData(
-                              radius: const Radius.circular(40),
-                              thickness: MaterialStateProperty.all<double>(6),
-                              thumbVisibility:
-                                  MaterialStateProperty.all<bool>(true),
-                            ),
-                          ),
-                          menuItemStyleData: const MenuItemStyleData(
-                            height: 40,
-                            padding: EdgeInsets.only(left: 0, right: 0),
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Visibility(
-                          visible: showError,
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 15),
-                            child: Text(
-                              errorMessage!,
-                              style: const TextStyle(
-                                  color: Colors.red, fontSize: 12),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+
                 const SizedBox(height: 25),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -318,37 +245,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     height: 60,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Check if drop-down value is empty using GlobalKey
-                        if (selectedValue == null || selectedValue!.isEmpty) {
-                          // Show error message in TextFormField
-                          setState(() {
-                            showError = true;
-                            borderColor = Colors.red;
-                            errorMessage = "You must select an option";
-                          });
-                        } else {
-                          setState(() {
-                            showError = false;
-                            borderColor = Colors.black26;
-                          });
-                        }
-
-                        if (_fieldKey.currentState!.validate() &&
-                            selectedValue!.isNotEmpty &&
-                            selectedValue != null) {
-                          // check user type
-
-                          if (selectedValue == "Here for work") {
-                            setState(() {
-                              userType = "vendor";
-                            });
-                          } else {
-                            setState(() {
-                              userType = "general_user";
-                            });
-                          }
-                          registerUser(_emailController.text,
-                              _passController.text, userType);
+                        if (_fieldKey.currentState!.validate()) {
+                          registerUser(
+                              _emailController.text, _passController.text);
                           _emailController.clear();
                           _passController.clear();
                           _repassController.clear();
@@ -425,7 +324,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   child: SizedBox(
                     height: 60,
                     child: OutlinedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        UserCredential? userCredential =
+                            await signInWithGoogle();
+                        if (userCredential != null) {
+                          User googleuser = userCredential.user!;
+                          Map<String, dynamic> userData = {
+                            'uid': googleuser.uid,
+                            'email': googleuser.email,
+                          };
+
+                          Navigator.popAndPushNamed(
+                              context, "complete_registration",
+                              arguments: userData);
+                        } else {
+                          print("failed to sign in with Google");
+                        }
                         // Navigator.pushNamed(context, "");
                       },
                       style: OutlinedButton.styleFrom(

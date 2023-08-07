@@ -2,6 +2,7 @@
 
 import 'package:NearbyNexus/models/general_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -17,6 +18,8 @@ class CompleteRegistration extends StatefulWidget {
 
 class _CompleteRegistrationState extends State<CompleteRegistration> {
   final _fieldKey = GlobalKey<FormState>();
+  final GlobalKey<DropdownButton2State<String>> _dropdownKey = GlobalKey();
+
   bool showError = false;
   bool isloadingLocation = true;
   bool _isChecked = false;
@@ -27,6 +30,7 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
   final _phoneController = TextEditingController();
   final _locationController = TextEditingController();
   String? selectedValue;
+  List<String> listItems = ['Here for hire', 'Here for work'];
 
   void showSnackbar(String message, Color backgroundColor) {
     final snackBar = SnackBar(
@@ -94,11 +98,10 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic>? userTransferdData = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    Map<String, dynamic>? userTransferdData =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     Future<void> submitApplication(
         String name,
         String emailId,
@@ -106,8 +109,8 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
         double latitude,
         double longitude,
         String image,
+        String userType,
         String currentGeoLocation) async {
-
       GeneralUser user = GeneralUser(
           name: name,
           emailId: emailId,
@@ -115,10 +118,15 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
           latitude: latitude,
           longitude: longitude,
           image: image,
+          userType: userType,
           currentGeoLocation: currentGeoLocation);
       Map<String, dynamic> userData = user.toJson();
       String uid = userTransferdData?['uid'];
-      await FirebaseFirestore.instance.collection('users').doc(uid).set(userData).then((value) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set(userData)
+          .then((value) {
         // insert success
         showSnackbar("Registration Successful", Colors.green);
       }).catchError((error) {
@@ -126,6 +134,7 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
         showSnackbar(error.message, Colors.red);
       });
     }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FA),
       body: SingleChildScrollView(
@@ -246,7 +255,102 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
                     },
                   ),
                 ),
-
+                const SizedBox(height: 15),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: Column(
+                    children: [
+                      DropdownButtonHideUnderline(
+                        child: DropdownButton2<String>(
+                          key: _dropdownKey,
+                          isExpanded: true,
+                          hint: const Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'What you are looking for?',
+                                  style: TextStyle(
+                                      color: Color.fromARGB(182, 0, 0, 0),
+                                      fontSize: 14),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          items: listItems
+                              .map((String item) => DropdownMenuItem<String>(
+                                    value: item,
+                                    child: Text(
+                                      item,
+                                      style: const TextStyle(
+                                          color: Color.fromARGB(182, 0, 0, 0),
+                                          fontSize: 14),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ))
+                              .toList(),
+                          value: selectedValue,
+                          onChanged: (String? value) {
+                            setState(() {
+                              selectedValue = value;
+                            });
+                          },
+                          buttonStyleData: ButtonStyleData(
+                            height: 60,
+                            padding: const EdgeInsets.only(left: 14, right: 14),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(50),
+                              border: Border.all(
+                                color: borderColor,
+                              ),
+                              color: Colors.white,
+                            ),
+                            elevation: 0,
+                          ),
+                          iconStyleData: const IconStyleData(
+                            icon: Icon(
+                              Icons.arrow_forward_ios_outlined,
+                            ),
+                            iconSize: 14,
+                            iconEnabledColor: Color.fromARGB(255, 0, 0, 0),
+                            iconDisabledColor: Colors.grey,
+                          ),
+                          dropdownStyleData: DropdownStyleData(
+                            padding: const EdgeInsets.only(left: 15),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              color: Colors.white,
+                            ),
+                            scrollbarTheme: ScrollbarThemeData(
+                              radius: const Radius.circular(40),
+                              thickness: MaterialStateProperty.all<double>(6),
+                              thumbVisibility:
+                                  MaterialStateProperty.all<bool>(true),
+                            ),
+                          ),
+                          menuItemStyleData: const MenuItemStyleData(
+                            height: 40,
+                            padding: EdgeInsets.only(left: 0, right: 0),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Visibility(
+                          visible: showError,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: Text(
+                              errorMessage!,
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: 15),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -256,11 +360,21 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
                     readOnly: true,
                     decoration: InputDecoration(
                       prefixIcon: Visibility(
-                          visible: isloadingLocation,
-                          child: LoadingAnimationWidget.beat(
-                            color: Colors.deepOrange,
-                            size: 30,
-                          )),
+                        visible: isloadingLocation,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            LoadingAnimationWidget.beat(
+                              color: const Color.fromARGB(255, 135, 130, 129),
+                              size: 20,
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            const Text("Fetching your location..."),
+                          ],
+                        ),
+                      ),
                       suffixIcon: IconButton(
                           onPressed: () {
                             setState(() {
@@ -318,8 +432,45 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
                     height: 60,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_fieldKey.currentState!.validate()) {
-                          submitApplication(_nameController.text, userTransferdData!['email'], int.parse(_phoneController.text), 0.0, 0.0, "null", _locationController.text);
+                        // Check if drop-down value is empty using GlobalKey
+                        if (selectedValue == null || selectedValue!.isEmpty) {
+                          // Show error message in TextFormField
+                          setState(() {
+                            showError = true;
+                            borderColor = Colors.red;
+                            errorMessage = "You must select an option";
+                          });
+                        } else {
+                          setState(() {
+                            showError = false;
+                            borderColor = Colors.black26;
+                          });
+                        }
+
+                        if (_fieldKey.currentState!.validate() &&
+                            selectedValue!.isNotEmpty &&
+                            selectedValue != null) {
+                          // check user type
+
+                          if (selectedValue == "Here for work") {
+                            setState(() {
+                              userType = "vendor";
+                            });
+                          } else {
+                            setState(() {
+                              userType = "general_user";
+                            });
+                          }
+
+                          submitApplication(
+                              _nameController.text,
+                              userTransferdData!['email'],
+                              int.parse(_phoneController.text),
+                              0.0,
+                              0.0,
+                              "null",
+                              userType,
+                              _locationController.text);
                         }
                       },
                       style: ElevatedButton.styleFrom(

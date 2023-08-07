@@ -7,6 +7,7 @@ class GeneralUser {
   final double? longitude;
   final String? image;
   final String? currentGeoLocation;
+  final String? userType;
 
   const GeneralUser(
       {this.id,
@@ -16,6 +17,7 @@ class GeneralUser {
       required this.latitude,
       required this.longitude,
       required this.image,
+      required this.userType,
       required this.currentGeoLocation});
 
   toJson() {
@@ -26,6 +28,7 @@ class GeneralUser {
       "latitude": latitude,
       "longitude": longitude,
       "image": image,
+      "userType":userType,
       "geoLocation": currentGeoLocation,
     };
   }

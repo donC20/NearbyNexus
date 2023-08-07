@@ -1,6 +1,9 @@
+// ignore_for_file: avoid_print
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formField = GlobalKey<FormState>();
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   final emailController = TextEditingController();
   final passController = TextEditingController();
   // snack bar
@@ -20,6 +24,36 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: backgroundColor,
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  Future<void> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleSignInAccount =
+          await _googleSignIn.signIn();
+
+      if (googleSignInAccount == null) return;
+
+      final email = googleSignInAccount.email;
+      checkEmailExists(email);
+    } catch (e) {
+      print("Error signing in with Google: $e");
+    }
+  }
+
+  Future<void> checkEmailExists(String email) async {
+    try {
+      List<String> signInMethods =
+          await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+
+      if (signInMethods.isEmpty) {
+        showSnackbar("Sorry, this mail id is not associated with any account.",
+            Colors.red);
+      } else {
+        showSnackbar("Login successful", Colors.green);
+      }
+    } catch (e) {
+      print("Error checking email existence: $e");
+    }
   }
 
   bool _isObscure = true;
@@ -264,8 +298,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: SizedBox(
                     height: 60,
                     child: OutlinedButton(
-                      onPressed: () {
-                        // Navigator.pushNamed(context, "");
+                      onPressed: () async {
+                        await signInWithGoogle();
                       },
                       style: OutlinedButton.styleFrom(
                           side: const BorderSide(
