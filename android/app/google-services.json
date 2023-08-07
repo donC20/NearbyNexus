@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "554929642418",
+    "project_id": "nearbynexus1",
+    "storage_bucket": "nearbynexus1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:554929642418:android:cfd421f72b2acb9ccc22ab",
+        "android_client_info": {
+          "package_name": "com.hexated.nearbynexus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "554929642418-jn643s8vn9v064nvs72n3khje237j59p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hexated.nearbynexus",
+            "certificate_hash": "690b76d2b5b1b2cae177eee2555ebce251193c3d"
+          }
+        },
+        {
+          "client_id": "554929642418-egtut7j1jjbit9jm2kfvrrahh0drid8h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBM3y-Vn2IQIey16BSzKh1kE_K_dt6O4_M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "554929642418-0e70o54afjfc8atk2hqi56jeblpuv2vp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

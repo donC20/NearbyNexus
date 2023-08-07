@@ -43,12 +43,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       print(uid);
       Navigator.popAndPushNamed(context, "complete_registration",
           arguments: userData);
-      // await FirebaseFirestore.instance.collection('users').doc(uid).set({
-      //   'name': name,
-      //   'age': age,
-      //   'userType': userType,
-      // });
-
       // Registration and data storage successful
     } catch (e) {
       // Handle registration or data storage error
@@ -130,7 +124,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         return "You left this field empty!";
                       }
                       bool emailRegex =
-                          RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                          RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$')
                               .hasMatch(value);
                       if (!emailRegex) {
                         return "Email address is not valid 😕";
@@ -324,43 +318,41 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     height: 60,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.popAndPushNamed(
-                            context, "complete_registration");
                         // Check if drop-down value is empty using GlobalKey
-                        // if (selectedValue == null || selectedValue!.isEmpty) {
-                        //   // Show error message in TextFormField
-                        //   setState(() {
-                        //     showError = true;
-                        //     borderColor = Colors.red;
-                        //     errorMessage = "You must select an option";
-                        //   });
-                        // } else {
-                        //   setState(() {
-                        //     showError = false;
-                        //     borderColor = Colors.black26;
-                        //   });
-                        // }
+                        if (selectedValue == null || selectedValue!.isEmpty) {
+                          // Show error message in TextFormField
+                          setState(() {
+                            showError = true;
+                            borderColor = Colors.red;
+                            errorMessage = "You must select an option";
+                          });
+                        } else {
+                          setState(() {
+                            showError = false;
+                            borderColor = Colors.black26;
+                          });
+                        }
 
-                        // if (_fieldKey.currentState!.validate() &&
-                        //     selectedValue!.isNotEmpty &&
-                        //     selectedValue != null) {
-                        //   // check user type
+                        if (_fieldKey.currentState!.validate() &&
+                            selectedValue!.isNotEmpty &&
+                            selectedValue != null) {
+                          // check user type
 
-                        //   if (selectedValue == "Here for work") {
-                        //     setState(() {
-                        //       userType = "vendor";
-                        //     });
-                        //   } else {
-                        //     setState(() {
-                        //       userType = "general_user";
-                        //     });
-                        //   }
-                        //   registerUser(_emailController.text,
-                        //       _passController.text, userType);
-                        //   _emailController.clear();
-                        //   _passController.clear();
-                        //   _repassController.clear();
-                        // }
+                          if (selectedValue == "Here for work") {
+                            setState(() {
+                              userType = "vendor";
+                            });
+                          } else {
+                            setState(() {
+                              userType = "general_user";
+                            });
+                          }
+                          registerUser(_emailController.text,
+                              _passController.text, userType);
+                          _emailController.clear();
+                          _passController.clear();
+                          _repassController.clear();
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         textStyle: const TextStyle(

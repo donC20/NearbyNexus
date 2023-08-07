@@ -1,5 +1,12 @@
+// ignore_for_file: avoid_print
+
+import 'package:NearbyNexus/models/general_user.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class CompleteRegistration extends StatefulWidget {
   const CompleteRegistration({super.key});
@@ -11,6 +18,7 @@ class CompleteRegistration extends StatefulWidget {
 class _CompleteRegistrationState extends State<CompleteRegistration> {
   final _fieldKey = GlobalKey<FormState>();
   bool showError = false;
+  bool isloadingLocation = true;
   bool _isChecked = false;
   String? errorMessage = "Error";
   String userType = "general_user";
@@ -19,8 +27,105 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
   final _phoneController = TextEditingController();
   final _locationController = TextEditingController();
   String? selectedValue;
+
+  void showSnackbar(String message, Color backgroundColor) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      backgroundColor: backgroundColor,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+// location fetching
+
+  Position? _currentPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocationAndSetAddress();
+  }
+
+  Future<void> _getCurrentLocationAndSetAddress() async {
+    try {
+      _currentPosition = await getCurrentLocation();
+      if (_currentPosition != null) {
+        String? address = await getAddressFromLocation(_currentPosition!);
+        if (address != null) {
+          setState(() {
+            _locationController.text = address;
+            isloadingLocation = false;
+          });
+        }
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  Future<Position?> getCurrentLocation() async {
+    try {
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+    } catch (e) {
+      print("Error getting location: $e");
+      return null;
+    }
+  }
+
+  Future<String?> getAddressFromLocation(Position position) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      if (placemarks.isNotEmpty) {
+        Placemark placemark = placemarks.first;
+        // Choose the desired fields to form the address
+        String address =
+            "${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}";
+        return address;
+      }
+      return null;
+    } catch (e) {
+      print("Error getting address: $e");
+      return null;
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic>? userTransferdData = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    Future<void> submitApplication(
+        String name,
+        String emailId,
+        int phone,
+        double latitude,
+        double longitude,
+        String image,
+        String currentGeoLocation) async {
+
+      GeneralUser user = GeneralUser(
+          name: name,
+          emailId: emailId,
+          phone: phone,
+          latitude: latitude,
+          longitude: longitude,
+          image: image,
+          currentGeoLocation: currentGeoLocation);
+      Map<String, dynamic> userData = user.toJson();
+      String uid = userTransferdData?['uid'];
+      await FirebaseFirestore.instance.collection('users').doc(uid).set(userData).then((value) {
+        // insert success
+        showSnackbar("Registration Successful", Colors.green);
+      }).catchError((error) {
+        // insert error
+        showSnackbar(error.message, Colors.red);
+      });
+    }
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FA),
       body: SingleChildScrollView(
@@ -148,13 +253,25 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
                   child: TextFormField(
                     controller: _locationController,
                     style: GoogleFonts.poppins(color: Colors.black),
-                    obscureText: true,
+                    readOnly: true,
                     decoration: InputDecoration(
+                      prefixIcon: Visibility(
+                          visible: isloadingLocation,
+                          child: LoadingAnimationWidget.beat(
+                            color: Colors.deepOrange,
+                            size: 30,
+                          )),
+                      suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              isloadingLocation = true;
+                            });
+                            _locationController.clear();
+                            _getCurrentLocationAndSetAddress();
+                          },
+                          icon: const Icon(Icons.my_location_sharp)),
                       contentPadding:
                           const EdgeInsets.only(left: 25, bottom: 35),
-                      labelText: 'Re-enter password?',
-                      hintStyle:
-                          const TextStyle(color: Colors.grey, fontSize: 14),
                       labelStyle: const TextStyle(
                           color: Color.fromARGB(182, 0, 0, 0), fontSize: 14),
                       border: OutlineInputBorder(
@@ -170,15 +287,15 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
                         borderRadius: BorderRadius.circular(50),
                       ),
                     ),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "You left this field empty!";
-                      } else if (_phoneController.text != value) {
-                        return "Passwords do not match!";
-                      }
+                    // validator: (value) {
+                    //   if (value!.isEmpty) {
+                    //     return "You left this field empty!";
+                    //   } else if (_phoneController.text != value) {
+                    //     return "Passwords do not match!";
+                    //   }
 
-                      return null;
-                    },
+                    //   return null;
+                    // },
                   ),
                 ),
 
@@ -201,16 +318,8 @@ class _CompleteRegistrationState extends State<CompleteRegistration> {
                     height: 60,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (_fieldKey.currentState!.validate() &&
-                            selectedValue!.isNotEmpty &&
-                            selectedValue != null) {
-                          // check user type
-
-                          // registerUser(_nameController.text,
-                          //     _phoneController.text, userType);
-                          // _nameController.clear();
-                          // _phoneController.clear();
-                          // _locationController.clear();
+                        if (_fieldKey.currentState!.validate()) {
+                          submitApplication(_nameController.text, userTransferdData!['email'], int.parse(_phoneController.text), 0.0, 0.0, "null", _locationController.text);
                         }
                       },
                       style: ElevatedButton.styleFrom(

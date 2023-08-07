@@ -6,7 +6,7 @@ class GeneralUser {
   final double? latitude;
   final double? longitude;
   final String? image;
-  final Stream? currentGeoLocation;
+  final String? currentGeoLocation;
 
   const GeneralUser(
       {this.id,
