@@ -26,6 +26,44 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+// !Normal login
+
+  Future<void> signInWithEmailAndPasswordAndCheckEmailVerification() async {
+    try {
+      UserCredential loginEpCredentials = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: emailController.text, password: passController.text);
+
+      User user = loginEpCredentials.user!;
+      if (user.emailVerified) {
+        // User is verified, proceed with login
+        showSnackbar("Login successful", Colors.green);
+
+        emailController.clear();
+        passController.clear();
+      } else {
+        // User is not verified, show appropriate message
+        showSnackbar(
+            "Email not verified. Please check your inbox for a verification email.",
+            Colors.orange);
+      }
+    } catch (error) {
+      // Login error
+      String errorMessage;
+      if (error.toString().contains(
+          "The password is invalid or the user does not have a password.")) {
+        errorMessage =
+            "The password is invalid or the user does not have a password.";
+      } else {
+        errorMessage = "Error: ${error.toString()}";
+      }
+      showSnackbar(errorMessage, Colors.red);
+    }
+  }
+
+// !Normal login ends
+
+// !Login with google
   Future<void> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleSignInAccount =
@@ -55,6 +93,8 @@ class _LoginScreenState extends State<LoginScreen> {
       print("Error checking email existence: $e");
     }
   }
+
+// !| ------------------------
 
   bool _isObscure = true;
   @override
@@ -192,27 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         // Navigator.pushNamed(context, "user_or_vendor");
                         if (_formField.currentState!.validate()) {
                           // user logion validation
-                          FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                                  email: emailController.text,
-                                  password: passController.text)
-                              .then((value) {
-                            // Login success
-                            showSnackbar("Login successful", Colors.green);
-                          }).catchError((error) {
-                            // Login error
-                            String errorMessage;
-                            if (error.message.contains(
-                                "The password is invalid or the user does not have a password.")) {
-                              errorMessage =
-                                  "The password is invalid or the user does not have";
-                            } else {
-                              errorMessage = "Error: ${error.message}";
-                            }
-                            showSnackbar(errorMessage, Colors.red);
-                          });
-                          emailController.clear();
-                          passController.clear();
+                          signInWithEmailAndPasswordAndCheckEmailVerification();
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -252,6 +272,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextButton(
                   onPressed: () {
                     // Implement forgot password logic here
+                    Map<String, String> dummyMail = {
+                      "email": emailController.text
+                    };
+                    Navigator.pushNamed(context, "forgot_password_screen",
+                        arguments: dummyMail);
                   },
                   child: Text(
                     'Forgot Password?',

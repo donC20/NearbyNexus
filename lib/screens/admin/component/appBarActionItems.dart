@@ -9,21 +9,9 @@ class AppBarActionItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return const Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        IconButton(
-            icon: SvgPicture.asset(
-              'assets/images/vector/calendar.svg',
-              width: 20,
-            ),
-            onPressed: () {}),
-        SizedBox(width: 10),
-        IconButton(
-            icon:
-                SvgPicture.asset('assets/images/vector/ring.svg', width: 20.0),
-            onPressed: () {}),
-        SizedBox(width: 15),
         Row(children: [
           CircleAvatar(
             radius: 17,

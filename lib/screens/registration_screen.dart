@@ -33,6 +33,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           .createUserWithEmailAndPassword(email: email, password: password);
 
       String uid = userCredential.user?.uid ?? "";
+      if (uid.isNotEmpty) {
+        User? sendTo = userCredential.user;
+        await sendVerificationEmail(sendTo!);
+      }
 
       Map<String, dynamic> userData = {
         'uid': uid,
@@ -46,6 +50,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       // Handle registration or data storage error
       print("the error that occured  ${e}");
     }
+  }
+
+//?Send user email verification
+  Future<void> sendVerificationEmail(User user) async {
+    await user.sendEmailVerification();
   }
 
   // register with google
@@ -149,7 +158,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$')
                               .hasMatch(value);
                       if (!emailRegex) {
-                        return "Email address is not valid 😕";
+                        return "Email address is not valid";
                       }
                       return null;
                     },
@@ -351,7 +360,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Image(
-                            image: AssetImage("lib/icons/google.png"),
+                            image: AssetImage("assets/icons/google.png"),
                           ),
                           SizedBox(width: 5),
                           Text("Signup with Google",

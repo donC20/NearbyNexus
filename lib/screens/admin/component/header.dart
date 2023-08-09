@@ -19,7 +19,7 @@ class Header extends StatelessWidget {
               PrimaryText(
                   text: 'Dashboard', size: 30, fontWeight: FontWeight.w800),
               PrimaryText(
-                text: 'Administration system\nNearbyNexus',
+                text: 'Administration system',
                 size: 16,
                 fontWeight: FontWeight.w400,
                 color: AppColors.secondary,

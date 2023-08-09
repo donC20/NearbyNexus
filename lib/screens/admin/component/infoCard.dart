@@ -39,15 +39,12 @@ class InfoCard extends StatelessWidget {
           SizedBox(
             height: SizeConfig.blockSizeVertical! * 2,
           ),
-          PrimaryText(text: label, color: AppColors.secondary, size: 16),
-          SizedBox(
-            height: SizeConfig.blockSizeVertical! * 2,
-          ),
           PrimaryText(
             text: amount,
             size: 18,
             fontWeight: FontWeight.w700,
-          )
+          ),
+          PrimaryText(text: label, color: AppColors.secondary, size: 16),
         ],
       ),
     );

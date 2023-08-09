@@ -1,20 +1,31 @@
+// ignore_for_file: avoid_print
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:NearbyNexus/screens/admin/component/appBarActionItems.dart';
-import 'package:NearbyNexus/screens/admin/component/barChart.dart';
 import 'package:NearbyNexus/screens/admin/component/header.dart';
-import 'package:NearbyNexus/screens/admin/component/historyTable.dart';
 import 'package:NearbyNexus/screens/admin/component/infoCard.dart';
 import 'package:NearbyNexus/screens/admin/component/paymentDetailList.dart';
 import 'package:NearbyNexus/screens/admin/component/sideMenu.dart';
 import 'package:NearbyNexus/screens/admin/config/responsive.dart';
 import 'package:NearbyNexus/screens/admin/config/size_config.dart';
 import 'package:NearbyNexus/screens/admin/style/colors.dart';
-import 'package:NearbyNexus/screens/admin/style/style.dart';
 
-class Dashboard extends StatelessWidget {
-  GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
+class Dashboard extends StatefulWidget {
+  const Dashboard({super.key});
 
-  Dashboard({super.key});
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  int userCount = 0;
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  final GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -58,97 +69,93 @@ class Dashboard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Header(),
-                        SizedBox(
-                          height: SizeConfig.blockSizeVertical! * 4,
-                        ),
+                        SizedBox(height: SizeConfig.blockSizeVertical! * 2),
                         SizedBox(
                           width: SizeConfig.screenWidth,
-                          child: const Wrap(
-                            spacing: 20,
-                            runSpacing: 20,
+                          child: Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
                             alignment: WrapAlignment.spaceBetween,
                             children: [
-                              InfoCard(
-                                  icon: 'assets/images/vector/credit-card.svg',
-                                  label: 'Transafer via \nCard number',
-                                  amount: '\$1200'),
-                              InfoCard(
-                                  icon: 'assets/images/vector/transfer.svg',
-                                  label: 'Transafer via \nOnline Banks',
-                                  amount: '\$150'),
-                              InfoCard(
-                                  icon: 'assets/images/vector/bank.svg',
-                                  label: 'Transafer \nSame Bank',
-                                  amount: '\$1500'),
-                              InfoCard(
-                                  icon: 'assets/images/vector/invoice.svg',
-                                  label: 'Transafer to \nOther Bank',
-                                  amount: '\$1500'),
+                              StreamBuilder<QuerySnapshot>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('users')
+                                    .snapshots(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const CircularProgressIndicator();
+                                  } else if (snapshot.hasError) {
+                                    return Text("Error: ${snapshot.error}");
+                                  } else {
+                                    int userCount =
+                                        snapshot.data?.docs.length ??
+                                            0; // Get the length of snapshots
+                                    return InfoCard(
+                                      icon:
+                                          'assets/images/vector/userOnline.svg',
+                                      label: 'Users',
+                                      amount: '$userCount',
+                                    );
+                                  }
+                                },
+                              ),
+                              const InfoCard(
+                                  icon: 'assets/images/vector/onlineGlobe.svg',
+                                  label: 'Users online',
+                                  amount: '0'),
+                              StreamBuilder<int>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('users')
+                                    .where('userType',
+                                        isEqualTo: 'general_user')
+                                    .snapshots()
+                                    .map((querySnapshot) =>
+                                        querySnapshot.docs.length),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const CircularProgressIndicator();
+                                  } else if (snapshot.hasError) {
+                                    return Text("Error: ${snapshot.error}");
+                                  } else {
+                                    int generalUserCount = snapshot.data ?? 0;
+                                    return InfoCard(
+                                      icon:
+                                          'assets/images/vector/generalUser.svg',
+                                      label: 'General users',
+                                      amount: '$generalUserCount',
+                                    );
+                                  }
+                                },
+                              ),
+                              StreamBuilder<int>(
+                                stream: FirebaseFirestore.instance
+                                    .collection('users')
+                                    .where('userType', isEqualTo: 'vendor')
+                                    .snapshots()
+                                    .map((querySnapshot) =>
+                                        querySnapshot.docs.length),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const CircularProgressIndicator();
+                                  } else if (snapshot.hasError) {
+                                    return Text("Error: ${snapshot.error}");
+                                  } else {
+                                    int vendorCount = snapshot.data ?? 0;
+                                    return InfoCard(
+                                      icon:
+                                          'assets/images/vector/serviceProvider.svg',
+                                      label: 'Service providers',
+                                      amount: '$vendorCount',
+                                    );
+                                  }
+                                },
+                              ),
                             ],
                           ),
                         ),
-                        SizedBox(
-                          height: SizeConfig.blockSizeVertical! * 4,
-                        ),
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                PrimaryText(
-                                  text: 'Balance',
-                                  size: 16,
-                                  fontWeight: FontWeight.w400,
-                                  color: AppColors.secondary,
-                                ),
-                                PrimaryText(
-                                    text: '\$1500',
-                                    size: 30,
-                                    fontWeight: FontWeight.w800),
-                              ],
-                            ),
-                            PrimaryText(
-                              text: 'Past 30 DAYS',
-                              size: 16,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.secondary,
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: SizeConfig.blockSizeVertical! * 3,
-                        ),
-                        // ignore: prefer_const_constructors
-                        SizedBox(
-                          height: 180,
-                          child: const BarChartCopmponent(),
-                        ),
-                        SizedBox(
-                          height: SizeConfig.blockSizeVertical! * 5,
-                        ),
-                        const Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            PrimaryText(
-                                text: 'History',
-                                size: 30,
-                                fontWeight: FontWeight.w800),
-                            PrimaryText(
-                              text: 'Transaction of lat 6 month',
-                              size: 16,
-                              fontWeight: FontWeight.w400,
-                              color: AppColors.secondary,
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: SizeConfig.blockSizeVertical! * 3,
-                        ),
-                        const HistoryTable(),
-                        if (!Responsive.isDesktop(context))
-                          const PaymentDetailList()
                       ],
                     ),
                   ),
