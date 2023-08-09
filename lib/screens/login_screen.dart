@@ -1,9 +1,13 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -37,8 +41,45 @@ class _LoginScreenState extends State<LoginScreen> {
       User user = loginEpCredentials.user!;
       if (user.emailVerified) {
         // User is verified, proceed with login
-        showSnackbar("Login successful", Colors.green);
+        // ?check user type
+        String uid = loginEpCredentials.user?.uid ?? "";
 
+        DocumentSnapshot snapshot =
+            await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+        if (snapshot.exists) {
+          // Check if the document exists
+          Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+
+          if (data != null && data.containsKey('userType')) {
+            String userType = data['userType'];
+            // ?share preferences instance creation
+            final SharedPreferences sharedpreferences =
+                await SharedPreferences.getInstance();
+            Map<String, dynamic> userSessionData = {
+              'uid': uid,
+              'userType': userType,
+            };
+            sharedpreferences.setString(
+                "userSessionData", json.encode(userSessionData));
+            // ?End of SharedPreferences
+            if (userType == "admin") {
+              Navigator.popAndPushNamed(context, "admin_screen");
+            } else if (userType == "vendor") {
+              Navigator.popAndPushNamed(context, "vendor_home");
+            } else if (userType == "general_user") {
+              Navigator.popAndPushNamed(context, "user_home");
+            } else {
+              showSnackbar(":) Sorry we are unable to proccess your request! ",
+                  Colors.red);
+            }
+          } else {
+            print('User Type not found in the document');
+          }
+        } else {
+          print('Document does not exist');
+        }
+        showSnackbar("Login successful", Colors.green);
         emailController.clear();
         passController.clear();
       } else {
@@ -70,15 +111,19 @@ class _LoginScreenState extends State<LoginScreen> {
           await _googleSignIn.signIn();
 
       if (googleSignInAccount == null) return;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: (await googleSignInAccount.authentication).accessToken,
+        idToken: (await googleSignInAccount.authentication).idToken,
+      );
 
       final email = googleSignInAccount.email;
-      checkEmailExists(email);
+      checkEmailExists(email, credential);
     } catch (e) {
       print("Error signing in with Google: $e");
     }
   }
 
-  Future<void> checkEmailExists(String email) async {
+  Future<void> checkEmailExists(String email, AuthCredential credential) async {
     try {
       List<String> signInMethods =
           await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
@@ -87,6 +132,64 @@ class _LoginScreenState extends State<LoginScreen> {
         showSnackbar("Sorry, this mail id is not associated with any account.",
             Colors.red);
       } else {
+        UserCredential userCredentialGoogle =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+
+        User user = userCredentialGoogle.user!;
+        if (user.emailVerified) {
+          // User is verified, proceed with login
+          // ?check user type
+          String uid = userCredentialGoogle.user?.uid ?? "";
+
+          DocumentSnapshot snapshot = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .get();
+
+          if (snapshot.exists) {
+            // Check if the document exists
+            Map<String, dynamic>? data =
+                snapshot.data() as Map<String, dynamic>?;
+
+            if (data != null && data.containsKey('userType')) {
+              String userType = data['userType'];
+              // ?share preferences instance creation
+              final SharedPreferences sharedpreferences =
+                  await SharedPreferences.getInstance();
+              Map<String, dynamic> userSessionData = {
+                'uid': uid,
+                'userType': userType,
+              };
+              sharedpreferences.setString(
+                  "userSessionData", json.encode(userSessionData));
+              // ?End of SharedPreferences
+              if (userType == "admin") {
+                Navigator.popAndPushNamed(context, "admin_screen");
+              } else if (userType == "vendor") {
+                Navigator.popAndPushNamed(context, "vendor_home");
+              } else if (userType == "general_user") {
+                Navigator.popAndPushNamed(context, "user_home");
+              } else {
+                showSnackbar(
+                    ":) Sorry we are unable to proccess your request! ",
+                    Colors.red);
+              }
+            } else {
+              print('User Type not found in the document');
+            }
+          } else {
+            print('Document does not exist');
+          }
+          showSnackbar("Login successful", Colors.green);
+          emailController.clear();
+          passController.clear();
+        } else {
+          // User is not verified, show appropriate message
+          showSnackbar(
+              "Email not verified. Please check your inbox for a verification email.",
+              Colors.orange);
+        }
+
         showSnackbar("Login successful", Colors.green);
       }
     } catch (e) {

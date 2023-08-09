@@ -1,6 +1,8 @@
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/complete_registration.dart';
 import 'package:NearbyNexus/screens/forgot_password.dart';
+import 'package:NearbyNexus/screens/user/screens/user_home.dart';
+import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:NearbyNexus/screens/initial_page.dart';
@@ -34,8 +36,10 @@ class MyApp extends StatelessWidget {
         "registration_screen": (context) => const RegistrationScreen(),
         "complete_registration": (context) => const CompleteRegistration(),
         "login_screen": (context) => const LoginScreen(),
-        "admin_screen": (context) => Dashboard(),
+        "admin_screen": (context) => const Dashboard(),
         "forgot_password_screen": (context) => const ForgotPasswordScreen(),
+        "user_home": (context) => const GeneralUserHome(),
+        "vendor_home": (context) => const VendorHome(),
       },
       initialRoute: "splashScreen",
     );
