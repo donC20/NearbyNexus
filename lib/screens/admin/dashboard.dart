@@ -52,7 +52,8 @@ class Dashboard extends StatelessWidget {
                 flex: 10,
                 child: SafeArea(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 30),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 30, horizontal: 30),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -68,19 +69,19 @@ class Dashboard extends StatelessWidget {
                             alignment: WrapAlignment.spaceBetween,
                             children: [
                               InfoCard(
-                                  icon: 'assets/credit-card.svg',
+                                  icon: 'assets/images/vector/credit-card.svg',
                                   label: 'Transafer via \nCard number',
                                   amount: '\$1200'),
                               InfoCard(
-                                  icon: 'assets/transfer.svg',
+                                  icon: 'assets/images/vector/transfer.svg',
                                   label: 'Transafer via \nOnline Banks',
                                   amount: '\$150'),
                               InfoCard(
-                                  icon: 'assets/bank.svg',
+                                  icon: 'assets/images/vector/bank.svg',
                                   label: 'Transafer \nSame Bank',
                                   amount: '\$1500'),
                               InfoCard(
-                                  icon: 'assets/invoice.svg',
+                                  icon: 'assets/images/vector/invoice.svg',
                                   label: 'Transafer to \nOther Bank',
                                   amount: '\$1500'),
                             ],
@@ -146,7 +147,8 @@ class Dashboard extends StatelessWidget {
                           height: SizeConfig.blockSizeVertical! * 3,
                         ),
                         const HistoryTable(),
-                        if (!Responsive.isDesktop(context)) const PaymentDetailList()
+                        if (!Responsive.isDesktop(context))
+                          const PaymentDetailList()
                       ],
                     ),
                   ),
@@ -158,7 +160,8 @@ class Dashboard extends StatelessWidget {
                   child: Container(
                     width: double.infinity,
                     height: SizeConfig.screenHeight,
-                    decoration: const BoxDecoration(color: AppColors.secondaryBg),
+                    decoration:
+                        const BoxDecoration(color: AppColors.secondaryBg),
                     child: const SingleChildScrollView(
                       padding:
                           EdgeInsets.symmetric(vertical: 30, horizontal: 30),

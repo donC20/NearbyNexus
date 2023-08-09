@@ -50,7 +50,7 @@ class InitialPage extends StatelessWidget {
                   SizedBox(
                     width: MediaQuery.sizeOf(context).width,
                     child: const Image(
-                      image: AssetImage("lib/images/testimage.png"),
+                      image: AssetImage("assets/images/testimage.png"),
                       fit: BoxFit.cover,
                     ),
                   ),

@@ -1,3 +1,4 @@
+import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/complete_registration.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
         "registration_screen": (context) => const RegistrationScreen(),
         "complete_registration": (context) => const CompleteRegistration(),
         "login_screen": (context) => const LoginScreen(),
-        // "admin_screen": (context) => const AdminDashboard(),
+        "admin_screen": (context) => Dashboard(),
       },
       initialRoute: "splashScreen",
     );

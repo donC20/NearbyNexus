@@ -86,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 40),
                 Center(
                   child: Image.asset(
-                    'lib/images/nearbynexus(BL).png', // Replace with your SVG logo path
+                    'assets/images/nearbynexus(BL).png', // Replace with your SVG logo path
                     height: 200,
                   ),
                 ),
@@ -310,7 +310,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Image(
-                            image: AssetImage("lib/icons/google.png"),
+                            image: AssetImage("assets/icons/google.png"),
                           ),
                           SizedBox(width: 5),
                           Text("Login with Google",

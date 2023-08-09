@@ -1,0 +1,17 @@
+<svg width="300" height="300" xmlns="http://www.w3.org/2000/svg">
+ <g id="Layer_1">
+  <title>Layer 1</title>
+  <path id="svg_3" d="m31.6667,417.49996" opacity="NaN" stroke-width="2" stroke="#000000" fill="#000000"/>
+  <path id="svg_5" d="m3.33337,239.16663" opacity="NaN" stroke-width="2" stroke="#000000" fill="#000000"/>
+  <path id="svg_6" d="m140.00003,292.49996" opacity="NaN" stroke-width="2" stroke="#000000" fill="#000000"/>
+  <path fill="#000000" stroke="#000000" stroke-width="2" opacity="undefined" d="m92.35962,92.29174l29.50982,-0.15212l0.61526,106.93345l-30.12508,0.55208l0,-107.3334l0,-0.00001z" id="svg_1"/>
+  <path fill="#000000" stroke="#000000" stroke-width="2" opacity="undefined" d="m134.97512,92.93543l30.00002,0l-0.09983,107.66648l-28.9551,-0.58846l-0.94508,-107.07802l-0.00001,0z" id="svg_2"/>
+  <path fill="#000000" stroke="#000000" stroke-width="2" opacity="undefined" d="m163.28664,64.93178l30.00002,0l0,85.88683l-30.00002,0l0,-85.88683z" id="svg_4" transform="rotate(-90.5594, 178.287, 107.875)"/>
+  <path fill="#000000" stroke="#000000" stroke-width="2" opacity="undefined" transform="rotate(-30.8192, 310.985, -2.11509)" d="m325.98548,-55.78178l0,107.33339l-30.00002,0l30.00002,-107.33339z" id="svg_9"/>
+  <rect fill="#000000" stroke="#000000" stroke-width="2" x="353.36362" y="53.81817" width="0.45455" height="0" id="svg_13"/>
+  <rect fill="#000000" stroke="#000000" stroke-width="2" x="388.0647" y="136.32279" width="0" height="0.64516" id="svg_14"/>
+  <text fill="#000000" stroke="#000000" stroke-width="0" x="177.1111" y="200.32615" id="svg_23" font-size="24" font-family="'Space Grotesk'" text-anchor="start" xml:space="preserve" stroke-dasharray="5,5" font-weight="bold">XS</text>
+  <path fill="#000000" stroke="#000000" stroke-width="2" opacity="undefined" d="m214.51395,194.14306l4.32352,0l0,4.34597l-4.32352,0l0,-4.34597z" id="svg_24"/>
+ </g>
+
+</svg>

@@ -15,68 +15,69 @@ class SideMenu extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: SizeConfig.screenHeight,
-        decoration: BoxDecoration(color: AppColors.secondaryBg),
+        decoration: const BoxDecoration(color: AppColors.secondaryBg),
         child: SingleChildScrollView(
-                  child: Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-             Container(
-               height: 100,
-               alignment: Alignment.topCenter,
-               width: double.infinity,
-               padding: EdgeInsets.only(top: 20),
-               child: SizedBox(
-                    width: 35,
-                    height: 20,
-                    child: SvgPicture.asset('assets/mac-action.svg'),
+              Container(
+                height: 100,
+                alignment: Alignment.topCenter,
+                width: double.infinity,
+                padding: const EdgeInsets.only(top: 20),
+                child: const SizedBox(
+                  width: 70,
+                  height: 70,
+                  child: Image(
+                    image: AssetImage("assets/images/nearbynexus(BL).png"),
                   ),
-             ),
-            
+                ),
+              ),
               IconButton(
                   iconSize: 20,
-                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
                   icon: SvgPicture.asset(
-                    'assets/home.svg',
+                    'assets/images/vector/home.svg',
                     color: AppColors.iconGray,
                   ),
                   onPressed: () {}),
               IconButton(
                   iconSize: 20,
-                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
                   icon: SvgPicture.asset(
-                    'assets/pie-chart.svg',
+                    'assets/images/vector/pie-chart.svg',
                     color: AppColors.iconGray,
                   ),
                   onPressed: () {}),
               IconButton(
                   iconSize: 20,
-                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
                   icon: SvgPicture.asset(
-                    'assets/clipboard.svg',
+                    'assets/images/vector/clipboard.svg',
                     color: AppColors.iconGray,
                   ),
                   onPressed: () {}),
               IconButton(
                   iconSize: 20,
-                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
                   icon: SvgPicture.asset(
-                    'assets/credit-card.svg',
+                    'assets/images/vector/credit-card.svg',
                     color: AppColors.iconGray,
                   ),
                   onPressed: () {}),
               IconButton(
                   iconSize: 20,
-                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
                   icon: SvgPicture.asset(
-                    'assets/trophy.svg',
+                    'assets/images/vector/trophy.svg',
                     color: AppColors.iconGray,
                   ),
                   onPressed: () {}),
               IconButton(
                   iconSize: 20,
-                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
                   icon: SvgPicture.asset(
-                    'assets/invoice.svg',
+                    'assets/images/vector/invoice.svg',
                     color: AppColors.iconGray,
                   ),
                   onPressed: () {}),

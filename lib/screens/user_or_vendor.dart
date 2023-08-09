@@ -13,8 +13,8 @@ class UserOrVendor extends StatelessWidget {
             children: [
               const SizedBox(
                 width: 200,
-                child:
-                    Image(image: AssetImage("lib/images/nearbynexus(BL).png")),
+                child: Image(
+                    image: AssetImage("assets/images/nearbynexus(BL).png")),
               ),
               const Text(
                 "What you need?",

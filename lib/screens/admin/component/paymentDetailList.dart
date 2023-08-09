@@ -28,7 +28,7 @@ class PaymentDetailList extends StatelessWidget {
             ),
           )
         ]),
-        child: Image.asset('assets/card.png'),
+        child: Image.asset('assets/images/vector/card.png'),
       ),
       SizedBox(
         height: SizeConfig.blockSizeVertical! * 5,
