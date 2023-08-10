@@ -10,7 +10,6 @@ import 'package:NearbyNexus/screens/admin/component/sideMenu.dart';
 import 'package:NearbyNexus/screens/admin/config/responsive.dart';
 import 'package:NearbyNexus/screens/admin/config/size_config.dart';
 import 'package:NearbyNexus/screens/admin/style/colors.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -22,9 +21,8 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   int userCount = 0;
   @override
-  void initState()  {
+  void initState() {
     super.initState();
-    
   }
 
   final GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
@@ -69,7 +67,10 @@ class _DashboardState extends State<Dashboard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Header(),
+                        Header(
+                          pageTitle: 'Dashboard',
+                          subText: 'Administration system',
+                        ),
                         SizedBox(height: SizeConfig.blockSizeVertical! * 2),
                         SizedBox(
                           width: SizeConfig.screenWidth,
@@ -157,15 +158,6 @@ class _DashboardState extends State<Dashboard> {
                             ],
                           ),
                         ),
-                        ElevatedButton(
-                            onPressed: () async {
-                              final SharedPreferences sharedpreferences =
-                                  await SharedPreferences.getInstance();
-                              sharedpreferences.remove("userSessionData");
-                              sharedpreferences.remove("uid");
-                              Navigator.popAndPushNamed(context, "login_screen");
-                            },
-                            child: const Text("Logout"))
                       ],
                     ),
                   ),

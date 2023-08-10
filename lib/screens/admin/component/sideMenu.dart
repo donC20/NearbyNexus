@@ -1,7 +1,10 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:NearbyNexus/screens/admin/config/size_config.dart';
 import 'package:NearbyNexus/screens/admin/style/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SideMenu extends StatelessWidget {
   const SideMenu({
@@ -40,7 +43,10 @@ class SideMenu extends StatelessWidget {
                     'assets/images/vector/home.svg',
                     color: AppColors.iconGray,
                   ),
-                  onPressed: () {}),
+                  onPressed: () {
+                    Navigator.popAndPushNamed(context, "admin_screen");
+                    print("buttonclicked");
+                  }),
               IconButton(
                   iconSize: 20,
                   padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -48,7 +54,10 @@ class SideMenu extends StatelessWidget {
                     'assets/images/vector/pie-chart.svg',
                     color: AppColors.iconGray,
                   ),
-                  onPressed: () {}),
+                  onPressed: () {
+                    Navigator.popAndPushNamed(context, "list_users");
+                    print("buttonclicked");
+                  }),
               IconButton(
                   iconSize: 20,
                   padding: const EdgeInsets.symmetric(vertical: 20.0),
@@ -74,13 +83,20 @@ class SideMenu extends StatelessWidget {
                   ),
                   onPressed: () {}),
               IconButton(
-                  iconSize: 20,
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  icon: SvgPicture.asset(
-                    'assets/images/vector/invoice.svg',
-                    color: AppColors.iconGray,
-                  ),
-                  onPressed: () {}),
+                iconSize: 30,
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                icon: SvgPicture.asset(
+                  'assets/images/vector/logout.svg',
+                  color: AppColors.iconGray,
+                ),
+                onPressed: () async {
+                  final SharedPreferences sharedpreferences =
+                      await SharedPreferences.getInstance();
+                  sharedpreferences.remove("userSessionData");
+                  sharedpreferences.remove("uid");
+                  Navigator.popAndPushNamed(context, "login_screen");
+                },
+              ),
             ],
           ),
         ),

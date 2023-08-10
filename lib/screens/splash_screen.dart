@@ -2,12 +2,9 @@
 
 import 'dart:convert';
 
+// ignore: unused_import
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
-import 'package:NearbyNexus/screens/login_screen.dart';
-import 'package:NearbyNexus/screens/user/screens/user_home.dart';
-import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Map<String, dynamic>? initialSession;

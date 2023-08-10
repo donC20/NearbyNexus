@@ -1,4 +1,5 @@
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
+import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/complete_registration.dart';
 import 'package:NearbyNexus/screens/forgot_password.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         "forgot_password_screen": (context) => const ForgotPasswordScreen(),
         "user_home": (context) => const GeneralUserHome(),
         "vendor_home": (context) => const VendorHome(),
+        "list_users": (context) => const ListUsers(),
       },
       initialRoute: "splashScreen",
     );
