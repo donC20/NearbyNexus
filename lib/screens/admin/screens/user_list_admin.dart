@@ -1,3 +1,8 @@
+// ignore_for_file: avoid_print, prefer_const_literals_to_create_immutables
+
+import 'package:NearbyNexus/screens/admin/component/historyTable.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import '../component/appBarActionItems.dart';
 import '../component/header.dart';
@@ -46,11 +51,12 @@ class _ListUsersState extends State<ListUsers> {
                 child: SideMenu(),
               ),
             Expanded(
-                flex: 10,
-                child: SafeArea(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 30),
+              flex: 10,
+              child: SafeArea(
+                child: DefaultTabController(
+                  length: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -59,53 +65,219 @@ class _ListUsersState extends State<ListUsers> {
                           subText:
                               'Manage the users and change their\nusability.',
                         ),
-                        // ?Search bar
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        // Search bar
                         SizedBox(
-                          width: MediaQuery.sizeOf(context).width,
+                          width: MediaQuery.of(context).size.width,
                           child: TextField(
                             decoration: InputDecoration(
-                                filled: true,
-                                fillColor:
-                                    const Color.fromARGB(255, 229, 226, 226),
-                                contentPadding:
-                                    const EdgeInsets.only(left: 40.0, right: 5),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  borderSide:
-                                      const BorderSide(color: AppColors.white),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                  borderSide:
-                                      const BorderSide(color: AppColors.white),
-                                ),
-                                prefixIcon: const Icon(Icons.search,
-                                    color: AppColors.black),
-                                hintText: 'Search',
-                                hintStyle: const TextStyle(
-                                    color: AppColors.secondary, fontSize: 14)),
-                          ),
-                        ),
-
-                        Padding(
-                          padding: EdgeInsetsDirectional.fromSTEB(2, 2, 2, 2),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHByb2ZpbGV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=900&q=60',
-                              width: 120,
-                              height: 120,
-                              fit: BoxFit.cover,
+                              filled: true,
+                              fillColor:
+                                  const Color.fromARGB(255, 229, 226, 226),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 40.0, right: 5),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide:
+                                    const BorderSide(color: AppColors.white),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide:
+                                    const BorderSide(color: AppColors.white),
+                              ),
+                              prefixIcon: const Icon(Icons.search,
+                                  color: AppColors.black),
+                              hintText: 'Search',
+                              hintStyle: const TextStyle(
+                                  color: AppColors.secondary, fontSize: 14),
                             ),
                           ),
-                        )
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        // Tab bar screens
+                        TabBar(
+                          onTap: (index) {
+                            if (index == 0) {
+                            } else if (index == 1) {
+                            } else if (index == 2) {}
+                          },
+                          labelColor: const Color.fromARGB(255, 118, 115, 115),
+                          tabs: [
+                            const Tab(text: 'All'),
+                            const Tab(text: 'Users'),
+                            const Tab(text: 'Vendors'),
+                          ],
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            children: [
+                              _buildTab1Content(),
+                              _buildTab2Content(),
+                              _buildTab3Content(),
+                            ],
+                          ),
+                        ),
+                        // populate users
                       ],
                     ),
                   ),
-                )),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+}
+
+// ?User tile model
+
+// ignore: must_be_immutable
+class UserTile extends StatelessWidget {
+  String name;
+  String email;
+  String imgUrl;
+  UserTile(
+      {super.key,
+      required this.name,
+      required this.email,
+      required this.imgUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 60,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundImage:
+              NetworkImage(imgUrl), // Replace with the actual image URL
+        ),
+        title: Text(name),
+        subtitle: Text(email), // Replace
+      ),
+    );
+  }
+}
+
+// ! Firebase fetching all users
+Widget _buildTab1Content() {
+  return StreamBuilder<QuerySnapshot>(
+    stream: FirebaseFirestore.instance.collection('users').snapshots(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const CircularProgressIndicator();
+      }
+
+      if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      }
+
+      // Data is ready
+      final users = snapshot.data!.docs; // List of QueryDocumentSnapshot
+
+      return ListView.separated(
+        itemCount: users.length,
+        itemBuilder: (context, index) {
+          final user = users[index].data() as Map<String, dynamic>;
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: UserTile(
+              name: user['name'],
+              email: user['emailId'],
+              imgUrl: user['image'],
+            ),
+          );
+        },
+        separatorBuilder: (context, index) => const Divider(
+          color: Color.fromARGB(150, 158, 158, 158),
+        ),
+      );
+    },
+  );
+}
+
+// ! Firebase fetching all normal users
+Widget _buildTab2Content() {
+  return StreamBuilder<QuerySnapshot>(
+    stream: FirebaseFirestore.instance
+        .collection('users')
+        .where('userType', isEqualTo: 'general_user')
+        .snapshots(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const CircularProgressIndicator();
+      }
+
+      if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      }
+
+      // Data is ready
+      final users = snapshot.data!.docs; // List of QueryDocumentSnapshot
+
+      return ListView.separated(
+        itemCount: users.length,
+        itemBuilder: (context, index) {
+          final user = users[index].data() as Map<String, dynamic>;
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: UserTile(
+              name: user['name'],
+              email: user['emailId'],
+              imgUrl: user['image'],
+            ),
+          );
+        },
+        separatorBuilder: (context, index) => const Divider(
+          color: Color.fromARGB(150, 158, 158, 158),
+        ),
+      );
+    },
+  );
+}
+
+// ! Firebase fetching all vendors
+Widget _buildTab3Content() {
+  return StreamBuilder<QuerySnapshot>(
+    stream: FirebaseFirestore.instance
+        .collection('users')
+        .where('userType', isEqualTo: 'vendor')
+        .snapshots(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const CircularProgressIndicator();
+      }
+
+      if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      }
+
+      // Data is ready
+      final users = snapshot.data!.docs; // List of QueryDocumentSnapshot
+
+      return ListView.separated(
+        itemCount: users.length,
+        itemBuilder: (context, index) {
+          final user = users[index].data() as Map<String, dynamic>;
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: UserTile(
+              name: user['name'],
+              email: user['emailId'],
+              imgUrl: user['image'],
+            ),
+          );
+        },
+        separatorBuilder: (context, index) => const Divider(
+          color: Color.fromARGB(150, 158, 158, 158),
+        ),
+      );
+    },
+  );
 }
