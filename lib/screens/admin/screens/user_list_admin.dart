@@ -143,32 +143,56 @@ class UserTile extends StatelessWidget {
   String name;
   String email;
   String imgUrl;
+  String status;
   UserTile(
       {super.key,
       required this.name,
       required this.email,
-      required this.imgUrl});
+      required this.imgUrl,
+      required this.status});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 60,
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundImage:
-              NetworkImage(imgUrl), // Replace with the actual image URL
-        ),
-        title: Text(name),
-        subtitle: Text(email), // Replace
-      ),
-    );
+        height: 60,
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundImage:
+                NetworkImage(imgUrl), // Replace with the actual image URL
+          ),
+          title: Text(name),
+          subtitle: Text(email),
+          trailing: Container(
+            width: 60,
+            height: 30,
+            decoration: BoxDecoration(
+                color: status == "active" ? Colors.green[200] : Colors.red[200],
+                borderRadius: BorderRadius.circular(25)),
+            child: Align(
+              alignment: Alignment.center,
+              child: Text(convertToSentenceCase(status),
+                  style: const TextStyle(fontSize: 12, color: Colors.white)),
+            ),
+          ),
+        ));
   }
+}
+
+// ?string convertot
+String convertToSentenceCase(String input) {
+  if (input.isEmpty) {
+    return input;
+  }
+  return input[0].toUpperCase() + input.substring(1).toLowerCase();
 }
 
 // ! Firebase fetching all users
 Widget _buildTab1Content() {
   return StreamBuilder<QuerySnapshot>(
-    stream: FirebaseFirestore.instance.collection('users').snapshots(),
+    stream: FirebaseFirestore.instance
+        .collection('users')
+        .where('userType', isNotEqualTo: 'admin')
+        .snapshots(),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
         return const CircularProgressIndicator();
@@ -185,12 +209,16 @@ Widget _buildTab1Content() {
         itemCount: users.length,
         itemBuilder: (context, index) {
           final user = users[index].data() as Map<String, dynamic>;
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: UserTile(
-              name: user['name'],
-              email: user['emailId'],
-              imgUrl: user['image'],
+          return InkWell(
+            onTap: () {},
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: UserTile(
+                name: user['name'],
+                email: user['emailId'],
+                imgUrl: user['image'],
+                status: user['status'],
+              ),
             ),
           );
         },
@@ -231,6 +259,7 @@ Widget _buildTab2Content() {
               name: user['name'],
               email: user['emailId'],
               imgUrl: user['image'],
+              status: user['status'],
             ),
           );
         },
@@ -271,6 +300,7 @@ Widget _buildTab3Content() {
               name: user['name'],
               email: user['emailId'],
               imgUrl: user['image'],
+              status: user['status'],
             ),
           );
         },
