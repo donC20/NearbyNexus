@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,6 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final emailController = TextEditingController();
   final passController = TextEditingController();
+  bool isLoading = false;
+  bool isButtonDisabled = false;
   // snack bar
   void showSnackbar(String message, Color backgroundColor) {
     final snackBar = SnackBar(
@@ -41,6 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
       User user = loginEpCredentials.user!;
       if (user.emailVerified) {
         // User is verified, proceed with login
+
         // ?check user type
         String uid = loginEpCredentials.user?.uid ?? "";
 
@@ -70,6 +74,10 @@ class _LoginScreenState extends State<LoginScreen> {
             } else if (userType == "general_user") {
               Navigator.popAndPushNamed(context, "user_home");
             } else {
+              setState(() {
+                isLoading = false;
+                isButtonDisabled = false;
+              });
               showSnackbar(":) Sorry we are unable to proccess your request! ",
                   Colors.red);
             }
@@ -83,6 +91,10 @@ class _LoginScreenState extends State<LoginScreen> {
         emailController.clear();
         passController.clear();
       } else {
+        setState(() {
+          isLoading = false;
+          isButtonDisabled = false;
+        });
         // User is not verified, show appropriate message
         showSnackbar(
             "Email not verified. Please check your inbox for a verification email.",
@@ -98,6 +110,10 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         errorMessage = "Error: ${error.toString()}";
       }
+      setState(() {
+        isLoading = false;
+        isButtonDisabled = false;
+      });
       showSnackbar(errorMessage, Colors.red);
     }
   }
@@ -185,9 +201,9 @@ class _LoginScreenState extends State<LoginScreen> {
           passController.clear();
         } else {
           // User is not verified, show appropriate message
-          showSnackbar(
-              "Email not verified. Please check your inbox for a verification email.",
-              Colors.orange);
+          // setState(() {
+          //   isLoading = false;
+          // });
         }
 
         showSnackbar("Login successful", Colors.green);
@@ -330,42 +346,53 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: SizedBox(
                     height: 60,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Navigator.pushNamed(context, "user_or_vendor");
-                        if (_formField.currentState!.validate()) {
-                          // user logion validation
-                          signInWithEmailAndPasswordAndCheckEmailVerification();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        textStyle: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        backgroundColor: const Color(0xFF25211E),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    "Continue",
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ],
-                            ),
+                    child: IgnorePointer(
+                      ignoring: isButtonDisabled,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Navigator.pushNamed(context, "user_or_vendor");
+                          if (_formField.currentState!.validate()) {
+                            // user logion validation
+                            signInWithEmailAndPasswordAndCheckEmailVerification();
+                            setState(() {
+                              isLoading = true;
+                              isButtonDisabled = true;
+                            });
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          textStyle: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
                           ),
-                          Icon(Icons.arrow_right),
-                        ],
+                          backgroundColor: const Color(0xFF25211E),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  isLoading == true
+                                      ? LoadingAnimationWidget
+                                          .staggeredDotsWave(
+                                              color: Colors.white, size: 50)
+                                      : const Flexible(
+                                          child: Text(
+                                            "Continue",
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                ],
+                              ),
+                            ),
+                            Icon(Icons.arrow_right),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -451,12 +478,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
 
                 const SizedBox(height: 20),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, "admin_screen");
-                    },
-                    child: const Text("Administrator")),
-                const SizedBox(height: 20),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:NearbyNexus/screens/admin/config/size_config.dart';
 import 'package:NearbyNexus/screens/admin/style/colors.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SideMenu extends StatelessWidget {
@@ -13,6 +14,7 @@ class SideMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final GoogleSignIn _googleSignIn = GoogleSignIn();
     return Drawer(
       elevation: 0,
       child: Container(
@@ -95,6 +97,7 @@ class SideMenu extends StatelessWidget {
                   sharedpreferences.remove("userSessionData");
                   sharedpreferences.remove("uid");
                   Navigator.popAndPushNamed(context, "login_screen");
+                  await _googleSignIn.signOut();
                 },
               ),
             ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VendorHome extends StatefulWidget {
@@ -9,6 +10,7 @@ class VendorHome extends StatefulWidget {
 }
 
 class _VendorHomeState extends State<VendorHome> {
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,6 +25,7 @@ class _VendorHomeState extends State<VendorHome> {
                   sharedpreferences.remove("userSessionData");
                   sharedpreferences.remove("uid");
                   Navigator.popAndPushNamed(context, "login_screen");
+                  await _googleSignIn.signOut();
                 },
                 child: const Text("Logout"))
           ],

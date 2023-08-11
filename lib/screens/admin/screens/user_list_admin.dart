@@ -19,6 +19,7 @@ class ListUsers extends StatefulWidget {
 
 class _ListUsersState extends State<ListUsers> {
   final GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -186,6 +187,97 @@ String convertToSentenceCase(String input) {
   return input[0].toUpperCase() + input.substring(1).toLowerCase();
 }
 
+// ?model box
+void _showModal(BuildContext context, String uid) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        child: Container(
+          // padding: const EdgeInsets.all(16.0),
+          width: MediaQuery.sizeOf(context).width, // Custom width
+          height: MediaQuery.sizeOf(context).height - 400, // Custom height
+          decoration: const BoxDecoration(
+            color: Colors.white,
+          ),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 150,
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Positioned(
+                      top: 0,
+                      child: Container(
+                        width: MediaQuery.sizeOf(context).width,
+                        height: 100,
+                        decoration: const BoxDecoration(
+                          color: Color.fromARGB(255, 76, 76, 209),
+                        ),
+                      ),
+                    ),
+                    const Positioned(
+                      top: 50,
+                      child: SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: CircleAvatar(
+                          backgroundImage: NetworkImage(
+                              "https://images.unsplash.com/photo-1668732038385-1717f3c72b6d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDE0fHx8ZW58MHx8fHx8&w=1000&q=80"), // Replace with the actual image URL
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Text(
+                'Name',
+                style: TextStyle(
+                  fontFamily: 'Plus Jakarta Sans',
+                  color: Color(0xFF57636C),
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(24, 4, 24, 0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Name',
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        color: Color(0xFF57636C),
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    Text(
+                      'Somename',
+                      style: TextStyle(
+                        fontFamily: 'Plus Jakarta Sans',
+                        color: Color(0xFF57636C),
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
 // ! Firebase fetching all users
 Widget _buildTab1Content() {
   return StreamBuilder<QuerySnapshot>(
@@ -209,8 +301,11 @@ Widget _buildTab1Content() {
         itemCount: users.length,
         itemBuilder: (context, index) {
           final user = users[index].data() as Map<String, dynamic>;
+          final documentId = users[index].id;
           return InkWell(
-            onTap: () {},
+            onTap: () {
+              _showModal(context, documentId);
+            },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: UserTile(

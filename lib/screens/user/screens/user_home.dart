@@ -1,4 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class GeneralUserHome extends StatefulWidget {
@@ -9,6 +12,7 @@ class GeneralUserHome extends StatefulWidget {
 }
 
 class _GeneralUserHomeState extends State<GeneralUserHome> {
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,6 +27,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                   sharedpreferences.remove("userSessionData");
                   sharedpreferences.remove("uid");
                   Navigator.popAndPushNamed(context, "login_screen");
+                  await _googleSignIn.signOut();
                 },
                 child: const Text("Logout"))
           ],
