@@ -1,4 +1,4 @@
-class GeneralUser {
+class UserModel {
   final String? id;
   final String? name;
   final String? emailId;
@@ -9,7 +9,7 @@ class GeneralUser {
   final String? currentGeoLocation;
   final String? userType;
 
-  const GeneralUser(
+  const UserModel(
       {this.id,
       required this.name,
       required this.emailId,

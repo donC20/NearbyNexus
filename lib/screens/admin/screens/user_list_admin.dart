@@ -1,8 +1,6 @@
-// ignore_for_file: avoid_print, prefer_const_literals_to_create_immutables
+// ignore_for_file: avoid_print, prefer_const_literals_to_create_immutables, must_be_immutable
 
-import 'package:NearbyNexus/screens/admin/component/historyTable.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import '../component/appBarActionItems.dart';
 import '../component/header.dart';
@@ -19,6 +17,8 @@ class ListUsers extends StatefulWidget {
 
 class _ListUsersState extends State<ListUsers> {
   final GlobalKey<ScaffoldState> _drawerKey = GlobalKey();
+
+  bool isDataFound = false;
 
   @override
   Widget build(BuildContext context) {
@@ -193,89 +193,231 @@ void _showModal(BuildContext context, String uid) {
     context: context,
     builder: (BuildContext context) {
       return Dialog(
-        child: Container(
-          // padding: const EdgeInsets.all(16.0),
-          width: MediaQuery.sizeOf(context).width, // Custom width
-          height: MediaQuery.sizeOf(context).height - 400, // Custom height
-          decoration: const BoxDecoration(
-            color: Colors.white,
-          ),
-          child: Column(
-            children: [
-              SizedBox(
-                height: 150,
-                child: Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    Positioned(
-                      top: 0,
-                      child: Container(
-                        width: MediaQuery.sizeOf(context).width,
-                        height: 100,
-                        decoration: const BoxDecoration(
-                          color: Color.fromARGB(255, 76, 76, 209),
+          child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Container(
+            // padding: const EdgeInsets.all(16.0),
+            width: MediaQuery.sizeOf(context).width, // Custom width
+            decoration: const BoxDecoration(
+              color: Colors.white,
+            ),
+            child: StreamBuilder<DocumentSnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(uid)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+
+                  if (!snapshot.hasData || !snapshot.data!.exists) {
+                    return const Text('Document does not exist.');
+                  }
+                  // Data is ready
+                  var userData = snapshot.data!.data() as Map<String, dynamic>;
+                  var name = userData['name'] ?? '';
+                  var email = userData['emailId'] ?? '';
+                  var location = userData['geoLocation'] ?? '';
+                  var imageUrl = userData['image'] ?? '';
+                  var phone = userData['phone']?.toString() ?? '';
+                  var status = userData['status'] ?? '';
+                  return Column(
+                    children: [
+                      SizedBox(
+                        height: 150,
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            Positioned(
+                              top: 0,
+                              child: Container(
+                                width: MediaQuery.sizeOf(context).width,
+                                height: 100,
+                                decoration: const BoxDecoration(
+                                  color: Color.fromARGB(255, 76, 76, 209),
+                                ),
+                              ),
+                            ),
+                            Positioned(
+                              top: 50,
+                              child: SizedBox(
+                                width: 100,
+                                height: 100,
+                                child: CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                      imageUrl), // Replace with the actual image URL
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    const Positioned(
-                      top: 50,
-                      child: SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: CircleAvatar(
-                          backgroundImage: NetworkImage(
-                              "https://images.unsplash.com/photo-1668732038385-1717f3c72b6d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDE0fHx8ZW58MHx8fHx8&w=1000&q=80"), // Replace with the actual image URL
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 25),
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            'User propreties',
+                            style: TextStyle(
+                              fontFamily: 'Plus Jakarta Sans',
+                              color: Color.fromARGB(255, 116, 118, 120),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const Text(
-                'Name',
-                style: TextStyle(
-                  fontFamily: 'Plus Jakarta Sans',
-                  color: Color(0xFF57636C),
-                  fontSize: 14,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(24, 4, 24, 0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Name',
-                      style: TextStyle(
-                        fontFamily: 'Plus Jakarta Sans',
-                        color: Color(0xFF57636C),
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
+                      Padding(
+                        padding:
+                            const EdgeInsetsDirectional.fromSTEB(24, 4, 24, 0),
+                        child: Column(
+                          children: [
+                            ModalTextTiles(
+                              title: "Name",
+                              attribute: name,
+                            ),
+                            const SizedBox(
+                              height: 15,
+                            ),
+                            ModalTextTiles(
+                              title: "Email",
+                              attribute: email,
+                            ),
+                            const SizedBox(
+                              height: 15,
+                            ),
+                            ModalTextTiles(
+                              title: "Location",
+                              attribute: location,
+                            ),
+                            const SizedBox(
+                              height: 15,
+                            ),
+                            ModalTextTiles(
+                              title: "Phone",
+                              attribute: phone,
+                            ),
+                            const SizedBox(
+                              height: 15,
+                            ),
+                            ModalTextTiles(
+                              title: "Status",
+                              attribute: status,
+                            ),
+                            const SizedBox(
+                              height: 15,
+                            ),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 130,
+                                  height: 50,
+                                  child: ElevatedButton(
+                                    onPressed: () {},
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.amber[300],
+                                    ),
+                                    child: const Text("Disable user"),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 30,
+                                ),
+                                SizedBox(
+                                  width: 130,
+                                  height: 50,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title:
+                                                const Text("Confirm Deletion"),
+                                            content: const Text(
+                                              "This action will remove the user completely from the application. Do you want to continue?",
+                                            ),
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.of(context)
+                                                      .pop(); // Close the dialog
+                                                },
+                                                child: const Text("Cancel"),
+                                              ),
+                                              TextButton(
+                                                onPressed: () async {},
+                                                child: const Text("Continue"),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          const Color.fromARGB(255, 241, 34, 3),
+                                    ),
+                                    child: const Text("Remove user"),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Somename',
-                      style: TextStyle(
-                        fontFamily: 'Plus Jakarta Sans',
-                        color: Color(0xFF57636C),
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
+                    ],
+                  );
+                }),
           ),
         ),
-      );
+      ));
     },
   );
+}
+// ?modal box text tiles
+
+class ModalTextTiles extends StatelessWidget {
+  String title;
+  String attribute;
+  ModalTextTiles({super.key, required this.title, required this.attribute});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            color: Color(0xFF57636C),
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          attribute,
+          style: const TextStyle(
+            fontFamily: 'Plus Jakarta Sans',
+            color: Color(0xFF57636C),
+            fontSize: 14,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 // ! Firebase fetching all users
@@ -287,21 +429,28 @@ Widget _buildTab1Content() {
         .snapshots(),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return const CircularProgressIndicator();
+        return const Center(child: CircularProgressIndicator());
       }
 
       if (snapshot.hasError) {
         return Text('Error: ${snapshot.error}');
       }
 
-      // Data is ready
       final users = snapshot.data!.docs; // List of QueryDocumentSnapshot
+
+      if (users.isEmpty) {
+        return const Center(
+          child: Text("No users found!"),
+        );
+      }
 
       return ListView.separated(
         itemCount: users.length,
         itemBuilder: (context, index) {
           final user = users[index].data() as Map<String, dynamic>;
           final documentId = users[index].id;
+          print("user is $user");
+
           return InkWell(
             onTap: () {
               _showModal(context, documentId);
@@ -334,7 +483,7 @@ Widget _buildTab2Content() {
         .snapshots(),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return const CircularProgressIndicator();
+        return const Center(child: CircularProgressIndicator());
       }
 
       if (snapshot.hasError) {
@@ -343,18 +492,30 @@ Widget _buildTab2Content() {
 
       // Data is ready
       final users = snapshot.data!.docs; // List of QueryDocumentSnapshot
+      if (users.isEmpty) {
+        return const Center(
+          child: Text("No users found!"),
+        );
+      }
 
       return ListView.separated(
         itemCount: users.length,
         itemBuilder: (context, index) {
           final user = users[index].data() as Map<String, dynamic>;
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: UserTile(
-              name: user['name'],
-              email: user['emailId'],
-              imgUrl: user['image'],
-              status: user['status'],
+          final documentId = users[index].id;
+
+          return InkWell(
+            onTap: () {
+              _showModal(context, documentId);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: UserTile(
+                name: user['name'],
+                email: user['emailId'],
+                imgUrl: user['image'],
+                status: user['status'],
+              ),
             ),
           );
         },
@@ -375,7 +536,7 @@ Widget _buildTab3Content() {
         .snapshots(),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return const CircularProgressIndicator();
+        return const Center(child: CircularProgressIndicator());
       }
 
       if (snapshot.hasError) {
@@ -384,18 +545,30 @@ Widget _buildTab3Content() {
 
       // Data is ready
       final users = snapshot.data!.docs; // List of QueryDocumentSnapshot
+      if (users.isEmpty) {
+        return const Center(
+          child: Text("No users found!"),
+        );
+      }
 
       return ListView.separated(
         itemCount: users.length,
         itemBuilder: (context, index) {
           final user = users[index].data() as Map<String, dynamic>;
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: UserTile(
-              name: user['name'],
-              email: user['emailId'],
-              imgUrl: user['image'],
-              status: user['status'],
+          final documentId = users[index].id;
+
+          return InkWell(
+            onTap: () {
+              _showModal(context, documentId);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: UserTile(
+                name: user['name'],
+                email: user['emailId'],
+                imgUrl: user['image'],
+                status: user['status'],
+              ),
             ),
           );
         },
