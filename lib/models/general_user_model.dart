@@ -8,6 +8,7 @@ class UserModel {
   final String? image;
   final String? currentGeoLocation;
   final String? userType;
+  final String? status;
 
   const UserModel(
       {this.id,
@@ -18,6 +19,7 @@ class UserModel {
       required this.longitude,
       required this.image,
       required this.userType,
+      required this.status,
       required this.currentGeoLocation});
 
   toJson() {
@@ -28,7 +30,8 @@ class UserModel {
       "latitude": latitude,
       "longitude": longitude,
       "image": image,
-      "userType":userType,
+      "userType": userType,
+      "status": status,
       "geoLocation": currentGeoLocation,
     };
   }

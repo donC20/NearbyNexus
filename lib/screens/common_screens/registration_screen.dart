@@ -566,7 +566,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     TextButton(
                       onPressed: () {
                         Navigator.popAndPushNamed(
-                            context, "complete_registration_user");
+                            context, "complete_registration_vendor");
                       },
                       child: Text(
                         'test scrren',
