@@ -13,6 +13,7 @@ class VendorModel {
   final String? description;
   final List<String>? services;
   final List<String>? worksDone;
+  final String govDocs;
 
   const VendorModel({
     this.id,
@@ -29,6 +30,7 @@ class VendorModel {
     this.description,
     this.services,
     this.worksDone,
+    required this.govDocs,
   });
 
   toJson() {
@@ -45,6 +47,7 @@ class VendorModel {
       "subscription": subscribers,
       "description": description,
       "services": services,
+      "govDocs": govDocs,
       "worksDone": worksDone,
     };
   }

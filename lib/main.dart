@@ -14,6 +14,7 @@ import 'screens/common_screens/login_screen.dart';
 import 'screens/common_screens/registration_screen.dart';
 import 'screens/common_screens/splash_screen.dart';
 import 'screens/common_screens/user_or_vendor.dart';
+import 'screens/common_screens/vendor_final_reg_form.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
             const CompleteRegistrationByUser(),
         "complete_registration_vendor": (context) =>
             const CompleteRegistrationByvendor(),
+        "final_form_vendor": (context) => const FinalSubmitFormVendor(),
         "login_screen": (context) => const LoginScreen(),
         "admin_screen": (context) => const Dashboard(),
         "forgot_password_screen": (context) => const ForgotPasswordScreen(),

@@ -30,7 +30,6 @@ class _CompleteRegistrationByvendorState
   bool showErrorDp = false;
   bool isLoading = false;
   bool isloadingLocation = true;
-  bool _isChecked = false;
   String? errorMessage = "Error";
   String userType = "general_user";
   Color borderColor = Colors.black26;
@@ -40,9 +39,8 @@ class _CompleteRegistrationByvendorState
   final _agecontroller = TextEditingController();
   String? selectedValue;
   File? _profileImage;
-  String? _imageUrl;
 
-  TextEditingController _dateController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -176,62 +174,6 @@ class _CompleteRegistrationByvendorState
     Map<String, dynamic>? userTransferdData =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     // _nameController.text = userTransferdData?['name'];
-    // Future<void> submitApplication(
-    //     String name,
-    //     String emailId,
-    //     int phone,
-    //     double latitude,
-    //     double longitude,
-    //     String userType,
-    //     String currentGeoLocation) async {
-    //   // ?check if the user uploaded image
-    //   if (_profileImage != null) {
-    //     try {
-    //       Reference ref = FirebaseStorage.instance
-    //           .ref()
-    //           .child('profile_images/dp-${userTransferdData?['uid']}.jpg');
-    //       UploadTask uploadTask = ref.putFile(_profileImage!);
-    //       TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
-    //       String downloadUrl = await snapshot.ref.getDownloadURL();
-
-    //       setState(() {
-    //         _imageUrl = downloadUrl;
-    //       });
-
-    //       print('Image uploaded: $_imageUrl');
-    //     } catch (error) {
-    //       print('Image upload error: $error');
-    //     }
-    //   }
-    //   UserModel user = UserModel(
-    //       name: name,
-    //       emailId: emailId,
-    //       phone: phone,
-    //       latitude: latitude,
-    //       longitude: longitude,
-    //       image: _imageUrl,
-    //       userType: userType,
-    //       currentGeoLocation: currentGeoLocation,
-    //       status: 'active');
-    //   Map<String, dynamic> userData = user.toJson();
-    //   String uid = userTransferdData?['uid'];
-    //   await FirebaseFirestore.instance
-    //       .collection('users')
-    //       .doc(uid)
-    //       .set(userData)
-    //       .then((value) {
-    //     // insert success
-    //     showSnackbar("Registration Successful", Colors.green);
-    //     Navigator.popAndPushNamed(context, "login_screen");
-    //     setState(() {
-    //       isLoading = false;
-    //     });
-    //   }).catchError((error) {
-    //     // insert error
-    //     showSnackbar(error.message, Colors.red);
-    //   });
-    // }
-
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
@@ -318,57 +260,68 @@ class _CompleteRegistrationByvendorState
                   ),
                   const SizedBox(height: 30),
                   FormFeildCustom(
-                      customController: _nameController,
-                      hintText: "Eg. Jhon Doe",
-                      labelText: "What do we call you?",
-                      inputType: TextInputType.name),
+                    customController: _nameController,
+                    hintText: "Eg. Jhon Doe",
+                    labelText: "What do we call you?",
+                    inputType: TextInputType.name,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "You left this field empty!";
+                      }
+                      bool nameRegex = RegExp(r'^[a-zA-Z]{3,}(?: [a-zA-Z]+)*$')
+                          .hasMatch(value);
+                      if (!nameRegex) {
+                        return "Must contain atleast 3 characters & avoid any numbers.";
+                      }
+                      return null;
+                    },
+                  ),
                   FormFeildCustom(
                     customController: _phoneController,
                     labelText: "What is your contact number?",
                     hintText: "+91 7845926457",
                     inputType: TextInputType.number,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "You left this field empty!";
+                      }
+                      bool passwordRegex =
+                          RegExp(r'^[6789]\d{9}$').hasMatch(value);
+                      if (!passwordRegex) {
+                        return "Invalid phone number.";
+                      }
+                      return null;
+                    },
+                  ),
+                  FormFeildCustom(
+                    customController: _dateController,
+                    labelText: "When is your birthday",
+                    hintText: "Choose a date",
+                    inputType: TextInputType.datetime,
+                    onTap: () => _selectDate(context),
+                    readOnly: true,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "You left this field empty!";
+                      }
+
+                      return null;
+                    },
                   ),
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: TextFormField(
-                      controller: _dateController,
-                      readOnly: true,
-                      onTap: () => _selectDate(context),
-                      keyboardType: TextInputType.datetime,
-                      style: GoogleFonts.poppins(color: Colors.black),
-                      decoration: InputDecoration(
-                        labelText: 'When is your birthday',
-                        contentPadding:
-                            const EdgeInsets.only(left: 25, bottom: 35),
-                        hintText: 'Choose a date',
-                        hintStyle:
-                            const TextStyle(color: Colors.grey, fontSize: 14),
-                        labelStyle: const TextStyle(
-                            color: Color.fromARGB(182, 0, 0, 0), fontSize: 14),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(50),
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(166, 158, 158, 158),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(166, 158, 158, 158),
-                          ),
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
                   FormFeildCustom(
                     customController: _agecontroller,
                     labelText: "What is your age?",
                     hintText: "Eg. 21",
                     inputType: TextInputType.number,
+                    readOnly: true,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "You left this field empty!";
+                      }
+
+                      return null;
+                    },
                   ),
 
                   Padding(
@@ -420,21 +373,16 @@ class _CompleteRegistrationByvendorState
                           borderRadius: BorderRadius.circular(50),
                         ),
                       ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "You left this field empty!";
+                        }
+
+                        return null;
+                      },
                     ),
                   ),
 
-                  const SizedBox(height: 5),
-                  CheckboxListTile(
-                    title: const Text("I agree to the terms and conditions"),
-                    value: _isChecked,
-                    onChanged: (newValue) {
-                      setState(() {
-                        _isChecked = newValue ?? false;
-                      });
-                    },
-                    controlAffinity: ListTileControlAffinity
-                        .leading, // Checkbox appears before the title
-                  ),
                   const SizedBox(height: 15),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -445,34 +393,40 @@ class _CompleteRegistrationByvendorState
                             ? null
                             : () {
                                 print(_agecontroller.text);
-                                // if (_profileImage == null) {
-                                //   // Show error message in TextFormField
-                                //   setState(() {
-                                //     showErrorDp = true;
-                                //     borderColor = Colors.red;
-                                //     errorMessage = "Please choose an image";
-                                //   });
-                                // } else {
-                                //   setState(() {
-                                //     showErrorDp = false;
-                                //     borderColor = Colors.black26;
-                                //   });
-                                // }
+                                if (_profileImage == null) {
+                                  // Show error message in TextFormField
+                                  setState(() {
+                                    showErrorDp = true;
+                                    borderColor = Colors.red;
+                                    errorMessage = "Please choose an image";
+                                  });
+                                } else {
+                                  setState(() {
+                                    showErrorDp = false;
+                                    borderColor = Colors.black26;
+                                  });
+                                }
 
-                                // if (_fieldKey.currentState!.validate() &&
-                                //     _profileImage != null) {
-                                //   setState(() {
-                                //     isLoading = true;
-                                //   });
-                                //   submitApplication(
-                                //       _nameController.text,
-                                //       userTransferdData?['email'],
-                                //       int.parse(_phoneController.text),
-                                //       0.0,
-                                //       0.0,
-                                //       "general_user",
-                                //       _locationController.text);
-                                // }
+                                if (_fieldKey.currentState!.validate() &&
+                                    _profileImage != null) {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  Map<String, dynamic> vendorInitialData;
+                                  vendorInitialData = {
+                                    "uid": userTransferdData?["uid"],
+                                    "name": _nameController.text,
+                                    "phone": _phoneController.text,
+                                    "email": userTransferdData?["email"],
+                                    "imageData": _profileImage,
+                                    "dob": _dateController.text,
+                                    "age": _agecontroller.text,
+                                    "location": _locationController.text
+                                  };
+                                  Navigator.popAndPushNamed(
+                                      context, "final_form_vendor",
+                                      arguments: vendorInitialData);
+                                }
                               },
                         style: ElevatedButton.styleFrom(
                           textStyle: const TextStyle(
@@ -526,8 +480,11 @@ class FormFeildCustom extends StatelessWidget {
   final TextEditingController customController;
   final String hintText;
   final String labelText;
+  final Widget prefix, suffix;
   TextInputType? inputType = TextInputType.text;
   final String? Function(String?)? validator;
+  bool readOnly;
+  final VoidCallback? onTap;
 
   FormFeildCustom({
     Key? key,
@@ -536,6 +493,10 @@ class FormFeildCustom extends StatelessWidget {
     required this.labelText,
     this.inputType,
     this.validator,
+    this.prefix = const SizedBox(),
+    this.suffix = const SizedBox(),
+    this.readOnly = false,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -547,8 +508,12 @@ class FormFeildCustom extends StatelessWidget {
           TextFormField(
             controller: customController,
             keyboardType: inputType,
+            readOnly: readOnly,
+            onTap: onTap, // Use the provided onTap function
             style: GoogleFonts.poppins(color: Colors.black),
             decoration: InputDecoration(
+              prefix: prefix,
+              suffix: suffix,
               labelText: labelText,
               contentPadding: const EdgeInsets.only(left: 25, bottom: 35),
               hintText: hintText,
