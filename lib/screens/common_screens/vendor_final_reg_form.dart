@@ -1,18 +1,12 @@
-// ignore_for_file: avoid_print, unused_element
+// ignore_for_file: avoid_print, unused_element, non_constant_identifier_names
 
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-
-import 'complete_registration_vendor.dart';
 
 class FinalSubmitFormVendor extends StatefulWidget {
   const FinalSubmitFormVendor({super.key});
@@ -27,43 +21,15 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
   bool showError = false;
   bool showErrorDp = false;
   bool isLoading = false;
-  bool _isChecked = false;
-  String? errorMessage = "Error";
-  Color borderColor = Colors.black26;
-  String? selectedValue;
-  File? _profileImage;
-  String? _imageUrl;
 
-  final TextEditingController _dateController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> _searchResults = [];
   @override
   void initState() {
     super.initState();
+    _onSearchChanged();
     _searchController.addListener(_onSearchChanged);
   }
-
-  @override
-  void dispose() {
-    _dateController.dispose();
-    super.dispose();
-  }
-
-//? ------------------------Function for picking profile image----------------------------------------
-
-  Future<void> _pickImage() async {
-    // function used to pick image dp
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _profileImage = File(pickedFile.path);
-      });
-    }
-  }
-
-//? --------------------------Function ends--------------------------------------
 
   Future<bool> _onBackPressed() async {
     // back pressed button event
@@ -146,17 +112,37 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
     String keyword = _searchController.text;
     List results = await searchServices(keyword);
     setState(() {
-      _searchResults = results.isEmpty ? ["No results found. 🥺"] : results;
+      _searchResults = results.isEmpty ? ["No results found 🥺"] : results;
     });
   }
 
   final List<String> _selectedItems = [];
 
   void _addToSelectedItems(String item) {
-    setState(() {
-      _selectedItems.add(item);
-    });
+    bool isAlreadyAdded = false;
+
+    for (dynamic service in _selectedItems) {
+      if (service.toString() == item) {
+        isAlreadyAdded = true;
+        break;
+      }
+    }
+
+    if (!isAlreadyAdded) {
+      setState(() {
+        _selectedItems.add(item);
+      });
+    } else {
+      print("Already added");
+    }
+
     print(_selectedItems);
+  }
+
+  void _removeFromSelectedItems(String item) {
+    setState(() {
+      _selectedItems.remove(item);
+    });
   }
 
   // ?----------------------------Searching ends------------------------------------
@@ -172,181 +158,158 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
             child: Form(
               key: _fieldKey,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // const SizedBox(height: 80),
                   Transform.translate(
                     offset: const Offset(
                         20, 40.0), // Adjust the vertical offset as needed
-                    child: RichText(
-                      text: TextSpan(
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: GoogleFonts.poppins().fontFamily,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: GoogleFonts.poppins().fontFamily,
+                            ),
+                            children: const [
+                              TextSpan(
+                                text: "Tell us about your desired",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              TextSpan(
+                                text: " Field of service",
+                                style: TextStyle(color: Color(0xFFFD5301)),
+                              ),
+                            ],
+                          ),
                         ),
-                        children: const [
-                          TextSpan(
-                            text: "Your Infomation are kept,\n",
-                            style: TextStyle(color: Colors.black),
-                          ),
-                          TextSpan(
-                            text: "Confidential",
-                            style: TextStyle(color: Color(0xFFFD5301)),
-                          ),
-                        ],
-                      ),
+                        const Text(
+                          "This will help us to recommend jobs for you.",
+                          style: TextStyle(color: Color.fromARGB(164, 0, 0, 0)),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 70),
+                  const SizedBox(height: 50),
 
                   Column(
                     children: [
+                      const SizedBox(height: 20),
+
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: TextFormField(
-                          controller: _searchController,
-                          style: GoogleFonts.poppins(color: Colors.black),
-                          decoration: InputDecoration(
-                            contentPadding:
-                                const EdgeInsets.only(left: 25, bottom: 35),
-                            labelStyle: const TextStyle(
+                        child: SizedBox(
+                          height: 55,
+                          child: TextFormField(
+                            controller: _searchController,
+                            style: GoogleFonts.poppins(color: Colors.black),
+                            decoration: InputDecoration(
+                              hintText: "Search your relevant jobs",
+                              hintStyle: const TextStyle(fontSize: 14),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 25, bottom: 35),
+                              labelStyle: const TextStyle(
                                 color: Color.fromARGB(182, 0, 0, 0),
-                                fontSize: 14),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(50),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(166, 158, 158, 158),
+                                fontSize: 14,
                               ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(166, 158, 158, 158),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Color.fromARGB(166, 158, 158, 158),
+                                ),
                               ),
-                              borderRadius: BorderRadius.circular(50),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Color.fromARGB(166, 158, 158, 158),
+                                ),
+                              ),
+                              suffixIcon:
+                                  const Icon(Icons.search, color: Colors.grey),
                             ),
                           ),
                         ),
                       ),
+
                       const SizedBox(height: 10),
-                      Visibility(
-                        visible: _searchController.text.isNotEmpty,
-                        child: SizedBox(
-                          height: null,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(maxHeight: 250),
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              width: MediaQuery.sizeOf(context).width - 50,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color:
-                                      const Color.fromARGB(132, 158, 158, 158),
+                      Container(
+                        height: MediaQuery.sizeOf(context).height - 360,
+                        padding: const EdgeInsets.all(5),
+                        width: MediaQuery.sizeOf(context).width - 30,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: const Color.fromARGB(132, 158, 158, 158),
+                          ),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
+                        ),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemCount: _searchResults.length,
+                          itemBuilder: (context, index) {
+                            String result = _searchResults[index];
+                            bool isSelected = _selectedItems.contains(result);
+
+                            return ListTile(
+                              title: Text(
+                                convertToSentenceCase(result),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: GoogleFonts.poppins().fontFamily,
                                 ),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(10)),
                               ),
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: _searchResults.length,
-                                itemBuilder: (context, index) {
-                                  String result = _searchResults[index];
-                                  return ListTile(
-                                    title: Text(convertToSentenceCase(result)),
-                                    onTap: () {
-                                      // Handle when a search result is clicked
-                                      _addToSelectedItems(result);
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
+                              trailing: isSelected
+                                  ? IconButton(
+                                      onPressed: () {
+                                        _removeFromSelectedItems(result);
+                                      },
+                                      icon: const Icon(
+                                        Icons.close,
+                                        size: 18.0,
+                                        color: Color.fromARGB(255, 223, 59, 9),
+                                      ),
+                                    )
+                                  : IconButton(
+                                      onPressed: () {
+                                        _addToSelectedItems(result);
+                                      },
+                                      icon: const Icon(
+                                        Icons.add,
+                                        size: 18.0,
+                                        color: Color.fromARGB(255, 9, 87, 223),
+                                      ),
+                                    ),
+                            );
+                          },
+                          separatorBuilder: (context, index) => const Divider(
+                            color: Color.fromARGB(150, 158, 158, 158),
                           ),
                         ),
                       ),
 
                       // Add code to display the selected items above the search bar
+
+                      // Add code to display the selected items above the search bar
                     ],
                   ),
-
-                  const SizedBox(height: 30),
-
-                  // Padding(
-                  //   padding: const EdgeInsets.symmetric(horizontal: 15),
-                  //   child: SizedBox(
-                  //     height: 60,
-                  //     child: ElevatedButton(
-                  //       onPressed: isLoading
-                  //           ? null
-                  //           : () {
-                  //               // if (_profileImage == null) {
-                  //               //   // Show error message in TextFormField
-                  //               //   setState(() {
-                  //               //     showErrorDp = true;
-                  //               //     borderColor = Colors.red;
-                  //               //     errorMessage = "Please choose an image";
-                  //               //   });
-                  //               // } else {
-                  //               //   setState(() {
-                  //               //     showErrorDp = false;
-                  //               //     borderColor = Colors.black26;
-                  //               //   });
-                  //               // }
-
-                  //               // if (_fieldKey.currentState!.validate() &&
-                  //               //     _profileImage != null) {
-                  //               //   setState(() {
-                  //               //     isLoading = true;
-                  //               //   });
-                  //               //   submitApplication(
-                  //               //       _nameController.text,
-                  //               //       userTransferdData?['email'],
-                  //               //       int.parse(_phoneController.text),
-                  //               //       0.0,
-                  //               //       0.0,
-                  //               //       "general_user",
-                  //               //       _locationController.text);
-                  //               // }
-                  //             },
-                  //       style: ElevatedButton.styleFrom(
-                  //         textStyle: const TextStyle(
-                  //           fontSize: 14,
-                  //           fontWeight: FontWeight.bold,
-                  //         ),
-                  //         backgroundColor: const Color(0xFF25211E),
-                  //         shape: RoundedRectangleBorder(
-                  //           borderRadius: BorderRadius.circular(30),
-                  //         ),
-                  //       ),
-                  //       child: Row(
-                  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //         children: [
-                  //           Expanded(
-                  //             child: Row(
-                  //               mainAxisAlignment: MainAxisAlignment.center,
-                  //               children: [
-                  //                 isLoading == true
-                  //                     ? LoadingAnimationWidget
-                  //                         .staggeredDotsWave(
-                  //                             color: const Color.fromARGB(
-                  //                                 255, 0, 0, 0),
-                  //                             size: 50)
-                  //                     : const Flexible(
-                  //                         child: Text(
-                  //                           "Continue",
-                  //                           textAlign: TextAlign.center,
-                  //                         ),
-                  //                       ),
-                  //               ],
-                  //             ),
-                  //           ),
-                  //           const Icon(Icons.arrow_right),
-                  //         ],
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: ListTile(
+                      title: Text(
+                        "${_selectedItems.length} jobs added",
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: GoogleFonts.poppins().fontFamily),
+                      ),
+                      trailing: ContinueButton(isLoading),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -355,4 +318,77 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
       ),
     );
   }
+}
+
+Widget ContinueButton(bool isLoading) {
+  return SizedBox(
+    height: 50,
+    width: 150,
+    child: ElevatedButton(
+      onPressed: isLoading
+          ? null
+          : () {
+              // if (_profileImage == null) {
+              //   // Show error message in TextFormField
+              //   setState(() {
+              //     showErrorDp = true;
+              //     borderColor = Colors.red;
+              //     errorMessage = "Please choose an image";
+              //   });
+              // } else {
+              //   setState(() {
+              //     showErrorDp = false;
+              //     borderColor = Colors.black26;
+              //   });
+              // }
+
+              // if (_fieldKey.currentState!.validate() &&
+              //     _profileImage != null) {
+              //   setState(() {
+              //     isLoading = true;
+              //   });
+              //   submitApplication(
+              //       _nameController.text,
+              //       userTransferdData?['email'],
+              //       int.parse(_phoneController.text),
+              //       0.0,
+              //       0.0,
+              //       "general_user",
+              //       _locationController.text);
+              // }
+            },
+      style: ElevatedButton.styleFrom(
+        textStyle: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+        ),
+        backgroundColor: const Color(0xFF25211E),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                isLoading == true
+                    ? LoadingAnimationWidget.staggeredDotsWave(
+                        color: const Color.fromARGB(255, 0, 0, 0), size: 50)
+                    : const Flexible(
+                        child: Text(
+                          "Continue",
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+              ],
+            ),
+          ),
+          const Icon(Icons.arrow_right),
+        ],
+      ),
+    ),
+  );
 }
