@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, unused_element
+
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -35,6 +37,11 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> _searchResults = [];
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_onSearchChanged);
+  }
 
   @override
   void dispose() {
@@ -42,7 +49,10 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
     super.dispose();
   }
 
+//? ------------------------Function for picking profile image----------------------------------------
+
   Future<void> _pickImage() async {
+    // function used to pick image dp
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
 
@@ -53,8 +63,11 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
     }
   }
 
-  // back pressed button event
+//? --------------------------Function ends--------------------------------------
+
   Future<bool> _onBackPressed() async {
+    // back pressed button event
+
     return (await showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -76,6 +89,8 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
         false;
   }
 
+  // ?----------------------------Snack bar (Reusable)------------------------------------
+
   void showSnackbar(String message, Color backgroundColor) {
     final snackBar = SnackBar(
       content: Text(message),
@@ -84,42 +99,67 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
- Future<List<String>> searchServices(String keyword) async {
-   try {
-     final querySnapshot = await FirebaseFirestore.instance.collection('service_list')
-         .where('service', arrayContains: keyword)
-         .get();
-     
-     return querySnapshot.docs.map((doc) => doc['service'] as String).toList();
-   } catch (e) {
-     // Handle the error here
-     print('Error occurred while searching for services: $e');
-     return []; // Return an empty list or another appropriate value
-   }
- }
- 
+  // ?----------------------------Snack bar (ends)------------------------------------
 
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(_onSearchChanged);
+  // ?---------------------------Convert to sentence case--------------------------------
+  String convertToSentenceCase(String input) {
+    if (input.isEmpty) {
+      return input;
+    }
+    return input[0].toUpperCase() + input.substring(1).toLowerCase();
+  }
+
+  // ?---------------------------ends--------------------------------
+
+  // ?---------------------------Function to search  services in a list--------------------------------
+
+  Future<List> searchServices(String keyword) async {
+    try {
+      final DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await FirebaseFirestore.instance
+              .collection('services')
+              .doc('service_list')
+              .get();
+
+      List<dynamic> serviceList = snapshot.data()?['service'];
+      List<dynamic> loweCaseServiceList = serviceList
+          .map((service) => service.toString().toLowerCase())
+          .toList();
+
+      List<String> matchedServices = [];
+
+      for (dynamic service in loweCaseServiceList) {
+        if (service.toString().contains(keyword)) {
+          matchedServices.add(service.toString());
+        }
+      }
+
+      return matchedServices;
+    } catch (e) {
+      // Handle the error here
+      print('Error occurred while searching for services: $e');
+      return []; // Return an empty list or another appropriate value
+    }
   }
 
   void _onSearchChanged() async {
     String keyword = _searchController.text;
     List results = await searchServices(keyword);
     setState(() {
-      _searchResults = results;
+      _searchResults = results.isEmpty ? ["No results found. 🥺"] : results;
     });
   }
 
-  List<String> _selectedItems = [];
+  final List<String> _selectedItems = [];
 
   void _addToSelectedItems(String item) {
     setState(() {
       _selectedItems.add(item);
     });
+    print(_selectedItems);
   }
+
+  // ?----------------------------Searching ends------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -189,21 +229,43 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 10),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _searchResults.length,
-                        itemBuilder: (context, index) {
-                          String result = _searchResults[index];
-                          return ListTile(
-                            title: Text(result),
-                            onTap: () {
-                              // Handle when a search result is clicked
-                              _addToSelectedItems(result);
-                            },
-                          );
-                        },
+                      const SizedBox(height: 10),
+                      Visibility(
+                        visible: _searchController.text.isNotEmpty,
+                        child: SizedBox(
+                          height: null,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(maxHeight: 250),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              width: MediaQuery.sizeOf(context).width - 50,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color:
+                                      const Color.fromARGB(132, 158, 158, 158),
+                                ),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(10)),
+                              ),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: _searchResults.length,
+                                itemBuilder: (context, index) {
+                                  String result = _searchResults[index];
+                                  return ListTile(
+                                    title: Text(convertToSentenceCase(result)),
+                                    onTap: () {
+                                      // Handle when a search result is clicked
+                                      _addToSelectedItems(result);
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
+
                       // Add code to display the selected items above the search bar
                     ],
                   ),

@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
         "vendor_home": (context) => const VendorHome(),
         "list_users": (context) => const ListUsers(),
       },
-      initialRoute: "splashScreen",
+      initialRoute: "final_form_vendor",
     );
   }
 }
