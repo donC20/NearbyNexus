@@ -2,7 +2,7 @@ class VendorModel {
   final String? id;
   final String? name;
   final String? emailId;
-  final int? phone;
+  final String? phone;
   final double? latitude;
   final double? longitude;
   final String? image;

@@ -6,15 +6,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'config/themes/app_theme.dart';
-import 'screens/common_screens/complete_registration_user.dart';
-import 'screens/common_screens/complete_registration_vendor.dart';
+import 'screens/admin/screens/add_data.dart';
+import 'screens/user/screens/complete_registration_user.dart';
+import 'screens/vendor/screens/registration_vendor_one.dart';
 import 'screens/common_screens/forgot_password.dart';
 import 'screens/common_screens/initial_page.dart';
 import 'screens/common_screens/login_screen.dart';
 import 'screens/common_screens/registration_screen.dart';
 import 'screens/common_screens/splash_screen.dart';
 import 'screens/common_screens/user_or_vendor.dart';
-import 'screens/common_screens/vendor_final_reg_form.dart';
+import 'screens/vendor/screens/registration_vendor_two.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,8 +49,9 @@ class MyApp extends StatelessWidget {
         "user_home": (context) => const GeneralUserHome(),
         "vendor_home": (context) => const VendorHome(),
         "list_users": (context) => const ListUsers(),
+        "data_entry": (context) => const DataEntry(),
       },
-      initialRoute: "final_form_vendor",
+      initialRoute: "admin_screen",
     );
   }
 }

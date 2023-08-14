@@ -70,32 +70,39 @@ class _ListUsersState extends State<ListUsers> {
                           height: 15,
                         ),
                         // Search bar
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: TextField(
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor:
-                                  const Color.fromARGB(255, 229, 226, 226),
-                              contentPadding:
-                                  const EdgeInsets.only(left: 40.0, right: 5),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide:
-                                    const BorderSide(color: AppColors.white),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width - 90,
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor:
+                                      const Color.fromARGB(255, 229, 226, 226),
+                                  contentPadding: const EdgeInsets.only(
+                                      left: 40.0, right: 5),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    borderSide: const BorderSide(
+                                        color: AppColors.white),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    borderSide: const BorderSide(
+                                        color: AppColors.white),
+                                  ),
+                                  prefixIcon: const Icon(Icons.search,
+                                      color: AppColors.black),
+                                  hintText: 'Search',
+                                  hintStyle: const TextStyle(
+                                      color: AppColors.secondary, fontSize: 14),
+                                ),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30),
-                                borderSide:
-                                    const BorderSide(color: AppColors.white),
-                              ),
-                              prefixIcon: const Icon(Icons.search,
-                                  color: AppColors.black),
-                              hintText: 'Search',
-                              hintStyle: const TextStyle(
-                                  color: AppColors.secondary, fontSize: 14),
                             ),
-                          ),
+                            IconButton(
+                                onPressed: () {},
+                                icon: const Icon(Icons.filter_list)),
+                          ],
                         ),
                         const SizedBox(
                           height: 15,
@@ -316,62 +323,155 @@ void _showModal(BuildContext context, String uid) {
                             const SizedBox(
                               height: 15,
                             ),
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 130,
-                                  height: 50,
-                                  child: ElevatedButton(
-                                    onPressed: () {},
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.amber[300],
-                                    ),
-                                    child: const Text("Disable user"),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 30,
-                                ),
-                                SizedBox(
-                                  width: 130,
-                                  height: 50,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title:
-                                                const Text("Confirm Deletion"),
-                                            content: const Text(
-                                              "This action will remove the user completely from the application. Do you want to continue?",
-                                            ),
-                                            actions: <Widget>[
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context)
-                                                      .pop(); // Close the dialog
-                                                },
-                                                child: const Text("Cancel"),
+                            status == 'active'
+                                ? SizedBox(
+                                    width: 130,
+                                    height: 50,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title:
+                                                  const Text("Confirm Banning"),
+                                              content: const Text(
+                                                "This action will ban the user completely from the application. Do you want to continue?",
                                               ),
-                                              TextButton(
-                                                onPressed: () async {},
-                                                child: const Text("Continue"),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          const Color.fromARGB(255, 241, 34, 3),
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(); // Close the dialog
+                                                  },
+                                                  child: const Text("Cancel"),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () async {
+                                                    FirebaseFirestore.instance
+                                                        .collection(
+                                                            'users') // Replace 'users' with your desired collection name
+                                                        .doc(uid)
+                                                        .update({
+                                                      'status': 'disabled',
+                                                    }).then((_) {
+                                                      print(
+                                                          "Document status updated successfully");
+                                                    }).catchError((error) {
+                                                      print(
+                                                          "Error updating document status: $error");
+                                                    });
+
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: const Text("Continue"),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            // ignore: prefer_const_constructors
+                                            Color.fromARGB(0, 241, 35, 3),
+                                      ),
+                                      child: const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.not_interested,
+                                            color: Colors.red,
+                                          ),
+                                          SizedBox(
+                                            width: 2,
+                                          ),
+                                          Text(
+                                            "Ban",
+                                            style: TextStyle(
+                                                color: Colors.red,
+                                                fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    child: const Text("Remove user"),
+                                  )
+                                : SizedBox(
+                                    width: 130,
+                                    height: 50,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: const Text(
+                                                  "Confirm Unbanning"),
+                                              content: const Text(
+                                                "This actio will unban user from banning. Do you want to continue?",
+                                              ),
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.of(context)
+                                                        .pop(); // Close the dialog
+                                                  },
+                                                  child: const Text("Cancel"),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () async {
+                                                    FirebaseFirestore.instance
+                                                        .collection(
+                                                            'users') // Replace 'users' with your desired collection name
+                                                        .doc(uid)
+                                                        .update({
+                                                      'status': 'active',
+                                                    }).then((_) {
+                                                      print(
+                                                          "Document status updated successfully");
+                                                    }).catchError((error) {
+                                                      print(
+                                                          "Error updating document status: $error");
+                                                    });
+
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: const Text("Continue"),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            // ignore: prefer_const_constructors
+                                            Color.fromARGB(0, 241, 35, 3),
+                                      ),
+                                      child: const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.done,
+                                            color: Color.fromARGB(
+                                                255, 67, 244, 54),
+                                          ),
+                                          SizedBox(
+                                            width: 2,
+                                          ),
+                                          Text(
+                                            "Unban",
+                                            style: TextStyle(
+                                                color: Color.fromARGB(
+                                                    255, 67, 244, 54),
+                                                fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
                           ],
                         ),
                       ),

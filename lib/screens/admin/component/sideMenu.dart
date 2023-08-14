@@ -46,7 +46,7 @@ class SideMenu extends StatelessWidget {
                     color: AppColors.iconGray,
                   ),
                   onPressed: () {
-                    Navigator.popAndPushNamed(context, "admin_screen");
+                    Navigator.pushReplacementNamed(context, "admin_screen");
                     print("buttonclicked");
                   }),
               IconButton(
@@ -57,17 +57,19 @@ class SideMenu extends StatelessWidget {
                     color: AppColors.iconGray,
                   ),
                   onPressed: () {
-                    Navigator.popAndPushNamed(context, "list_users");
+                    Navigator.pushReplacementNamed(context, "list_users");
                     print("buttonclicked");
                   }),
               IconButton(
                   iconSize: 20,
                   padding: const EdgeInsets.symmetric(vertical: 20.0),
                   icon: SvgPicture.asset(
-                    'assets/images/vector/clipboard.svg',
+                    'assets/images/vector/add-circle.svg',
                     color: AppColors.iconGray,
                   ),
-                  onPressed: () {}),
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, "data_entry");
+                  }),
               IconButton(
                   iconSize: 20,
                   padding: const EdgeInsets.symmetric(vertical: 20.0),

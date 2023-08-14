@@ -80,6 +80,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       // Registration and data storage successful
     } catch (e) {
       // Handle registration or data storage error
+      setState(() {
+        isLoading = false;
+      });
       showSnackbar("$e", Colors.red);
     }
   }
@@ -108,6 +111,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
       return null;
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
       print("Error signing in with Google: $e");
       return null;
     }
@@ -497,7 +503,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                         'userType': selectedRadio,
                                         'name': googleuser.displayName,
                                       };
-
                                       selectedRadio == "general_user"
                                           ? Navigator.popAndPushNamed(context,
                                               "complete_registration_user",

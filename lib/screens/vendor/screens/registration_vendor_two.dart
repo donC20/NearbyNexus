@@ -1,12 +1,13 @@
-// ignore_for_file: avoid_print, unused_element, non_constant_identifier_names
-
-import 'dart:io';
+// ignore_for_file: avoid_print, unused_element, non_constant_identifier_names, prefer_const_constructors
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+
+import '../../../components/bottom_sheet_contents.dart';
+import '../../../models/vendor_model.dart';
 
 class FinalSubmitFormVendor extends StatefulWidget {
   const FinalSubmitFormVendor({super.key});
@@ -21,6 +22,8 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
   bool showError = false;
   bool showErrorDp = false;
   bool isLoading = false;
+  bool isLoadingList = true;
+  String? _imageUrl;
 
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> _searchResults = [];
@@ -67,16 +70,6 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
 
   // ?----------------------------Snack bar (ends)------------------------------------
 
-  // ?---------------------------Convert to sentence case--------------------------------
-  String convertToSentenceCase(String input) {
-    if (input.isEmpty) {
-      return input;
-    }
-    return input[0].toUpperCase() + input.substring(1).toLowerCase();
-  }
-
-  // ?---------------------------ends--------------------------------
-
   // ?---------------------------Function to search  services in a list--------------------------------
 
   Future<List> searchServices(String keyword) async {
@@ -99,7 +92,9 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
           matchedServices.add(service.toString());
         }
       }
-
+      setState(() {
+        isLoadingList = false;
+      });
       return matchedServices;
     } catch (e) {
       // Handle the error here
@@ -147,8 +142,65 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
 
   // ?----------------------------Searching ends------------------------------------
 
+  // Continue button
+
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic>? vendorInitialData =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    Future<void> submitApplication(List<String> servicesList) async {
+      // ?check if the user uploaded image
+
+      if (vendorInitialData?['imageData'] != null) {
+        try {
+          Reference ref = FirebaseStorage.instance.ref().child(
+              'profile_images/vendor/dp-vendor-${vendorInitialData?['uid']}.jpg');
+          UploadTask uploadTask = ref.putFile(vendorInitialData?['imageData']!);
+          TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
+          String downloadUrl = await snapshot.ref.getDownloadURL();
+
+          setState(() {
+            _imageUrl = downloadUrl;
+          });
+
+          print('Image uploaded: $_imageUrl');
+        } catch (error) {
+          print('Image upload error: $error');
+        }
+      }
+      VendorModel user = VendorModel(
+        name: vendorInitialData?['name'],
+        userType: 'vendor',
+        currentGeoLocation: vendorInitialData?['location'],
+        emailId: vendorInitialData?['email'],
+        govDocs: '',
+        image: _imageUrl,
+        latitude: null,
+        longitude: null,
+        phone: vendorInitialData?['phone'].toString(),
+        status: 'active',
+        services: servicesList,
+      );
+
+      Map<String, dynamic> userData = user.toJson();
+      String uid = vendorInitialData?['uid'];
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set(userData)
+          .then((value) {
+        // insert success
+        showSnackbar("Registration Successful", Colors.green);
+        Navigator.popAndPushNamed(context, "login_screen");
+        setState(() {
+          isLoading = false;
+        });
+      }).catchError((error) {
+        // insert error
+        showSnackbar(error.message, Colors.red);
+      });
+    }
+
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
@@ -196,7 +248,7 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
                     ),
                   ),
                   const SizedBox(height: 50),
-
+                  Text("data is ${vendorInitialData?['uid']}"),
                   Column(
                     children: [
                       const SizedBox(height: 20),
@@ -248,48 +300,58 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
                           borderRadius:
                               const BorderRadius.all(Radius.circular(10)),
                         ),
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          itemCount: _searchResults.length,
-                          itemBuilder: (context, index) {
-                            String result = _searchResults[index];
-                            bool isSelected = _selectedItems.contains(result);
+                        child: isLoadingList == false
+                            ? ListView.separated(
+                                shrinkWrap: true,
+                                itemCount: _searchResults.length,
+                                itemBuilder: (context, index) {
+                                  String result = _searchResults[index];
+                                  bool isSelected =
+                                      _selectedItems.contains(result);
 
-                            return ListTile(
-                              title: Text(
-                                convertToSentenceCase(result),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontFamily: GoogleFonts.poppins().fontFamily,
-                                ),
-                              ),
-                              trailing: isSelected
-                                  ? IconButton(
-                                      onPressed: () {
-                                        _removeFromSelectedItems(result);
-                                      },
-                                      icon: const Icon(
-                                        Icons.close,
-                                        size: 18.0,
-                                        color: Color.fromARGB(255, 223, 59, 9),
-                                      ),
-                                    )
-                                  : IconButton(
-                                      onPressed: () {
-                                        _addToSelectedItems(result);
-                                      },
-                                      icon: const Icon(
-                                        Icons.add,
-                                        size: 18.0,
-                                        color: Color.fromARGB(255, 9, 87, 223),
+                                  return ListTile(
+                                    title: Text(
+                                      convertToSentenceCase(result),
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontFamily:
+                                            GoogleFonts.poppins().fontFamily,
                                       ),
                                     ),
-                            );
-                          },
-                          separatorBuilder: (context, index) => const Divider(
-                            color: Color.fromARGB(150, 158, 158, 158),
-                          ),
-                        ),
+                                    trailing: isSelected
+                                        ? IconButton(
+                                            onPressed: () {
+                                              _removeFromSelectedItems(result);
+                                            },
+                                            icon: const Icon(
+                                              Icons.close,
+                                              size: 18.0,
+                                              color: Color.fromARGB(
+                                                  255, 223, 59, 9),
+                                            ),
+                                          )
+                                        : IconButton(
+                                            onPressed: () {
+                                              _addToSelectedItems(result);
+                                            },
+                                            icon: const Icon(
+                                              Icons.add,
+                                              size: 18.0,
+                                              color: Color.fromARGB(
+                                                  255, 9, 87, 223),
+                                            ),
+                                          ),
+                                  );
+                                },
+                                separatorBuilder: (context, index) =>
+                                    const Divider(
+                                  color: Color.fromARGB(150, 158, 158, 158),
+                                ),
+                              )
+                            : LoadingAnimationWidget.flickr(
+                                leftDotColor: Colors.black,
+                                rightDotColor: Colors.deepOrange,
+                                size: 40),
                       ),
 
                       // Add code to display the selected items above the search bar
@@ -300,14 +362,71 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
                   Padding(
                     padding: const EdgeInsets.all(10.0),
                     child: ListTile(
-                      title: Text(
-                        "${_selectedItems.length} jobs added",
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: GoogleFonts.poppins().fontFamily),
+                      title: InkWell(
+                        onTap: () {
+                          _openBottomSheet(context, _selectedItems,
+                              _removeFromSelectedItems);
+                        },
+                        child: Text(
+                          "${_selectedItems.length} jobs added",
+                          style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: GoogleFonts.poppins().fontFamily),
+                        ),
                       ),
-                      trailing: ContinueButton(isLoading),
+                      trailing: SizedBox(
+                        height: 50,
+                        width: 150,
+                        child: ElevatedButton(
+                          onPressed: isLoading
+                              ? null
+                              : () {
+                                  if (_fieldKey.currentState!.validate() &&
+                                      _selectedItems.isNotEmpty) {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+                                    submitApplication(_selectedItems);
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            textStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            backgroundColor: const Color(0xFF25211E),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    isLoading == true
+                                        ? LoadingAnimationWidget
+                                            .staggeredDotsWave(
+                                                color: const Color.fromARGB(
+                                                    255, 0, 0, 0),
+                                                size: 50)
+                                        : const Flexible(
+                                            child: Text(
+                                              "Continue",
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_right),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -320,75 +439,27 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
   }
 }
 
-Widget ContinueButton(bool isLoading) {
-  return SizedBox(
-    height: 50,
-    width: 150,
-    child: ElevatedButton(
-      onPressed: isLoading
-          ? null
-          : () {
-              // if (_profileImage == null) {
-              //   // Show error message in TextFormField
-              //   setState(() {
-              //     showErrorDp = true;
-              //     borderColor = Colors.red;
-              //     errorMessage = "Please choose an image";
-              //   });
-              // } else {
-              //   setState(() {
-              //     showErrorDp = false;
-              //     borderColor = Colors.black26;
-              //   });
-              // }
-
-              // if (_fieldKey.currentState!.validate() &&
-              //     _profileImage != null) {
-              //   setState(() {
-              //     isLoading = true;
-              //   });
-              //   submitApplication(
-              //       _nameController.text,
-              //       userTransferdData?['email'],
-              //       int.parse(_phoneController.text),
-              //       0.0,
-              //       0.0,
-              //       "general_user",
-              //       _locationController.text);
-              // }
-            },
-      style: ElevatedButton.styleFrom(
-        textStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-        ),
-        backgroundColor: const Color(0xFF25211E),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                isLoading == true
-                    ? LoadingAnimationWidget.staggeredDotsWave(
-                        color: const Color.fromARGB(255, 0, 0, 0), size: 50)
-                    : const Flexible(
-                        child: Text(
-                          "Continue",
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-              ],
-            ),
-          ),
-          const Icon(Icons.arrow_right),
-        ],
-      ),
-    ),
+void _openBottomSheet(BuildContext context, List<String> selectedItems,
+    void Function(String) removeItem) {
+  showModalBottomSheet<void>(
+    context: context,
+    builder: (BuildContext context) {
+      return BottomSheetContent(
+        selectedItems: selectedItems,
+        removeItem: (item) {
+          removeItem(item); // Call the function from the widget class
+        },
+      );
+    },
   );
 }
+
+// ?---------------------------Convert to sentence case--------------------------------
+String convertToSentenceCase(String input) {
+  if (input.isEmpty) {
+    return input;
+  }
+  return input[0].toUpperCase() + input.substring(1).toLowerCase();
+}
+
+  // ?---------------------------ends--------------------------------

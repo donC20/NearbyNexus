@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, must_be_immutable
+// ignore_for_file: avoid_print
 
 import 'dart:io';
 
@@ -11,63 +11,34 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class CompleteRegistrationByvendor extends StatefulWidget {
-  const CompleteRegistrationByvendor({super.key});
+class CompleteRegistrationByUser extends StatefulWidget {
+  const CompleteRegistrationByUser({super.key});
 
   @override
-  State<CompleteRegistrationByvendor> createState() =>
-      _CompleteRegistrationByvendorState();
+  State<CompleteRegistrationByUser> createState() =>
+      _CompleteRegistrationByUserState();
 }
 
-class _CompleteRegistrationByvendorState
-    extends State<CompleteRegistrationByvendor> {
+class _CompleteRegistrationByUserState
+    extends State<CompleteRegistrationByUser> {
   final _fieldKey = GlobalKey<FormState>();
-
+  Map<String, dynamic>? userTransferdData;
   bool showError = false;
   bool showErrorDp = false;
   bool isLoading = false;
   bool isloadingLocation = true;
+  bool _isChecked = false;
   String? errorMessage = "Error";
   String userType = "general_user";
   Color borderColor = Colors.black26;
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _locationController = TextEditingController();
-  final _agecontroller = TextEditingController();
   String? selectedValue;
   File? _profileImage;
-
-  final TextEditingController _dateController = TextEditingController();
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1940),
-      lastDate: DateTime.now(),
-    );
-
-    if (picked != null && picked != DateTime.now()) {
-      final DateFormat formatter = DateFormat('dd-MM-yyyy');
-      final DateFormat yearFormatter = DateFormat('yyyy');
-      final String formattedDate = formatter.format(picked);
-      final int formattedYear = int.parse(yearFormatter.format(picked));
-
-      final int age = DateTime.now().year - formattedYear;
-
-      _agecontroller.text = age.toString();
-      _dateController.text = formattedDate;
-    }
-  }
-
-  @override
-  void dispose() {
-    _dateController.dispose();
-    super.dispose();
-  }
+  String? _imageUrl;
 
   Future<void> _pickImage() async {
     final pickedFile =
@@ -118,6 +89,8 @@ class _CompleteRegistrationByvendorState
   @override
   void initState() {
     super.initState();
+    userTransferdData =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
     _getCurrentLocationAndSetAddress();
   }
 
@@ -171,9 +144,63 @@ class _CompleteRegistrationByvendorState
 
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic>? userTransferdData =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    // _nameController.text = userTransferdData?['name'];
+    _nameController.text = userTransferdData?['name'];
+    Future<void> submitApplication(
+        String name,
+        String emailId,
+        int phone,
+        double latitude,
+        double longitude,
+        String userType,
+        String currentGeoLocation) async {
+      // ?check if the user uploaded image
+      if (_profileImage != null) {
+        try {
+          Reference ref = FirebaseStorage.instance
+              .ref()
+              .child('profile_images/user/dp-${userTransferdData?['uid']}.jpg');
+          UploadTask uploadTask = ref.putFile(_profileImage!);
+          TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
+          String downloadUrl = await snapshot.ref.getDownloadURL();
+
+          setState(() {
+            _imageUrl = downloadUrl;
+          });
+
+          print('Image uploaded: $_imageUrl');
+        } catch (error) {
+          print('Image upload error: $error');
+        }
+      }
+      UserModel user = UserModel(
+          name: name,
+          emailId: emailId,
+          phone: phone,
+          latitude: latitude,
+          longitude: longitude,
+          image: _imageUrl,
+          userType: userType,
+          currentGeoLocation: currentGeoLocation,
+          status: 'active');
+      Map<String, dynamic> userData = user.toJson();
+      String uid = userTransferdData?['uid'];
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set(userData)
+          .then((value) {
+        // insert success
+        showSnackbar("Registration Successful", Colors.green);
+        Navigator.popAndPushNamed(context, "login_screen");
+        setState(() {
+          isLoading = false;
+        });
+      }).catchError((error) {
+        // insert error
+        showSnackbar(error.message, Colors.red);
+      });
+    }
+
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
@@ -259,71 +286,92 @@ class _CompleteRegistrationByvendorState
                     ),
                   ),
                   const SizedBox(height: 30),
-                  FormFeildCustom(
-                    customController: _nameController,
-                    hintText: "Eg. Jhon Doe",
-                    labelText: "What do we call you?",
-                    inputType: TextInputType.name,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "You left this field empty!";
-                      }
-                      bool nameRegex = RegExp(r'^[a-zA-Z]{3,}(?: [a-zA-Z]+)*$')
-                          .hasMatch(value);
-                      if (!nameRegex) {
-                        return "Must contain atleast 3 characters & avoid any numbers.";
-                      }
-                      return null;
-                    },
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: TextFormField(
+                      controller: _nameController,
+                      keyboardType: TextInputType.name,
+                      style: GoogleFonts.poppins(color: Colors.black),
+                      decoration: InputDecoration(
+                        labelText: 'Whats your name?',
+                        contentPadding:
+                            const EdgeInsets.only(left: 25, bottom: 35),
+                        hintText: "Eg : John Doe",
+                        hintStyle:
+                            const TextStyle(color: Colors.grey, fontSize: 14),
+                        labelStyle: const TextStyle(
+                            color: Color.fromARGB(182, 0, 0, 0), fontSize: 14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(166, 158, 158, 158),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(166, 158, 158, 158),
+                          ),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "You left this field empty!";
+                        }
+                        bool nameRegex =
+                            RegExp(r'^[a-zA-Z]{3,}(?: [a-zA-Z]+)*$')
+                                .hasMatch(value);
+                        if (!nameRegex) {
+                          return "Must contain atleast 3 characters & avoid any numbers.";
+                        }
+                        return null;
+                      },
+                    ),
                   ),
-                  FormFeildCustom(
-                    customController: _phoneController,
-                    labelText: "What is your contact number?",
-                    hintText: "+91 7845926457",
-                    inputType: TextInputType.number,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "You left this field empty!";
-                      }
-                      bool passwordRegex =
-                          RegExp(r'^[6789]\d{9}$').hasMatch(value);
-                      if (!passwordRegex) {
-                        return "Invalid phone number.";
-                      }
-                      return null;
-                    },
+                  const SizedBox(height: 15),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: TextFormField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.number,
+                      style: GoogleFonts.poppins(color: Colors.black),
+                      decoration: InputDecoration(
+                        prefix: const Text("+91 "),
+                        labelText: 'Whats is your phone number?',
+                        hintText: "7516482450",
+                        contentPadding:
+                            const EdgeInsets.only(left: 25, bottom: 35),
+                        hintStyle:
+                            const TextStyle(color: Colors.grey, fontSize: 14),
+                        labelStyle: const TextStyle(
+                            color: Color.fromARGB(182, 0, 0, 0), fontSize: 14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(166, 158, 158, 158),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(166, 158, 158, 158),
+                          ),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "You left this field empty!";
+                        }
+                        bool passwordRegex =
+                            RegExp(r'^[6789]\d{9}$').hasMatch(value);
+                        if (!passwordRegex) {
+                          return "Invalid phone number.";
+                        }
+                        return null;
+                      },
+                    ),
                   ),
-                  FormFeildCustom(
-                    customController: _dateController,
-                    labelText: "When is your birthday",
-                    hintText: "Choose a date",
-                    inputType: TextInputType.datetime,
-                    onTap: () => _selectDate(context),
-                    readOnly: true,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "You left this field empty!";
-                      }
-
-                      return null;
-                    },
-                  ),
-
-                  FormFeildCustom(
-                    customController: _agecontroller,
-                    labelText: "What is your age?",
-                    hintText: "Eg. 21",
-                    inputType: TextInputType.number,
-                    readOnly: true,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "You left this field empty!";
-                      }
-
-                      return null;
-                    },
-                  ),
-
+                  const SizedBox(height: 15),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: TextFormField(
@@ -373,16 +421,21 @@ class _CompleteRegistrationByvendorState
                           borderRadius: BorderRadius.circular(50),
                         ),
                       ),
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "You left this field empty!";
-                        }
-
-                        return null;
-                      },
                     ),
                   ),
 
+                  const SizedBox(height: 5),
+                  CheckboxListTile(
+                    title: const Text("I agree to the terms and conditions"),
+                    value: _isChecked,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _isChecked = newValue ?? false;
+                      });
+                    },
+                    controlAffinity: ListTileControlAffinity
+                        .leading, // Checkbox appears before the title
+                  ),
                   const SizedBox(height: 15),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -392,7 +445,6 @@ class _CompleteRegistrationByvendorState
                         onPressed: isLoading
                             ? null
                             : () {
-                                print(_agecontroller.text);
                                 if (_profileImage == null) {
                                   // Show error message in TextFormField
                                   setState(() {
@@ -412,20 +464,14 @@ class _CompleteRegistrationByvendorState
                                   setState(() {
                                     isLoading = true;
                                   });
-                                  Map<String, dynamic> vendorInitialData;
-                                  vendorInitialData = {
-                                    "uid": userTransferdData?["uid"],
-                                    "name": _nameController.text,
-                                    "phone": _phoneController.text,
-                                    "email": userTransferdData?["email"],
-                                    "imageData": _profileImage,
-                                    "dob": _dateController.text,
-                                    "age": _agecontroller.text,
-                                    "location": _locationController.text
-                                  };
-                                  Navigator.popAndPushNamed(
-                                      context, "final_form_vendor",
-                                      arguments: vendorInitialData);
+                                  submitApplication(
+                                      _nameController.text,
+                                      userTransferdData?['email'],
+                                      int.parse(_phoneController.text),
+                                      0.0,
+                                      0.0,
+                                      "general_user",
+                                      _locationController.text);
                                 }
                               },
                         style: ElevatedButton.styleFrom(
@@ -471,72 +517,6 @@ class _CompleteRegistrationByvendorState
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class FormFeildCustom extends StatelessWidget {
-  final TextEditingController customController;
-  final String hintText;
-  final String labelText;
-  final Widget prefix, suffix;
-  TextInputType? inputType = TextInputType.text;
-  final String? Function(String?)? validator;
-  bool readOnly;
-  final VoidCallback? onTap;
-
-  FormFeildCustom({
-    Key? key,
-    required this.customController,
-    required this.hintText,
-    required this.labelText,
-    this.inputType,
-    this.validator,
-    this.prefix = const SizedBox(),
-    this.suffix = const SizedBox(),
-    this.readOnly = false,
-    this.onTap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Column(
-        children: [
-          TextFormField(
-            controller: customController,
-            keyboardType: inputType,
-            readOnly: readOnly,
-            onTap: onTap, // Use the provided onTap function
-            style: GoogleFonts.poppins(color: Colors.black),
-            decoration: InputDecoration(
-              prefix: prefix,
-              suffix: suffix,
-              labelText: labelText,
-              contentPadding: const EdgeInsets.only(left: 25, bottom: 35),
-              hintText: hintText,
-              hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
-              labelStyle: const TextStyle(
-                  color: Color.fromARGB(182, 0, 0, 0), fontSize: 14),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(50),
-                borderSide: const BorderSide(
-                  color: Color.fromARGB(166, 158, 158, 158),
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(
-                  color: Color.fromARGB(166, 158, 158, 158),
-                ),
-                borderRadius: BorderRadius.circular(50),
-              ),
-            ),
-            validator: validator,
-          ),
-          const SizedBox(height: 15),
-        ],
       ),
     );
   }
