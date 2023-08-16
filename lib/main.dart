@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
         "list_users": (context) => const ListUsers(),
         "data_entry": (context) => const DataEntry(),
       },
-      initialRoute: "admin_screen",
+      initialRoute: "splashScreen",
     );
   }
 }

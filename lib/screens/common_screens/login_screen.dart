@@ -44,19 +44,20 @@ class _LoginScreenState extends State<LoginScreen> {
       User user = loginEpCredentials.user!;
       if (user.emailVerified) {
         // User is verified, proceed with login
-
         // ?check user type
         String uid = loginEpCredentials.user?.uid ?? "";
 
         DocumentSnapshot snapshot =
             await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+        String authorised = data!['status'];
 
-        if (snapshot.exists) {
+        if (snapshot.exists && authorised == 'active') {
           // Check if the document exists
-          Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
 
-          if (data != null && data.containsKey('userType')) {
+          if (data.containsKey('userType')) {
             String userType = data['userType'];
+
             // ?share preferences instance creation
             final SharedPreferences sharedpreferences =
                 await SharedPreferences.getInstance();
@@ -81,15 +82,17 @@ class _LoginScreenState extends State<LoginScreen> {
               showSnackbar(":) Sorry we are unable to proccess your request! ",
                   Colors.red);
             }
+            showSnackbar("Login successful", Colors.green);
+            emailController.clear();
+            passController.clear();
           } else {
             print('User Type not found in the document');
           }
         } else {
-          print('Document does not exist');
+          showSnackbar(
+              ":) Sorry you are currently banned from the  application ",
+              Colors.red);
         }
-        showSnackbar("Login successful", Colors.green);
-        emailController.clear();
-        passController.clear();
       } else {
         setState(() {
           isLoading = false;
@@ -151,62 +154,53 @@ class _LoginScreenState extends State<LoginScreen> {
         UserCredential userCredentialGoogle =
             await FirebaseAuth.instance.signInWithCredential(credential);
 
-        User user = userCredentialGoogle.user!;
-        if (user.emailVerified) {
-          // User is verified, proceed with login
-          // ?check user type
-          String uid = userCredentialGoogle.user?.uid ?? "";
+        // User user = userCredentialGoogle.user!;
+        // User is verified, proceed with login
+        // ?check user type
+        String uid = userCredentialGoogle.user?.uid ?? "";
 
-          DocumentSnapshot snapshot = await FirebaseFirestore.instance
-              .collection('users')
-              .doc(uid)
-              .get();
+        DocumentSnapshot snapshot =
+            await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+        String authorised = data!['status'];
 
-          if (snapshot.exists) {
-            // Check if the document exists
-            Map<String, dynamic>? data =
-                snapshot.data() as Map<String, dynamic>?;
+        if (snapshot.exists && authorised == 'active') {
+          // Check if the document exists
 
-            if (data != null && data.containsKey('userType')) {
-              String userType = data['userType'];
-              // ?share preferences instance creation
-              final SharedPreferences sharedpreferences =
-                  await SharedPreferences.getInstance();
-              Map<String, dynamic> userSessionData = {
-                'uid': uid,
-                'userType': userType,
-              };
-              sharedpreferences.setString(
-                  "userSessionData", json.encode(userSessionData));
-              // ?End of SharedPreferences
-              if (userType == "admin") {
-                Navigator.popAndPushNamed(context, "admin_screen");
-              } else if (userType == "vendor") {
-                Navigator.popAndPushNamed(context, "vendor_home");
-              } else if (userType == "general_user") {
-                Navigator.popAndPushNamed(context, "user_home");
-              } else {
-                showSnackbar(
-                    ":) Sorry we are unable to proccess your request! ",
-                    Colors.red);
-              }
+          if (data.containsKey('userType')) {
+            String userType = data['userType'];
+            // ?share preferences instance creation
+            final SharedPreferences sharedpreferences =
+                await SharedPreferences.getInstance();
+            Map<String, dynamic> userSessionData = {
+              'uid': uid,
+              'userType': userType,
+            };
+            sharedpreferences.setString(
+                "userSessionData", json.encode(userSessionData));
+            // ?End of SharedPreferences
+            if (userType == "admin") {
+              Navigator.popAndPushNamed(context, "admin_screen");
+            } else if (userType == "vendor") {
+              Navigator.popAndPushNamed(context, "vendor_home");
+            } else if (userType == "general_user") {
+              Navigator.popAndPushNamed(context, "user_home");
             } else {
-              print('User Type not found in the document');
+              showSnackbar(":) Sorry we are unable to proccess your request! ",
+                  Colors.red);
             }
-          } else {
-            print('Document does not exist');
-          }
-          showSnackbar("Login successful", Colors.green);
-          emailController.clear();
-          passController.clear();
-        } else {
-          // User is not verified, show appropriate message
-          // setState(() {
-          //   isLoading = false;
-          // });
-        }
+            emailController.clear();
+            passController.clear();
 
-        showSnackbar("Login successful", Colors.green);
+            showSnackbar("Login successful", Colors.green);
+          } else {
+            print('User Type not found in the document');
+          }
+        } else {
+          showSnackbar(
+              ":) Sorry you are currently banned from the  application ",
+              Colors.red);
+        }
       }
     } catch (e) {
       print("Error checking email existence: $e");

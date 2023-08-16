@@ -24,7 +24,6 @@ class CompleteRegistrationByUser extends StatefulWidget {
 class _CompleteRegistrationByUserState
     extends State<CompleteRegistrationByUser> {
   final _fieldKey = GlobalKey<FormState>();
-  Map<String, dynamic>? userTransferdData;
   bool showError = false;
   bool showErrorDp = false;
   bool isLoading = false;
@@ -89,8 +88,7 @@ class _CompleteRegistrationByUserState
   @override
   void initState() {
     super.initState();
-    userTransferdData =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+
     _getCurrentLocationAndSetAddress();
   }
 
@@ -144,7 +142,8 @@ class _CompleteRegistrationByUserState
 
   @override
   Widget build(BuildContext context) {
-    _nameController.text = userTransferdData?['name'];
+    Map<String, dynamic>? userTransferdData =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
     Future<void> submitApplication(
         String name,
         String emailId,
@@ -158,7 +157,7 @@ class _CompleteRegistrationByUserState
         try {
           Reference ref = FirebaseStorage.instance
               .ref()
-              .child('profile_images/user/dp-${userTransferdData?['uid']}.jpg');
+              .child('profile_images/user/dp-${userTransferdData['uid']}.jpg');
           UploadTask uploadTask = ref.putFile(_profileImage!);
           TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
           String downloadUrl = await snapshot.ref.getDownloadURL();
@@ -183,7 +182,7 @@ class _CompleteRegistrationByUserState
           currentGeoLocation: currentGeoLocation,
           status: 'active');
       Map<String, dynamic> userData = user.toJson();
-      String uid = userTransferdData?['uid'];
+      String uid = userTransferdData['uid'];
       await FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
@@ -466,7 +465,7 @@ class _CompleteRegistrationByUserState
                                   });
                                   submitApplication(
                                       _nameController.text,
-                                      userTransferdData?['email'],
+                                      userTransferdData['email'],
                                       int.parse(_phoneController.text),
                                       0.0,
                                       0.0,

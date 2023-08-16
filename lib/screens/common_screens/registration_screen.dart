@@ -50,34 +50,46 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   Future<void> registerUser(
       String email, String password, Map<String, String>? userType) async {
     try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
+      final existingMethods =
+          await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+      if (existingMethods.isEmpty) {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: email, password: password);
 
-      String uid = userCredential.user?.uid ?? "";
-      if (uid.isNotEmpty) {
-        User? sendTo = userCredential.user;
-        await sendVerificationEmail(sendTo!);
-        showSnackbar("An verification mail has sent to your email address.",
-            const Color.fromARGB(255, 244, 212, 54));
+        String uid = userCredential.user?.uid ?? "";
+        if (uid.isNotEmpty) {
+          User? sendTo = userCredential.user;
+          await sendVerificationEmail(sendTo!);
+          showSnackbar("An verification mail has sent to your email address.",
+              const Color.fromARGB(255, 244, 212, 54));
+        }
+
+        Map<String, dynamic> userData = {
+          'uid': uid,
+          'email': email,
+          'userType': userType!['value'],
+        };
+        setState(() {
+          isLoading = false;
+        });
+        userType['value'] == "general_user"
+            ? Navigator.popAndPushNamed(context, "complete_registration_user",
+                arguments: userData)
+            : userType['value'] == "vendor"
+                ? Navigator.popAndPushNamed(
+                    context, "complete_registration_vendor",
+                    arguments: userData)
+                : print("Cant register or navigate");
+        _emailController.clear();
+        _passController.clear();
+        _repassController.clear();
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        showSnackbar("An account with this mail id already exists",
+            const Color.fromARGB(255, 244, 54, 54));
       }
-
-      Map<String, dynamic> userData = {
-        'uid': uid,
-        'email': email,
-        'userType': userType!['value'],
-      };
-      setState(() {
-        isLoading = false;
-      });
-      userType['value'] == "general_user"
-          ? Navigator.popAndPushNamed(context, "complete_registration_user",
-              arguments: userData)
-          : userType['value'] == "vendor"
-              ? Navigator.popAndPushNamed(
-                  context, "complete_registration_vendor",
-                  arguments: userData)
-              : print("Cant register or navigate");
-      // Registration and data storage successful
     } catch (e) {
       // Handle registration or data storage error
       setState(() {
@@ -93,7 +105,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   // register with google
-  Future<UserCredential?> signInWithGoogle() async {
+  Future<void> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleSignInAccount =
           await _googleSignIn.signIn();
@@ -106,7 +118,34 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           idToken: googleSignInAuthentication.idToken,
         );
 
-        return await FirebaseAuth.instance.signInWithCredential(credential);
+        final existingMethods = await FirebaseAuth.instance
+            .fetchSignInMethodsForEmail(googleSignInAccount.email);
+        if (existingMethods.isEmpty) {
+          UserCredential? userCredential =
+              await FirebaseAuth.instance.signInWithCredential(credential);
+          if (userCredential != null) {
+            User googleuser = userCredential.user!;
+            Map<String, dynamic> userData = {
+              'uid': googleuser.uid,
+              'email': googleuser.email,
+              'userType': selectedRadio,
+              'name': googleuser.displayName,
+            };
+            selectedRadio == "general_user"
+                ? Navigator.popAndPushNamed(
+                    context, "complete_registration_user", arguments: userData)
+                : selectedRadio == "vendor"
+                    ? Navigator.popAndPushNamed(
+                        context, "complete_registration_vendor",
+                        arguments: userData)
+                    : print("Cant register or navigate");
+          } else {
+            print("Failed to sign in with Google");
+          }
+        } else {
+          showSnackbar("An account with this mail id already exists",
+              const Color.fromARGB(255, 244, 54, 54));
+        }
       }
 
       return null;
@@ -234,12 +273,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       if (value!.isEmpty) {
                         return "You left this field empty!";
                       }
-                      // bool passwordRegex = RegExp(
-                      //         r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
-                      //     .hasMatch(value);
-                      // if (!passwordRegex) {
-                      //   return "Invalid password. Password must contain at least 1 letter, 1 digit, and be at least 8 characters long.";
-                      // }
+                      bool passwordRegex = RegExp(
+                              r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
+                          .hasMatch(value);
+                      if (!passwordRegex) {
+                        return "Invalid password. Password must contain at least 1 letter, 1 digit, and be at least 8 characters long.";
+                      }
                       return null;
                     },
                   ),
@@ -392,9 +431,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                 });
                                 registerUser(_emailController.text,
                                     _passController.text, selectedValue);
-                                _emailController.clear();
-                                _passController.clear();
-                                _repassController.clear();
                               }
                             },
                       style: ElevatedButton.styleFrom(
@@ -492,31 +528,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   child: const Text("Cancel"),
                                 ),
                                 TextButton(
-                                  onPressed: () async {
-                                    UserCredential? userCredential =
-                                        await signInWithGoogle();
-                                    if (userCredential != null) {
-                                      User googleuser = userCredential.user!;
-                                      Map<String, dynamic> userData = {
-                                        'uid': googleuser.uid,
-                                        'email': googleuser.email,
-                                        'userType': selectedRadio,
-                                        'name': googleuser.displayName,
-                                      };
-                                      selectedRadio == "general_user"
-                                          ? Navigator.popAndPushNamed(context,
-                                              "complete_registration_user",
-                                              arguments: userData)
-                                          : selectedRadio == "vendor"
-                                              ? Navigator.popAndPushNamed(
-                                                  context,
-                                                  "complete_registration_vendor",
-                                                  arguments: userData)
-                                              : print(
-                                                  "Cant register or navigate");
-                                    } else {
-                                      print("Failed to sign in with Google");
-                                    }
+                                  onPressed: () {
+                                    signInWithGoogle();
+                                    Navigator.of(context).pop();
                                   },
                                   child: const Text("Continue"),
                                 ),
@@ -562,19 +576,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       },
                       child: Text(
                         'Log In',
-                        style: GoogleFonts.poppins(
-                          color: Colors.orange,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.popAndPushNamed(
-                            context, "complete_registration_vendor");
-                      },
-                      child: Text(
-                        'test scrren',
                         style: GoogleFonts.poppins(
                           color: Colors.orange,
                           fontWeight: FontWeight.w500,

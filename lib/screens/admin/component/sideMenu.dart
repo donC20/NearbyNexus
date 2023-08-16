@@ -58,7 +58,6 @@ class SideMenu extends StatelessWidget {
                   ),
                   onPressed: () {
                     Navigator.pushReplacementNamed(context, "list_users");
-                    print("buttonclicked");
                   }),
               IconButton(
                   iconSize: 20,
@@ -70,22 +69,22 @@ class SideMenu extends StatelessWidget {
                   onPressed: () {
                     Navigator.pushReplacementNamed(context, "data_entry");
                   }),
-              IconButton(
-                  iconSize: 20,
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  icon: SvgPicture.asset(
-                    'assets/images/vector/credit-card.svg',
-                    color: AppColors.iconGray,
-                  ),
-                  onPressed: () {}),
-              IconButton(
-                  iconSize: 20,
-                  padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  icon: SvgPicture.asset(
-                    'assets/images/vector/trophy.svg',
-                    color: AppColors.iconGray,
-                  ),
-                  onPressed: () {}),
+              // IconButton(
+              //     iconSize: 20,
+              //     padding: const EdgeInsets.symmetric(vertical: 20.0),
+              //     icon: SvgPicture.asset(
+              //       'assets/images/vector/credit-card.svg',
+              //       color: AppColors.iconGray,
+              //     ),
+              //     onPressed: () {}),
+              // IconButton(
+              //     iconSize: 20,
+              //     padding: const EdgeInsets.symmetric(vertical: 20.0),
+              //     icon: SvgPicture.asset(
+              //       'assets/images/vector/trophy.svg',
+              //       color: AppColors.iconGray,
+              //     ),
+              //     onPressed: () {}),
               IconButton(
                 iconSize: 30,
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
