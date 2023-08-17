@@ -118,6 +118,7 @@ class AddServices extends StatefulWidget {
 }
 
 class _AddServicesState extends State<AddServices> {
+  final _fieldKey = GlobalKey<FormState>();
   final serviceController = TextEditingController();
   List<String>? newServices = [];
   bool isTextFieldEmpty = true;
@@ -127,155 +128,162 @@ class _AddServicesState extends State<AddServices> {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(),
-            const Text(
-              "You can add services from here make sure you add relevant services.",
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 15),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Provide new service name.",
-                  style: TextStyle(
-                      color: Colors.black54,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                SizedBox(
-                  height: 65,
-                  child: TextFormField(
-                    controller: serviceController,
-                    onChanged: (value) {
-                      setState(() {
-                        isTextFieldEmpty = value.isEmpty;
-                      });
-                    },
-                    style: GoogleFonts.poppins(color: Colors.black),
-                    decoration: InputDecoration(
-                      labelText: 'Name the service',
-                      contentPadding:
-                          const EdgeInsets.only(left: 25, bottom: 35),
-                      hintStyle:
-                          const TextStyle(color: Colors.grey, fontSize: 14),
-                      labelStyle: const TextStyle(
-                          color: Color.fromARGB(182, 0, 0, 0), fontSize: 14),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                          color: Color.fromARGB(166, 158, 158, 158),
+        child: Form(
+          key: _fieldKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(),
+              const Text(
+                "You can add services from here make sure you add relevant services.",
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 15),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Provide new service name.",
+                    style: TextStyle(
+                        color: Colors.black54,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  SizedBox(
+                    height: 65,
+                    child: TextFormField(
+                      controller: serviceController,
+                      onChanged: (value) {
+                        setState(() {
+                          isTextFieldEmpty = value.isEmpty;
+                        });
+                      },
+                      style: GoogleFonts.poppins(color: Colors.black),
+                      decoration: InputDecoration(
+                        labelText: 'Name the service',
+                        contentPadding:
+                            const EdgeInsets.only(left: 25, bottom: 35),
+                        hintStyle:
+                            const TextStyle(color: Colors.grey, fontSize: 14),
+                        labelStyle: const TextStyle(
+                            color: Color.fromARGB(182, 0, 0, 0), fontSize: 14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(166, 158, 158, 158),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(166, 158, 158, 158),
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        suffix: IconButton(
+                          icon: const Icon(Icons.add_circle),
+                          onPressed: isTextFieldEmpty == false
+                              ? () {
+                                  setState(() {
+                                    newServices?.add(serviceController.text);
+                                    serviceController.clear();
+                                    isTextFieldEmpty = true;
+                                  });
+                                }
+                              : null,
                         ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(
-                          color: Color.fromARGB(166, 158, 158, 158),
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      suffix: IconButton(
-                        icon: const Icon(Icons.add_circle),
-                        onPressed: isTextFieldEmpty == false
-                            ? () {
-                                setState(() {
-                                  newServices?.add(serviceController.text);
-                                  serviceController.clear();
-                                  isTextFieldEmpty = true;
-                                });
-                              }
-                            : null,
-                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "You left this field empty!";
+                        }
+                        return null;
+                      },
                     ),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "You left this field empty!";
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              const Text(
+                "Tap to remove items from the collection",
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              Expanded(
+                child: Wrap(
+                  spacing: 10,
+                  runSpacing: 5,
+                  children: newServices!.map((item) {
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          newServices!.remove(item);
+                        });
+                      },
+                      child: Chip(
+                        elevation: 1,
+                        side: const BorderSide(
+                          color: Colors.grey,
+                        ),
+                        label: Text(
+                          convertToSentenceCase(item),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color.fromARGB(255, 143, 143, 143),
+                          ),
+                        ),
+                        backgroundColor:
+                            const Color.fromARGB(255, 255, 255, 255),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const Spacer(),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: SizedBox(
+                  width: 130,
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      if (_fieldKey.currentState!.validate()) {
+                        try {
+                          DocumentReference documentRef = FirebaseFirestore
+                              .instance
+                              .collection('services')
+                              .doc('service_list');
+
+                          await documentRef.update({
+                            'service': FieldValue.arrayUnion(newServices!),
+                          });
+
+                          // Clear the text field
+                          serviceController.clear();
+                          showSnackbar("Services updated successfully!",
+                              const Color.fromARGB(255, 9, 237, 25), context);
+                          setState(() {
+                            newServices!.clear();
+                          });
+                        } catch (e) {
+                          showSnackbar(e.toString(),
+                              const Color.fromARGB(255, 175, 76, 76), context);
+                        }
                       }
-                      return null;
                     },
+                    icon: const Icon(Icons.cloud_upload_outlined),
+                    label: const Text("Update"),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            const Text(
-              "Tap to remove items from the collection",
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            Expanded(
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 5,
-                children: newServices!.map((item) {
-                  return InkWell(
-                    onTap: () {
-                      setState(() {
-                        newServices!.remove(item);
-                      });
-                    },
-                    child: Chip(
-                      elevation: 1,
-                      side: const BorderSide(
-                        color: Colors.grey,
-                      ),
-                      label: Text(
-                        convertToSentenceCase(item),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color.fromARGB(255, 143, 143, 143),
-                        ),
-                      ),
-                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-                    ),
-                  );
-                }).toList(),
               ),
-            ),
-            const Spacer(),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: SizedBox(
-                width: 130,
-                height: 50,
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    try {
-                      DocumentReference documentRef = FirebaseFirestore.instance
-                          .collection('services')
-                          .doc('service_list');
-
-                      await documentRef.update({
-                        'service': FieldValue.arrayUnion(newServices!),
-                      });
-
-                      // Clear the text field
-                      serviceController.clear();
-                      showSnackbar("Services updated successfully!",
-                          const Color.fromARGB(255, 9, 237, 25), context);
-                      setState(() {
-                        newServices!.clear();
-                      });
-                    } catch (e) {
-                      showSnackbar(e.toString(),
-                          const Color.fromARGB(255, 175, 76, 76), context);
-                    }
-                  },
-                  icon: const Icon(Icons.cloud_upload_outlined),
-                  label: const Text("Update"),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

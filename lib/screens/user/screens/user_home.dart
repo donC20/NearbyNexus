@@ -17,20 +17,25 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          children: [
-            const Text("User home"),
-            ElevatedButton(
-                onPressed: () async {
-                  final SharedPreferences sharedpreferences =
-                      await SharedPreferences.getInstance();
-                  sharedpreferences.remove("userSessionData");
-                  sharedpreferences.remove("uid");
-                  Navigator.popAndPushNamed(context, "login_screen");
-                  await _googleSignIn.signOut();
-                },
-                child: const Text("Logout"))
-          ],
+        child: SafeArea(
+          child: Column(
+            children: [
+
+
+
+
+              // ElevatedButton(
+              //     onPressed: () async {
+              //       final SharedPreferences sharedpreferences =
+              //           await SharedPreferences.getInstance();
+              //       sharedpreferences.remove("userSessionData");
+              //       sharedpreferences.remove("uid");
+              //       Navigator.popAndPushNamed(context, "login_screen");
+              //       await _googleSignIn.signOut();
+              //     },
+              //     child: const Text("Logout"))
+            ],
+          ),
         ),
       ),
     );

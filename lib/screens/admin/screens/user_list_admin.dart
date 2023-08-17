@@ -268,13 +268,13 @@ void _showModal(BuildContext context, String uid) {
                       const SizedBox(
                         height: 10,
                       ),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 25),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 25),
                         child: Align(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            'User propreties',
-                            style: TextStyle(
+                            name,
+                            style: const TextStyle(
                               fontFamily: 'Plus Jakarta Sans',
                               color: Color.fromARGB(255, 116, 118, 120),
                               fontSize: 16,
@@ -288,36 +288,32 @@ void _showModal(BuildContext context, String uid) {
                             const EdgeInsetsDirectional.fromSTEB(24, 4, 24, 0),
                         child: Column(
                           children: [
-                            ModalTextTiles(
-                              title: "Name",
-                              attribute: name,
-                            ),
                             const SizedBox(
                               height: 15,
                             ),
                             ModalTextTiles(
-                              title: "Email",
+                              titleIcon: Icons.email_outlined,
                               attribute: email,
                             ),
                             const SizedBox(
                               height: 15,
                             ),
                             ModalTextTiles(
-                              title: "Location",
+                              titleIcon: Icons.location_on_outlined,
                               attribute: location,
                             ),
                             const SizedBox(
                               height: 15,
                             ),
                             ModalTextTiles(
-                              title: "Phone",
+                              titleIcon: Icons.call_outlined,
                               attribute: phone,
                             ),
                             const SizedBox(
                               height: 15,
                             ),
                             ModalTextTiles(
-                              title: "Status",
+                              titleIcon: Icons.flag_circle_outlined,
                               attribute: status,
                             ),
                             const SizedBox(
@@ -487,9 +483,9 @@ void _showModal(BuildContext context, String uid) {
 // ?modal box text tiles
 
 class ModalTextTiles extends StatelessWidget {
-  String title;
+  IconData titleIcon;
   String attribute;
-  ModalTextTiles({super.key, required this.title, required this.attribute});
+  ModalTextTiles({super.key, required this.titleIcon, required this.attribute});
 
   @override
   Widget build(BuildContext context) {
@@ -497,15 +493,7 @@ class ModalTextTiles extends StatelessWidget {
       mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontFamily: 'Plus Jakarta Sans',
-            color: Color(0xFF57636C),
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Icon(titleIcon),
         Text(
           attribute,
           style: const TextStyle(
@@ -549,7 +537,6 @@ Widget _buildTab1Content() {
         itemBuilder: (context, index) {
           final user = users[index].data() as Map<String, dynamic>;
           final documentId = users[index].id;
-          print("user is $user");
 
           return InkWell(
             onTap: () {

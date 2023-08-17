@@ -248,7 +248,6 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
                     ),
                   ),
                   const SizedBox(height: 50),
-                  Text("data is ${vendorInitialData?['uid']}"),
                   Column(
                     children: [
                       const SizedBox(height: 20),
