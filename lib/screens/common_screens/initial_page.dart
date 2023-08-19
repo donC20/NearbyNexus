@@ -57,7 +57,7 @@ class InitialPage extends StatelessWidget {
                     height: 60,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.popAndPushNamed(context, "user_or_vendor");
+                        Navigator.popAndPushNamed(context, "login_screen");
                       },
                       style: ElevatedButton.styleFrom(
                         textStyle: const TextStyle(

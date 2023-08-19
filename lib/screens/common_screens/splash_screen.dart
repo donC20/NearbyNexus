@@ -49,15 +49,14 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     } else {
       print("No user session data found.");
-          _navigateToLoginScreen();
-
+      _navigateToLoginScreen();
     }
   }
 
   void _navigateToLoginScreen() async {
     await Future.delayed(const Duration(seconds: 2));
     Navigator.popAndPushNamed(context,
-        "login_screen"); // Navigate using Get package (replace with your navigation code)
+        "initial_page"); // Navigate using Get package (replace with your navigation code)
   }
 
   void navigateToUserScreen(String userType) {

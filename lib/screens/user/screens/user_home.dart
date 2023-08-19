@@ -1,10 +1,20 @@
-// ignore_for_file: use_build_context_synchronously, prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, use_key_in_widget_constructors
+// ignore_for_file: use_build_context_synchronously, prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, use_key_in_widget_constructors, unused_field, unused_local_variable, non_constant_identifier_names
 
+import 'dart:convert';
+
+import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../components/user_list_tile.dart';
 
 class GeneralUserHome extends StatefulWidget {
   const GeneralUserHome({super.key});
@@ -14,14 +24,102 @@ class GeneralUserHome extends StatefulWidget {
 }
 
 class _GeneralUserHomeState extends State<GeneralUserHome> {
+  int _page = 0;
+  final GlobalKey<_GeneralUserHomeState> _bottomNavigationKey = GlobalKey();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final vendorSearchController = TextEditingController();
+  bool isloadingLocation = true;
+  String yrCurrentLocation = "loading..";
+
+// Load user data
+  String nameLoginned = "Jhon Doe";
+  String imageLink = "";
+
+  // location fetching
+
+  Position? _currentPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    FetchUserData();
+    _getCurrentLocationAndSetAddress();
+  }
+
+  Future<void> FetchUserData() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData!);
+    String uid = initData['uid'];
+    DocumentSnapshot snapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    if (snapshot.exists) {
+      Map<String, dynamic> fetchedData =
+          snapshot.data() as Map<String, dynamic>;
+
+      // Assing admin data to the UI
+      setState(() {
+        imageLink = fetchedData['image'];
+        nameLoginned = fetchedData['name'];
+      });
+    }
+  }
+
+  Future<void> _getCurrentLocationAndSetAddress() async {
+    try {
+      _currentPosition = await getCurrentLocation();
+      if (_currentPosition != null) {
+        String? address = await getAddressFromLocation(_currentPosition!);
+        if (address != null) {
+          setState(() {
+            yrCurrentLocation = address;
+            isloadingLocation = false;
+          });
+        }
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  Future<Position?> getCurrentLocation() async {
+    try {
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+    } catch (e) {
+      print("Error getting location: $e");
+      return null;
+    }
+  }
+
+  Future<String?> getAddressFromLocation(Position position) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      if (placemarks.isNotEmpty) {
+        Placemark placemark = placemarks.first;
+        // Choose the desired fields to form the address
+        String address =
+            "${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}";
+        return address;
+      }
+      return null;
+    } catch (e) {
+      print("Error getting address: $e");
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0,
+        elevation: 1,
         leadingWidth: MediaQuery.sizeOf(context).width,
         leading: Padding(
           padding: const EdgeInsets.all(15.0),
@@ -32,13 +130,18 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                   child: SvgPicture.asset(
                       "assets/images/vector/location_pin.svg")),
               SizedBox(width: 8.0),
-              Text(
-                "Location",
-                style: TextStyle(
-                  color: Color(0xFF838383),
-                  fontWeight: FontWeight.normal,
-                  fontFamily: GoogleFonts.poppins().fontFamily,
-                  fontSize: 16.0,
+              InkWell(
+                onTap: () async {
+                  _getCurrentLocationAndSetAddress();
+                },
+                child: Text(
+                  yrCurrentLocation,
+                  style: TextStyle(
+                    color: Color(0xFF838383),
+                    fontWeight: FontWeight.normal,
+                    fontFamily: GoogleFonts.poppins().fontFamily,
+                    fontSize: 16.0,
+                  ),
                 ),
               ),
               Icon(
@@ -52,10 +155,34 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: CircleAvatar(
-              backgroundImage: NetworkImage(
-                  "https://expertphotography.b-cdn.net/wp-content/uploads/2020/08/profile-photos-4.jpg"),
+              backgroundColor: Colors
+                  .transparent, // Set a transparent background for the avatar
+              child: ClipOval(
+                // Clip the image to an oval (circle) shape
+                child: Image.network(
+                  imageLink,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (BuildContext context, Widget child,
+                      ImageChunkEvent? loadingProgress) {
+                    if (loadingProgress == null) {
+                      return child;
+                    } else if (loadingProgress.expectedTotalBytes != null &&
+                        loadingProgress.cumulativeBytesLoaded <
+                            loadingProgress.expectedTotalBytes!) {
+                      return Center(
+                        child: LoadingAnimationWidget.discreteCircle(
+                          color: Colors.grey,
+                          size: 15,
+                        ),
+                      );
+                    } else {
+                      return SizedBox();
+                    }
+                  },
+                ),
+              ),
             ),
-          ),
+          )
         ],
       ),
       body: SafeArea(
@@ -64,7 +191,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
           child: Column(
             children: [
               SizedBox(
-                height: 15,
+                height: 1,
               ),
               Row(
                 children: [
@@ -127,232 +254,91 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                 height: 25,
               ),
               Expanded(
-                  child: ListView(
-                children: [
-                  ServiceOnLocationContainer(),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  ServiceOnLocationContainer(),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  ServiceOnLocationContainer(),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  ServiceOnLocationContainer(),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  ServiceOnLocationContainer(),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  ServiceOnLocationContainer(),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  ServiceOnLocationContainer(),
-                  SizedBox(
-                    height: 15,
-                  ),
-                ],
-              )),
-              // ElevatedButton(
-              //     onPressed: () async {
-              //       final SharedPreferences sharedpreferences =
-              //           await SharedPreferences.getInstance();
-              //       sharedpreferences.remove("userSessionData");
-              //       sharedpreferences.remove("uid");
-              //       Navigator.popAndPushNamed(context, "login_screen");
-              //       await _googleSignIn.signOut();
-              //     },
-              //     child: const Text("Logout"))
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .where('userType', isEqualTo: 'vendor')
+                      .where('geoLocation', isEqualTo: yrCurrentLocation)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+
+                    final vendors =
+                        snapshot.data!.docs; // List of QueryDocumentSnapshot
+
+                    if (vendors.isEmpty) {
+                      return const Center(
+                        child: Text("No users found!"),
+                      );
+                    }
+                    return ListView.builder(
+                      itemCount: vendors.length,
+                      itemBuilder: (context, item) {
+                        final vendor =
+                            vendors[item].data() as Map<String, dynamic>;
+                        final docId = vendors[item].id;
+                        List<String> allServices =
+                            List<String>.from(vendor['services']);
+                        String concatenatedServices = allServices.join(', ');
+                        const int maxTruncatedLength =
+                            30; // Adjust this length as needed
+
+                        String truncatedServices = concatenatedServices.length >
+                                maxTruncatedLength
+                            ? '${concatenatedServices.substring(0, maxTruncatedLength)}...'
+                            : concatenatedServices;
+                        return ServiceOnLocationContainer(
+                          name: vendor['name'],
+                          image: vendor['image'],
+                          salary: "500 - 1000/day",
+                          serviceNames:
+                              convertToSentenceCase(truncatedServices),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class ServiceOnLocationContainer extends StatelessWidget {
-  const ServiceOnLocationContainer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.sizeOf(context).width,
-      height: 120,
-      decoration: BoxDecoration(
-        border: Border.all(color: Color.fromARGB(81, 158, 158, 158)),
+      bottomNavigationBar: CurvedNavigationBar(
+        key: _bottomNavigationKey,
+        index: 0,
+        height: 60.0,
+        items: <Widget>[
+          Icon(Icons.add, size: 30),
+          Icon(Icons.list, size: 30),
+          Icon(Icons.compare_arrows, size: 30),
+          Icon(Icons.call_split, size: 30),
+          Icon(Icons.login, size: 30),
+        ],
         color: Colors.white,
-        borderRadius: BorderRadius.circular(9),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: 10,
-            top: 10,
-            child: Container(
-              width: 9,
-              height: 9,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.green,
-              ),
-            ),
-          ),
-          // ?image of vendor
-          Positioned(
-            left: 0,
-            top: 0,
-            child: Container(
-              width: 129,
-              height: 120,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(
-                      "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(9),
-                  bottomLeft: Radius.circular(9),
-                ),
-              ),
-            ),
-          ),
-
-          // ?Name
-          Positioned(
-            left: 145,
-            top: 10,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      'Jhon Doe',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 5),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: SvgPicture.asset(
-                          "assets/images/vector/spanner.svg",
-                          color: Color(0xFF838383)),
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      'Interior Designer',
-                      style: TextStyle(
-                        color: Color(0xFF7D7D7D),
-                        fontSize: 12.5,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 5),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.star,
-                      color: Colors.yellow,
-                      size: 18.5,
-                    ),
-                    SizedBox(width: 3),
-                    Text(
-                      '5.0 (123 reviews)',
-                      style: TextStyle(
-                        color: Color(0xFF7D7D7D),
-                        fontSize: 12,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 5),
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: SvgPicture.asset(
-                          "assets/images/vector/rupee-circle.svg",
-                          color: Color(0xFF838383)),
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      '500 - 600/hr',
-                      style: TextStyle(
-                        color: Color(0xFF7D7D7D),
-                        fontSize: 12.5,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 5),
-              ],
-            ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: SizedBox(
-              width: 100,
-              height: 40,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle Hire button click
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFF4000F8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(9),
-                    ),
-                  ),
-                ),
-                child: Text(
-                  'Hire',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        buttonBackgroundColor: Color.fromARGB(255, 37, 80, 255),
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
+        animationCurve: Curves.easeInOut,
+        animationDuration: Duration(milliseconds: 600),
+        onTap: (index) async {
+          if (index == 4) {
+            final SharedPreferences sharedpreferences =
+                await SharedPreferences.getInstance();
+            sharedpreferences.remove("userSessionData");
+            sharedpreferences.remove("uid");
+            Navigator.popAndPushNamed(context, "login_screen");
+            await _googleSignIn.signOut();
+          }
+          setState(() {
+            _page = index;
+          });
+        },
+        letIndexChange: (index) => true,
       ),
     );
   }
