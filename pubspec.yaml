@@ -48,6 +48,7 @@ dependencies:
   image_picker: ^1.0.2
   intl: ^0.18.1
   loading_animation_widget: ^1.2.0+4
+  location: ^5.0.3
   shared_preferences: ^2.2.0
   transparent_image: ^2.0.1
 dev_dependencies:
