@@ -93,7 +93,7 @@ class ServiceOnLocationContainer extends StatelessWidget {
                         Text(
                           name,
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Color.fromARGB(255, 255, 255, 255),
                             fontSize: 16,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w700,
@@ -115,7 +115,7 @@ class ServiceOnLocationContainer extends StatelessWidget {
                         Text(
                           serviceNames,
                           style: TextStyle(
-                            color: Color(0xFF7D7D7D),
+                            color: Color.fromARGB(255, 178, 176, 176),
                             fontSize: 12.5,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w400,
@@ -135,7 +135,7 @@ class ServiceOnLocationContainer extends StatelessWidget {
                         Text(
                           rating,
                           style: TextStyle(
-                            color: Color(0xFF7D7D7D),
+                            color: Color.fromARGB(255, 178, 176, 176),
                             fontSize: 12,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w400,
@@ -157,7 +157,7 @@ class ServiceOnLocationContainer extends StatelessWidget {
                         Text(
                           salary,
                           style: TextStyle(
-                            color: Color(0xFF7D7D7D),
+                            color: Color.fromARGB(255, 178, 176, 176),
                             fontSize: 12.5,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w400,
