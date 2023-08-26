@@ -1,12 +1,10 @@
 // ignore_for_file: use_build_context_synchronously, prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, use_key_in_widget_constructors, unused_field, unused_local_variable, non_constant_identifier_names
 
 import 'dart:convert';
-import 'dart:html';
-
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -24,13 +22,23 @@ class GeneralUserHome extends StatefulWidget {
 }
 
 class _GeneralUserHomeState extends State<GeneralUserHome> {
-  int _page = 0;
+  Gradient selectedGradient = const LinearGradient(colors: [
+    Color.fromARGB(255, 8, 89, 210),
+    Color.fromARGB(255, 24, 18, 1)
+  ]);
+  Gradient unselectedGradient = const LinearGradient(
+      colors: [Color.fromARGB(255, 54, 89, 244), Colors.blueGrey]);
+
+  final int _page = 0;
   final GlobalKey<_GeneralUserHomeState> _bottomNavigationKey = GlobalKey();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final vendorSearchController = TextEditingController();
   bool isloadingLocation = true;
   String yrCurrentLocation = "loading..";
-
+  int _selectedItemPosition = 0;
+  SnakeShape snakeShape = SnakeShape.circle;
+  Color selectedColor = Colors.black;
+  Color unselectedColor = Colors.blueGrey;
 // Load user data
   String nameLoginned = "Jhon Doe";
   String imageLink = "";
@@ -117,8 +125,12 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: true,
+      extendBody: true,
+      backgroundColor: Color.fromARGB(255, 0, 0, 0),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Color.fromARGB(255, 0, 0, 0),
         elevation: 1,
         leadingWidth: MediaQuery.sizeOf(context).width,
         leading: Padding(
@@ -309,22 +321,25 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
           ),
         ),
       ),
-      bottomNavigationBar: CurvedNavigationBar(
-        key: _bottomNavigationKey,
-        index: 0,
-        height: 60.0,
-        items: <Widget>[
-          Icon(Icons.add, size: 30),
-          Icon(Icons.list, size: 30),
-          Icon(Icons.compare_arrows, size: 30),
-          Icon(Icons.call_split, size: 30),
-          Icon(Icons.login, size: 30),
-        ],
-        color: Colors.white,
-        buttonBackgroundColor: Color.fromARGB(255, 37, 80, 255),
-        backgroundColor: Color.fromARGB(255, 255, 255, 255),
-        animationCurve: Curves.easeInOut,
-        animationDuration: Duration(milliseconds: 600),
+      bottomNavigationBar: SnakeNavigationBar.gradient(
+        // height: 80,
+        behaviour: SnakeBarBehaviour.floating,
+        snakeShape: SnakeShape.circle,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(25)),
+        ),
+        padding: const EdgeInsets.all(12),
+
+        // /configuration for SnakeNavigationBar.gradient
+        snakeViewGradient: selectedGradient,
+        selectedItemGradient:
+            snakeShape == SnakeShape.indicator ? selectedGradient : null,
+        unselectedItemGradient: unselectedGradient,
+
+        showUnselectedLabels: false,
+        showSelectedLabels: false,
+
+        currentIndex: _selectedItemPosition,
         onTap: (index) async {
           if (index == 4) {
             final SharedPreferences sharedpreferences =
@@ -334,11 +349,20 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
             Navigator.popAndPushNamed(context, "login_screen");
             await _googleSignIn.signOut();
           }
-          setState(() {
-            _page = index;
-          });
+          setState(() => _selectedItemPosition = index);
         },
-        letIndexChange: (index) => true,
+        items: const [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.notifications), label: 'tickets'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_month_rounded), label: 'calendar'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.podcasts), label: 'microphone'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'search')
+        ],
+        selectedLabelStyle: const TextStyle(fontSize: 14),
+        unselectedLabelStyle: const TextStyle(fontSize: 10),
       ),
     );
   }

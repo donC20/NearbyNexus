@@ -29,16 +29,8 @@ class ServiceOnLocationContainer extends StatelessWidget {
           height: 120,
           decoration: BoxDecoration(
             border: Border.all(color: Color.fromARGB(81, 158, 158, 158)),
-            color: Colors.white,
+            color: Color(0xFF343a40),
             borderRadius: BorderRadius.circular(9),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: Offset(0, 3),
-              ),
-            ],
           ),
           child: Stack(
             children: [
@@ -58,33 +50,33 @@ class ServiceOnLocationContainer extends StatelessWidget {
               Positioned(
                 left: 0,
                 top: 0,
-                child: Container(
+                child: SizedBox(
                   width: 129,
                   height: 120,
-                  decoration: BoxDecoration(
+                  child: ClipRRect(
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(9),
                       bottomLeft: Radius.circular(9),
                     ),
-                  ),
-                  child: Image.network(
-                    image,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (BuildContext context, Widget child,
-                        ImageChunkEvent? loadingProgress) {
-                      if (loadingProgress == null) {
-                        return child;
-                      } else if (loadingProgress.expectedTotalBytes != null &&
-                          loadingProgress.cumulativeBytesLoaded <
-                              loadingProgress.expectedTotalBytes!) {
-                        return Center(
-                          child: LoadingAnimationWidget.discreteCircle(
-                              color: Colors.grey, size: 30),
-                        );
-                      } else {
-                        return SizedBox();
-                      }
-                    },
+                    child: Image.network(
+                      image,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child;
+                        } else if (loadingProgress.expectedTotalBytes != null &&
+                            loadingProgress.cumulativeBytesLoaded <
+                                loadingProgress.expectedTotalBytes!) {
+                          return Center(
+                            child: LoadingAnimationWidget.discreteCircle(
+                                color: Colors.grey, size: 30),
+                          );
+                        } else {
+                          return SizedBox();
+                        }
+                      },
+                    ),
                   ),
                 ),
               ),
