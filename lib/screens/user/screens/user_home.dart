@@ -132,6 +132,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 0, 0, 0),
         elevation: 1,
+        shadowColor: Colors.white30,
         leadingWidth: MediaQuery.sizeOf(context).width,
         leading: Padding(
           padding: const EdgeInsets.all(15.0),
@@ -149,7 +150,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                 child: Text(
                   yrCurrentLocation,
                   style: TextStyle(
-                    color: Color(0xFF838383),
+                    color: Color.fromARGB(255, 178, 176, 176),
                     fontWeight: FontWeight.normal,
                     fontFamily: GoogleFonts.poppins().fontFamily,
                     fontSize: 16.0,
@@ -207,39 +208,69 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
               ),
               Row(
                 children: [
-                  SizedBox(
-                    width: MediaQuery.sizeOf(context).width - 80,
-                    height: 50,
-                    child: TextFormField(
-                      controller: vendorSearchController,
-                      style: GoogleFonts.poppins(color: Colors.black),
-                      decoration: InputDecoration(
-                        labelText: 'What\'s service you need?',
-                        hintStyle:
-                            const TextStyle(color: Colors.grey, fontSize: 14),
-                        labelStyle: const TextStyle(
-                            color: Color(0xFF838383), fontSize: 14),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(166, 158, 158, 158),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Color.fromARGB(166, 158, 158, 158),
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        prefixIcon: Icon(Icons.search),
-                      ),
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return "You left this field empty!";
-                        }
-                        return null;
-                      },
+                  // SizedBox(
+                  //   width: MediaQuery.sizeOf(context).width - 80,
+                  //   height: 50,
+                  //   child: TextFormField(
+                  //     controller: vendorSearchController,
+                  //     style: GoogleFonts.poppins(color: Colors.black),
+                  //     decoration: InputDecoration(
+                  //       labelText: 'What\'s service you need?',
+                  //       hintStyle:
+                  //           const TextStyle(color: Colors.grey, fontSize: 14),
+                  //       labelStyle: const TextStyle(
+                  //           color: Color(0xFF838383), fontSize: 14),
+                  //       border: OutlineInputBorder(
+                  //         borderRadius: BorderRadius.circular(10),
+                  //         borderSide: const BorderSide(
+                  //           color: Color.fromARGB(166, 158, 158, 158),
+                  //         ),
+                  //       ),
+                  //       focusedBorder: OutlineInputBorder(
+                  //         borderSide: const BorderSide(
+                  //           color: Color.fromARGB(166, 158, 158, 158),
+                  //         ),
+                  //         borderRadius: BorderRadius.circular(10),
+                  //       ),
+                  //       prefixIcon: Icon(Icons.search),
+                  //     ),
+                  //     validator: (value) {
+                  //       if (value!.isEmpty) {
+                  //         return "You left this field empty!";
+                  //       }
+                  //       return null;
+                  //     },
+                  //   ),
+                  // ),
+                ],
+              ),
+              SizedBox(
+                height: 40,
+                width: MediaQuery.sizeOf(context).width,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    Chip(
+                      label: Text("Popular"),
                     ),
+                    SizedBox(width: 10),
+                    Chip(label: Text("New")),
+                    SizedBox(width: 10),
+                    Chip(label: Text("Emergency")),
+                    SizedBox(width: 10),
+                    Chip(label: Text("Administration")),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Suggested services",
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
                   ),
                   InkWell(
                     child: SizedBox(
@@ -249,21 +280,14 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                           "assets/images/vector/equalizer.svg",
                           color: Color(0xFF838383)),
                     ),
-                  )
+                  ),
                 ],
               ),
               SizedBox(
-                height: 25,
+                height: 1,
               ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Suggested services",
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
-                ),
-              ),
-              SizedBox(
-                height: 25,
+              Divider(
+                color: const Color.fromARGB(145, 158, 158, 158),
               ),
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
