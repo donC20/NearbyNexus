@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'config/themes/app_theme.dart';
 import 'screens/admin/screens/add_data.dart';
 import 'screens/user/screens/complete_registration_user.dart';
+import 'screens/user/screens/vendor_portfolio.dart';
 import 'screens/vendor/screens/registration_vendor_one.dart';
 import 'screens/common_screens/forgot_password.dart';
 import 'screens/common_screens/initial_page.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         "vendor_home": (context) => const VendorHome(),
         "list_users": (context) => const ListUsers(),
         "data_entry": (context) => const DataEntry(),
+        "vendor_profile_opposite": (context) => const VendorPortfolio(),
       },
       initialRoute: "splashScreen",
     );

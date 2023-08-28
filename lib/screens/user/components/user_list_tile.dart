@@ -1,65 +1,52 @@
-// ignore_for_file: prefer_const_constructors, deprecated_member_use
-
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-class ServiceOnLocationContainer extends StatelessWidget {
+class ModernServiceCard extends StatelessWidget {
   final String name;
   final String serviceNames;
   final String rating = "5.0";
   final String salary;
   final String image;
-  const ServiceOnLocationContainer(
-      {super.key,
-      required this.name,
-      required this.serviceNames,
-      required this.salary,
-      required this.image});
+
+  const ModernServiceCard({
+    Key? key,
+    required this.name,
+    required this.serviceNames,
+    required this.salary,
+    required this.image,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 15,
+    return InkWell(
+      onTap: () {
+        Navigator.pushNamed(context, "vendor_profile_opposite");
+      },
+      child: Card(
+        color: Color.fromARGB(255, 30, 30, 30),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
-        Container(
-          width: MediaQuery.sizeOf(context).width,
-          height: 120,
-          decoration: BoxDecoration(
-            border: Border.all(color: Color.fromARGB(81, 158, 158, 158)),
-            color: Color(0xFF343a40),
-            borderRadius: BorderRadius.circular(9),
-          ),
-          child: Stack(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Row(
             children: [
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Container(
-                  width: 9,
-                  height: 9,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.green,
-                  ),
-                ),
-              ),
-              // ?image of vendor
-              Positioned(
-                left: 0,
-                top: 0,
-                child: SizedBox(
-                  width: 129,
-                  height: 120,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(9),
-                      bottomLeft: Radius.circular(9),
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  const CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.grey, // Background color
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
+                  ),
+                  ClipOval(
                     child: Image.network(
                       image,
+                      width: 80,
+                      height: 80,
                       fit: BoxFit.cover,
                       loadingBuilder: (BuildContext context, Widget child,
                           ImageChunkEvent? loadingProgress) {
@@ -68,142 +55,94 @@ class ServiceOnLocationContainer extends StatelessWidget {
                         } else if (loadingProgress.expectedTotalBytes != null &&
                             loadingProgress.cumulativeBytesLoaded <
                                 loadingProgress.expectedTotalBytes!) {
-                          return Center(
-                            child: LoadingAnimationWidget.discreteCircle(
-                                color: Colors.grey, size: 30),
-                          );
+                          return const SizedBox(); // Hide the image while loading animation is shown
                         } else {
-                          return SizedBox();
+                          return child;
                         }
                       },
                     ),
                   ),
-                ),
+                ],
               ),
-
-              // ?Name
-              Positioned(
-                left: 145,
-                top: 10,
+              const SizedBox(width: 16),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          name,
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontSize: 16,
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      name,
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
-                    SizedBox(height: 5),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: SvgPicture.asset(
-                              "assets/images/vector/spanner.svg",
-                              color: Color(0xFF838383)),
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          serviceNames,
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 178, 176, 176),
-                            fontSize: 12.5,
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 4),
+                    Text(
+                      serviceNames,
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                      ),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.star,
                           color: Colors.yellow,
-                          size: 18.5,
+                          size: 18,
                         ),
-                        SizedBox(width: 3),
+                        const SizedBox(width: 4),
                         Text(
                           rating,
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 178, 176, 176),
-                            fontSize: 12,
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w400,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
                           ),
                         ),
-                      ],
-                    ),
-                    SizedBox(height: 5),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: SvgPicture.asset(
-                              "assets/images/vector/rupee-circle.svg",
-                              color: Color(0xFF838383)),
+                        const SizedBox(width: 16),
+                        const Icon(
+                          Icons.attach_money,
+                          color: Colors.grey,
+                          size: 18,
                         ),
-                        SizedBox(width: 5),
+                        const SizedBox(width: 4),
                         Text(
                           salary,
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 178, 176, 176),
-                            fontSize: 12.5,
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w400,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 5),
                   ],
                 ),
               ),
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: SizedBox(
-                  width: 100,
-                  height: 40,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Handle Hire button click
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: Color(0xFF4000F8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(9),
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      'Hire',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+              ElevatedButton(
+                onPressed: () {
+                  // Handle Hire button click
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4000F8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                ),
+                child: const Text(
+                  'Hire',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

@@ -329,7 +329,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                                 maxTruncatedLength
                             ? '${concatenatedServices.substring(0, maxTruncatedLength)}...'
                             : concatenatedServices;
-                        return ServiceOnLocationContainer(
+                        return ModernServiceCard(
                           name: vendor['name'],
                           image: vendor['image'],
                           salary: "500 - 1000/day",
