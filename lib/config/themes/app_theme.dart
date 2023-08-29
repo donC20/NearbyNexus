@@ -1,10 +1,13 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// all custom application theme
 class AppTheme {
   /// default application theme
   static ThemeData get basic => ThemeData(
-        // fontFamily: Font.poppins,
+        fontFamily: GoogleFonts.poppins().fontFamily,
         primaryColorDark: const Color.fromRGBO(111, 88, 255, 1),
         primaryColor: const Color.fromRGBO(128, 109, 255, 1),
         primaryColorLight: const Color.fromRGBO(159, 84, 252, 1),

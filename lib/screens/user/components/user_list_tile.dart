@@ -78,7 +78,7 @@ class ModernServiceCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: Colors.white),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       serviceNames,
                       style: const TextStyle(
@@ -86,37 +86,40 @@ class ModernServiceCard extends StatelessWidget {
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.star,
-                          color: Colors.yellow,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          rating,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
+                    const SizedBox(height: 2),
+                    FittedBox(
+                      fit: BoxFit.contain,
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.star,
+                            color: Colors.yellow,
+                            size: 18,
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        const Icon(
-                          Icons.attach_money,
-                          color: Colors.grey,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          salary,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
+                          const SizedBox(width: 4),
+                          Text(
+                            rating,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 16),
+                          const Icon(
+                            Icons.attach_money,
+                            color: Colors.grey,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            salary,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
