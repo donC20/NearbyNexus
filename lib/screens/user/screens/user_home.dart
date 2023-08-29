@@ -335,6 +335,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                           salary: "500 - 1000/day",
                           serviceNames:
                               convertToSentenceCase(truncatedServices),
+                          uid: docId,
                         );
                       },
                     );

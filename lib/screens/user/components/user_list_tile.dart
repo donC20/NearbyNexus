@@ -7,6 +7,7 @@ class ModernServiceCard extends StatelessWidget {
   final String rating = "5.0";
   final String salary;
   final String image;
+  final String uid;
 
   const ModernServiceCard({
     Key? key,
@@ -14,13 +15,14 @@ class ModernServiceCard extends StatelessWidget {
     required this.serviceNames,
     required this.salary,
     required this.image,
+    required this.uid,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, "vendor_profile_opposite");
+        Navigator.pushNamed(context, "vendor_profile_opposite", arguments: uid);
       },
       child: Card(
         color: Color.fromARGB(255, 30, 30, 30),
