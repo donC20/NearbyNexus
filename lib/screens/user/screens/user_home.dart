@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
+import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
@@ -32,10 +33,9 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
   final int _page = 0;
   final GlobalKey<_GeneralUserHomeState> _bottomNavigationKey = GlobalKey();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final vendorSearchController = TextEditingController();
   bool isloadingLocation = true;
   String yrCurrentLocation = "loading..";
-  int _selectedItemPosition = 0;
+  int _selectedItemPosition = 2;
   SnakeShape snakeShape = SnakeShape.circle;
   Color selectedColor = Colors.black;
   Color unselectedColor = Colors.blueGrey;
@@ -167,31 +167,41 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
         actions: [
           Padding(
             padding: const EdgeInsets.all(10.0),
-            child: CircleAvatar(
-              backgroundColor: Colors
-                  .transparent, // Set a transparent background for the avatar
-              child: ClipOval(
-                // Clip the image to an oval (circle) shape
-                child: Image.network(
-                  imageLink,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (BuildContext context, Widget child,
-                      ImageChunkEvent? loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    } else if (loadingProgress.expectedTotalBytes != null &&
-                        loadingProgress.cumulativeBytesLoaded <
-                            loadingProgress.expectedTotalBytes!) {
-                      return Center(
-                        child: LoadingAnimationWidget.discreteCircle(
-                          color: Colors.grey,
-                          size: 15,
-                        ),
-                      );
-                    } else {
-                      return SizedBox();
-                    }
-                  },
+            child: InkWell(
+              onTap: () async {
+                final SharedPreferences sharedpreferences =
+                    await SharedPreferences.getInstance();
+                sharedpreferences.remove("userSessionData");
+                sharedpreferences.remove("uid");
+                Navigator.popAndPushNamed(context, "login_screen");
+                await _googleSignIn.signOut();
+              },
+              child: CircleAvatar(
+                backgroundColor: Colors
+                    .transparent, // Set a transparent background for the avatar
+                child: ClipOval(
+                  // Clip the image to an oval (circle) shape
+                  child: Image.network(
+                    imageLink,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (BuildContext context, Widget child,
+                        ImageChunkEvent? loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      } else if (loadingProgress.expectedTotalBytes != null &&
+                          loadingProgress.cumulativeBytesLoaded <
+                              loadingProgress.expectedTotalBytes!) {
+                        return Center(
+                          child: LoadingAnimationWidget.discreteCircle(
+                            color: Colors.grey,
+                            size: 15,
+                          ),
+                        );
+                      } else {
+                        return SizedBox();
+                      }
+                    },
+                  ),
                 ),
               ),
             ),
@@ -208,40 +218,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
               ),
               Row(
                 children: [
-                  // SizedBox(
-                  //   width: MediaQuery.sizeOf(context).width - 80,
-                  //   height: 50,
-                  //   child: TextFormField(
-                  //     controller: vendorSearchController,
-                  //     style: GoogleFonts.poppins(color: Colors.black),
-                  //     decoration: InputDecoration(
-                  //       labelText: 'What\'s service you need?',
-                  //       hintStyle:
-                  //           const TextStyle(color: Colors.grey, fontSize: 14),
-                  //       labelStyle: const TextStyle(
-                  //           color: Color(0xFF838383), fontSize: 14),
-                  //       border: OutlineInputBorder(
-                  //         borderRadius: BorderRadius.circular(10),
-                  //         borderSide: const BorderSide(
-                  //           color: Color.fromARGB(166, 158, 158, 158),
-                  //         ),
-                  //       ),
-                  //       focusedBorder: OutlineInputBorder(
-                  //         borderSide: const BorderSide(
-                  //           color: Color.fromARGB(166, 158, 158, 158),
-                  //         ),
-                  //         borderRadius: BorderRadius.circular(10),
-                  //       ),
-                  //       prefixIcon: Icon(Icons.search),
-                  //     ),
-                  //     validator: (value) {
-                  //       if (value!.isEmpty) {
-                  //         return "You left this field empty!";
-                  //       }
-                  //       return null;
-                  //     },
-                  //   ),
-                  // ),
+                  
                 ],
               ),
               SizedBox(
@@ -367,12 +344,10 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
         currentIndex: _selectedItemPosition,
         onTap: (index) async {
           if (index == 4) {
-            final SharedPreferences sharedpreferences =
-                await SharedPreferences.getInstance();
-            sharedpreferences.remove("userSessionData");
-            sharedpreferences.remove("uid");
-            Navigator.popAndPushNamed(context, "login_screen");
-            await _googleSignIn.signOut();
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchScreen()),
+            );
           }
           setState(() => _selectedItemPosition = index);
         },
