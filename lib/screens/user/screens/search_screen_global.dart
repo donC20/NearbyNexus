@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:skeletons/skeletons.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final vendorSearchController = TextEditingController();
   bool isSearching = false;
   String searchKeyWords = "";
-
+  final searchResults = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,10 +43,11 @@ class _SearchScreenState extends State<SearchScreen> {
                 height: 50,
                 child: TextFormField(
                   controller: vendorSearchController,
-                  onTap: () {},
+                  onTap: () {
+                    searchResults.clear();
+                  },
                   style: GoogleFonts.poppins(
-                    color: const Color.fromARGB(255, 70, 26, 26),
-                  ),
+                      color: Color.fromARGB(255, 255, 255, 255)),
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Color.fromARGB(112, 158, 158, 158),
@@ -90,7 +92,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection('users')
-                      .where('name', isEqualTo: searchKeyWords)
+                      .where('userType', isEqualTo: 'vendor')
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -115,25 +117,109 @@ class _SearchScreenState extends State<SearchScreen> {
                               hasSubtitle: true,
                             ),
                           ),
-                          child: Text(
-                            "Data",
-                            style: TextStyle(color: Colors.red),
-                          ),
+                          child: Text(''),
                         ),
                       );
                     } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}',));
+                      return Center(
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                        ),
+                      );
                     } else {
-                      final searchResults = snapshot.data?.docs
-                              .map((doc) => doc['name'])
-                              .toList() ??
+                      final searchResults = snapshot.data?.docs.where((doc) {
+                            final name = (doc['name'] as String).toLowerCase();
+                            final emailId =
+                                (doc['emailId'] as String).toLowerCase();
+                            final services = (doc['services'] as List)
+                                .map((service) =>
+                                    service.toString().toLowerCase())
+                                .toList();
+                            final geoLocation =
+                                (doc['geoLocation'] as String).toLowerCase();
+                            return name
+                                    .contains(searchKeyWords.toLowerCase()) ||
+                                geoLocation
+                                    .contains(searchKeyWords.toLowerCase()) ||
+                                emailId
+                                    .contains(searchKeyWords.toLowerCase()) ||
+                                services.any((service) => service
+                                    .contains(searchKeyWords.toLowerCase()));
+                          }).toList() ??
                           [];
-                      return ListView.builder(
+                      if (searchKeyWords.isEmpty) {
+                        return Center(
+                            child: Text('Enter a keyword to search.',
+                                style: TextStyle(
+                                    color: const Color.fromARGB(
+                                        255, 255, 255, 255))));
+                      } else if (searchResults.isEmpty) {
+                        return Center(
+                            child: Text('No results found. ',
+                                style: TextStyle(color: Colors.red)));
+                      }
+
+                      return ListView.separated(
                         itemCount: searchResults.length,
                         itemBuilder: (context, index) {
+                          final userData = searchResults[index];
                           return ListTile(
-                            title: Text(searchResults[index],
-                                style: TextStyle(color: Colors.red)),
+                            leading: CircleAvatar(
+                              backgroundColor: Colors
+                                  .transparent, // Set a transparent background for the avatar
+                              child: SizedBox(
+                                width: 50,
+                                child: ClipOval(
+                                  // Clip the image to an oval (circle) shape
+                                  child: Image.network(
+                                    userData['image'],
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (BuildContext context,
+                                        Widget child,
+                                        ImageChunkEvent? loadingProgress) {
+                                      if (loadingProgress == null) {
+                                        return child;
+                                      } else if (loadingProgress
+                                                  .expectedTotalBytes !=
+                                              null &&
+                                          loadingProgress
+                                                  .cumulativeBytesLoaded <
+                                              loadingProgress
+                                                  .expectedTotalBytes!) {
+                                        return Center(
+                                          child: LoadingAnimationWidget
+                                              .discreteCircle(
+                                            color: Colors.grey,
+                                            size: 15,
+                                          ),
+                                        );
+                                      } else {
+                                        return SizedBox();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              userData['name'],
+                              style: TextStyle(
+                                  color:
+                                      const Color.fromARGB(255, 255, 255, 255)),
+                            ),
+                            subtitle: Text(
+                              userData['geoLocation'],
+                              style: TextStyle(
+                                  color: Color.fromARGB(141, 255, 255, 255)),
+                            ),
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return Divider(
+                            color: Color.fromARGB(50, 207, 216, 220),
+                            thickness: 1.0,
+                            indent: 0,
+                            endIndent: 0,
                           );
                         },
                       );
