@@ -10,7 +10,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../components/user_list_tile.dart';
@@ -32,7 +31,6 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
 
   final int _page = 0;
   final GlobalKey<_GeneralUserHomeState> _bottomNavigationKey = GlobalKey();
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
   bool isloadingLocation = true;
   String yrCurrentLocation = "loading..";
   int _selectedItemPosition = 2;
@@ -168,13 +166,8 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: InkWell(
-              onTap: () async {
-                final SharedPreferences sharedpreferences =
-                    await SharedPreferences.getInstance();
-                sharedpreferences.remove("userSessionData");
-                sharedpreferences.remove("uid");
-                Navigator.popAndPushNamed(context, "login_screen");
-                await _googleSignIn.signOut();
+              onTap: () {
+                Navigator.pushNamed(context, "user_profile_one");
               },
               child: CircleAvatar(
                 backgroundColor: Colors
@@ -217,9 +210,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                 height: 1,
               ),
               Row(
-                children: [
-                  
-                ],
+                children: [],
               ),
               SizedBox(
                 height: 40,

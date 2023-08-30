@@ -162,55 +162,63 @@ class _SearchScreenState extends State<SearchScreen> {
                       return ListView.separated(
                         itemCount: searchResults.length,
                         itemBuilder: (context, index) {
+                          final uid = searchResults[index].id; 
                           final userData = searchResults[index];
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: Colors
-                                  .transparent, // Set a transparent background for the avatar
-                              child: SizedBox(
-                                width: 50,
-                                child: ClipOval(
-                                  // Clip the image to an oval (circle) shape
-                                  child: Image.network(
-                                    userData['image'],
-                                    fit: BoxFit.cover,
-                                    loadingBuilder: (BuildContext context,
-                                        Widget child,
-                                        ImageChunkEvent? loadingProgress) {
-                                      if (loadingProgress == null) {
-                                        return child;
-                                      } else if (loadingProgress
-                                                  .expectedTotalBytes !=
-                                              null &&
-                                          loadingProgress
-                                                  .cumulativeBytesLoaded <
-                                              loadingProgress
-                                                  .expectedTotalBytes!) {
-                                        return Center(
-                                          child: LoadingAnimationWidget
-                                              .discreteCircle(
-                                            color: Colors.grey,
-                                            size: 15,
-                                          ),
-                                        );
-                                      } else {
-                                        return SizedBox();
-                                      }
-                                    },
+                          return InkWell(
+                            onTap: () {
+                              Navigator.pushNamed(
+                                  context, "vendor_profile_opposite",
+                                  arguments: uid);
+                            },
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Colors
+                                    .transparent, // Set a transparent background for the avatar
+                                child: SizedBox(
+                                  width: 50,
+                                  child: ClipOval(
+                                    // Clip the image to an oval (circle) shape
+                                    child: Image.network(
+                                      userData['image'],
+                                      fit: BoxFit.cover,
+                                      loadingBuilder: (BuildContext context,
+                                          Widget child,
+                                          ImageChunkEvent? loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        } else if (loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null &&
+                                            loadingProgress
+                                                    .cumulativeBytesLoaded <
+                                                loadingProgress
+                                                    .expectedTotalBytes!) {
+                                          return Center(
+                                            child: LoadingAnimationWidget
+                                                .discreteCircle(
+                                              color: Colors.grey,
+                                              size: 15,
+                                            ),
+                                          );
+                                        } else {
+                                          return SizedBox();
+                                        }
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            title: Text(
-                              userData['name'],
-                              style: TextStyle(
-                                  color:
-                                      const Color.fromARGB(255, 255, 255, 255)),
-                            ),
-                            subtitle: Text(
-                              userData['geoLocation'],
-                              style: TextStyle(
-                                  color: Color.fromARGB(141, 255, 255, 255)),
+                              title: Text(
+                                userData['name'],
+                                style: TextStyle(
+                                    color: const Color.fromARGB(
+                                        255, 255, 255, 255)),
+                              ),
+                              subtitle: Text(
+                                userData['geoLocation'],
+                                style: TextStyle(
+                                    color: Color.fromARGB(141, 255, 255, 255)),
+                              ),
                             ),
                           );
                         },
