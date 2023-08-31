@@ -162,7 +162,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       return ListView.separated(
                         itemCount: searchResults.length,
                         itemBuilder: (context, index) {
-                          final uid = searchResults[index].id; 
+                          final uid = searchResults[index].id;
                           final userData = searchResults[index];
                           return InkWell(
                             onTap: () {

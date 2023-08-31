@@ -226,6 +226,7 @@ class _UserProfileState extends State<UserProfile> {
                             SizedBox(
                               height: 10,
                             ),
+                          
                             proposedJobs(
                                 "Auto rickshaw",
                                 "Koovapally, Kerala, India",
