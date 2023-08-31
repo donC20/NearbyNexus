@@ -22,7 +22,7 @@ class _UserProfileOneState extends State<UserProfileOne> {
   String nameLoginned = "Jhon Doe";
   String imageLink = "";
   String email = "";
-
+  bool isFetching = true;
   @override
   void initState() {
     super.initState();
@@ -45,7 +45,8 @@ class _UserProfileOneState extends State<UserProfileOne> {
       setState(() {
         imageLink = fetchedData['image'];
         nameLoginned = fetchedData['name'];
-        email = fetchedData['emailId'];
+        email = fetchedData['emailId']['id'];
+        isFetching = false;
       });
     }
   }
@@ -64,187 +65,196 @@ class _UserProfileOneState extends State<UserProfileOne> {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 25, left: 10, right: 8),
-        child: Column(
-          children: [
-            ListTile(
-              leading: SizedBox(
-                width: 50,
-                height: 50,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: Image.network(
-                    imageLink,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (BuildContext context, Widget child,
-                        ImageChunkEvent? loadingProgress) {
-                      if (loadingProgress == null) {
-                        return child;
-                      } else if (loadingProgress.expectedTotalBytes != null &&
-                          loadingProgress.cumulativeBytesLoaded <
-                              loadingProgress.expectedTotalBytes!) {
-                        return Center(
-                          child: LoadingAnimationWidget.discreteCircle(
-                            color: Colors.grey,
-                            size: 15,
-                          ),
-                        );
-                      } else {
-                        return SizedBox();
-                      }
-                    },
-                  ),
-                ),
-              ),
-              title: Text(
-                nameLoginned,
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(
-                email,
-                style: TextStyle(
-                    color: Color.fromARGB(108, 255, 255, 255),
-                    fontWeight: FontWeight.normal,
-                    fontSize: 12),
-              ),
-              trailing: OutlinedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, "user_profile");
-                },
-                child: Text(
-                  "Profile",
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 10, 131, 238),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.settings,
-                color: Colors.white,
-              ),
-              title: Text(
-                "Settings",
-                style: TextStyle(color: Colors.white, fontSize: 14),
-              ),
-              horizontalTitleGap: -5,
-              trailing: IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.arrow_right_alt,
-                    color: Colors.white,
-                  )),
-            ),
-            Divider(
-              color: const Color.fromARGB(87, 158, 158, 158),
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.support,
-                color: Colors.white,
-              ),
-              title: Text(
-                "Support",
-                style: TextStyle(color: Colors.white, fontSize: 14),
-              ),
-              horizontalTitleGap: -5,
-              trailing: IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.arrow_right_alt,
-                    color: Colors.white,
-                  )),
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.edit_document,
-                color: Colors.white,
-              ),
-              title: Text(
-                "Terms and conditions",
-                style: TextStyle(color: Colors.white, fontSize: 14),
-              ),
-              horizontalTitleGap: -5,
-              trailing: IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.arrow_right_alt,
-                    color: Colors.white,
-                  )),
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.language,
-                color: Colors.white,
-              ),
-              title: Text(
-                "Language",
-                style: TextStyle(color: Colors.white, fontSize: 14),
-              ),
-              horizontalTitleGap: -5,
-              trailing: Text("English",
-                  style: TextStyle(color: Colors.white, fontSize: 14)),
-            ),
-            InkWell(
-              onTap: () async {
-                final SharedPreferences sharedpreferences =
-                    await SharedPreferences.getInstance();
-                sharedpreferences.remove("userSessionData");
-                sharedpreferences.remove("uid");
-                Navigator.popAndPushNamed(context, "login_screen");
-                await _googleSignIn.signOut();
-              },
-              child: ListTile(
-                leading: Icon(
-                  Icons.logout,
-                  color: Color.fromARGB(212, 156, 40, 40),
-                ),
-                title: Text(
-                  "Logout",
-                  style: TextStyle(
-                      color: Color.fromARGB(212, 156, 40, 40),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold),
-                ),
-                horizontalTitleGap: -5,
-              ),
-            ),
-            SizedBox(
-              height: 250,
-            ),
-            SizedBox(
+      body: isFetching == true
+          ? Container(
+              decoration: BoxDecoration(color: Colors.black),
               child: Center(
-                child: Column(
-                  children: [
-                    Image.asset(
-                      width: 100,
-                      height: 100,
-                      'assets/images/nearbynexus(WL).png',
-                    ),
-                    Text(
-                      "NearbyNexus",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.normal,
-                        fontSize: 16,
+                child: LoadingAnimationWidget.prograssiveDots(
+                    color: const Color.fromARGB(255, 255, 255, 255), size: 80),
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.only(top: 25, left: 10, right: 8),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(5),
+                        child: Image.network(
+                          imageLink,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            } else if (loadingProgress.expectedTotalBytes !=
+                                    null &&
+                                loadingProgress.cumulativeBytesLoaded <
+                                    loadingProgress.expectedTotalBytes!) {
+                              return Center(
+                                child: LoadingAnimationWidget.discreteCircle(
+                                  color: Colors.grey,
+                                  size: 15,
+                                ),
+                              );
+                            } else {
+                              return SizedBox();
+                            }
+                          },
+                        ),
                       ),
                     ),
-                  ],
-                ),
+                    title: Text(
+                      nameLoginned,
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      email,
+                      style: TextStyle(
+                          color: Color.fromARGB(108, 255, 255, 255),
+                          fontWeight: FontWeight.normal,
+                          fontSize: 12),
+                    ),
+                    trailing: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, "user_profile");
+                      },
+                      child: Text(
+                        "Profile",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 10, 131, 238),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.settings,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      "Settings",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                    horizontalTitleGap: -5,
+                    trailing: IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          Icons.arrow_right_alt,
+                          color: Colors.white,
+                        )),
+                  ),
+                  Divider(
+                    color: const Color.fromARGB(87, 158, 158, 158),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.support,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      "Support",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                    horizontalTitleGap: -5,
+                    trailing: IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          Icons.arrow_right_alt,
+                          color: Colors.white,
+                        )),
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.edit_document,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      "Terms and conditions",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                    horizontalTitleGap: -5,
+                    trailing: IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          Icons.arrow_right_alt,
+                          color: Colors.white,
+                        )),
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.language,
+                      color: Colors.white,
+                    ),
+                    title: Text(
+                      "Language",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                    horizontalTitleGap: -5,
+                    trailing: Text("English",
+                        style: TextStyle(color: Colors.white, fontSize: 14)),
+                  ),
+                  InkWell(
+                    onTap: () async {
+                      final SharedPreferences sharedpreferences =
+                          await SharedPreferences.getInstance();
+                      sharedpreferences.remove("userSessionData");
+                      sharedpreferences.remove("uid");
+                      Navigator.popAndPushNamed(context, "login_screen");
+                      await _googleSignIn.signOut();
+                    },
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.logout,
+                        color: Color.fromARGB(212, 156, 40, 40),
+                      ),
+                      title: Text(
+                        "Logout",
+                        style: TextStyle(
+                            color: Color.fromARGB(212, 156, 40, 40),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      horizontalTitleGap: -5,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 250,
+                  ),
+                  SizedBox(
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            width: 100,
+                            height: 100,
+                            'assets/images/nearbynexus(WL).png',
+                          ),
+                          Text(
+                            "NearbyNexus",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.normal,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }
