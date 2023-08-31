@@ -1,6 +1,7 @@
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';
+import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
         "data_entry": (context) => const DataEntry(),
         "vendor_profile_opposite": (context) => const VendorPortfolio(),
         "user_profile_one": (context) => const UserProfileOne(),
+        "user_profile": (context) => const UserProfile(),
       },
       initialRoute: "splashScreen",
     );

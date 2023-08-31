@@ -72,26 +72,29 @@ class _UserProfileOneState extends State<UserProfileOne> {
               leading: SizedBox(
                 width: 50,
                 height: 50,
-                child: Image.network(
-                  imageLink,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (BuildContext context, Widget child,
-                      ImageChunkEvent? loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child;
-                    } else if (loadingProgress.expectedTotalBytes != null &&
-                        loadingProgress.cumulativeBytesLoaded <
-                            loadingProgress.expectedTotalBytes!) {
-                      return Center(
-                        child: LoadingAnimationWidget.discreteCircle(
-                          color: Colors.grey,
-                          size: 15,
-                        ),
-                      );
-                    } else {
-                      return SizedBox();
-                    }
-                  },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(5),
+                  child: Image.network(
+                    imageLink,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (BuildContext context, Widget child,
+                        ImageChunkEvent? loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      } else if (loadingProgress.expectedTotalBytes != null &&
+                          loadingProgress.cumulativeBytesLoaded <
+                              loadingProgress.expectedTotalBytes!) {
+                        return Center(
+                          child: LoadingAnimationWidget.discreteCircle(
+                            color: Colors.grey,
+                            size: 15,
+                          ),
+                        );
+                      } else {
+                        return SizedBox();
+                      }
+                    },
+                  ),
                 ),
               ),
               title: Text(
@@ -107,7 +110,9 @@ class _UserProfileOneState extends State<UserProfileOne> {
                     fontSize: 12),
               ),
               trailing: OutlinedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, "user_profile");
+                },
                 child: Text(
                   "Profile",
                   style: TextStyle(
@@ -122,18 +127,18 @@ class _UserProfileOneState extends State<UserProfileOne> {
             ListTile(
               leading: Icon(
                 Icons.settings,
-                color: Colors.white38,
+                color: Colors.white,
               ),
               title: Text(
                 "Settings",
-                style: TextStyle(color: Colors.white54, fontSize: 14),
+                style: TextStyle(color: Colors.white, fontSize: 14),
               ),
               horizontalTitleGap: -5,
               trailing: IconButton(
                   onPressed: () {},
                   icon: Icon(
                     Icons.arrow_right_alt,
-                    color: Colors.white38,
+                    color: Colors.white,
                   )),
             ),
             Divider(
@@ -145,49 +150,49 @@ class _UserProfileOneState extends State<UserProfileOne> {
             ListTile(
               leading: Icon(
                 Icons.support,
-                color: Colors.white38,
+                color: Colors.white,
               ),
               title: Text(
                 "Support",
-                style: TextStyle(color: Colors.white54, fontSize: 14),
+                style: TextStyle(color: Colors.white, fontSize: 14),
               ),
               horizontalTitleGap: -5,
               trailing: IconButton(
                   onPressed: () {},
                   icon: Icon(
                     Icons.arrow_right_alt,
-                    color: Colors.white38,
+                    color: Colors.white,
                   )),
             ),
             ListTile(
               leading: Icon(
                 Icons.edit_document,
-                color: Colors.white38,
+                color: Colors.white,
               ),
               title: Text(
                 "Terms and conditions",
-                style: TextStyle(color: Colors.white54, fontSize: 14),
+                style: TextStyle(color: Colors.white, fontSize: 14),
               ),
               horizontalTitleGap: -5,
               trailing: IconButton(
                   onPressed: () {},
                   icon: Icon(
                     Icons.arrow_right_alt,
-                    color: Colors.white38,
+                    color: Colors.white,
                   )),
             ),
             ListTile(
               leading: Icon(
                 Icons.language,
-                color: Colors.white38,
+                color: Colors.white,
               ),
               title: Text(
                 "Language",
-                style: TextStyle(color: Colors.white54, fontSize: 14),
+                style: TextStyle(color: Colors.white, fontSize: 14),
               ),
               horizontalTitleGap: -5,
               trailing: Text("English",
-                  style: TextStyle(color: Colors.white54, fontSize: 14)),
+                  style: TextStyle(color: Colors.white, fontSize: 14)),
             ),
             InkWell(
               onTap: () async {
