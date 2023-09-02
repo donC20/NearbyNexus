@@ -129,8 +129,7 @@ class _CompleteRegistrationByUserState
       if (placemarks.isNotEmpty) {
         Placemark placemark = placemarks.first;
         // Choose the desired fields to form the address
-        String address =
-            "${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}";
+        String address = "${placemark.locality}";
         return address;
       }
       return null;

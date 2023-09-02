@@ -23,6 +23,7 @@ class _UserProfileOneState extends State<UserProfileOne> {
   String imageLink = "";
   String email = "";
   bool isFetching = true;
+  bool isimageFetched = true;
   @override
   void initState() {
     super.initState();
@@ -47,6 +48,7 @@ class _UserProfileOneState extends State<UserProfileOne> {
         nameLoginned = fetchedData['name'];
         email = fetchedData['emailId']['id'];
         isFetching = false;
+        isimageFetched = false;
       });
     }
   }
@@ -81,31 +83,44 @@ class _UserProfileOneState extends State<UserProfileOne> {
                     leading: SizedBox(
                       width: 50,
                       height: 50,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(5),
-                        child: Image.network(
-                          imageLink,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (BuildContext context, Widget child,
-                              ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            } else if (loadingProgress.expectedTotalBytes !=
-                                    null &&
-                                loadingProgress.cumulativeBytesLoaded <
-                                    loadingProgress.expectedTotalBytes!) {
-                              return Center(
-                                child: LoadingAnimationWidget.discreteCircle(
-                                  color: Colors.grey,
-                                  size: 15,
+                      child: isimageFetched == true
+                          ? Container(
+                              margin: EdgeInsets.only(right: 10),
+                              decoration: BoxDecoration(color: Colors.black),
+                              child: Center(
+                                child: LoadingAnimationWidget.fallingDot(
+                                  color: Colors.white,
+                                  size: 30,
                                 ),
-                              );
-                            } else {
-                              return SizedBox();
-                            }
-                          },
-                        ),
-                      ),
+                              ))
+                          : ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child: Image.network(
+                                imageLink,
+                                fit: BoxFit.cover,
+                                loadingBuilder: (BuildContext context,
+                                    Widget child,
+                                    ImageChunkEvent? loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    return child;
+                                  } else if (loadingProgress
+                                              .expectedTotalBytes !=
+                                          null &&
+                                      loadingProgress.cumulativeBytesLoaded <
+                                          loadingProgress.expectedTotalBytes!) {
+                                    return Center(
+                                      child:
+                                          LoadingAnimationWidget.discreteCircle(
+                                        color: Colors.grey,
+                                        size: 15,
+                                      ),
+                                    );
+                                  } else {
+                                    return SizedBox();
+                                  }
+                                },
+                              ),
+                            ),
                     ),
                     title: Text(
                       nameLoginned,

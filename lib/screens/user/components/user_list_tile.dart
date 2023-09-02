@@ -124,26 +124,6 @@ class ModernServiceCard extends StatelessWidget {
                   ],
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle Hire button click
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4000F8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                ),
-                child: const Text(
-                  'Hire',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
             ],
           ),
         ),

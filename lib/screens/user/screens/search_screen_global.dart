@@ -1,7 +1,8 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:skeletons/skeletons.dart';
@@ -149,14 +150,50 @@ class _SearchScreenState extends State<SearchScreen> {
                           [];
                       if (searchKeyWords.isEmpty) {
                         return Center(
-                            child: Text('Enter a keyword to search.',
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                height: 250,
+                                width: 250,
+                                "assets/images/vector/search_for_user.svg",
+                              ),
+                              SizedBox(height: 15),
+                              Text(
+                                'Enter any keyword to search.',
                                 style: TextStyle(
-                                    color: const Color.fromARGB(
-                                        255, 255, 255, 255))));
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ],
+                          ),
+                        );
                       } else if (searchResults.isEmpty) {
                         return Center(
-                            child: Text('No results found. ',
-                                style: TextStyle(color: Colors.red)));
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                height: 250,
+                                width: 250,
+                                "assets/images/vector/alone.svg",
+                              ),
+                              SizedBox(height: 15),
+                              RichText(
+                                textAlign: TextAlign.center,
+                                text: TextSpan(
+                                    text:
+                                        '): Sorry, We could\'nt find anything!\n',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 18),
+                                    children: [
+                                      TextSpan(
+                                          text: 'Try changing the keywords.',
+                                          style: TextStyle(fontSize: 16)),
+                                    ]),
+                              ),
+                            ],
+                          ),
+                        );
                       }
 
                       return ListView.separated(
