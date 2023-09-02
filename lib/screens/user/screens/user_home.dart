@@ -200,27 +200,26 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
         leadingWidth: MediaQuery.sizeOf(context).width,
         leading: Padding(
           padding: const EdgeInsets.all(15.0),
-          child: Row(
-            children: [
-              SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: SvgPicture.asset(
-                      "assets/images/vector/location_pin.svg")),
-              SizedBox(width: 8.0),
-              InkWell(
-                onTap: () async {
-                  // _getCurrentLocationAndSetAddress();
-                  setState(() {
-                    isLocationSearch = true;
-                    showSearch(
-                        context: context,
-                        delegate: CustomSearchDelegate(
-                            searchPlaces: searchPlaces,
-                            onItemSelected: handleItemSelection));
-                  });
-                },
-                child: Text(
+          child: InkWell(
+            onTap: () async {
+              setState(() {
+                isLocationSearch = true;
+                showSearch(
+                    context: context,
+                    delegate: CustomSearchDelegate(
+                        searchPlaces: searchPlaces,
+                        onItemSelected: handleItemSelection,getMyLocation: _getCurrentLocationAndSetAddress));
+              });
+            },
+            child: Row(
+              children: [
+                SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: SvgPicture.asset(
+                        "assets/images/vector/location_pin.svg")),
+                SizedBox(width: 8.0),
+                Text(
                   yrCurrentLocation,
                   style: TextStyle(
                     color: Color.fromARGB(255, 178, 176, 176),
@@ -229,12 +228,12 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                     fontSize: 16.0,
                   ),
                 ),
-              ),
-              Icon(
-                Icons.arrow_drop_down,
-                color: Color(0xFF838383),
-              ),
-            ],
+                Icon(
+                  Icons.arrow_drop_down,
+                  color: Color(0xFF838383),
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
@@ -326,23 +325,26 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                     SizedBox(
                       height: 10,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Suggested services",
-                          style: TextStyle(color: Colors.grey, fontSize: 16),
-                        ),
-                        InkWell(
-                          child: SizedBox(
-                            width: 50,
-                            height: 40,
-                            child: SvgPicture.asset(
-                                "assets/images/vector/equalizer.svg",
-                                color: Color(0xFF838383)),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Suggested services",
+                            style: TextStyle(color: Colors.grey, fontSize: 16),
                           ),
-                        ),
-                      ],
+                          InkWell(
+                            child: SizedBox(
+                              width: 50,
+                              height: 40,
+                              child: SvgPicture.asset(
+                                  "assets/images/vector/equalizer.svg",
+                                  color: Color(0xFF838383)),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     SizedBox(
                       height: 1,
@@ -405,7 +407,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                                 List<String>.from(vendor['services']);
                             String concatenatedServices =
                                 allServices.join(', ');
-                            const int maxTruncatedLength = 30;
+                            const int maxTruncatedLength = 32;
                             String truncatedServices = concatenatedServices
                                         .length >
                                     maxTruncatedLength

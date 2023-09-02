@@ -1,13 +1,17 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class CustomSearchDelegate extends SearchDelegate<String> {
   final Future<List<Map<String, dynamic>>> Function(String query)
       searchPlaces; // Named parameter
   final Function(String) onItemSelected;
+  final Future<void> Function() getMyLocation;
   CustomSearchDelegate(
-      {required this.searchPlaces, required this.onItemSelected});
+      {required this.searchPlaces,
+      required this.onItemSelected,
+      required this.getMyLocation});
   @override
   List<Widget> buildActions(BuildContext context) {
     // Actions for the search bar (e.g., clear text)
@@ -16,6 +20,12 @@ class CustomSearchDelegate extends SearchDelegate<String> {
         icon: Icon(Icons.clear),
         onPressed: () {
           query = '';
+        },
+      ),
+      IconButton(
+        icon: Icon(Icons.my_location_rounded),
+        onPressed: () {
+          getMyLocation;
         },
       ),
     ];
@@ -61,14 +71,14 @@ class CustomSearchDelegate extends SearchDelegate<String> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  "assets/images/vector/keyboard_typing.jpg",
+                SvgPicture.asset(
+                  "assets/images/vector/location_search.svg",
                   width: 250,
                   height: 250,
                 ),
                 SizedBox(height: 15),
                 Text(
-                  "Please enter the location",
+                  "Whats your location?",
                   style: TextStyle(fontSize: 16),
                 ),
               ],
@@ -96,20 +106,24 @@ class CustomSearchDelegate extends SearchDelegate<String> {
           return ListView.separated(
             itemCount: suggestions.length,
             itemBuilder: (context, index) {
-              String name =
-                  suggestions[index]["name"] ?? suggestions[index]["formatted"];
-              String country = suggestions[index]["country"] as String;
+              String name = suggestions[index]["name"] ??
+                  suggestions[index]["formatted"] ??
+                  "";
+              String country = suggestions[index]["country"] ?? "";
               String state =
                   suggestions[index]["state"] ?? suggestions[index]["suburb"];
               String county = suggestions[index]["county"] ??
                   suggestions[index]["postcode"] ??
-                  suggestions[index]["state_code"];
+                  suggestions[index]["state_code"] ??
+                  "";
 
               return ListTile(
                 title: Text(name),
                 subtitle: Text("$state, $county, $country"),
                 onTap: () {
-                  final selectedName = suggestions[index]["name"] as String;
+                  final selectedName = suggestions[index]["name"] ??
+                      suggestions[index]["formatted"] ??
+                      "";
                   onItemSelected(selectedName);
                   close(context, selectedName);
                 },
