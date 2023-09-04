@@ -1,19 +1,23 @@
 // ignore_for_file: use_build_context_synchronously, prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, use_key_in_widget_constructors, unused_field, unused_local_variable, non_constant_identifier_names, prefer_const_declarations, avoid_print
 
+import 'dart:async';
 import 'dart:convert';
+import 'package:NearbyNexus/screens/admin/screens/add_data.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:easy_search_bar/easy_search_bar.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../config/sessions/connectivity.dart';
 import '../components/custom_floating_search_bar.dart';
 import '../components/user_list_tile.dart';
 import 'package:http/http.dart' as http;
@@ -35,8 +39,8 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
 
   final int _page = 0;
   final GlobalKey<_GeneralUserHomeState> _bottomNavigationKey = GlobalKey();
+  late StreamSubscription subscription;
   String yrCurrentLocation = "loading..";
-// Load user data
   String nameLoginned = "Jhon Doe";
   String query = '';
   String imageLink = "";
@@ -44,6 +48,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
   bool isLocationSearch = false;
   bool isLocationFetching = false;
   bool isimageFetched = true;
+  bool isDeviceOnline = false;
   int _selectedItemPosition = 2;
   Color selectedColor = Colors.black;
   Color unselectedColor = Colors.blueGrey;
@@ -208,7 +213,8 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                     context: context,
                     delegate: CustomSearchDelegate(
                         searchPlaces: searchPlaces,
-                        onItemSelected: handleItemSelection,getMyLocation: _getCurrentLocationAndSetAddress));
+                        onItemSelected: handleItemSelection,
+                        getMyLocation: _getCurrentLocationAndSetAddress));
               });
             },
             child: Row(

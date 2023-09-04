@@ -225,7 +225,8 @@ class _UserProfileOneState extends State<UserProfileOne> {
                           await SharedPreferences.getInstance();
                       sharedpreferences.remove("userSessionData");
                       sharedpreferences.remove("uid");
-                      Navigator.popAndPushNamed(context, "login_screen");
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, "login_screen", (route) => false);
                       await _googleSignIn.signOut();
                     },
                     child: ListTile(
