@@ -28,6 +28,7 @@ class _UserProfileState extends State<UserProfile> {
   bool isFetching = true;
   bool verifiedEmail = false;
   bool verifiedPhone = false;
+  bool isVerifyStarted = false;
   @override
   void initState() {
     super.initState();
@@ -226,7 +227,6 @@ class _UserProfileState extends State<UserProfile> {
                             SizedBox(
                               height: 10,
                             ),
-                          
                             proposedJobs(
                                 "Auto rickshaw",
                                 "Koovapally, Kerala, India",
@@ -314,6 +314,7 @@ Widget profileLists(BuildContext context, IconData icon, value, title,
                               codeSent:
                                   (String verificationId, int? resendToken) {
                                 UserProfile.verifyPhone = verificationId;
+                                
                                 Navigator.popAndPushNamed(
                                     context, "user_otp_screen");
                               },

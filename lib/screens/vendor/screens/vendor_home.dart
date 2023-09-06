@@ -2,10 +2,12 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
+import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
+import 'package:NearbyNexus/screens/vendor/components/user_vendor_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
@@ -14,7 +16,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../user/components/custom_floating_search_bar.dart';
-import '../../user/components/user_list_tile.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -198,43 +199,59 @@ class _VendorHomeState extends State<VendorHome> {
         backgroundColor: Colors.black,
         elevation: 2,
         shadowColor: Colors.grey,
-        leadingWidth: MediaQuery.sizeOf(context).width,
+        leadingWidth: MediaQuery.sizeOf(context).width - 50,
         leading: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: InkWell(
-            onTap: () async {
-              setState(() {
-                isLocationSearch = true;
-                showSearch(
-                    context: context,
-                    delegate: CustomSearchDelegate(
-                        searchPlaces: searchPlaces,
-                        onItemSelected: handleItemSelection,
-                        getMyLocation: _getCurrentLocationAndSetAddress));
-              });
-            },
-            child: Row(
-              children: [
-                SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: SvgPicture.asset(
-                        "assets/images/vector/location_pin.svg")),
-                SizedBox(width: 8.0),
-                Text(
-                  yrCurrentLocation,
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 178, 176, 176),
-                    fontWeight: FontWeight.normal,
-                    fontFamily: GoogleFonts.poppins().fontFamily,
-                    fontSize: 16.0,
-                  ),
+          padding: const EdgeInsets.all(3.0),
+          child: Card(
+            elevation: 2,
+            color: Color.fromARGB(17, 255, 255, 255),
+            shadowColor: Color.fromARGB(46, 158, 158, 158),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: InkWell(
+                onTap: () async {
+                  setState(() {
+                    isLocationSearch = true;
+                    showSearch(
+                        context: context,
+                        delegate: CustomSearchDelegate(
+                            searchPlaces: searchPlaces,
+                            onItemSelected: handleItemSelection,
+                            getMyLocation: _getCurrentLocationAndSetAddress));
+                  });
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        SizedBox(
+                            width: 15,
+                            height: 15,
+                            child: SvgPicture.asset(
+                                "assets/images/vector/location_pin.svg")),
+                        SizedBox(width: 8.0),
+                        Text(
+                          yrCurrentLocation,
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 241, 240, 240),
+                            fontWeight: FontWeight.normal,
+                            fontFamily: GoogleFonts.poppins().fontFamily,
+                            fontSize: 14.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Icon(
+                      Icons.arrow_drop_down,
+                      color: Color.fromARGB(255, 241, 240, 240),
+                    ),
+                  ],
                 ),
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: Color(0xFF838383),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -306,34 +323,13 @@ class _VendorHomeState extends State<VendorHome> {
                     SizedBox(
                       height: 10,
                     ),
-                    SizedBox(
-                      height: 40,
-                      width: MediaQuery.sizeOf(context).width,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          Chip(
-                            label: Text("Popular"),
-                          ),
-                          SizedBox(width: 10),
-                          Chip(label: Text("New")),
-                          SizedBox(width: 10),
-                          Chip(label: Text("Emergency")),
-                          SizedBox(width: 10),
-                          Chip(label: Text("Administration")),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "Suggested services",
+                            "Peoples nearby",
                             style: TextStyle(color: Colors.grey, fontSize: 16),
                           ),
                           InkWell(
@@ -354,7 +350,8 @@ class _VendorHomeState extends State<VendorHome> {
                     Divider(
                       color: const Color.fromARGB(145, 158, 158, 158),
                     ),
-                    Expanded(
+                    SizedBox(
+                      height: 260,
                       child: StreamBuilder<QuerySnapshot>(
                         stream: FirebaseFirestore.instance
                             .collection('users')
@@ -364,7 +361,8 @@ class _VendorHomeState extends State<VendorHome> {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
-                                child: CircularProgressIndicator());
+                              child: CircularProgressIndicator(),
+                            );
                           }
 
                           if (snapshot.hasError) {
@@ -390,7 +388,9 @@ class _VendorHomeState extends State<VendorHome> {
                                   Text(
                                     "Sorry, Something went wrong",
                                     style: TextStyle(
-                                        color: Colors.white, fontSize: 16),
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -421,12 +421,15 @@ class _VendorHomeState extends State<VendorHome> {
 
                             if (atLeastOneWordPresent) {
                               matchesFound = true;
-                              resultList.add(ListTile(
-                                
-                                title: Text(
-                                  generalUser['name'],
-                                  style: TextStyle(color: Colors.white),
-                                ),
+                              resultList.add(GeneralUserTiles(
+                                userName: generalUser['name'],
+                                userLocation: generalUser['geoLocation'],
+                                jobsOffered: 50,
+                                paymentVerified: generalUser['paymentVerified'],
+                                ratings: 3.2,
+                                userImage: generalUser['image'],
+                                emailVerified: generalUser['emailId']
+                                    ['verified'],
                               ));
                             }
                           }
@@ -438,15 +441,17 @@ class _VendorHomeState extends State<VendorHome> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     SvgPicture.asset(
-                                      height: 250,
-                                      width: 250,
+                                      height: 200,
+                                      width: 200,
                                       "assets/images/vector/user_not_found.svg",
                                     ),
                                     SizedBox(height: 15),
                                     Text(
                                       "Sorry, no users found!",
                                       style: TextStyle(
-                                          color: Colors.white, fontSize: 16),
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -454,8 +459,15 @@ class _VendorHomeState extends State<VendorHome> {
                             );
                           }
 
-                          return ListView(
-                            children: resultList,
+                          return ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: resultList.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: resultList[index],
+                              );
+                            },
                           );
                         },
                       ),
