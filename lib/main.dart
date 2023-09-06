@@ -1,4 +1,5 @@
 import 'package:NearbyNexus/config/sessions/connect_inject.dart';
+import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';
@@ -10,6 +11,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
 import 'config/themes/app_theme.dart';
 import 'screens/admin/screens/add_data.dart';
@@ -27,7 +29,14 @@ import 'screens/vendor/screens/registration_vendor_two.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  final userProvider = UserProvider(); // Create an instance of UserProvider
+  userProvider.setUid(); // Retrieve and set the uid
+  runApp(
+    ChangeNotifierProvider.value(
+      value: userProvider, // Provide the UserProvider to your app
+      child: const MyApp(),
+    ),
+  );
   // DependencyInjection.init();
 }
 

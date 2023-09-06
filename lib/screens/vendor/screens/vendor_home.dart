@@ -2,7 +2,8 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:NearbyNexus/components/user_circle_avatar.dart';
+
+import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
 import 'package:NearbyNexus/screens/vendor/components/user_vendor_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,6 +15,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../user/components/custom_floating_search_bar.dart';
 
@@ -37,6 +40,7 @@ class _VendorHomeState extends State<VendorHome> {
   final int _page = 0;
   final GlobalKey<_VendorHomeState> _bottomNavigationKey = GlobalKey();
   late StreamSubscription subscription;
+  var logger = Logger();
   String yrCurrentLocation = "loading..";
   String nameLoginned = "Jhon Doe";
   String query = '';
@@ -52,36 +56,40 @@ class _VendorHomeState extends State<VendorHome> {
   SnakeShape snakeShape = SnakeShape.circle;
   List<String> searchWithLocation = [];
   Map<String, dynamic> placesQuery = {};
+  List<dynamic> userFavourites = [];
   // location fetching
 
   Position? _currentPosition;
-
   @override
   void initState() {
     super.initState();
-    FetchUserData();
+    Future.delayed(Duration.zero, () {
+      String? uid = Provider.of<UserProvider>(context, listen: false).uid;
+      FetchUserData(uid);
+    });
+
     _getCurrentLocationAndSetAddress();
   }
 
-  Future<void> FetchUserData() async {
-    final SharedPreferences sharedPreferences =
-        await SharedPreferences.getInstance();
-    var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData!);
-    String uid = initData['uid'];
-    DocumentSnapshot snapshot =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
-    if (snapshot.exists) {
-      Map<String, dynamic> fetchedData =
-          snapshot.data() as Map<String, dynamic>;
+  Future<void> FetchUserData(uid) async {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .listen((DocumentSnapshot snapshot) {
+      if (snapshot.exists) {
+        Map<String, dynamic> fetchedData =
+            snapshot.data() as Map<String, dynamic>;
 
-      // Assing admin data to the UI
-      setState(() {
-        imageLink = fetchedData['image'];
-        nameLoginned = fetchedData['name'];
-        isimageFetched = false;
-      });
-    }
+        // Update UI with the fetched data
+        setState(() {
+          imageLink = fetchedData['image'];
+          nameLoginned = fetchedData['name'];
+          isimageFetched = false;
+          userFavourites = fetchedData['userFavourites'];
+        });
+      }
+    });
   }
 
   List<String> removeComma(String value) {
@@ -187,6 +195,9 @@ class _VendorHomeState extends State<VendorHome> {
       // searchWithLocation = removeComma(yrCurrentLocation);
     });
   }
+
+  // function for userTiles fetching
+  // Future<void> FetchGeneralUserTiles() {}
 
   @override
   Widget build(BuildContext context) {
@@ -324,31 +335,19 @@ class _VendorHomeState extends State<VendorHome> {
                       height: 10,
                     ),
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.only(left: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             "Peoples nearby",
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
-                          ),
-                          InkWell(
-                            child: SizedBox(
-                              width: 50,
-                              height: 40,
-                              child: SvgPicture.asset(
-                                  "assets/images/vector/equalizer.svg",
-                                  color: Color(0xFF838383)),
-                            ),
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
                           ),
                         ],
                       ),
                     ),
                     SizedBox(
-                      height: 1,
-                    ),
-                    Divider(
-                      color: const Color.fromARGB(145, 158, 158, 158),
+                      height: 3,
                     ),
                     SizedBox(
                       height: 260,
@@ -372,6 +371,7 @@ class _VendorHomeState extends State<VendorHome> {
                           final userDocumentData = snapshot.data!.docs;
 
                           bool matchesFound = false;
+                          bool addedToFav = false;
 
                           if (userDocumentData == null ||
                               userDocumentData.isEmpty) {
@@ -407,6 +407,11 @@ class _VendorHomeState extends State<VendorHome> {
 
                             final docId = userDocumentData[index].id;
                             final geoLocation = generalUser['geoLocation'];
+                            // get user favourites
+
+                            if (userFavourites.contains(docId)) {
+                              addedToFav = true;
+                            }
 
                             List<String> yrCurrentLocationWords =
                                 yrCurrentLocation.split(' ');
@@ -430,6 +435,8 @@ class _VendorHomeState extends State<VendorHome> {
                                 userImage: generalUser['image'],
                                 emailVerified: generalUser['emailId']
                                     ['verified'],
+                                docId: docId,
+                                isSelectedFav: addedToFav,
                               ));
                             }
                           }

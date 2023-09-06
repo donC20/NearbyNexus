@@ -1,8 +1,11 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:NearbyNexus/config/sessions/user_session_init.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 
 class GeneralUserTiles extends StatefulWidget {
   final String userName;
@@ -12,8 +15,10 @@ class GeneralUserTiles extends StatefulWidget {
   final bool paymentVerified;
   final bool emailVerified;
   final double ratings;
+  final String docId;
+  bool isSelectedFav;
 
-  const GeneralUserTiles({
+  GeneralUserTiles({
     Key? key,
     required this.userName,
     required this.userImage,
@@ -22,6 +27,8 @@ class GeneralUserTiles extends StatefulWidget {
     required this.paymentVerified,
     required this.ratings,
     required this.emailVerified,
+    required this.docId,
+    this.isSelectedFav = false,
   }) : super(key: key);
 
   @override
@@ -29,10 +36,13 @@ class GeneralUserTiles extends StatefulWidget {
 }
 
 class _GeneralUserTilesState extends State<GeneralUserTiles> {
-  bool isFavorite = false;
-
+  var logger = Logger();
+  List<dynamic> userFavourites = [];
   @override
   Widget build(BuildContext context) {
+    String? uid = Provider.of<UserProvider>(context).uid;
+    bool isFavorite = widget.isSelectedFav;
+
     return SizedBox(
       width: 250,
       height: 110,
@@ -82,10 +92,54 @@ class _GeneralUserTilesState extends State<GeneralUserTiles> {
                   isFavorite ? Icons.favorite : Icons.favorite_border,
                   color: Colors.white,
                 ),
-                onPressed: () {
+                onPressed: () async {
                   setState(() {
                     isFavorite = !isFavorite;
                   });
+                  DocumentSnapshot<Map<String, dynamic>> docSnapshot =
+                      await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(uid)
+                          .get();
+                  if (isFavorite) {
+                    try {
+                      if (docSnapshot.exists) {
+                        userFavourites =
+                            docSnapshot.data()?['userFavourites'] ?? [];
+                        userFavourites.add(widget.docId);
+
+                        await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(uid)
+                            .update({'userFavourites': userFavourites});
+
+                        logger.d('Document updated successfully');
+                      } else {
+                        logger.d('Document does not exist');
+                      }
+                    } catch (e) {
+                      logger.d('Error updating document: $e');
+                    }
+                  } else {
+                    try {
+                      if (docSnapshot.exists) {
+                        userFavourites =
+                            docSnapshot.data()?['userFavourites'] ?? [];
+                        userFavourites.remove(widget.docId);
+
+                        await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(uid)
+                            .update({'userFavourites': userFavourites});
+
+                        logger.d('Document removed successfully');
+                      } else {
+                        logger.d('Document does not exist');
+                      }
+                    } catch (e) {
+                      logger.d('Error removein document: $e');
+                    }
+                  }
                 },
               ),
             ),
