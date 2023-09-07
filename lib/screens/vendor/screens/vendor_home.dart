@@ -8,7 +8,6 @@ import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
 import 'package:NearbyNexus/screens/vendor/components/user_vendor_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geocoding/geocoding.dart';
@@ -17,7 +16,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../user/components/custom_floating_search_bar.dart';
 
 import 'package:http/http.dart' as http;
@@ -86,7 +84,7 @@ class _VendorHomeState extends State<VendorHome> {
           imageLink = fetchedData['image'];
           nameLoginned = fetchedData['name'];
           isimageFetched = false;
-          userFavourites = fetchedData['userFavourites'];
+          // userFavourites = fetchedData['userFavourites'];
         });
       }
     });
@@ -409,9 +407,7 @@ class _VendorHomeState extends State<VendorHome> {
                             final geoLocation = generalUser['geoLocation'];
                             // get user favourites
 
-                            if (userFavourites.contains(docId)) {
-                              addedToFav = true;
-                            }
+                           
 
                             List<String> yrCurrentLocationWords =
                                 yrCurrentLocation.split(' ');
@@ -436,7 +432,6 @@ class _VendorHomeState extends State<VendorHome> {
                                 emailVerified: generalUser['emailId']
                                     ['verified'],
                                 docId: docId,
-                                isSelectedFav: addedToFav,
                               ));
                             }
                           }

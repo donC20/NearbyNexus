@@ -16,9 +16,8 @@ class GeneralUserTiles extends StatefulWidget {
   final bool emailVerified;
   final double ratings;
   final String docId;
-  bool isSelectedFav;
 
-  GeneralUserTiles({
+  const GeneralUserTiles({
     Key? key,
     required this.userName,
     required this.userImage,
@@ -28,7 +27,6 @@ class GeneralUserTiles extends StatefulWidget {
     required this.ratings,
     required this.emailVerified,
     required this.docId,
-    this.isSelectedFav = false,
   }) : super(key: key);
 
   @override
@@ -38,10 +36,10 @@ class GeneralUserTiles extends StatefulWidget {
 class _GeneralUserTilesState extends State<GeneralUserTiles> {
   var logger = Logger();
   List<dynamic> userFavourites = [];
+  bool isFavorite = false;
   @override
   Widget build(BuildContext context) {
     String? uid = Provider.of<UserProvider>(context).uid;
-    bool isFavorite = widget.isSelectedFav;
 
     return SizedBox(
       width: 250,
@@ -87,26 +85,33 @@ class _GeneralUserTilesState extends State<GeneralUserTiles> {
             ),
             Positioned(
               right: 5, // Adjust the right position for the favorite button
-              child: IconButton(
-                icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: Colors.white,
-                ),
-                onPressed: () async {
-                  setState(() {
-                    isFavorite = !isFavorite;
-                  });
-                  DocumentSnapshot<Map<String, dynamic>> docSnapshot =
-                      await FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(uid)
-                          .get();
-                  if (isFavorite) {
-                    try {
-                      if (docSnapshot.exists) {
-                        userFavourites =
-                            docSnapshot.data()?['userFavourites'] ?? [];
-                        userFavourites.add(widget.docId);
+              child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(uid)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return CircularProgressIndicator(); // Loading indicator while fetching data
+                  }
+
+                  final userFavourites = List<String>.from(
+                      snapshot.data!.get('userFavourites') ?? []);
+
+                  return IconButton(
+                    icon: Icon(
+                      userFavourites.contains(widget.docId)
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: Colors.white,
+                    ),
+                    onPressed: () async {
+                      try {
+                        if (userFavourites.contains(widget.docId)) {
+                          userFavourites.remove(widget.docId);
+                        } else {
+                          userFavourites.add(widget.docId);
+                        }
 
                         await FirebaseFirestore.instance
                             .collection('users')
@@ -114,32 +119,11 @@ class _GeneralUserTilesState extends State<GeneralUserTiles> {
                             .update({'userFavourites': userFavourites});
 
                         logger.d('Document updated successfully');
-                      } else {
-                        logger.d('Document does not exist');
+                      } catch (e) {
+                        logger.d('Error updating document: $e');
                       }
-                    } catch (e) {
-                      logger.d('Error updating document: $e');
-                    }
-                  } else {
-                    try {
-                      if (docSnapshot.exists) {
-                        userFavourites =
-                            docSnapshot.data()?['userFavourites'] ?? [];
-                        userFavourites.remove(widget.docId);
-
-                        await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(uid)
-                            .update({'userFavourites': userFavourites});
-
-                        logger.d('Document removed successfully');
-                      } else {
-                        logger.d('Document does not exist');
-                      }
-                    } catch (e) {
-                      logger.d('Error removein document: $e');
-                    }
-                  }
+                    },
+                  );
                 },
               ),
             ),
