@@ -269,7 +269,7 @@ class _VendorHomeState extends State<VendorHome> {
             padding: const EdgeInsets.all(10.0),
             child: InkWell(
               onTap: () {
-                Navigator.pushNamed(context, "user_profile_one");
+                Navigator.pushNamed(context, "vendor_profile_one");
               },
               child: isimageFetched == true
                   ? Container(
@@ -378,7 +378,7 @@ class _VendorHomeState extends State<VendorHome> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   SvgPicture.asset(
-                                    height: 250,
+                                    height: 200,
                                     width: 250,
                                     "assets/images/vector/404_error.svg",
                                   ),
@@ -407,8 +407,6 @@ class _VendorHomeState extends State<VendorHome> {
                             final geoLocation = generalUser['geoLocation'];
                             // get user favourites
 
-                           
-
                             List<String> yrCurrentLocationWords =
                                 yrCurrentLocation.split(' ');
                             List<String> geoLocationWords =
@@ -436,42 +434,166 @@ class _VendorHomeState extends State<VendorHome> {
                             }
                           }
 
-                          if (!matchesFound) {
-                            resultList.add(
-                              Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      height: 200,
-                                      width: 200,
-                                      "assets/images/vector/user_not_found.svg",
-                                    ),
-                                    SizedBox(height: 15),
-                                    Text(
-                                      "Sorry, no users found!",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
+                          return !matchesFound
+                              ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SvgPicture.asset(
+                                        height: 200,
+                                        width: 200,
+                                        "assets/images/vector/user_not_found.svg",
                                       ),
+                                      SizedBox(height: 15),
+                                      Text(
+                                        "): Sorry, currently no users at your location!",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: resultList.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: resultList[index],
+                                    );
+                                  },
+                                );
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Others around you",
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 3,
+                    ),
+                    SizedBox(
+                      height: 260,
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: FirebaseFirestore.instance
+                            .collection('users')
+                            .where('userType', isEqualTo: 'general_user')
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          if (snapshot.hasError) {
+                            return Text('Error: ${snapshot.error}');
+                          }
+
+                          final userDocumentData = snapshot.data!.docs;
+
+                          bool addedToFav = false;
+
+                          if (userDocumentData.isEmpty) {
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    height: 200,
+                                    width: 250,
+                                    "assets/images/vector/404_error.svg",
+                                  ),
+                                  SizedBox(height: 15),
+                                  Text(
+                                    "Sorry, Something went wrong",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             );
                           }
 
                           return ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: resultList.length,
+                            itemCount: userDocumentData.length,
                             itemBuilder: (context, index) {
+                              final generalUser = userDocumentData[index].data()
+                                  as Map<String, dynamic>;
+
+                              final docId = userDocumentData[index].id;
+                              final geoLocation = generalUser['geoLocation'];
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: resultList[index],
+                                child: GeneralUserTiles(
+                                  userName: generalUser['name'],
+                                  userLocation: generalUser['geoLocation'],
+                                  jobsOffered: 50,
+                                  paymentVerified:
+                                      generalUser['paymentVerified'],
+                                  ratings: 3.2,
+                                  userImage: generalUser['image'],
+                                  emailVerified: generalUser['emailId']
+                                      ['verified'],
+                                  docId: docId,
+                                ),
                               );
                             },
                           );
                         },
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Other actions",
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: InkWell(
+                        onTap: () {},
+                        child: ListTile(
+                          shape: Border.all(
+                              color: Color.fromARGB(74, 158, 158, 158)),
+                          title: Text(
+                            "My Favourites",
+                            style: TextStyle(
+                                color: const Color.fromARGB(255, 255, 255, 255),
+                                fontSize: 14),
+                          ),
+                          trailing: Icon(
+                            Icons.arrow_right_alt,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ],

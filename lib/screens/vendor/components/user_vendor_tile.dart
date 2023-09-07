@@ -46,12 +46,12 @@ class _GeneralUserTilesState extends State<GeneralUserTiles> {
       height: 110,
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Color.fromARGB(18, 158, 158, 158)),
+          border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
           borderRadius: BorderRadius.circular(10), // Add border radius
-          color: Color.fromARGB(89, 42, 40, 40),
+          color: Color.fromARGB(186, 42, 40, 40),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withOpacity(0.9),
               blurRadius: 10,
               spreadRadius: 2,
             ),
@@ -137,6 +137,7 @@ class _GeneralUserTilesState extends State<GeneralUserTiles> {
                     child: Image.network(
                       widget.userImage,
                       width: 80,
+                      height: 80,
                       fit: BoxFit.cover,
                       loadingBuilder: (BuildContext context, Widget child,
                           ImageChunkEvent? loadingProgress) {

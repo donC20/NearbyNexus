@@ -7,6 +7,7 @@ import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
+import 'package:NearbyNexus/screens/vendor/screens/vendor_profile_one.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -73,6 +74,7 @@ class MyApp extends StatelessWidget {
         "data_entry": (context) => const DataEntry(),
         "vendor_profile_opposite": (context) => const VendorPortfolio(),
         "user_profile_one": (context) => const UserProfileOne(),
+        "vendor_profile_one": (context) => const VendorProfileOne(),
         "user_profile": (context) => const UserProfile(),
         "user_otp_screen": (context) => const UserOtpScreen(),
       },
