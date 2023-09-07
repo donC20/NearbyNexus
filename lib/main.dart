@@ -1,4 +1,3 @@
-import 'package:NearbyNexus/config/sessions/connect_inject.dart';
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
@@ -7,10 +6,10 @@ import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
+import 'package:NearbyNexus/screens/vendor/screens/vendor_profile.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile_one.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
@@ -73,6 +72,7 @@ class MyApp extends StatelessWidget {
         "list_users": (context) => const ListUsers(),
         "data_entry": (context) => const DataEntry(),
         "vendor_profile_opposite": (context) => const VendorPortfolio(),
+        "vendor_profile": (context) => const VendorProfile(),
         "user_profile_one": (context) => const UserProfileOne(),
         "vendor_profile_one": (context) => const VendorProfileOne(),
         "user_profile": (context) => const UserProfile(),

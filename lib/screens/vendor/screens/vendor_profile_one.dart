@@ -135,7 +135,7 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                     ),
                     trailing: OutlinedButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, "user_profile");
+                        Navigator.pushNamed(context, "vendor_profile");
                       },
                       child: Text(
                         "Profile",
