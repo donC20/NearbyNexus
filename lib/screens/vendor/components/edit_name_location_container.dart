@@ -1,9 +1,11 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, unnecessary_new, prefer_const_declarations, non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -26,7 +28,10 @@ class _EditNameLocationState extends State<EditNameLocation> {
   bool isLocationFetchingList = false;
   bool isListEmpty = false;
   bool isEmailVerified = false;
+  bool initEmailStoreVal = false;
+  bool duplicateEmailId = true;
   bool isFetchingDetails = false;
+  bool emailRegex = false;
   String selectedName = "";
   String yrCurrentLocation = "loading..";
   String nameLoginned = "Jhon Doe";
@@ -94,20 +99,27 @@ class _EditNameLocationState extends State<EditNameLocation> {
   }
 
   Future<void> FetchUserData(uid) async {
-    DocumentSnapshot snapshot =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
-    if (snapshot.exists) {
-      Map<String, dynamic> fetchedData =
-          snapshot.data() as Map<String, dynamic>;
-      // Assing admin data to the UI
-      setState(() {
-        _nameController.text = fetchedData['name'];
-        _locationController.text = fetchedData['geoLocation'];
-        _emailController.text = fetchedData['emailId']['id'];
-        isFetchingDetails = false;
-        isEmailVerified = fetchedData['emailId']['verified'];
-      });
-    }
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .listen((DocumentSnapshot snapshot) {
+      if (snapshot.exists) {
+        Map<String, dynamic> fetchedData =
+            snapshot.data() as Map<String, dynamic>;
+        // Assing admin data to the UI
+        setState(() {
+          _nameController.text = fetchedData['name'];
+          _locationController.text = fetchedData['geoLocation'];
+          _emailController.text = fetchedData['emailId']['id'];
+          email = fetchedData['emailId']['id'];
+          isFetchingDetails = false;
+          isEmailVerified = fetchedData['emailId']['verified'];
+          initEmailStoreVal = fetchedData['emailId']['verified'];
+        });
+        logger.d(isEmailVerified);
+      }
+    });
   }
 
   @override
@@ -147,13 +159,56 @@ class _EditNameLocationState extends State<EditNameLocation> {
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: TextFormField(
                           controller: _emailController,
-                          keyboardType: TextInputType.name,
+                          keyboardType: TextInputType.emailAddress,
                           style: GoogleFonts.poppins(
                               color: const Color.fromARGB(255, 226, 223, 223)),
                           decoration: new InputDecoration(
                             // prefixIcon: Icon(Icons.account_circle_rounded,
                             //     color: Colors.white54),
-                            suffixIcon: Chip(label: Text("v")),
+                            suffixIcon: _emailController.text.isEmpty ||
+                                    !emailRegex ||
+                                    duplicateEmailId
+                                ? SizedBox()
+                                : isEmailVerified
+                                    ? Chip(
+                                        backgroundColor: Color.fromARGB(
+                                            255,
+                                            10,
+                                            164,
+                                            17), // Set the background color
+                                        labelPadding: EdgeInsets.all(1),
+                                        label: Text(
+                                          "Verified",
+                                          style: TextStyle(
+                                            color: Color.fromARGB(
+                                                255, 255, 255, 255),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      )
+                                    : InkWell(
+                                        onTap: () async {
+                                       
+                                        },
+                                        child: Chip(
+                                          backgroundColor: Color.fromARGB(
+                                              255,
+                                              227,
+                                              23,
+                                              5), // Set the background color
+                                          labelPadding: EdgeInsets.all(1),
+                                          label: Text(
+                                            "Verify me",
+                                            style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 255, 255, 255),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                             hintStyle: TextStyle(color: Colors.white38),
                             hintText: 'Eg : example@gmail.com',
                             labelStyle: TextStyle(
@@ -172,15 +227,50 @@ class _EditNameLocationState extends State<EditNameLocation> {
                               ),
                             ),
                           ),
+                          onChanged: (value) async {
+                            try {
+                              final existingMethods = await FirebaseAuth
+                                  .instance
+                                  .fetchSignInMethodsForEmail(value);
+                              if (existingMethods.isEmpty) {
+                                setState(() {
+                                  duplicateEmailId = false;
+                                });
+                                if (initEmailStoreVal) {
+                                  if (value != email) {
+                                    setState(() {
+                                      isEmailVerified = false;
+                                    });
+                                  } else if (value == email) {
+                                    setState(() {
+                                      isEmailVerified = true;
+                                    });
+                                  }
+                                }
+                              } else {
+                                setState(() {
+                                  duplicateEmailId = true;
+                                });
+                              }
+                            } catch (e) {
+                              logger.d(e);
+                            }
+                            _formKey.currentState!.validate();
+                          },
                           validator: (value) {
                             if (value!.isEmpty) {
                               return "You left this field empty!";
                             }
-                            bool emailRegex = RegExp(
+
+                            emailRegex = RegExp(
                                     r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
                                 .hasMatch(value);
                             if (!emailRegex) {
                               return "Invalid email!";
+                            } else if (duplicateEmailId) {
+                              return "This email id already exists!";
+                            } else if (!isEmailVerified) {
+                              return "Please verify your email. Tap on verify me";
                             }
                             return null;
                           },
@@ -400,11 +490,18 @@ class _EditNameLocationState extends State<EditNameLocation> {
                             OutlinedButton(
                               onPressed: () async {
                                 if (_formKey.currentState!.validate() &&
-                                    selectedName.isNotEmpty) {
+                                    selectedName.isNotEmpty &&
+                                    isEmailVerified) {
+                                  Map<String, dynamic> emailNew = {
+                                    "id": _emailController.text,
+                                    "verified": true,
+                                  };
+
                                   await FirebaseFirestore.instance
                                       .collection('users')
                                       .doc(uid)
                                       .update({
+                                    "emailId": emailNew,
                                     "name": _nameController.text,
                                     "geoLocation": selectedName
                                   }).then((value) => {Navigator.pop(context)});
