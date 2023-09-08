@@ -32,7 +32,7 @@ class _ContentBoxState extends State<ContentBox> {
   // shoe dialog
   void _showDialog(BuildContext context) {
     showDialog(
-      // barrierDismissible: false,
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Dialog(

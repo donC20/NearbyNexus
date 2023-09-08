@@ -327,7 +327,7 @@ class _VendorHomeState extends State<VendorHome> {
           : SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
-                child: Column(
+                child: ListView(
                   children: [
                     SizedBox(
                       height: 10,

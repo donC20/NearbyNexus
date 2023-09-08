@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, use_build_context_synchronously
 
 import 'dart:convert';
 
@@ -242,9 +242,6 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                       ),
                       horizontalTitleGap: -5,
                     ),
-                  ),
-                  SizedBox(
-                    height: 250,
                   ),
                   SizedBox(
                     child: Center(
