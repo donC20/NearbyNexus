@@ -5,6 +5,7 @@ import 'package:NearbyNexus/screens/user/screens/user_home.dart';
 import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
+import 'package:NearbyNexus/screens/vendor/screens/update_vendor_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile_one.dart';
@@ -77,6 +78,7 @@ class MyApp extends StatelessWidget {
         "vendor_profile_one": (context) => const VendorProfileOne(),
         "user_profile": (context) => const UserProfile(),
         "user_otp_screen": (context) => const UserOtpScreen(),
+        "update_vendor_screen": (context) => const UpdateVendorScreen(),
       },
       initialRoute: "splashScreen",
     );

@@ -242,6 +242,20 @@ class _VendorProfileState extends State<VendorProfile> {
                   ],
                 ),
                 // Bio of vendor
+                Padding(
+                  padding: const EdgeInsets.only(top: 8, right: 5),
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, "update_vendor_screen");
+                        },
+                        icon: Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                        )),
+                  ),
+                ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),

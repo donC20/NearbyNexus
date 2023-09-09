@@ -132,7 +132,7 @@ class _ContentBoxState extends State<ContentBox> {
               size: 22,
             ),
             title: Text(
-              "Change name",
+              "Change details",
               style: TextStyle(color: Colors.white, fontSize: 14),
             ),
             onTap: () {

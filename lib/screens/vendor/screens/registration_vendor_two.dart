@@ -446,7 +446,7 @@ void _openBottomSheet(BuildContext context, List<String> selectedItems,
       return BottomSheetContent(
         selectedItems: selectedItems,
         removeItem: (item) {
-          removeItem(item); // Call the function from the widget class
+          removeItem(item);
         },
       );
     },
