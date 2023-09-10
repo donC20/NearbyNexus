@@ -106,47 +106,52 @@ class _BottomSheetVendorServicesState extends State<BottomSheetVendorServices> {
                 SizedBox(height: 10),
                 Column(
                   children: serviceList.map((item) {
-                    return GestureDetector(
-                      onTap: () {
-                        print("Clicked");
-                        confirmAndRemoveService(item);
-                      },
-                      child: Chip(
-                        elevation: 1,
-                        side: BorderSide(
-                          color: Colors.grey,
+                    return Wrap(
+                      spacing: 5,
+                      runSpacing: 2,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            confirmAndRemoveService(item);
+                          },
+                          child: Chip(
+                            elevation: 1,
+                            side: BorderSide(
+                              color: Colors.grey,
+                            ),
+                            label: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors
+                                        .red, // Change this to your desired button color
+                                  ),
+                                  padding: EdgeInsets.all(4),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 12,
+                                    color: Colors
+                                        .white, // Change this to your desired icon color
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 8,
+                                ),
+                                Text(
+                                  item,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: Colors.white,
+                          ),
                         ),
-                        label: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors
-                                    .red, // Change this to your desired button color
-                              ),
-                              padding: EdgeInsets.all(4),
-                              child: Icon(
-                                Icons.close,
-                                size: 12,
-                                color: Colors
-                                    .white, // Change this to your desired icon color
-                              ),
-                            ),
-                            SizedBox(
-                              width: 8,
-                            ),
-                            Text(
-                              item,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                        backgroundColor: Colors.white,
-                      ),
+                      ],
                     );
                   }).toList(),
                 ),
