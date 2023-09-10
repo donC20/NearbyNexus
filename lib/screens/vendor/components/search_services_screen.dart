@@ -350,9 +350,6 @@ class _SearchScreenServicesState extends State<SearchScreenServices> {
                               size: 40),
                     ),
 
-                    // Add code to display the selected items above the search bar
-
-                    // Add code to display the selected items above the search bar
                   ],
                 ),
                 Padding(

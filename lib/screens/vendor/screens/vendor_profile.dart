@@ -43,12 +43,9 @@ class _VendorProfileState extends State<VendorProfile> {
       "https://dealio.imgix.net/uploads/147885uploadshotel-pool-canaves.jpg";
   String geoLocation = "loading...";
   List<dynamic> serviceList = [];
-  List<dynamic> workingDays = ["Monday", "Tuesday", "Friday", "Saturday"];
-  Map<String, String> languages = {
-    "English": "Excellent proficiency",
-    "French": "Intermediate proficiency",
-    "Spanish": "Basic proficiency",
-  };
+  List<dynamic> workingDays = [];
+  List<dynamic> languages = [];
+  String about = '';
   void handleImageUploading(bool value) {
     setState(() {
       isImageUploading = value;
@@ -97,6 +94,9 @@ class _VendorProfileState extends State<VendorProfile> {
           geoLocation = vendorData['geoLocation'];
           isFetching = false;
           serviceList = vendorData['services'];
+          languages = vendorData['languages'];
+          about = vendorData['about'];
+          workingDays = vendorData['working_days'];
         });
       }
     });
@@ -307,7 +307,7 @@ class _VendorProfileState extends State<VendorProfile> {
                         ),
 
                         Text(
-                          "The project is a location-based service providing application that utilises the user's local location to connect them with available services, ranging from small-scale to large-scale providers. The application caters to users who are in a new town or city and need to contact service providers like taxi drivers, tailors, lawyers, labour and more, without having their contact information readily available.",
+                          about,
                           textAlign: TextAlign.justify,
                           style: TextStyle(
                             color: Color.fromARGB(191, 208, 208, 208),
@@ -411,9 +411,9 @@ class _VendorProfileState extends State<VendorProfile> {
                           child: ListView.separated(
                             physics: NeverScrollableScrollPhysics(),
                             itemBuilder: (BuildContext context, int index) {
-                              String language = languages.keys.elementAt(index);
-                              String proficiency =
-                                  languages.values.elementAt(index);
+                              String language = languages[index];
+                              // String proficiency =
+                              //     languages.values.elementAt(index);
 
                               return ListTile(
                                 title: Text(
@@ -421,7 +421,7 @@ class _VendorProfileState extends State<VendorProfile> {
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 subtitle: Text(
-                                  proficiency,
+                                  "",
                                   style: TextStyle(
                                     color: const Color.fromARGB(
                                         127, 255, 255, 255),

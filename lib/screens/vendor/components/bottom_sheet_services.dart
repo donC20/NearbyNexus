@@ -5,17 +5,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class BottomSheetVendorServices extends StatefulWidget {
-  const BottomSheetVendorServices({
+class BottomSheetVendor extends StatefulWidget {
+  final String fieldName;
+  const BottomSheetVendor({
     super.key,
+    required this.fieldName,
   });
 
   @override
-  _BottomSheetVendorServicesState createState() =>
-      _BottomSheetVendorServicesState();
+  _BottomSheetVendorState createState() => _BottomSheetVendorState();
 }
 
-class _BottomSheetVendorServicesState extends State<BottomSheetVendorServices> {
+class _BottomSheetVendorState extends State<BottomSheetVendor> {
   List<dynamic> serviceList = [];
   String? uid = '';
 
@@ -38,7 +39,7 @@ class _BottomSheetVendorServicesState extends State<BottomSheetVendorServices> {
         Map<String, dynamic> vendorData =
             snapshot.data() as Map<String, dynamic>;
         setState(() {
-          serviceList = vendorData['services'];
+          serviceList = vendorData[widget.fieldName];
         });
       }
     });
@@ -47,7 +48,7 @@ class _BottomSheetVendorServicesState extends State<BottomSheetVendorServices> {
   Future<void> removeService(String service) async {
     try {
       await FirebaseFirestore.instance.collection('users').doc(uid).update({
-        'services': FieldValue.arrayRemove([service])
+        widget.fieldName: FieldValue.arrayRemove([service])
       });
     } catch (e) {
       print('Error removing service: $e');
@@ -60,7 +61,8 @@ class _BottomSheetVendorServicesState extends State<BottomSheetVendorServices> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text("Confirm Removal"),
-          content: Text("Are you sure you want to remove this service?"),
+          content:
+              Text("Are you sure you want to remove this ${widget.fieldName}?"),
           actions: <Widget>[
             TextButton(
               child: Text("Cancel"),
@@ -93,7 +95,7 @@ class _BottomSheetVendorServicesState extends State<BottomSheetVendorServices> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Services",
+                  widget.fieldName,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -158,7 +160,7 @@ class _BottomSheetVendorServicesState extends State<BottomSheetVendorServices> {
               ],
             )
           : Text(
-              "No services added yet. Add your services.",
+              "No services added yet. Add your ${widget.fieldName}.",
               style: TextStyle(
                 color: Colors.grey,
                 fontSize: 16,

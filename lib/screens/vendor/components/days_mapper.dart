@@ -1,7 +1,10 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, use_full_hex_values_for_flutter_colors
 
+import 'package:NearbyNexus/config/sessions/user_session_init.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 
 class DaysMapper extends StatefulWidget {
   const DaysMapper({super.key});
@@ -12,7 +15,61 @@ class DaysMapper extends StatefulWidget {
 
 class _DaysMapperState extends State<DaysMapper> {
   var logger = Logger();
-  List<String> daysList = [];
+  String? uid = '';
+  List<dynamic> daysList = [];
+  List<dynamic> realList = [
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+    'Sun',
+  ];
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration(seconds: 0), () {
+      setState(() {
+        uid = Provider.of<UserProvider>(context, listen: false).uid;
+        fetchDays(uid);
+      });
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  Future<void> fetchDays(uid) async {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .listen((DocumentSnapshot snapshot) {
+      if (snapshot.exists) {
+        Map<String, dynamic> vendorData =
+            snapshot.data() as Map<String, dynamic>;
+        setState(() {
+          daysList = vendorData['working_days'];
+        });
+      }
+    });
+    logger.d(daysList);
+  }
+
+  Future<void> updateWorkingDays(lists) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .update({'working_days': lists});
+    } catch (e) {
+      logger.d('Error removing service: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Wrap(
@@ -20,7 +77,7 @@ class _DaysMapperState extends State<DaysMapper> {
       spacing: 5.0, // Adjust the spacing between containers
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             for (var day in ['Mon', 'Tue', 'Wed', 'Thu'])
               Row(
@@ -30,6 +87,8 @@ class _DaysMapperState extends State<DaysMapper> {
                       ? Column(
                           children: [
                             Container(
+                              width: 40,
+                              height: 40,
                               decoration: BoxDecoration(
                                 color: Color(0xFF4CAF50),
 
@@ -41,6 +100,7 @@ class _DaysMapperState extends State<DaysMapper> {
                                     if (daysList.contains(day)) {
                                       setState(() {
                                         daysList.remove(day);
+                                        updateWorkingDays(daysList);
                                       });
                                     }
                                     logger.d(daysList);
@@ -66,6 +126,8 @@ class _DaysMapperState extends State<DaysMapper> {
                       : Column(
                           children: [
                             Container(
+                              width: 40,
+                              height: 40,
                               decoration: BoxDecoration(
                                 color: Color(0xFFF44336),
                                 shape: BoxShape
@@ -76,6 +138,7 @@ class _DaysMapperState extends State<DaysMapper> {
                                     if (!daysList.contains(day)) {
                                       setState(() {
                                         daysList.add(day);
+                                        updateWorkingDays(daysList);
                                       });
                                     }
                                     logger.d(daysList);
@@ -108,8 +171,11 @@ class _DaysMapperState extends State<DaysMapper> {
               ),
           ],
         ),
+        SizedBox(
+          height: 10,
+        ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             for (var day in ['Fri', 'Sat', 'Sun'])
               Row(
@@ -118,6 +184,8 @@ class _DaysMapperState extends State<DaysMapper> {
                       ? Column(
                           children: [
                             Container(
+                              width: 40,
+                              height: 40,
                               decoration: BoxDecoration(
                                 color: Color(0xFF4CAF50),
 
@@ -129,6 +197,7 @@ class _DaysMapperState extends State<DaysMapper> {
                                     if (daysList.contains(day)) {
                                       setState(() {
                                         daysList.remove(day);
+                                        updateWorkingDays(daysList);
                                       });
                                     }
                                     logger.d(daysList);
@@ -154,6 +223,8 @@ class _DaysMapperState extends State<DaysMapper> {
                       : Column(
                           children: [
                             Container(
+                              width: 40,
+                              height: 40,
                               decoration: BoxDecoration(
                                 color: Color(0xFFF44336),
                                 shape: BoxShape
@@ -164,6 +235,7 @@ class _DaysMapperState extends State<DaysMapper> {
                                     if (!daysList.contains(day)) {
                                       setState(() {
                                         daysList.add(day);
+                                        updateWorkingDays(daysList);
                                       });
                                     }
                                     logger.d(daysList);
@@ -186,9 +258,7 @@ class _DaysMapperState extends State<DaysMapper> {
                             ),
                           ],
                         ),
-                  SizedBox(
-                    width: 30,
-                  ),
+
                   // if (day != 'Thu')
                   //   Container(
                   //     width: 40.0, // Adjust the width of the connecting line
@@ -197,6 +267,47 @@ class _DaysMapperState extends State<DaysMapper> {
                   //   ),
                 ],
               ),
+            Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF2196F3),
+                    shape:
+                        BoxShape.circle, // You can adjust the shape as needed
+                  ),
+                  child: IconButton(
+                      onPressed: () {
+                        if (daysList.isNotEmpty) {
+                          setState(() {
+                            daysList.clear();
+                            updateWorkingDays(daysList);
+                          });
+                        } else {
+                          setState(() {
+                            daysList.addAll(realList);
+                            updateWorkingDays(daysList);
+                          });
+                        }
+                        logger.d(daysList);
+                      },
+                      icon: Icon(
+                        daysList.isNotEmpty ? Icons.close : Icons.add,
+                        color: Colors.white,
+                      )),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  daysList.isNotEmpty ? "Clear all" : "Add all",
+                  style: TextStyle(
+                    color: const Color.fromARGB(255, 255, 255, 255),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ],
