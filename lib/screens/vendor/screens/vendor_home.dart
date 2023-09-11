@@ -61,7 +61,6 @@ class _VendorHomeState extends State<VendorHome> {
   @override
   void initState() {
     super.initState();
-
     _getCurrentLocationAndSetAddress();
   }
 
