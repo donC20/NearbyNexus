@@ -37,11 +37,11 @@ class _GeneralUserTilesState extends State<GeneralUserTiles> {
   var logger = Logger();
   List<dynamic> userFavourites = [];
   bool isFavorite = false;
-  String? uid = '';
+  // String? uid = '';
   @override
   void initState() {
     super.initState();
-    // Future.delayed(Duration.zero, () {
+    // Future.delayed(Duration(seconds: 1), () {
     //   setState(() {
     //     uid = Provider.of<UserProvider>(context).uid;
     //   });
@@ -50,7 +50,10 @@ class _GeneralUserTilesState extends State<GeneralUserTiles> {
 
   @override
   Widget build(BuildContext context) {
-    uid = Provider.of<UserProvider>(context).uid;
+    String? uid;
+    setState(() {
+      uid = Provider.of<UserProvider>(context).uid;
+    });
     return SizedBox(
       width: 250,
       height: 110,

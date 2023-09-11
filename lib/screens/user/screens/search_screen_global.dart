@@ -203,7 +203,6 @@ class _SearchScreenState extends State<SearchScreen> {
                         itemBuilder: (context, index) {
                           final uid = searchResults[index].id;
                           final userData = searchResults[index];
-
                           return InkWell(
                             onTap: () {
                               Navigator.pushNamed(
