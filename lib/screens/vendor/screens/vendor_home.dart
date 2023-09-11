@@ -56,17 +56,22 @@ class _VendorHomeState extends State<VendorHome> {
   Map<String, dynamic> placesQuery = {};
   List<dynamic> userFavourites = [];
   // location fetching
-
+  String? uid = "";
   Position? _currentPosition;
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
-      String? uid = Provider.of<UserProvider>(context, listen: false).uid;
-      FetchUserData(uid);
-    });
 
     _getCurrentLocationAndSetAddress();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    setState(() {
+      uid = Provider.of<UserProvider>(context, listen: false).uid;
+    });
+    FetchUserData(uid);
   }
 
   Future<void> FetchUserData(uid) async {
@@ -420,16 +425,22 @@ class _VendorHomeState extends State<VendorHome> {
 
                             if (atLeastOneWordPresent) {
                               matchesFound = true;
-                              resultList.add(GeneralUserTiles(
-                                userName: generalUser['name'],
-                                userLocation: generalUser['geoLocation'],
-                                jobsOffered: 50,
-                                paymentVerified: generalUser['paymentVerified'],
-                                ratings: 3.2,
-                                userImage: generalUser['image'],
-                                emailVerified: generalUser['emailId']
-                                    ['verified'],
-                                docId: docId,
+                              resultList.add(InkWell(
+                                onTap: () {
+                                  
+                                },
+                                child: GeneralUserTiles(
+                                  userName: generalUser['name'],
+                                  userLocation: generalUser['geoLocation'],
+                                  jobsOffered: 50,
+                                  paymentVerified:
+                                      generalUser['paymentVerified'],
+                                  ratings: 3.2,
+                                  userImage: generalUser['image'],
+                                  emailVerified: generalUser['emailId']
+                                      ['verified'],
+                                  docId: docId,
+                                ),
                               ));
                             }
                           }
