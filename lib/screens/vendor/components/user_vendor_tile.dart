@@ -84,49 +84,49 @@ class _GeneralUserTilesState extends State<GeneralUserTiles> {
               ),
             ),
             Positioned(
-              right: 5, // Adjust the right position for the favorite button
-              child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(uid)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return CircularProgressIndicator(); // Loading indicator while fetching data
-                  }
+                right: 5, // Adjust the right position for the favorite button
+                child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(uid)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return CircularProgressIndicator(); // Loading indicator while fetching data
+                    }
 
-                  final userFavourites = List<String>.from(
-                      snapshot.data!.get('userFavourites') ?? []);
+                    final data = snapshot.data!.data() as Map<String, dynamic>;
+                    final userFavourites =
+                        List<String>.from(data['userFavourites'] ?? []);
 
-                  return IconButton(
-                    icon: Icon(
-                      userFavourites.contains(widget.docId)
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: Colors.white,
-                    ),
-                    onPressed: () async {
-                      try {
-                        if (userFavourites.contains(widget.docId)) {
-                          userFavourites.remove(widget.docId);
-                        } else {
-                          userFavourites.add(widget.docId);
+                    return IconButton(
+                      icon: Icon(
+                        userFavourites.contains(widget.docId)
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: Colors.white,
+                      ),
+                      onPressed: () async {
+                        try {
+                          if (userFavourites.contains(widget.docId)) {
+                            userFavourites.remove(widget.docId);
+                          } else {
+                            userFavourites.add(widget.docId);
+                          }
+
+                          await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(uid)
+                              .update({'userFavourites': userFavourites});
+
+                          logger.d('Document updated successfully');
+                        } catch (e) {
+                          logger.d('Error updating document: $e');
                         }
-
-                        await FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(uid)
-                            .update({'userFavourites': userFavourites});
-
-                        logger.d('Document updated successfully');
-                      } catch (e) {
-                        logger.d('Error updating document: $e');
-                      }
-                    },
-                  );
-                },
-              ),
-            ),
+                      },
+                    );
+                  },
+                )),
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(

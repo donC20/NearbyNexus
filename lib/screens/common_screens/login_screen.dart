@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,8 +23,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final emailController = TextEditingController();
   final passController = TextEditingController();
+  var log = Logger();
+
   bool isLoading = false;
   bool isButtonDisabled = false;
+  bool isVerifiedByOtherMethod = false;
+
   // snack bar
   void showSnackbar(String message, Color backgroundColor) {
     final snackBar = SnackBar(
@@ -40,12 +45,22 @@ class _LoginScreenState extends State<LoginScreen> {
       UserCredential loginEpCredentials = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
               email: emailController.text, password: passController.text);
+      String uid = loginEpCredentials.user?.uid ?? "";
+// get user data
+      DocumentSnapshot snap =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+      if (snap.exists) {
+        Map<String, dynamic> vendorData = snap.data() as Map<String, dynamic>;
+        setState(() {
+          isVerifiedByOtherMethod = vendorData['emailId']['verified'];
+        });
+      }
 
       User user = loginEpCredentials.user!;
-      if (user.emailVerified) {
+      if (user.emailVerified || isVerifiedByOtherMethod) {
         // User is verified, proceed with login
         // ?check user type
-        String uid = loginEpCredentials.user?.uid ?? "";
 
         DocumentSnapshot snapshot =
             await FirebaseFirestore.instance.collection('users').doc(uid).get();

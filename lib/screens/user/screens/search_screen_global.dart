@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:logger/logger.dart';
 import 'package:skeletons/skeletons.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class _SearchScreenState extends State<SearchScreen> {
   bool isSearching = false;
   String searchKeyWords = "";
   final searchResults = [];
+  var log = Logger();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,7 +133,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       final searchResults = snapshot.data?.docs.where((doc) {
                             final name = (doc['name'] as String).toLowerCase();
                             final emailId =
-                                (doc['emailId'] as String).toLowerCase();
+                                (doc['emailId']['id'] as String).toLowerCase();
                             final services = (doc['services'] as List)
                                 .map((service) =>
                                     service.toString().toLowerCase())
@@ -201,6 +203,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         itemBuilder: (context, index) {
                           final uid = searchResults[index].id;
                           final userData = searchResults[index];
+
                           return InkWell(
                             onTap: () {
                               Navigator.pushNamed(

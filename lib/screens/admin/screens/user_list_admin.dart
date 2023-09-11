@@ -229,10 +229,10 @@ void _showModal(BuildContext context, String uid) {
                   // Data is ready
                   var userData = snapshot.data!.data() as Map<String, dynamic>;
                   var name = userData['name'] ?? '';
-                  var email = userData['emailId'] ?? '';
+                  var email = userData['emailId']['id'] ?? '';
                   var location = userData['geoLocation'] ?? '';
                   var imageUrl = userData['image'] ?? '';
-                  var phone = userData['phone']?.toString() ?? '';
+                  var phone = userData['phone']['number']?.toString() ?? '';
                   var status = userData['status'] ?? '';
                   return Column(
                     children: [
@@ -546,7 +546,7 @@ Widget _buildTab1Content() {
               padding: const EdgeInsets.all(8.0),
               child: UserTile(
                 name: user['name'],
-                email: user['emailId'],
+                email: user['emailId']['id'],
                 imgUrl: user['image'],
                 status: user['status'],
               ),
@@ -599,7 +599,7 @@ Widget _buildTab2Content() {
               padding: const EdgeInsets.all(8.0),
               child: UserTile(
                 name: user['name'],
-                email: user['emailId'],
+                email: user['emailId']['id'],
                 imgUrl: user['image'],
                 status: user['status'],
               ),
@@ -652,7 +652,7 @@ Widget _buildTab3Content() {
               padding: const EdgeInsets.all(8.0),
               child: UserTile(
                 name: user['name'],
-                email: user['emailId'],
+                email: user['emailId']['id'],
                 imgUrl: user['image'],
                 status: user['status'],
               ),
