@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:NearbyNexus/screens/user/screens/update_user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class _UserProfileState extends State<UserProfile> {
   String imageLink = "";
   String email = "";
   String city = "";
+  String address = "";
   int phone = 0;
   bool isFetching = true;
   bool verifiedEmail = false;
@@ -54,6 +56,7 @@ class _UserProfileState extends State<UserProfile> {
         email = fetchedData['emailId']['id'];
         phone = fetchedData['phone']['number'];
         city = fetchedData['geoLocation'];
+        address = fetchedData['address'];
         isFetching = false;
         verifiedEmail = fetchedData['emailId']['verified'];
         verifiedPhone = fetchedData['phone']['verified'];
@@ -100,6 +103,32 @@ class _UserProfileState extends State<UserProfile> {
                           ),
                         ),
                       ),
+                      Positioned(
+                          right: 10,
+                          top: 40,
+                          child: Container(
+                            width: 50,
+                            height: 40,
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8)),
+                                color: Color.fromARGB(36, 0, 0, 0)
+                                    .withOpacity(0.3)),
+                            child: TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              UpdateUserProfile()));
+                                },
+                                child: Text(
+                                  "Edit",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                )),
+                          )),
                       Positioned(
                         bottom: 40,
                         left: MediaQuery.sizeOf(context).width / 2 - 50,
@@ -149,24 +178,6 @@ class _UserProfileState extends State<UserProfile> {
                                       }
                                     },
                                   ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: IconButton(
-                                  icon: Icon(Icons.edit),
-                                  onPressed: () {
-                                    // Handle edit picture action
-                                  },
                                 ),
                               ),
                             ),
@@ -279,14 +290,6 @@ Widget profileLists(BuildContext context, IconData icon, value, title,
                 ),
               ],
             ),
-            isEditable == true
-                ? IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.edit,
-                      color: Colors.white,
-                    ))
-                : SizedBox(),
           ],
         ),
         SizedBox(height: 5),
@@ -314,7 +317,7 @@ Widget profileLists(BuildContext context, IconData icon, value, title,
                               codeSent:
                                   (String verificationId, int? resendToken) {
                                 UserProfile.verifyPhone = verificationId;
-                                
+
                                 Navigator.popAndPushNamed(
                                     context, "user_otp_screen");
                               },

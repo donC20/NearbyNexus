@@ -6,8 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-
-import '../components/user_list_tile.dart';
+import 'package:logger/logger.dart';
 
 class VendorPortfolio extends StatefulWidget {
   const VendorPortfolio({super.key});
@@ -26,42 +25,49 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    getTheVendor();
     setState(() {
       vendorId = ModalRoute.of(context)!.settings.arguments as String;
     });
+    getTheVendor(vendorId);
   }
 
   // Variables to be used
+
   bool isFetching = true;
+  bool isImageUploading = false;
   String name = "loading...";
   String dpImage =
       "https://dealio.imgix.net/uploads/147885uploadshotel-pool-canaves.jpg";
   String geoLocation = "loading...";
   List<dynamic> serviceList = [];
-  List<dynamic> workingDays = ["Monday", "Tuesday", "Friday", "Saturday"];
-  Map<String, String> languages = {
-    "English": "Excellent proficiency",
-    "French": "Intermediate proficiency",
-    "Spanish": "Basic proficiency",
-  };
-  Future<void> getTheVendor() async {
+  List<dynamic> workingDays = [];
+  List<dynamic> languages = [];
+  String about = '';
+  var logger = Logger();
+
+  Future<void> getTheVendor(uid) async {
 // Get Vendor details by uid
-    String vendorId = ModalRoute.of(context)!.settings.arguments as String;
-    DocumentSnapshot snaps = await FirebaseFirestore.instance
+    FirebaseFirestore.instance
         .collection('users')
-        .doc(vendorId)
-        .get();
-    if (snaps.exists) {
-      Map<String, dynamic> vendorData = snaps.data() as Map<String, dynamic>;
-      setState(() {
-        name = vendorData['name'];
-        dpImage = vendorData['image'];
-        geoLocation = vendorData['geoLocation'];
-        isFetching = false;
-        serviceList = vendorData['services'];
-      });
-    }
+        .doc(uid)
+        .snapshots()
+        .listen((DocumentSnapshot snapshot) {
+      if (snapshot.exists) {
+        Map<String, dynamic> vendorData =
+            snapshot.data() as Map<String, dynamic>;
+        logger.d(vendorData);
+        setState(() {
+          name = vendorData['name'];
+          dpImage = vendorData['image'];
+          geoLocation = vendorData['geoLocation'];
+          isFetching = false;
+          serviceList = vendorData['services'];
+          languages = vendorData['languages'];
+          about = vendorData['about'];
+          workingDays = vendorData['working_days'];
+        });
+      }
+    });
   }
 
   @override
@@ -129,93 +135,42 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.only(left: 20, top: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Row(
                                 children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        name,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w900,
-                                            fontSize: 18,
-                                            fontFamily: GoogleFonts.poppins()
-                                                .fontFamily),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.location_on_outlined,
+                                  Text(
+                                    name,
+                                    style: TextStyle(
                                         color: Colors.white,
-                                        size: 16,
-                                      ),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
-                                      Text(
-                                        geoLocation,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12,
-                                            fontFamily: GoogleFonts.poppins()
-                                                .fontFamily),
-                                      ),
-                                    ],
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 18,
+                                        fontFamily:
+                                            GoogleFonts.poppins().fontFamily),
                                   ),
                                 ],
                               ),
-                              SizedBox(
-                                height: 40,
-                                width: 120,
-                                child: ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    textStyle: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    backgroundColor:
-                                        Color.fromARGB(255, 255, 255, 255),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    color: Colors.white,
+                                    size: 16,
                                   ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            const Flexible(
-                                              child: Text(
-                                                "Contact",
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 15),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const Icon(
-                                        Icons.work_outlined,
-                                        color: Colors.black,
-                                        size: 16,
-                                      ),
-                                    ],
+                                  SizedBox(
+                                    width: 5,
                                   ),
-                                ),
+                                  Text(
+                                    geoLocation,
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                        fontFamily:
+                                            GoogleFonts.poppins().fontFamily),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -224,7 +179,6 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                     )
                   ],
                 ),
-                // Bio of vendor
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(10.0),
@@ -276,7 +230,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
 
                         Text(
-                          "The project is a location-based service providing application that utilises the user's local location to connect them with available services, ranging from small-scale to large-scale providers. The application caters to users who are in a new town or city and need to contact service providers like taxi drivers, tailors, lawyers, labour and more, without having their contact information readily available.",
+                          about,
                           textAlign: TextAlign.justify,
                           style: TextStyle(
                             color: Color.fromARGB(191, 208, 208, 208),
@@ -305,18 +259,26 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                           height: 5,
                         ),
                         // list of services
-                        Wrap(
-                            runSpacing: -5.0,
-                            spacing: 8.0,
-                            children: serviceList.map((e) {
-                              return Chip(
-                                  labelStyle: TextStyle(color: Colors.white54),
-                                  side: BorderSide(
-                                      color: const Color.fromARGB(
-                                          194, 158, 158, 158)),
-                                  backgroundColor: Color.fromARGB(255, 0, 0, 0),
-                                  label: Text(convertToSentenceCase(e)));
-                            }).toList()),
+                        serviceList.isNotEmpty
+                            ? Wrap(
+                                runSpacing: -5.0,
+                                spacing: 8.0,
+                                children: serviceList.map((e) {
+                                  return Chip(
+                                      labelStyle:
+                                          TextStyle(color: Colors.white54),
+                                      side: BorderSide(
+                                          color: const Color.fromARGB(
+                                              194, 158, 158, 158)),
+                                      backgroundColor:
+                                          Color.fromARGB(255, 0, 0, 0),
+                                      label: Text(convertToSentenceCase(e)));
+                                }).toList())
+                            : Text("Services not available.",
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 208, 208, 208),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 15,
                         ),
@@ -337,29 +299,36 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         SizedBox(
                           height: 5,
                         ),
-                        Wrap(
-                          spacing: 5.0,
-                          children: workingDays.map((e) {
-                            return Chip(
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  color:
-                                      const Color.fromARGB(194, 158, 158, 158),
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                    8.0), // Set your desired border radius
-                              ),
-                              backgroundColor:
-                                  Color.fromARGB(255, 255, 255, 255),
-                              label: Text(
-                                convertToSentenceCase(e),
+                        workingDays.isNotEmpty
+                            ? Wrap(
+                                spacing: 5.0,
+                                children: workingDays.map((e) {
+                                  return Chip(
+                                    shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                        color: const Color.fromARGB(
+                                            194, 158, 158, 158),
+                                      ),
+                                      borderRadius: BorderRadius.circular(
+                                          8.0), // Set your desired border radius
+                                    ),
+                                    backgroundColor:
+                                        Color.fromARGB(255, 255, 255, 255),
+                                    label: Text(
+                                      convertToSentenceCase(e),
+                                      style: TextStyle(
+                                        color:
+                                            const Color.fromARGB(137, 0, 0, 0),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              )
+                            : Text("Working days not available.",
                                 style: TextStyle(
-                                  color: const Color.fromARGB(137, 0, 0, 0),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
+                                    color: Color.fromARGB(255, 208, 208, 208),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 15,
                         ),
@@ -380,9 +349,9 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                           child: ListView.separated(
                             physics: NeverScrollableScrollPhysics(),
                             itemBuilder: (BuildContext context, int index) {
-                              String language = languages.keys.elementAt(index);
-                              String proficiency =
-                                  languages.values.elementAt(index);
+                              String language = languages[index];
+                              // String proficiency =
+                              //     languages.values.elementAt(index);
 
                               return ListTile(
                                 title: Text(
@@ -390,7 +359,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 subtitle: Text(
-                                  proficiency,
+                                  "",
                                   style: TextStyle(
                                     color: const Color.fromARGB(
                                         127, 255, 255, 255),

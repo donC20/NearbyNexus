@@ -12,6 +12,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../components/custom_floating_search_bar.dart';
 import '../components/user_list_tile.dart';
@@ -51,7 +52,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
   List<String> searchWithLocation = [];
   Map<String, dynamic> placesQuery = {};
   // location fetching
-
+  var logger = Logger();
   Position? _currentPosition;
 
   @override
@@ -416,6 +417,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                                 : concatenatedServices;
 
                             final docId = userDocumentData[index].id;
+
                             final geoLocation = vendor['geoLocation'];
 
                             List<String> yrCurrentLocationWords =

@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 import 'config/themes/app_theme.dart';
 import 'screens/admin/screens/add_data.dart';
 import 'screens/user/screens/complete_registration_user.dart';
-import 'screens/user/screens/vendor_portfolio.dart';
+import 'screens/vendor/screens/vendor_portfolio.dart';
 import 'screens/vendor/screens/registration_vendor_one.dart';
 import 'screens/common_screens/forgot_password.dart';
 import 'screens/common_screens/initial_page.dart';

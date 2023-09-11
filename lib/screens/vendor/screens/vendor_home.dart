@@ -426,9 +426,7 @@ class _VendorHomeState extends State<VendorHome> {
                             if (atLeastOneWordPresent) {
                               matchesFound = true;
                               resultList.add(InkWell(
-                                onTap: () {
-                                  
-                                },
+                                onTap: () {},
                                 child: GeneralUserTiles(
                                   userName: generalUser['name'],
                                   userLocation: generalUser['geoLocation'],
@@ -554,17 +552,20 @@ class _VendorHomeState extends State<VendorHome> {
                               final geoLocation = generalUser['geoLocation'];
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: GeneralUserTiles(
-                                  userName: generalUser['name'],
-                                  userLocation: generalUser['geoLocation'],
-                                  jobsOffered: 50,
-                                  paymentVerified:
-                                      generalUser['paymentVerified'],
-                                  ratings: 3.2,
-                                  userImage: generalUser['image'],
-                                  emailVerified: generalUser['emailId']
-                                      ['verified'],
-                                  docId: docId,
+                                child: InkWell(
+                                  onTap: () {},
+                                  child: GeneralUserTiles(
+                                    userName: generalUser['name'],
+                                    userLocation: generalUser['geoLocation'],
+                                    jobsOffered: 50,
+                                    paymentVerified:
+                                        generalUser['paymentVerified'],
+                                    ratings: 3.2,
+                                    userImage: generalUser['image'],
+                                    emailVerified: generalUser['emailId']
+                                        ['verified'],
+                                    docId: docId,
+                                  ),
                                 ),
                               );
                             },

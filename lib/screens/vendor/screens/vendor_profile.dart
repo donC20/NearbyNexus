@@ -336,18 +336,26 @@ class _VendorProfileState extends State<VendorProfile> {
                           height: 5,
                         ),
                         // list of services
-                        Wrap(
-                            runSpacing: -5.0,
-                            spacing: 8.0,
-                            children: serviceList.map((e) {
-                              return Chip(
-                                  labelStyle: TextStyle(color: Colors.white54),
-                                  side: BorderSide(
-                                      color: const Color.fromARGB(
-                                          194, 158, 158, 158)),
-                                  backgroundColor: Color.fromARGB(255, 0, 0, 0),
-                                  label: Text(convertToSentenceCase(e)));
-                            }).toList()),
+                        serviceList.isNotEmpty
+                            ? Wrap(
+                                runSpacing: -5.0,
+                                spacing: 8.0,
+                                children: serviceList.map((e) {
+                                  return Chip(
+                                      labelStyle:
+                                          TextStyle(color: Colors.white54),
+                                      side: BorderSide(
+                                          color: const Color.fromARGB(
+                                              194, 158, 158, 158)),
+                                      backgroundColor:
+                                          Color.fromARGB(255, 0, 0, 0),
+                                      label: Text(convertToSentenceCase(e)));
+                                }).toList())
+                            : Text("Services not available.",
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 208, 208, 208),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 15,
                         ),
@@ -368,29 +376,36 @@ class _VendorProfileState extends State<VendorProfile> {
                         SizedBox(
                           height: 5,
                         ),
-                        Wrap(
-                          spacing: 5.0,
-                          children: workingDays.map((e) {
-                            return Chip(
-                              shape: RoundedRectangleBorder(
-                                side: BorderSide(
-                                  color:
-                                      const Color.fromARGB(194, 158, 158, 158),
-                                ),
-                                borderRadius: BorderRadius.circular(
-                                    8.0), // Set your desired border radius
-                              ),
-                              backgroundColor:
-                                  Color.fromARGB(255, 255, 255, 255),
-                              label: Text(
-                                convertToSentenceCase(e),
+                        workingDays.isNotEmpty
+                            ? Wrap(
+                                spacing: 5.0,
+                                children: workingDays.map((e) {
+                                  return Chip(
+                                    shape: RoundedRectangleBorder(
+                                      side: BorderSide(
+                                        color: const Color.fromARGB(
+                                            194, 158, 158, 158),
+                                      ),
+                                      borderRadius: BorderRadius.circular(
+                                          8.0), // Set your desired border radius
+                                    ),
+                                    backgroundColor:
+                                        Color.fromARGB(255, 255, 255, 255),
+                                    label: Text(
+                                      convertToSentenceCase(e),
+                                      style: TextStyle(
+                                        color:
+                                            const Color.fromARGB(137, 0, 0, 0),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              )
+                            : Text("Working days not available.",
                                 style: TextStyle(
-                                  color: const Color.fromARGB(137, 0, 0, 0),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
+                                    color: Color.fromARGB(255, 208, 208, 208),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 15,
                         ),
