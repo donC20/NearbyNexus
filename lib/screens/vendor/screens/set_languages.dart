@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SetSpeakLanguages extends StatefulWidget {
   const SetSpeakLanguages({super.key});
@@ -36,12 +37,23 @@ class _SetSpeakLanguagesState extends State<SetSpeakLanguages> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 0), () {
-      setState(() {
-        uid = Provider.of<UserProvider>(context, listen: false).uid!;
-        initLang(uid);
-      });
+    // Future.delayed(Duration(seconds: 0), () {
+    //   setState(() {
+    //     uid = Provider.of<UserProvider>(context, listen: false).uid!;
+    //   });
+    // });
+    initUser();
+  }
+
+  void initUser() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData!);
+    setState(() {
+      uid = initData['uid'];
     });
+    initLang(uid);
     fetchLanguages();
   }
 

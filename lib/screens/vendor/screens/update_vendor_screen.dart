@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, unnecessary_new, avoid_print, sort_child_properties_last
 
+import 'dart:convert';
+
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/screens/vendor/components/bottom_sheet_services.dart';
 import 'package:NearbyNexus/screens/vendor/components/days_mapper.dart';
@@ -9,6 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UpdateVendorScreen extends StatefulWidget {
   const UpdateVendorScreen({super.key});
@@ -27,10 +30,21 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 0), () {
-      setState(() {
-        uid = Provider.of<UserProvider>(context, listen: false).uid!;
-      });
+    // Future.delayed(Duration(seconds: 0), () {
+    //   setState(() {
+    //     uid = Provider.of<UserProvider>(context, listen: false).uid!;
+    //   });
+    // });
+    initUser();
+  }
+
+  void initUser() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData!);
+    setState(() {
+      uid = initData['uid'];
     });
   }
 

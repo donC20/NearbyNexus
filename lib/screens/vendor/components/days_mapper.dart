@@ -1,10 +1,13 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, use_full_hex_values_for_flutter_colors
 
+import 'dart:convert';
+
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DaysMapper extends StatefulWidget {
   const DaysMapper({super.key});
@@ -29,12 +32,24 @@ class _DaysMapperState extends State<DaysMapper> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 0), () {
-      setState(() {
-        uid = Provider.of<UserProvider>(context, listen: false).uid;
-        fetchDays(uid);
-      });
+    // Future.delayed(Duration(seconds: 0), () {
+    //   setState(() {
+    //     uid = Provider.of<UserProvider>(context, listen: false).uid;
+    //     fetchDays(uid);
+    //   });
+    // });
+    initUser();
+  }
+
+  void initUser() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData!);
+    setState(() {
+      uid = initData['uid'];
     });
+    fetchDays(uid);
   }
 
   @override

@@ -69,7 +69,7 @@ class _SplashScreenState extends State<SplashScreen> {
           "vendor_home"); // Navigate using Get package (replace with your navigation code)
     } else if (userType == "general_user") {
       Navigator.popAndPushNamed(context,
-          "user_home"); // Navigate using Get package (replace with your navigation code)
+          "user_dashboard"); // Navigate using Get package (replace with your navigation code)
     } else {
       print("Unknown user type");
       // Handle unknown user type if necessary

@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
+import 'package:NearbyNexus/screens/user/screens/user_dashboard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
@@ -436,7 +437,8 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                               resultList.add(
                                 ModernServiceCard(
                                   name: vendor['name'],
-                                  image: vendor['image'],
+                                  image: vendor['image'] ??
+                                      "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8dXNlcnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=600&q=60",
                                   salary: "500 - 1000/day",
                                   serviceNames:
                                       convertToSentenceCase(truncatedServices),
@@ -503,6 +505,11 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => SearchScreen()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => UserDashboard()),
             );
           }
           setState(() => _selectedItemPosition = index);

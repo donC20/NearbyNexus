@@ -2,6 +2,7 @@ import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/common_screens/payment.dart';
+import 'package:NearbyNexus/screens/user/screens/user_dashboard.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';
 import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
@@ -73,6 +74,7 @@ class MyApp extends StatelessWidget {
         "admin_screen": (context) => const Dashboard(),
         "forgot_password_screen": (context) => const ForgotPasswordScreen(),
         "user_home": (context) => const GeneralUserHome(),
+        "user_dashboard": (context) => const UserDashboard(),
         "vendor_home": (context) => const VendorHome(),
         "list_users": (context) => const ListUsers(),
         "data_entry": (context) => const DataEntry(),

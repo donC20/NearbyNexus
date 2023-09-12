@@ -16,6 +16,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../user/components/custom_floating_search_bar.dart';
 
 import 'package:http/http.dart' as http;
@@ -67,8 +68,19 @@ class _VendorHomeState extends State<VendorHome> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // setState(() {
+    //   uid = Provider.of<UserProvider>(context, listen: false).uid;
+    // });
+    initUser();
+  }
+
+  void initUser() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData!);
     setState(() {
-      uid = Provider.of<UserProvider>(context, listen: false).uid;
+      uid = initData['uid'];
     });
     FetchUserData(uid);
   }

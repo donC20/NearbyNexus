@@ -1,9 +1,12 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, use_build_context_synchronously
 
+import 'dart:convert';
+
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BottomSheetVendor extends StatefulWidget {
   final String fieldName;
@@ -23,8 +26,19 @@ class _BottomSheetVendorState extends State<BottomSheetVendor> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // setState(() {
+    //   uid = Provider.of<UserProvider>(context, listen: false).uid;
+    // });
+    initUser();
+  }
+
+  void initUser() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData!);
     setState(() {
-      uid = Provider.of<UserProvider>(context, listen: false).uid;
+      uid = initData['uid'];
     });
     getTheVendor(uid);
   }

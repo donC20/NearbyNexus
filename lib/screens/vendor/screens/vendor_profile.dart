@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:convert';
+
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
@@ -9,7 +11,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VendorProfile extends StatefulWidget {
   const VendorProfile({super.key});
@@ -23,15 +27,30 @@ class _VendorProfileState extends State<VendorProfile> {
   @override
   void initState() {
     super.initState();
+    initUser();
+    // Future.delayed(Duration.zero, () {
+    //   uid = Provider.of<UserProvider>(context, listen: false).uid;
+    //   getTheVendor(uid);
+    // });
+  }
+
+  void initUser() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData!);
+    setState(() {
+      uid = initData['uid'];
+    });
+    getTheVendor(uid);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    setState(() {
-      uid = Provider.of<UserProvider>(context, listen: false).uid;
-    });
-    getTheVendor(uid);
+    // setState(() {
+
+    // });
   }
 
   // Variables to be used
@@ -46,6 +65,7 @@ class _VendorProfileState extends State<VendorProfile> {
   List<dynamic> workingDays = [];
   List<dynamic> languages = [];
   String about = '';
+  var log = Logger();
   void handleImageUploading(bool value) {
     setState(() {
       isImageUploading = value;
@@ -88,6 +108,8 @@ class _VendorProfileState extends State<VendorProfile> {
       if (snapshot.exists) {
         Map<String, dynamic> vendorData =
             snapshot.data() as Map<String, dynamic>;
+        log.e(vendorData);
+
         setState(() {
           name = vendorData['name'];
           dpImage = vendorData['image'];

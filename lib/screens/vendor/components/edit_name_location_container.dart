@@ -14,6 +14,7 @@ import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditNameLocation extends StatefulWidget {
   const EditNameLocation({super.key});
@@ -69,7 +70,19 @@ class _EditNameLocationState extends State<EditNameLocation> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    uid = Provider.of<UserProvider>(context, listen: false).uid;
+    // uid = Provider.of<UserProvider>(context, listen: false).uid;
+
+    initUser();
+  }
+
+  void initUser() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData!);
+    setState(() {
+      uid = initData['uid'];
+    });
     FetchUserData(uid);
   }
 
