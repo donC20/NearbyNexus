@@ -43,6 +43,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_snake_navigationbar: ^0.6.1
+  flutter_stripe: ^9.4.0
   flutter_svg: ^2.0.7
   geocoding: ^2.1.0
   geolocator: ^9.0.2

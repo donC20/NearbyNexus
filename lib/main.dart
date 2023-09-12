@@ -1,6 +1,7 @@
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
+import 'package:NearbyNexus/screens/common_screens/payment.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';
 import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
@@ -11,6 +12,7 @@ import 'package:NearbyNexus/screens/vendor/screens/vendor_profile.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile_one.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
@@ -30,6 +32,8 @@ import 'screens/vendor/screens/registration_vendor_two.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  Stripe.publishableKey =
+      "pk_test_51NpN8rSJaMBnAdU7brX75geJWwHJ7OQnD9Aq9fZFaZFehX8ERy1w1yskGN1O0EOACM2am8XUjsAOkIr26U35YDSe00DbSFVmLl";
   final userProvider = UserProvider(); // Create an instance of UserProvider
   userProvider.setUid(); // Retrieve and set the uid
   runApp(
@@ -79,6 +83,7 @@ class MyApp extends StatelessWidget {
         "user_profile": (context) => const UserProfile(),
         "user_otp_screen": (context) => const UserOtpScreen(),
         "update_vendor_screen": (context) => const UpdateVendorScreen(),
+        "payment": (context) => const Payment(),
       },
       initialRoute: "splashScreen",
     );
