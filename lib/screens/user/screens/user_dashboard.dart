@@ -228,9 +228,18 @@ class _UserDashboardState extends State<UserDashboard> {
             SizedBox(
               height: 15,
             ),
-            Text(
-              "People you worked with",
-              style: TextStyle(color: Colors.grey, fontSize: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "People you worked with",
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+                Text(
+                  "view more",
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              ],
             ),
             SizedBox(
               height: 15,
@@ -255,9 +264,18 @@ class _UserDashboardState extends State<UserDashboard> {
             SizedBox(
               height: 15,
             ),
-            Text(
-              "Your favourites",
-              style: TextStyle(color: Colors.grey, fontSize: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Your favourites",
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+                Text(
+                  "view more",
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              ],
             ),
             SizedBox(
               height: 15,

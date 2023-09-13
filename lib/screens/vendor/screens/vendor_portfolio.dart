@@ -96,7 +96,9 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                             bottomRight: Radius.circular(25),
                             bottomLeft: Radius.circular(25)),
                         child: Image.network(
-                          dpImage,
+                          dpImage.isEmpty
+                              ? "https://static.vecteezy.com/system/resources/previews/004/141/669/non_2x/no-photo-or-blank-image-icon-loading-images-or-missing-image-mark-image-not-available-or-image-coming-soon-sign-simple-nature-silhouette-in-frame-isolated-illustration-vector.jpg"
+                              : dpImage,
                           width: 80,
                           height: 80,
                           filterQuality: FilterQuality.high,
@@ -174,6 +176,31 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                               ),
                             ],
                           ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 15,
+                      right: 15,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(context, "new_request");
+                        },
+                        icon: Icon(
+                          Icons.work, // Change this to the desired icon
+                          color:
+                              Colors.black, // Change the icon color as needed
+                        ),
+                        label: Text(
+                          "Contact",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight
+                                  .bold), // Change the label color as needed
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Colors.white, // Set the background color to white
                         ),
                       ),
                     )
