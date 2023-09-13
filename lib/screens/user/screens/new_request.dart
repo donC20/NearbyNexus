@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:NearbyNexus/models/new_request_model.dart';
 import 'package:NearbyNexus/screens/common_screens/location_fetch.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NewServiceRequest extends StatefulWidget {
   @override
@@ -21,7 +23,7 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
   final _serviceController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _budgetController = TextEditingController();
-
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   var logger = Logger();
 
   String? service_name;
@@ -29,6 +31,7 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
   String? service_level;
   String? location;
   String selectedName = "";
+  String vendorId = "";
 
   List<Map<String, dynamic>> resultList = [];
   List<String> matchedServices = [];
@@ -41,6 +44,34 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
   int? wage;
   final _aboutController = TextEditingController();
   int maxLetters = 1000;
+
+  String? uid = "";
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // setState(() {
+    //   uid = Provider.of<UserProvider>(context, listen: false).uid;
+    // });
+    setState(() {
+      vendorId = ModalRoute.of(context)!.settings.arguments as String;
+    });
+    initUser();
+  }
+
+  void initUser() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData!);
+    setState(() {
+      uid = initData['uid'];
+    });
+  }
 
 // Search places api
   Future<List<Map<String, dynamic>>> searchPlaces(String query) async {
@@ -176,6 +207,12 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
                 onChanged: (value) {
                   searchServices(value);
                 },
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "You left this field empty!";
+                  }
+                  return null;
+                },
                 onSaved: (value) => service_name = value,
               ),
               Padding(
@@ -281,6 +318,12 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "You left this field empty!";
+                  }
+                  return null;
+                },
                 keyboardType: TextInputType.multiline,
               ),
               headings("Choose the level of need.",
@@ -389,6 +432,12 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
                       ),
                       onChanged: (value) {
                         searchPlaces(value);
+                      },
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "You left this field empty!";
+                        }
+                        return null;
                       },
                       onSaved: (value) => location = value,
                     ),
@@ -547,19 +596,47 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
               ),
               SizedBox(height: 32.0),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
+                    try {
+                      NewRequestModal sendRequestData = NewRequestModal(
+                          description: _descriptionController.text,
+                          service_level: service_level,
+                          location: _locationController.text,
+                          dateRequested: DateTime.now(),
+                          day: day,
+                          wage: int.tryParse(_budgetController.text),
+                          service_name: _serviceController.text);
+                      Map<String, dynamic> requestData =
+                          sendRequestData.toJson();
+                      await _firestore
+                          .collection('service_logs')
+                          .doc(uid)
+                          .set({});
 
-                    // Now, you can submit the form data to your backend or process it as needed.
-                    // Remember to handle date and wage conversions.
+                      await _firestore
+                          .collection('service_logs')
+                          .doc(uid)
+                          .collection('new_requests')
+                          .doc(vendorId)
+                          .set(requestData);
+
+                      // Clear the text fields
+                      _descriptionController.clear();
+                      _locationController.clear();
+                      _budgetController.clear();
+                      _serviceController.clear();
+                    } catch (e) {
+                      logger.e(e);
+                    }
                   }
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: Colors.blue, // Set text color to white
                 ),
-                child: Text('Submit'),
+                child: Text('Request'),
               ),
             ],
           ),

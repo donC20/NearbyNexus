@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
 import 'package:NearbyNexus/screens/vendor/components/user_vendor_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,7 +14,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../user/components/custom_floating_search_bar.dart';
 
@@ -224,7 +222,7 @@ class _VendorHomeState extends State<VendorHome> {
         backgroundColor: Colors.black,
         elevation: 2,
         shadowColor: Colors.grey,
-        leadingWidth: MediaQuery.sizeOf(context).width - 50,
+        leadingWidth: MediaQuery.sizeOf(context).width - 100,
         leading: Padding(
           padding: const EdgeInsets.all(3.0),
           child: Card(
@@ -329,7 +327,15 @@ class _VendorHomeState extends State<VendorHome> {
                       ),
                     ),
             ),
-          )
+          ),
+          IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, "vendor_notification");
+              },
+              icon: Icon(
+                Icons.notifications_none,
+                color: Colors.white,
+              ))
         ],
       ),
       body: isloadingLocation == true
@@ -387,8 +393,7 @@ class _VendorHomeState extends State<VendorHome> {
                           bool matchesFound = false;
                           bool addedToFav = false;
 
-                          if (userDocumentData == null ||
-                              userDocumentData.isEmpty) {
+                          if (userDocumentData.isEmpty) {
                             return Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,

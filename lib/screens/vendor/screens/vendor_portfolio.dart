@@ -184,7 +184,8 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                       right: 15,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          Navigator.pushNamed(context, "new_request");
+                          Navigator.pushNamed(context, "new_request",
+                              arguments: vendorId);
                         },
                         icon: Icon(
                           Icons.work, // Change this to the desired icon
