@@ -11,9 +11,10 @@ import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/screens/update_vendor_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
-import 'package:NearbyNexus/screens/vendor/screens/vendor_notofication_screen.dart';
+import 'package:NearbyNexus/screens/vendor/screens/vendor_notification_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile_one.dart';
+import 'package:NearbyNexus/screens/vendor/screens/view_requests.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -85,6 +86,8 @@ class MyApp extends StatelessWidget {
         "vendor_profile_one": (context) => const VendorProfileOne(),
         "update_vendor_screen": (context) => const UpdateVendorScreen(),
         "vendor_notification": (context) => const VendorNotificationScreen(),
+        "view_requests": (context) => const ViewRequests(),
+       
         "user_home": (context) => const GeneralUserHome(),
         "user_dashboard": (context) => const UserDashboard(),
         "new_request": (context) => NewServiceRequest(),

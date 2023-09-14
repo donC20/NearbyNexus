@@ -134,7 +134,8 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
               // Document with the specific ID exists in the current subcollection
               DocumentSnapshot targetDocument =
                   subcollectionSnapshot.docs.first;
-
+              // String collectionPath = docSnapshot.reference.path;
+              // logger.d(collectionPath);
               Map<String, dynamic> documentData =
                   targetDocument.data() as Map<String, dynamic>;
 
@@ -180,16 +181,18 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
               return Center(child: Text('Error: ${snapshot.error.toString()}'));
             } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
               List<Map<String, dynamic>> documentDataList = snapshot.data!;
-
+              // logger.d(documentDataList);
               // Debug log to confirm data availability
-              logger.d('Data received: ${documentDataList.length} items');
+              // logger.d('Data received: ${documentDataList.length} items');
 
               // Build the ListView
               return ListView.separated(
                 itemBuilder: (context, index) {
                   Map<String, dynamic> documentData = documentDataList[index];
+
                   formattedTimeAgo =
                       formatTimestamp(documentData['dateRequested']);
+
                   return Container(
                     width: MediaQuery.of(context).size.width - 30,
                     decoration: BoxDecoration(
@@ -206,6 +209,14 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                       ],
                     ),
                     child: ListTile(
+                      onTap: () {
+                        Map<String, dynamic> docInfo = {
+                          "referencePath": documentData['referencePath'],
+                          "userReference": documentData['userReference'],
+                        };
+                        Navigator.pushNamed(context, "view_requests",
+                            arguments: docInfo);
+                      },
                       leading: UserLoadingAvatar(
                         userImage:
                             "https://images.unsplash.com/photo-1639149888905-fb39731f2e6c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fHVzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=600&q=60",

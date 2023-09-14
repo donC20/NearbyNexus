@@ -1,6 +1,10 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class NewRequestModal {
+  final DocumentReference? referencePath;
+  final DocumentReference? userReference;
   final String? service_name;
   final String? description;
   final String? service_level;
@@ -10,7 +14,9 @@ class NewRequestModal {
   // final DateTime time;
   final int? wage;
   NewRequestModal(
-      {required this.description,
+      {required this.referencePath,
+      required this.userReference,
+      required this.description,
       required this.service_level,
       required this.location,
       required this.dateRequested,
@@ -27,6 +33,8 @@ class NewRequestModal {
       'day': day,
       'wage': wage,
       'service_name': service_name,
+      'referencePath': referencePath,
+      'userReference': userReference
     };
   }
 }

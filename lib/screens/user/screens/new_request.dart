@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:NearbyNexus/models/new_request_model.dart';
 import 'package:NearbyNexus/screens/common_screens/location_fetch.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -607,7 +608,11 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
                           dateRequested: DateTime.now(),
                           day: day,
                           wage: int.tryParse(_budgetController.text),
-                          service_name: _serviceController.text);
+                          service_name: _serviceController.text,
+                          referencePath: FirebaseFirestore.instance
+                              .doc('/service_logs/$uid/new_requests/$vendorId'),
+                          userReference:
+                              FirebaseFirestore.instance.doc('/users/$uid'));
                       Map<String, dynamic> requestData =
                           sendRequestData.toJson();
                       await _firestore
@@ -623,10 +628,11 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
                           .set(requestData);
 
                       // Clear the text fields
-                      _descriptionController.clear();
+                      // _descriptionController.clear();
                       _locationController.clear();
                       _budgetController.clear();
                       _serviceController.clear();
+                      Navigator.pop(context);
                     } catch (e) {
                       logger.e(e);
                     }
