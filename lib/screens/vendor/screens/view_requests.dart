@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names
 
 import 'dart:convert';
 
@@ -7,6 +7,7 @@ import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +19,9 @@ class ViewRequests extends StatefulWidget {
 }
 
 class _ViewRequestsState extends State<ViewRequests> {
+  // final _firebase = FirebaseFirestore.instance;
+  final _service_actions_collection =
+      FirebaseFirestore.instance.collection('service_actions');
   var logger = Logger();
   String yrCurrentLocation = "loading..";
   String nameUser = "Jhon Doe";
@@ -25,6 +29,7 @@ class _ViewRequestsState extends State<ViewRequests> {
   String imageLinkUser = "";
   Map<String, dynamic> docIds = {};
   Map<String, dynamic> rawData = {};
+  bool isloadingPage = true;
 
   String? uid = "";
   @override
@@ -39,9 +44,10 @@ class _ViewRequestsState extends State<ViewRequests> {
     setState(() {
       docIds =
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-      fetchUserData(docIds['userReference']);
-      fetchRequestData(docIds['referencePath']);
     });
+    fetchUserData(docIds['userReference']);
+    fetchRequestData(docIds['dataReference']);
+    logger.d(docIds);
   }
 
   void initUser() async {
@@ -55,38 +61,46 @@ class _ViewRequestsState extends State<ViewRequests> {
   }
 
   Future<void> fetchUserData(DocumentReference userRef) async {
+    setState(() {
+      isloadingPage = true;
+    });
     try {
       DocumentSnapshot snapshot = await userRef.get();
       if (snapshot.exists) {
         Map<String, dynamic> fetchedData =
             snapshot.data() as Map<String, dynamic>;
-
         // Update UI with the fetched data
         setState(() {
           imageLinkUser = fetchedData['image'];
           nameUser = fetchedData['name'];
+          isloadingPage = false;
         });
       } else {}
     } catch (e) {
+      setState(() {
+        isloadingPage = false;
+      });
       logger.d("Error fetching user data: $e");
     }
   }
 
-  Future<void> fetchRequestData(DocumentReference requestDataRef) async {
-    try {
-      DocumentSnapshot snapshot = await requestDataRef.get();
+  Future<void> fetchRequestData(requestDataRef) async {
+    setState(() {
+      isloadingPage = true;
+    });
+    _service_actions_collection
+        .doc(requestDataRef)
+        .snapshots()
+        .listen((DocumentSnapshot snapshot) {
       if (snapshot.exists) {
         Map<String, dynamic> fetchedData =
             snapshot.data() as Map<String, dynamic>;
-
-        // Update UI with the fetched data
         setState(() {
           rawData = fetchedData;
+          isloadingPage = false;
         });
-      } else {}
-    } catch (e) {
-      logger.d("Error fetching user data: $e");
-    }
+      }
+    });
   }
 
   String timeStampConverter(Timestamp timeAndDate) {
@@ -100,240 +114,269 @@ class _ViewRequestsState extends State<ViewRequests> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width - 30,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
-                  borderRadius: BorderRadius.circular(10),
-                  color: Color.fromARGB(186, 42, 40, 40),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.9),
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("From,",
-                              style: TextStyle(
-                                  color:
-                                      const Color.fromARGB(56, 255, 255, 255),
-                                  fontWeight: FontWeight.bold)),
-                          Chip(
-                            backgroundColor:
-                                rawData['service_level'] == "Very urgent"
-                                    ? Colors.red
-                                    : rawData['service_level'] == "Urgent"
-                                        ? Colors.amber
-                                        : Colors.green,
-                            label: Text(rawData['service_level'] ?? "loading..",
-                                style: TextStyle(
-                                    color: Color.fromARGB(255, 255, 255, 255),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold)),
-                          )
-                        ],
-                      ),
-                      ListTile(
-                        leading: UserLoadingAvatar(userImage: imageLinkUser),
-                        title: Text(
-                          nameUser,
-                          style: TextStyle(color: Colors.white54),
-                        ),
-                        subtitle: Text(
-                            timeStampConverter(rawData['dateRequested']),
-                            style:
-                                TextStyle(color: Colors.white54, fontSize: 10)),
-                      ),
-                      Divider(
-                        color: Color.fromARGB(137, 158, 158, 158),
-                      ),
-                      Text("Service required",
-                          style: TextStyle(
-                              color: const Color.fromARGB(56, 255, 255, 255),
-                              fontWeight: FontWeight.bold)),
-                      Text(
-                        convertToSentenceCase(rawData['service_name']),
-                        style: TextStyle(color: Colors.white54),
-                      ),
-                    ],
-                  ),
-                ),
+      body: isloadingPage == true
+          ? Container(
+              decoration: BoxDecoration(color: Colors.black),
+              child: Center(
+                child: LoadingAnimationWidget.prograssiveDots(
+                    color: const Color.fromARGB(255, 255, 255, 255), size: 80),
               ),
-              SizedBox(
-                height: 15,
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width - 30,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
-                  borderRadius: BorderRadius.circular(10),
-                  color: Color.fromARGB(186, 42, 40, 40),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.9),
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Needed on",
-                              style: TextStyle(
-                                  color:
-                                      const Color.fromARGB(56, 255, 255, 255),
-                                  fontWeight: FontWeight.bold)),
-                          Text(
-                            timeStampConverter(rawData['day']),
-                            style:
-                                TextStyle(color: Colors.white54, fontSize: 12),
+            )
+          : Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: MediaQuery.of(context).size.width - 30,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: Color.fromARGB(43, 158, 158, 158)),
+                        borderRadius: BorderRadius.circular(10),
+                        color: Color.fromARGB(186, 42, 40, 40),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.9),
+                            blurRadius: 10,
+                            spreadRadius: 2,
                           ),
                         ],
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Location",
-                              style: TextStyle(
-                                  color:
-                                      const Color.fromARGB(56, 255, 255, 255),
-                                  fontWeight: FontWeight.bold)),
-                          Text(
-                            convertToSentenceCase(rawData['location']),
-                            style: TextStyle(color: Colors.white54),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("Budget",
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("From,",
+                                    style: TextStyle(
+                                        color: const Color.fromARGB(
+                                            56, 255, 255, 255),
+                                        fontWeight: FontWeight.bold)),
+                                Chip(
+                                  backgroundColor:
+                                      rawData['service_level'] == "Very urgent"
+                                          ? Colors.red
+                                          : rawData['service_level'] == "Urgent"
+                                              ? Colors.amber
+                                              : Colors.green,
+                                  label: Text(
+                                      rawData['service_level'] ?? "loading..",
+                                      style: TextStyle(
+                                          color: Color.fromARGB(
+                                              255, 255, 255, 255),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold)),
+                                )
+                              ],
+                            ),
+                            ListTile(
+                              leading:
+                                  UserLoadingAvatar(userImage: imageLinkUser),
+                              title: Text(
+                                nameUser,
+                                style: TextStyle(color: Colors.white54),
+                              ),
+                              subtitle: Text(
+                                  timeStampConverter(rawData['dateRequested']),
                                   style: TextStyle(
-                                      color: const Color.fromARGB(
-                                          56, 255, 255, 255),
-                                      fontWeight: FontWeight.bold)),
-                              Row(
+                                      color: Colors.white54, fontSize: 10)),
+                            ),
+                            Divider(
+                              color: Color.fromARGB(137, 158, 158, 158),
+                            ),
+                            Text("Service required",
+                                style: TextStyle(
+                                    color:
+                                        const Color.fromARGB(56, 255, 255, 255),
+                                    fontWeight: FontWeight.bold)),
+                            Text(
+                              convertToSentenceCase(rawData['service_name']),
+                              style: TextStyle(color: Colors.white54),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Container(
+                      width: MediaQuery.of(context).size.width - 30,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                            color: Color.fromARGB(43, 158, 158, 158)),
+                        borderRadius: BorderRadius.circular(10),
+                        color: Color.fromARGB(186, 42, 40, 40),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.9),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Needed on",
+                                    style: TextStyle(
+                                        color: const Color.fromARGB(
+                                            56, 255, 255, 255),
+                                        fontWeight: FontWeight.bold)),
+                                Text(
+                                  timeStampConverter(rawData['day']),
+                                  style: TextStyle(
+                                      color: Colors.white54, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Location",
+                                    style: TextStyle(
+                                        color: const Color.fromARGB(
+                                            56, 255, 255, 255),
+                                        fontWeight: FontWeight.bold)),
+                                Text(
+                                  convertToSentenceCase(rawData['location']),
+                                  style: TextStyle(color: Colors.white54),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("Budget",
+                                        style: TextStyle(
+                                            color: const Color.fromARGB(
+                                                56, 255, 255, 255),
+                                            fontWeight: FontWeight.bold)),
+                                    Row(
+                                      children: [
+                                        Icon(Icons.currency_rupee_sharp,
+                                            size: 16, color: Colors.white54),
+                                        Text(
+                                          rawData['wage'].toString(),
+                                          style:
+                                              TextStyle(color: Colors.white54),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                TextButton.icon(
+                                  onPressed: () {
+                                    _service_actions_collection
+                                        .doc(docIds['dataReference'])
+                                        .update({'status': 'negotiate'});
+                                  },
+                                  icon: Icon(
+                                    Icons.change_circle,
+                                    color: Color.fromARGB(170, 51, 89, 204),
+                                    size: 20,
+                                  ),
+                                  label: Text(
+                                    "Negotiate",
+                                    style: TextStyle(
+                                        color:
+                                            Color.fromARGB(170, 51, 89, 204)),
+                                  ),
+                                )
+                              ],
+                            ),
+                            Divider(
+                              color: Color.fromARGB(137, 158, 158, 158),
+                            ),
+                            Text("Description",
+                                style: TextStyle(
+                                    color:
+                                        const Color.fromARGB(56, 255, 255, 255),
+                                    fontWeight: FontWeight.bold)),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              rawData['description'],
+                              textAlign: TextAlign.justify,
+                              style: TextStyle(color: Colors.white54),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Wrap(
+                                spacing: 15,
                                 children: [
-                                  Icon(Icons.currency_rupee_sharp,
-                                      size: 16, color: Colors.white54),
-                                  Text(
-                                    rawData['wage'].toString(),
-                                    style: TextStyle(color: Colors.white54),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Color.fromARGB(170, 51, 204, 51),
+                                    ),
+                                    onPressed: () {
+                                      _service_actions_collection
+                                          .doc(docIds['dataReference'])
+                                          .update({'status': 'accepted'});
+                                    },
+                                    icon: Icon(
+                                      Icons.check_circle,
+                                      color: Colors.white,
+                                    ),
+                                    label: Text(
+                                      "Accept",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Color.fromARGB(170, 204, 51, 51),
+                                    ),
+                                    onPressed: () {
+                                      _service_actions_collection
+                                          .doc(docIds['dataReference'])
+                                          .update({'status': 'rejected'});
+                                    },
+                                    icon: Icon(
+                                      Icons.close,
+                                      color: Colors.white,
+                                    ),
+                                    label: Text(
+                                      "Decline",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                   ),
                                 ],
-                              ),
-                            ],
-                          ),
-                          TextButton.icon(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.change_circle,
-                              color: Color.fromARGB(170, 51, 89, 204),
-                              size: 20,
-                            ),
-                            label: Text(
-                              "Negotiate",
-                              style: TextStyle(
-                                  color: Color.fromARGB(170, 51, 89, 204)),
-                            ),
-                          )
-                        ],
-                      ),
-                      Divider(
-                        color: Color.fromARGB(137, 158, 158, 158),
-                      ),
-                      Text("Description",
-                          style: TextStyle(
-                              color: const Color.fromARGB(56, 255, 255, 255),
-                              fontWeight: FontWeight.bold)),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        rawData['description'],
-                        textAlign: TextAlign.justify,
-                        style: TextStyle(color: Colors.white54),
-                      ),
-                      SizedBox(
-                        height: 15,
-                      ),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Wrap(
-                          spacing: 15,
-                          children: [
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Color.fromARGB(170, 51, 204, 51),
-                              ),
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.check_circle,
-                                color: Colors.white,
-                              ),
-                              label: Text(
-                                "Accept",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Color.fromARGB(170, 204, 51, 51),
-                              ),
-                              onPressed: () {},
-                              icon: Icon(
-                                Icons.close,
-                                color: Colors.white,
-                              ),
-                              label: Text(
-                                "Decline",
-                                style: TextStyle(color: Colors.white),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }

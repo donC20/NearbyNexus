@@ -158,15 +158,16 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
   //   }
   // }
 
-  Future<Map<String, dynamic>?> fetchUserDetails(DocumentReference userReference) async {
-  try {
-    DocumentSnapshot userDetailsSnapshot = await userReference.get();
-    return userDetailsSnapshot.data() as Map<String, dynamic>;
-  } catch (e) {
-    print('Error fetching user details: $e');
-    return null; // Handle the error as needed
+  Future<Map<String, dynamic>?> fetchUserDetails(
+      DocumentReference userReference) async {
+    try {
+      DocumentSnapshot userDetailsSnapshot = await userReference.get();
+      return userDetailsSnapshot.data() as Map<String, dynamic>;
+    } catch (e) {
+      print('Error fetching user details: $e');
+      return null; // Handle the error as needed
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +196,7 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
               .where('status', isEqualTo: 'new')
               .snapshots(),
           builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
@@ -206,70 +207,96 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
               return ListView.separated(
                 itemBuilder: (context, index) {
                   QueryDocumentSnapshot document = documentList[index];
-
                   Map<String, dynamic> documentData =
                       document.data() as Map<String, dynamic>;
-
+                  final docId = documentList[index].id;
+                  // Check if the document data is not empty
                   if (documentData.isNotEmpty) {
-                   DocumentReference userReference = documentData['userReference'];
+                    DocumentReference userReference =
+                        documentData['userReference'];
 
-        // Fetch user details using the separate async function
-        // Map<String, dynamic>? userDetails = await fetchUserDetails(userReference);
+                    return FutureBuilder<DocumentSnapshot>(
+                      future:
+                          userReference.get(), // Fetch user data asynchronously
+                      builder: (context, userSnapshot) {
+                        if (userSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          // If user data is still loading, show a loading indicator
+                          return CircularProgressIndicator();
+                        } else if (userSnapshot.hasError) {
+                          // Handle errors if any
+                          return Text(
+                              'Error: ${userSnapshot.error.toString()}');
+                        } else if (userSnapshot.hasData) {
+                          // User data is available
+                          Map<String, dynamic> userData =
+                              userSnapshot.data!.data() as Map<String, dynamic>;
 
-                  }
-
-                  formattedTimeAgo =
-                      formatTimestamp(documentData['dateRequested']);
-
-                  return Container(
-                    width: MediaQuery.of(context).size.width - 30,
-                    decoration: BoxDecoration(
-                      border:
-                          Border.all(color: Color.fromARGB(43, 158, 158, 158)),
-                      borderRadius: BorderRadius.circular(10),
-                      color: Color.fromARGB(186, 42, 40, 40),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.9),
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      onTap: () {
-                        Map<String, dynamic> docInfo = {
-                          "referencePath": documentData['referencePath'],
-                          "userReference": documentData['userReference'],
-                        };
-                        logger.d(docInfo);
-                        // Navigator.pushNamed(context, "view_requests",
-                        //     arguments: docInfo);
+                          // Fetch the image from the path and update the UI
+                          // You can use userData to get the image path
+                          String imagePath = userData[
+                              'image']; // Replace with actual field name
+                          formattedTimeAgo =
+                              formatTimestamp(documentData['dateRequested']);
+                          return Container(
+                            width: MediaQuery.of(context).size.width - 30,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: Color.fromARGB(43, 158, 158, 158)),
+                              borderRadius: BorderRadius.circular(10),
+                              color: Color.fromARGB(186, 42, 40, 40),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.9),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: ListTile(
+                              onTap: () {
+                                Map<String, dynamic> docInfo = {
+                                  "dataReference": docId,
+                                  "userReference":
+                                      documentData['userReference'],
+                                };
+                                Navigator.pushNamed(context, "view_requests",
+                                    arguments: docInfo);
+                              },
+                              leading: UserLoadingAvatar(
+                                userImage: imagePath,
+                              ),
+                              title: Text(
+                                convertToSentenceCase(
+                                    documentData['service_name']),
+                                style: TextStyle(
+                                  color:
+                                      const Color.fromARGB(255, 255, 252, 252),
+                                  fontSize: 16,
+                                ),
+                              ),
+                              subtitle: Text(
+                                documentData['location'],
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 12),
+                              ),
+                              trailing: Text(
+                                formattedTimeAgo ?? "",
+                                style: TextStyle(
+                                  color: Color.fromARGB(218, 255, 252, 252),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          return Text('No data available for the user.');
+                        }
                       },
-                      leading: UserLoadingAvatar(
-                        userImage:
-                            "https://images.unsplash.com/photo-1639149888905-fb39731f2e6c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fHVzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=600&q=60",
-                      ),
-                      title: Text(
-                        convertToSentenceCase(documentData['service_name']),
-                        style: TextStyle(
-                          color: const Color.fromARGB(255, 255, 252, 252),
-                          fontSize: 16,
-                        ),
-                      ),
-                      subtitle: Text(
-                        documentData['location'],
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                      trailing: Text(
-                        formattedTimeAgo!,
-                        style: TextStyle(
-                          color: Color.fromARGB(218, 255, 252, 252),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  );
+                    );
+                  } else {
+                    return Container(); // You can decide how to handle empty data
+                  }
                 },
                 separatorBuilder: (context, index) {
                   return Divider(
