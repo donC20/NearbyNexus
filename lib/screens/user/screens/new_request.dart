@@ -609,29 +609,28 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
                           day: day,
                           wage: int.tryParse(_budgetController.text),
                           service_name: _serviceController.text,
-                          referencePath: FirebaseFirestore.instance
-                              .doc('/service_logs/$uid/new_requests/$vendorId'),
-                          userReference:
-                              FirebaseFirestore.instance.doc('/users/$uid'));
+                          vendor_reference: FirebaseFirestore.instance
+                              .doc('/users/$vendorId'),
+                          user_reference:
+                              FirebaseFirestore.instance.doc('/users/$uid'),
+                          status: 'new');
                       Map<String, dynamic> requestData =
                           sendRequestData.toJson();
                       await _firestore
-                          .collection('service_logs')
-                          .doc(uid)
-                          .set({});
-
-                      await _firestore
-                          .collection('service_logs')
-                          .doc(uid)
-                          .collection('new_requests')
-                          .doc(vendorId)
-                          .set(requestData);
+                          .collection('service_actions')
+                          .add(requestData);
+                      // await _firestore
+                      //     .collection('service_logs')
+                      //     .doc(uid)
+                      //     .collection('new_requests')
+                      //     .doc(vendorId)
+                      //     .set(requestData);
 
                       // Clear the text fields
                       // _descriptionController.clear();
-                      _locationController.clear();
-                      _budgetController.clear();
-                      _serviceController.clear();
+                      // _locationController.clear();
+                      // _budgetController.clear();
+                      // _serviceController.clear();
                       Navigator.pop(context);
                     } catch (e) {
                       logger.e(e);

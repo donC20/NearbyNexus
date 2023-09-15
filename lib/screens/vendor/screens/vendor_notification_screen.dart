@@ -24,11 +24,17 @@ class VendorNotificationScreen extends StatefulWidget {
 class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _firebaseMessaging = FirebaseMessaging.instance;
-  StreamController<List<Map<String, dynamic>>> _streamController =
-      StreamController<List<Map<String, dynamic>>>.broadcast();
+  // StreamController<List<Map<String, dynamic>>> _streamController =
+  //     StreamController<List<Map<String, dynamic>>>.broadcast();
   String uid = '';
   String? formattedTimeAgo;
   var logger = Logger();
+
+  @override
+  void initState() {
+    super.initState();
+    initUser();
+  }
 
   @override
   void didChangeDependencies() {
@@ -52,7 +58,6 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
     });
 
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    initUser();
   }
 
   // Add a method to send notifications
@@ -106,52 +111,62 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
     }
   }
 
-  Stream<List<Map<String, dynamic>>> getDocumentStream() {
-    // Reference to the "service_logs" collection
-    try {
-      CollectionReference serviceLogsCollection =
-          _firestore.collection('service_logs');
+  // Stream<List<Map<String, dynamic>>> getDocumentStream() {
+  //   // Reference to the "service_logs" collection
+  //   try {
+  //     CollectionReference serviceLogsCollection =
+  //         _firestore.collection('service_logs');
 
-      // StreamController for emitting updates
-      StreamController<List<Map<String, dynamic>>> streamController =
-          StreamController<List<Map<String, dynamic>>>();
+  //     // StreamController for emitting updates
+  //     StreamController<List<Map<String, dynamic>>> streamController =
+  //         StreamController<List<Map<String, dynamic>>>();
 
-      // Stream to listen to changes in the "service_logs" collection
-      serviceLogsCollection.snapshots().listen((querySnapshot) async {
-        List<Map<String, dynamic>> documentDataList = [];
+  //     // Stream to listen to changes in the "service_logs" collection
+  //     serviceLogsCollection.snapshots().listen((querySnapshot) async {
+  //       List<Map<String, dynamic>> documentDataList = [];
 
-        for (QueryDocumentSnapshot docSnapshot in querySnapshot.docs) {
-          // Reference to the "new_requests" subcollection within the current document
-          CollectionReference newRequestsCollection =
-              docSnapshot.reference.collection('new_requests');
+  //       for (QueryDocumentSnapshot docSnapshot in querySnapshot.docs) {
+  //         // Reference to the "new_requests" subcollection within the current document
+  //         CollectionReference newRequestsCollection =
+  //             docSnapshot.reference.collection('new_requests');
 
-          // Stream to listen to changes in the "new_requests" subcollection
-          newRequestsCollection
-              .where(FieldPath.documentId, isEqualTo: uid)
-              .snapshots()
-              .listen((subcollectionSnapshot) {
-            if (subcollectionSnapshot.docs.isNotEmpty) {
-              // Document with the specific ID exists in the current subcollection
-              DocumentSnapshot targetDocument =
-                  subcollectionSnapshot.docs.first;
-              // String collectionPath = docSnapshot.reference.path;
-              // logger.d(collectionPath);
-              Map<String, dynamic> documentData =
-                  targetDocument.data() as Map<String, dynamic>;
+  //         // Stream to listen to changes in the "new_requests" subcollection
+  //         newRequestsCollection
+  //             .where(FieldPath.documentId, isEqualTo: uid)
+  //             .snapshots()
+  //             .listen((subcollectionSnapshot) {
+  //           if (subcollectionSnapshot.docs.isNotEmpty) {
+  //             // Document with the specific ID exists in the current subcollection
+  //             DocumentSnapshot targetDocument =
+  //                 subcollectionSnapshot.docs.first;
+  //             // String collectionPath = docSnapshot.reference.path;
+  //             // logger.d(collectionPath);
+  //             Map<String, dynamic> documentData =
+  //                 targetDocument.data() as Map<String, dynamic>;
 
-              documentDataList.add(documentData);
-              streamController.add(documentDataList);
-            }
-          });
-        }
-      });
+  //             documentDataList.add(documentData);
+  //             streamController.add(documentDataList);
+  //           }
+  //         });
+  //       }
+  //     });
 
-      return streamController.stream;
-    } catch (e) {
-      logger.d(e);
-      return Stream<List<Map<String, dynamic>>>.empty();
-    }
+  //     return streamController.stream;
+  //   } catch (e) {
+  //     logger.d(e);
+  //     return Stream<List<Map<String, dynamic>>>.empty();
+  //   }
+  // }
+
+  Future<Map<String, dynamic>?> fetchUserDetails(DocumentReference userReference) async {
+  try {
+    DocumentSnapshot userDetailsSnapshot = await userReference.get();
+    return userDetailsSnapshot.data() as Map<String, dynamic>;
+  } catch (e) {
+    print('Error fetching user details: $e');
+    return null; // Handle the error as needed
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -171,24 +186,37 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
-        child: StreamBuilder<List<Map<String, dynamic>>>(
-          stream: getDocumentStream(),
-          builder: (BuildContext context,
-              AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+        child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+          stream: _firestore
+              .collection('service_actions')
+              .where('referencePath',
+                  isEqualTo:
+                      FirebaseFirestore.instance.collection('users').doc(uid))
+              .where('status', isEqualTo: 'new')
+              .snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error.toString()}'));
-            } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-              List<Map<String, dynamic>> documentDataList = snapshot.data!;
-              // logger.d(documentDataList);
-              // Debug log to confirm data availability
-              // logger.d('Data received: ${documentDataList.length} items');
+            } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+              List<QueryDocumentSnapshot> documentList = snapshot.data!.docs;
 
-              // Build the ListView
               return ListView.separated(
                 itemBuilder: (context, index) {
-                  Map<String, dynamic> documentData = documentDataList[index];
+                  QueryDocumentSnapshot document = documentList[index];
+
+                  Map<String, dynamic> documentData =
+                      document.data() as Map<String, dynamic>;
+
+                  if (documentData.isNotEmpty) {
+                   DocumentReference userReference = documentData['userReference'];
+
+        // Fetch user details using the separate async function
+        // Map<String, dynamic>? userDetails = await fetchUserDetails(userReference);
+
+                  }
 
                   formattedTimeAgo =
                       formatTimestamp(documentData['dateRequested']);
@@ -214,8 +242,9 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                           "referencePath": documentData['referencePath'],
                           "userReference": documentData['userReference'],
                         };
-                        Navigator.pushNamed(context, "view_requests",
-                            arguments: docInfo);
+                        logger.d(docInfo);
+                        // Navigator.pushNamed(context, "view_requests",
+                        //     arguments: docInfo);
                       },
                       leading: UserLoadingAvatar(
                         userImage:
@@ -247,7 +276,7 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                     color: Colors.grey,
                   );
                 },
-                itemCount: documentDataList.length,
+                itemCount: documentList.length,
               );
             } else {
               return Center(child: Text('No data available.'));
