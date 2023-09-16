@@ -6,6 +6,7 @@ import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
@@ -22,6 +23,8 @@ class _ViewRequestsState extends State<ViewRequests> {
   // final _firebase = FirebaseFirestore.instance;
   final _service_actions_collection =
       FirebaseFirestore.instance.collection('service_actions');
+  final TextEditingController _amountController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   var logger = Logger();
   String yrCurrentLocation = "loading..";
   String nameUser = "Jhon Doe";
@@ -286,9 +289,166 @@ class _ViewRequestsState extends State<ViewRequests> {
                                 ),
                                 TextButton.icon(
                                   onPressed: () {
-                                    _service_actions_collection
-                                        .doc(docIds['dataReference'])
-                                        .update({'status': 'negotiate'});
+                                    showDialog(
+                                      // barrierDismissible: false,
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return Dialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(16.0),
+                                          ),
+                                          elevation: 0,
+                                          backgroundColor: Colors.transparent,
+                                          child: Container(
+                                            padding: EdgeInsets.all(15),
+                                            decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                            child: Form(
+                                              key: _formKey,
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Align(
+                                                    alignment:
+                                                        Alignment.topCenter,
+                                                    child: Text(
+                                                      "Negotiate the price",
+                                                      style: TextStyle(
+                                                          color: Color.fromARGB(
+                                                              170, 0, 0, 0),
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    "Enter amount",
+                                                    style: TextStyle(
+                                                        color: Color.fromARGB(
+                                                            170, 0, 0, 0),
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 15,
+                                                  ),
+                                                  SizedBox(
+                                                    child: TextFormField(
+                                                      controller:
+                                                          _amountController,
+                                                      keyboardType:
+                                                          TextInputType.number,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                        color: const Color
+                                                            .fromARGB(
+                                                            255, 0, 0, 0),
+                                                      ),
+                                                      decoration:
+                                                          InputDecoration(
+                                                        labelText:
+                                                            'Enter amount',
+                                                        labelStyle: TextStyle(
+                                                            color: const Color
+                                                                .fromARGB(
+                                                                255, 22, 0, 0),
+                                                            fontSize: 12),
+                                                        enabledBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    73,
+                                                                    0,
+                                                                    0,
+                                                                    0),
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      8.0),
+                                                        ),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    73,
+                                                                    0,
+                                                                    0,
+                                                                    0),
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      8.0),
+                                                        ),
+                                                      ),
+                                                      onChanged: (value) {
+                                                        setState(() {});
+                                                        // _formKey.currentState!.validate();
+                                                      },
+                                                      validator: (value) {
+                                                        if (value!.isEmpty) {
+                                                          return "You left this field empty!";
+                                                        }
+                                                        return null;
+                                                      },
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 15,
+                                                  ),
+                                                  Align(
+                                                    alignment:
+                                                        Alignment.bottomCenter,
+                                                    child: ElevatedButton(
+                                                      onPressed: () {
+                                                        if (_formKey
+                                                            .currentState!
+                                                            .validate()) {
+                                                          _service_actions_collection
+                                                              .doc(docIds[
+                                                                  'dataReference'])
+                                                              .update({
+                                                            'status':
+                                                                'negotiate',
+                                                            'wage':
+                                                                _amountController
+                                                                    .text
+                                                          });
+                                                          Navigator.pop(
+                                                              context);
+                                                        }
+                                                      },
+                                                      child: Text(
+                                                        "Negotiate",
+                                                        style: TextStyle(
+                                                            color:
+                                                                Color.fromARGB(
+                                                                    255,
+                                                                    252,
+                                                                    252,
+                                                                    252),
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
                                   },
                                   icon: Icon(
                                     Icons.change_circle,

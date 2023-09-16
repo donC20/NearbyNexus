@@ -4,6 +4,7 @@ import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/common_screens/payment.dart';
 import 'package:NearbyNexus/screens/user/screens/new_request.dart';
+import 'package:NearbyNexus/screens/user/screens/request_status_page.dart';
 import 'package:NearbyNexus/screens/user/screens/user_dashboard.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';
 import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
@@ -77,6 +78,7 @@ class MyApp extends StatelessWidget {
         "registration_screen": (context) => const RegistrationScreen(),
         "complete_registration_user": (context) =>
             const CompleteRegistrationByUser(),
+        // vendor _screens
         "complete_registration_vendor": (context) =>
             const CompleteRegistrationByvendor(),
         "final_form_vendor": (context) => const FinalSubmitFormVendor(),
@@ -87,7 +89,7 @@ class MyApp extends StatelessWidget {
         "update_vendor_screen": (context) => const UpdateVendorScreen(),
         "vendor_notification": (context) => const VendorNotificationScreen(),
         "view_requests": (context) => const ViewRequests(),
-       
+        //  user_pages
         "user_home": (context) => const GeneralUserHome(),
         "user_dashboard": (context) => const UserDashboard(),
         "new_request": (context) => NewServiceRequest(),
@@ -96,6 +98,7 @@ class MyApp extends StatelessWidget {
         "user_profile_one": (context) => const UserProfileOne(),
         "user_profile": (context) => const UserProfile(),
         "user_otp_screen": (context) => const UserOtpScreen(),
+        "request_status_page": (context) => const RequestStatusPage(),
         "payment": (context) => const Payment(),
       },
       initialRoute: "splashScreen",

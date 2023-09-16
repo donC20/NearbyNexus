@@ -173,8 +173,8 @@ class _UserDashboardState extends State<UserDashboard> {
               runSpacing: 15,
               spacing: 15,
               children: [
-                topTiles(context, "Service requested",
-                    Icons.multiple_stop_sharp, Colors.blue[900], ""),
+                topTiles(context, "Service logs", Icons.multiple_stop_sharp,
+                    Colors.blue[900], ""),
                 topTiles(
                     context,
                     "Service Accepted",
@@ -191,11 +191,13 @@ class _UserDashboardState extends State<UserDashboard> {
               height: 15,
             ),
             InkWell(
-              onTap: () {},
+              onTap: () {
+                Navigator.pushNamed(context, "request_status_page");
+              },
               child: ListTile(
                 shape: Border.all(color: Color.fromARGB(74, 158, 158, 158)),
                 title: Text(
-                  "View pending requests",
+                  "Request status",
                   style: TextStyle(
                       color: const Color.fromARGB(255, 255, 255, 255),
                       fontSize: 14),
