@@ -43,6 +43,7 @@ dependencies:
   firebase_storage: ^11.2.5
   flutter:
     sdk: flutter
+  flutter_phone_direct_caller: ^2.1.1
   flutter_snake_navigationbar: ^0.6.1
   flutter_stripe: ^9.4.0
   flutter_svg: ^2.0.7
@@ -66,6 +67,7 @@ dependencies:
   shimmer_animation: ^2.1.0+1
   skeletons: ^0.0.3
   transparent_image: ^2.0.1
+  url_launcher: ^6.1.14
 
 dev_dependencies:
   flutter_blurhash: ^0.7.0

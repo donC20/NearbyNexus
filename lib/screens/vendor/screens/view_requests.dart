@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
+import 'package:NearbyNexus/screens/vendor/components/progress_message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -421,7 +422,9 @@ class _ViewRequestsState extends State<ViewRequests> {
                                                                 'negotiate',
                                                             'wage':
                                                                 _amountController
-                                                                    .text
+                                                                    .text,
+                                                            'dateRequested':
+                                                                DateTime.now()
                                                           });
                                                           Navigator.pop(
                                                               context);
@@ -496,7 +499,17 @@ class _ViewRequestsState extends State<ViewRequests> {
                                     onPressed: () {
                                       _service_actions_collection
                                           .doc(docIds['dataReference'])
-                                          .update({'status': 'accepted'});
+                                          .update({
+                                        'status': 'accepted',
+                                        'dateRequested': DateTime.now()
+                                      });
+
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                CongratulatoryScreen()),
+                                      );
                                     },
                                     icon: Icon(
                                       Icons.check_circle,
@@ -515,7 +528,10 @@ class _ViewRequestsState extends State<ViewRequests> {
                                     onPressed: () {
                                       _service_actions_collection
                                           .doc(docIds['dataReference'])
-                                          .update({'status': 'rejected'});
+                                          .update({
+                                        'status': 'rejected',
+                                        'dateRequested': DateTime.now()
+                                      });
                                     },
                                     icon: Icon(
                                       Icons.close,

@@ -193,7 +193,6 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
               .where('referencePath',
                   isEqualTo:
                       FirebaseFirestore.instance.collection('users').doc(uid))
-              .where('status', isEqualTo: 'new')
               .snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -232,10 +231,8 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                           Map<String, dynamic> userData =
                               userSnapshot.data!.data() as Map<String, dynamic>;
 
-                          // Fetch the image from the path and update the UI
-                          // You can use userData to get the image path
-                          String imagePath = userData[
-                              'image']; // Replace with actual field name
+                          String userName = userData['name'];
+                          String imagePath = userData['image'];
                           formattedTimeAgo =
                               formatTimestamp(documentData['dateRequested']);
                           return Container(
@@ -275,11 +272,74 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                                   fontSize: 16,
                                 ),
                               ),
-                              subtitle: Text(
-                                documentData['location'],
-                                style:
-                                    TextStyle(color: Colors.grey, fontSize: 12),
-                              ),
+                              subtitle: documentData['status'] == 'new'
+                                  ? Text.rich(
+                                      TextSpan(
+                                        text: userName,
+                                        style: TextStyle(
+                                          color: Colors.blueAccent,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text:
+                                                " has requested for your service.",
+                                            style: TextStyle(
+                                              color: Colors.white54,
+                                              fontWeight: FontWeight.normal,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : documentData['status'] == 'user negotiated'
+                                      ? Text.rich(
+                                          TextSpan(
+                                            text: userName,
+                                            style: TextStyle(
+                                              color: Colors.blueAccent,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                                text:
+                                                    " updated the price. take a look",
+                                                style: TextStyle(
+                                                  color: Colors.white54,
+                                                  fontWeight: FontWeight.normal,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : documentData['status'] ==
+                                              'user canceled'
+                                          ? Text.rich(
+                                              TextSpan(
+                                                text: userName,
+                                                style: TextStyle(
+                                                  color: Colors.blueAccent,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                children: [
+                                                  TextSpan(
+                                                    text:
+                                                        " has cancelled their serivce request.",
+                                                    style: TextStyle(
+                                                      color: Colors.white54,
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                          : Text(
+                                              documentData['location'],
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 12),
+                                            ),
                               trailing: Text(
                                 formattedTimeAgo ?? "",
                                 style: TextStyle(

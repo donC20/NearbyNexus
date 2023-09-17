@@ -216,13 +216,13 @@ class _UserDashboardState extends State<UserDashboard> {
               child: ListTile(
                 shape: Border.all(color: Color.fromARGB(74, 158, 158, 158)),
                 title: Text(
-                  "Find new services",
+                  "Service status",
                   style: TextStyle(
                       color: const Color.fromARGB(255, 255, 255, 255),
                       fontSize: 14),
                 ),
                 trailing: Icon(
-                  Icons.search,
+                  Icons.query_stats_rounded,
                   color: Colors.white,
                 ),
               ),
