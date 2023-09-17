@@ -5,7 +5,19 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class RecentUserTile extends StatefulWidget {
   final BuildContext callerContext;
-  const RecentUserTile({super.key, required this.callerContext});
+  final String vendorName;
+  final String jobName;
+  final String payment;
+  final String vendorImage;
+  final String location;
+  const RecentUserTile(
+      {super.key,
+      required this.callerContext,
+      required this.vendorName,
+      required this.jobName,
+      required this.payment,
+      required this.location,
+      required this.vendorImage});
 
   @override
   State<RecentUserTile> createState() => _RecentUserTileState();
@@ -43,7 +55,7 @@ class _RecentUserTileState extends State<RecentUserTile> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(50),
                         child: Image.network(
-                          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHVzZXJ8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=600&q=60",
+                          widget.vendorImage,
                           width: 50,
                           height: 50,
                           fit: BoxFit.cover,
@@ -72,7 +84,7 @@ class _RecentUserTileState extends State<RecentUserTile> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Mathew George",
+                            widget.vendorName,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -93,7 +105,7 @@ class _RecentUserTileState extends State<RecentUserTile> {
                                 width: 8,
                               ),
                               Text(
-                                "Car repair and cleaning",
+                                widget.jobName,
                                 style: TextStyle(
                                   color: Colors
                                       .green, // Assuming online status is green
@@ -116,7 +128,7 @@ class _RecentUserTileState extends State<RecentUserTile> {
                                 width: 8,
                               ),
                               Text(
-                                "1500",
+                                widget.payment,
                                 style: TextStyle(
                                   color:
                                       const Color.fromARGB(255, 180, 180, 180),
@@ -162,7 +174,7 @@ class _RecentUserTileState extends State<RecentUserTile> {
                                 width: 8,
                               ),
                               Text(
-                                "Koovappally, Kerala, India",
+                                widget.location,
                                 style: TextStyle(
                                   color:
                                       const Color.fromARGB(255, 180, 180, 180),

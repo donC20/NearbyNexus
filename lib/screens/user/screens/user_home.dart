@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
+import 'package:NearbyNexus/screens/user/components/bottom_nav_global.dart';
 import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
 import 'package:NearbyNexus/screens/user/screens/user_dashboard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -481,52 +482,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                 ),
               ),
             ),
-      bottomNavigationBar: SnakeNavigationBar.gradient(
-        // height: 80,
-        behaviour: SnakeBarBehaviour.floating,
-        snakeShape: SnakeShape.circle,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(25)),
-        ),
-        padding: const EdgeInsets.all(12),
-
-        // /configuration for SnakeNavigationBar.gradient
-        snakeViewGradient: selectedGradient,
-        selectedItemGradient:
-            snakeShape == SnakeShape.indicator ? selectedGradient : null,
-        unselectedItemGradient: unselectedGradient,
-
-        showUnselectedLabels: false,
-        showSelectedLabels: false,
-
-        currentIndex: _selectedItemPosition,
-        onTap: (index) async {
-          if (index == 4) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SearchScreen()),
-            );
-          } else if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => UserDashboard()),
-            );
-          }
-          setState(() => _selectedItemPosition = index);
-        },
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.notifications), label: 'tickets'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_month_rounded), label: 'calendar'),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.podcasts), label: 'microphone'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'search')
-        ],
-        selectedLabelStyle: const TextStyle(fontSize: 14),
-        unselectedLabelStyle: const TextStyle(fontSize: 10),
-      ),
+      bottomNavigationBar: GlobalBottomNavUser(),
     );
   }
 }

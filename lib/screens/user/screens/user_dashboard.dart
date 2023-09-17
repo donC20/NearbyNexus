@@ -3,9 +3,13 @@
 import 'dart:convert';
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:NearbyNexus/screens/user/components/bottom_nav_global.dart';
 import 'package:NearbyNexus/screens/user/components/recent_user_tile.dart';
 import 'package:NearbyNexus/screens/user/components/user_list_tile.dart';
 import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
+import 'package:NearbyNexus/screens/user/screens/service_completed_logs.dart';
+import 'package:NearbyNexus/screens/user/screens/service_logs.dart';
+import 'package:NearbyNexus/screens/user/screens/service_rejected.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -22,18 +26,13 @@ class UserDashboard extends StatefulWidget {
 }
 
 class _UserDashboardState extends State<UserDashboard> {
-  Gradient selectedGradient = const LinearGradient(colors: [
-    Color.fromARGB(255, 8, 89, 210),
-    Color.fromARGB(255, 24, 18, 1)
-  ]);
-  Gradient unselectedGradient = const LinearGradient(
-      colors: [Color.fromARGB(255, 54, 89, 244), Colors.blueGrey]);
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String imageLink = "";
   String nameLoginned = "";
   bool isimageFetched = false;
   int _selectedItemPosition = 2;
-
+  String uid = '';
   SnakeShape snakeShape = SnakeShape.circle;
   Color unselectedColor = Colors.blueGrey;
   Color selectedColor = Colors.black;
@@ -49,7 +48,10 @@ class _UserDashboardState extends State<UserDashboard> {
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
     var initData = json.decode(userLoginData!);
-    String uid = initData['uid'];
+
+    setState(() {
+      uid = initData['uid'];
+    });
     DocumentSnapshot snapshot =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();
     if (snapshot.exists) {
@@ -150,12 +152,6 @@ class _UserDashboardState extends State<UserDashboard> {
                     ),
             ),
           ),
-          IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.notifications_none,
-                color: Colors.white,
-              ))
         ],
       ),
       body: Padding(
@@ -174,17 +170,18 @@ class _UserDashboardState extends State<UserDashboard> {
               spacing: 15,
               children: [
                 topTiles(context, "Service logs", Icons.multiple_stop_sharp,
-                    Colors.blue[900], ""),
+                    Colors.blue[900], "", ServiceLogs()),
                 topTiles(
                     context,
-                    "Service Accepted",
+                    "Service completed",
                     Icons.check_circle_outline_outlined,
                     const Color.fromARGB(255, 13, 161, 97),
-                    ""),
+                    "",
+                    ServiceCompleted()),
                 topTiles(context, "Service Rejected", Icons.close,
-                    Color.fromARGB(255, 161, 35, 13), ""),
+                    Color.fromARGB(255, 161, 35, 13), "", ServiceRejected()),
                 topTiles(context, "Payouts", Icons.payment,
-                    Color.fromARGB(255, 67, 54, 52), ""),
+                    Color.fromARGB(255, 67, 54, 52), "", ServiceLogs()),
               ],
             ),
             SizedBox(
@@ -211,25 +208,25 @@ class _UserDashboardState extends State<UserDashboard> {
             SizedBox(
               height: 10,
             ),
-            InkWell(
-              onTap: () {},
-              child: ListTile(
-                shape: Border.all(color: Color.fromARGB(74, 158, 158, 158)),
-                title: Text(
-                  "Service status",
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 255, 255, 255),
-                      fontSize: 14),
-                ),
-                trailing: Icon(
-                  Icons.query_stats_rounded,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 15,
-            ),
+            // InkWell(
+            //   onTap: () {},
+            //   child: ListTile(
+            //     shape: Border.all(color: Color.fromARGB(74, 158, 158, 158)),
+            //     title: Text(
+            //       "Service status",
+            //       style: TextStyle(
+            //           color: const Color.fromARGB(255, 255, 255, 255),
+            //           fontSize: 14),
+            //     ),
+            //     trailing: Icon(
+            //       Icons.query_stats_rounded,
+            //       color: Colors.white,
+            //     ),
+            //   ),
+            // ),
+            // SizedBox(
+            //   height: 15,
+            // ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -248,18 +245,87 @@ class _UserDashboardState extends State<UserDashboard> {
             ),
             SizedBox(
               height: 170, // Adjust the height as needed
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: 5,
-                itemBuilder: (BuildContext context, int index) {
-                  return RecentUserTile(
-                    callerContext: context,
-                  );
-                },
-                separatorBuilder: (BuildContext context, int index) {
-                  return SizedBox(
-                    width: 15,
-                  );
+              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: _firestore
+                    .collection('service_actions')
+                    .where('userReference',
+                        isEqualTo: _firestore.collection('users').doc(uid))
+                    .where('clientStatus', isEqualTo: 'finished')
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(
+                        child: Text('Error: ${snapshot.error.toString()}'));
+                  } else if (snapshot.hasData &&
+                      snapshot.data!.docs.isNotEmpty) {
+                    List<QueryDocumentSnapshot> documentList =
+                        snapshot.data!.docs;
+
+                    return ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: documentList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        QueryDocumentSnapshot document = documentList[index];
+                        Map<String, dynamic> documentData =
+                            document.data() as Map<String, dynamic>;
+                        // final docId = documentList[index].id;
+                        DocumentReference vendorReference =
+                            documentData['referencePath'];
+                        return FutureBuilder<DocumentSnapshot>(
+                          future: vendorReference
+                              .get(), // Fetch user data asynchronously
+                          builder: (context, userSnapshot) {
+                            if (userSnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              // If user data is still loading, show a loading indicator
+                              return Center(child: CircularProgressIndicator());
+                            } else if (userSnapshot.hasError) {
+                              // Handle errors if any
+                              return Text(
+                                  'Error: ${userSnapshot.error.toString()}');
+                            } else if (userSnapshot.hasData) {
+                              // User data is available
+                              Map<String, dynamic> userData = userSnapshot.data!
+                                  .data() as Map<String, dynamic>;
+
+                              // Replace with actual field name
+
+                              return RecentUserTile(
+                                callerContext: context,
+                                vendorName: userData['name'],
+                                jobName: documentData['service_name'],
+                                payment: documentData['wage'],
+                                location: documentData['location'],
+                                vendorImage: userData['image'],
+                              );
+                            } else {
+                              return Center(
+                                child: Text(
+                                  'No data available for the user.',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              );
+                            }
+                          },
+                        );
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return SizedBox(
+                          width: 15,
+                        );
+                      },
+                    );
+                  } else {
+                    return Center(
+                        child: Text(
+                      'You have\'nt work with any one yet!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white),
+                    ));
+                  }
                 },
               ),
             ),
@@ -329,65 +395,21 @@ class _UserDashboardState extends State<UserDashboard> {
           ],
         ),
       ),
-      bottomNavigationBar: SnakeNavigationBar.gradient(
-        // height: 80,
-        behaviour: SnakeBarBehaviour.floating,
-        snakeShape: SnakeShape.circle,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(25)),
-        ),
-        padding: const EdgeInsets.all(12),
-
-        // /configuration for SnakeNavigationBar.gradient
-        snakeViewGradient: selectedGradient,
-        selectedItemGradient:
-            snakeShape == SnakeShape.indicator ? selectedGradient : null,
-        unselectedItemGradient: unselectedGradient,
-
-        showUnselectedLabels: false,
-        showSelectedLabels: false,
-
-        currentIndex: _selectedItemPosition,
-        onTap: (index) async {
-          if (index == 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => GeneralUserHome()),
-            );
-          } else if (index == 4) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SearchScreen()),
-            );
-          } else if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => UserDashboard()),
-            );
-          }
-          setState(() => _selectedItemPosition = index);
-        },
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.ads_click_outlined), label: 'tickets'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_month_rounded), label: 'calendar'),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.podcasts), label: 'microphone'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'search')
-        ],
-        selectedLabelStyle: const TextStyle(fontSize: 14),
-        unselectedLabelStyle: const TextStyle(fontSize: 10),
-      ),
+      bottomNavigationBar: GlobalBottomNavUser(),
     );
   }
 }
 
-Widget topTiles(BuildContext context, text, icon, bgcolor, screen) {
+Widget topTiles(
+    BuildContext context, text, icon, bgcolor, screen, constructors) {
   return InkWell(
     onTap: () {
-      // Add functionality for the onTap event
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => constructors,
+        ),
+      );
     },
     child: Container(
       width: MediaQuery.of(context).size.width / 2 - 25,

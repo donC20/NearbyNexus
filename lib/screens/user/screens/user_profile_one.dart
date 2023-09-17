@@ -174,25 +174,6 @@ class _UserProfileOneState extends State<UserProfileOne> {
                   ),
                   ListTile(
                     leading: Icon(
-                      Icons.edit_document,
-                      color: Colors.white,
-                    ),
-                    title: Text(
-                      "Payments",
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                    horizontalTitleGap: -5,
-                    trailing: IconButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, "payment");
-                        },
-                        icon: Icon(
-                          Icons.arrow_right_alt,
-                          color: Colors.white,
-                        )),
-                  ),
-                  ListTile(
-                    leading: Icon(
                       Icons.support,
                       color: Colors.white,
                     ),

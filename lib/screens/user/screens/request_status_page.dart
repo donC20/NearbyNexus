@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 
-import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -124,7 +123,7 @@ class _RequestStatusPageState extends State<RequestStatusPage> {
                         if (userSnapshot.connectionState ==
                             ConnectionState.waiting) {
                           // If user data is still loading, show a loading indicator
-                          return CircularProgressIndicator();
+                          return Center(child: CircularProgressIndicator());
                         } else if (userSnapshot.hasError) {
                           // Handle errors if any
                           return Text(
@@ -193,7 +192,11 @@ class _RequestStatusPageState extends State<RequestStatusPage> {
                 itemCount: documentList.length,
               );
             } else {
-              return Center(child: Text('No data available.'));
+              return Center(
+                  child: Text(
+                'You don\'t have any new request.',
+                style: TextStyle(color: Colors.white),
+              ));
             }
           },
         ),

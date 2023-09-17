@@ -3,13 +3,14 @@
 import 'dart:convert';
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:NearbyNexus/models/payment_modal.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:intl/intl.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -34,6 +35,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
   String? formattedTimeAgo;
   var logger = Logger();
   Map<String, dynamic>? paymentIntent;
+  final List<String> paymentLogs = [];
   @override
   void initState() {
     super.initState();
@@ -85,7 +87,12 @@ class _JobReviewPageState extends State<JobReviewPage> {
   }
 
 // payments
-  Future<void> makePayment(String recipientName, String amount) async {
+  Future<void> makePayment(
+      String recipientName,
+      String amount,
+      DocumentReference jobId,
+      DocumentReference payedBy,
+      DocumentReference payedTo) async {
     try {
       paymentIntent = await createPaymentIntent(amount, 'INR');
       //Payment Sheet
@@ -100,25 +107,99 @@ class _JobReviewPageState extends State<JobReviewPage> {
           .then((value) {});
 
       ///now finally display payment sheeet
-      displayPaymentSheet();
+      displayPaymentSheet(amount, jobId, payedBy, payedTo);
     } catch (e, s) {
       print('exception:$e$s');
     }
   }
 
-  displayPaymentSheet() async {
+  displayPaymentSheet(String amount, DocumentReference jobId,
+      DocumentReference payedBy, DocumentReference payedTo) async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) {
+// successful payment then update database
+        try {
+          PaymentModal payModal = PaymentModal(
+              amountPaid: amount,
+              jobId: jobId,
+              payedBy: payedBy,
+              payedTo: payedTo,
+              paymentTime: DateTime.now());
+          Map<String, dynamic> paymentData = payModal.toJson();
+          _firestore.collection('payments').add(paymentData).then((value) {
+            DocumentReference paymentId =
+                _firestore.collection('payments').doc(value.id);
+            jobId.update({'paymentStatus': 'paid'});
+// update user
+            payedBy.get().then((userDoc) {
+              if (userDoc.exists) {
+                Map<String, dynamic> paymentLogs =
+                    userDoc.data() as Map<String, dynamic>;
+                List<dynamic> payLogs = paymentLogs['paymentLogs'];
+                payLogs.add(paymentId);
+
+                payedBy.update({'paymentLogs': payLogs}).then((_) {
+                  print('Payment ID added to paymentLogs: $paymentId');
+                }).catchError((error) {
+                  print('Error updating user document: $error');
+                });
+              } else {
+                // Handle the case where the user document doesn't exist
+                print('User document does not exist');
+              }
+            }).catchError((error) {
+              // Handle any errors that occur when retrieving the user document
+              print('Error retrieving user document: $error');
+            });
+
+            // update vendor
+
+            payedTo.get().then((userDoc) {
+              if (userDoc.exists) {
+                Map<String, dynamic> paymentToLogs =
+                    userDoc.data() as Map<String, dynamic>;
+                List<dynamic> payToLogs = paymentToLogs['paymentLogs'];
+                payToLogs.add(paymentId);
+
+                payedTo.update({'paymentLogs': payToLogs}).then((_) {
+                  print('Payment ID added to paymentLogs: $paymentId');
+                }).catchError((error) {
+                  print('Error updating user document: $error');
+                });
+              } else {
+                // Handle the case where the user document doesn't exist
+                print('User document does not exist');
+              }
+            }).catchError((error) {
+              // Handle any errors that occur when retrieving the user document
+              print('Error retrieving user document: $error');
+            });
+          }).catchError((error) {
+            // Handle any errors that occur when adding a document to the "payments" collection
+            print('Error adding document to payments collection: $error');
+          });
+
+          jobId.update({
+            'clientStatus': 'finished',
+            'status': 'finished',
+            'dateRequested': DateTime.now()
+          });
+          Navigator.pop(context);
+        } catch (e) {
+          logger.e(e);
+        }
+
         showDialog(
             context: context,
             builder: (_) => const AlertDialog(
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
+                      Column(
                         children: [
                           Icon(
                             Icons.check_circle,
+                            size: 30,
                             color: Colors.green,
                           ),
                           Text("Payment Successfull"),
@@ -127,8 +208,6 @@ class _JobReviewPageState extends State<JobReviewPage> {
                     ],
                   ),
                 ));
-        // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("paid successfully")));
-
         paymentIntent = null;
         setState(() {
           isPaymentClicked = false;
@@ -231,6 +310,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
                               'Error: ${userSnapshot.error.toString()}');
                         } else if (userSnapshot.hasData) {
                           // User data is available
+
                           Map<String, dynamic> userData =
                               userSnapshot.data!.data() as Map<String, dynamic>;
 
@@ -546,22 +626,29 @@ class _JobReviewPageState extends State<JobReviewPage> {
                                               onPressed: isPaymentClicked
                                                   ? null
                                                   : () async {
-                                                      // _service_actions_collection
-                                                      //     .doc(docId)
-                                                      //     .update({
-                                                      //   'clientStatus': 'finished',
-                                                      //   'status': 'finished',
-                                                      //   'dateRequested':
-                                                      //       DateTime.now()
-                                                      // });
-
                                                       setState(() {
                                                         isPaymentClicked = true;
                                                       });
 
+                                                      final DocumentReference
+                                                          jobId = _firestore
+                                                              .collection(
+                                                                  'service_actions')
+                                                              .doc(docId);
+                                                      final DocumentReference
+                                                          payedBy = _firestore
+                                                              .collection(
+                                                                  'users')
+                                                              .doc(uid);
+                                                      final DocumentReference
+                                                          payedTo =
+                                                          vendorReference;
                                                       await makePayment(
                                                           userData['name'],
-                                                          documentData['wage']);
+                                                          documentData['wage'],
+                                                          jobId,
+                                                          payedBy,
+                                                          payedTo);
                                                     },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: Color.fromARGB(
