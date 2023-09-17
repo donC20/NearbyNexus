@@ -1,4 +1,4 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, no_leading_underscores_for_local_identifiers
+// ignore_for_file: deprecated_member_use, prefer_const_constructors, no_leading_underscores_for_local_identifiers, non_constant_identifier_names, use_build_context_synchronously, avoid_print
 
 import 'dart:convert';
 
@@ -7,26 +7,33 @@ import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:intl/intl.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 
-class MyJobs extends StatefulWidget {
+class JobReviewPage extends StatefulWidget {
+  const JobReviewPage({super.key});
+
   @override
-  _MyJobsState createState() => _MyJobsState();
+  State<JobReviewPage> createState() => _JobReviewPageState();
 }
 
-class _MyJobsState extends State<MyJobs> {
+class _JobReviewPageState extends State<JobReviewPage> {
   // Sample job and customer information
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _service_actions_collection =
       FirebaseFirestore.instance.collection('service_actions');
 
+  bool isChecked = false;
+  bool isPaymentClicked = false;
   String uid = '';
   String? formattedTimeAgo;
   var logger = Logger();
-
+  Map<String, dynamic>? paymentIntent;
   @override
   void initState() {
     super.initState();
@@ -77,7 +84,100 @@ class _MyJobsState extends State<MyJobs> {
     }
   }
 
-  // Function to launch the phone call
+// payments
+  Future<void> makePayment(String recipientName, String amount) async {
+    try {
+      paymentIntent = await createPaymentIntent(amount, 'INR');
+      //Payment Sheet
+      await Stripe.instance
+          .initPaymentSheet(
+              paymentSheetParameters: SetupPaymentSheetParameters(
+                  paymentIntentClientSecret: paymentIntent!['client_secret'],
+                  // applePay: const PaymentSheetApplePay(merchantCountryCode: '+92',),
+                  // googlePay: const PaymentSheetGooglePay(testEnv: true, currencyCode: "US", merchantCountryCode: "+92"),
+                  style: ThemeMode.dark,
+                  merchantDisplayName: recipientName))
+          .then((value) {});
+
+      ///now finally display payment sheeet
+      displayPaymentSheet();
+    } catch (e, s) {
+      print('exception:$e$s');
+    }
+  }
+
+  displayPaymentSheet() async {
+    try {
+      await Stripe.instance.presentPaymentSheet().then((value) {
+        showDialog(
+            context: context,
+            builder: (_) => const AlertDialog(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                          ),
+                          Text("Payment Successfull"),
+                        ],
+                      ),
+                    ],
+                  ),
+                ));
+        // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("paid successfully")));
+
+        paymentIntent = null;
+        setState(() {
+          isPaymentClicked = false;
+        });
+      }).onError((error, stackTrace) {
+        print('Error is:--->$error $stackTrace');
+      });
+    } on StripeException catch (e) {
+      print('Error is:---> $e');
+      showDialog(
+          context: context,
+          builder: (_) => const AlertDialog(
+                content: Text("Cancelled "),
+              ));
+    } catch (e) {
+      print('$e');
+    }
+  }
+
+  //  Future<Map<String, dynamic>>
+  createPaymentIntent(String amount, String currency) async {
+    try {
+      String SECRET_KEY =
+          "sk_test_51NpN8rSJaMBnAdU7Rwr9dgYxVZ4yk3J8lQNazKj0hBv3Vn98yphDtEZ1rNY9hR6I6D4mDpcJKjoO2XbZE0Y5u5Se00Fey7EJwx";
+      Map<String, dynamic> body = {
+        'amount': calculateAmount(amount),
+        'currency': currency,
+        'payment_method_types[]': 'card'
+      };
+
+      var response = await http.post(
+        Uri.parse('https://api.stripe.com/v1/payment_intents'),
+        headers: {
+          'Authorization': 'Bearer $SECRET_KEY',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: body,
+      );
+      print('Payment Intent Body->>> ${response.body.toString()}');
+      return jsonDecode(response.body);
+    } catch (err) {
+      print('err charging user: ${err.toString()}');
+    }
+  }
+
+  calculateAmount(String amount) {
+    final calculatedAmout = (int.parse(amount)) * 100;
+    return calculatedAmout.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,17 +185,17 @@ class _MyJobsState extends State<MyJobs> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Text('My current jobs'),
+        title: Text('Review job'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream: _firestore
               .collection('service_actions')
-              .where('referencePath',
+              .where('userReference',
                   isEqualTo:
                       FirebaseFirestore.instance.collection('users').doc(uid))
-              .where('status', isEqualTo: 'accepted')
+              .where('status', isEqualTo: 'completed')
               .snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -115,7 +215,7 @@ class _MyJobsState extends State<MyJobs> {
                   // Check if the document data is not empty
                   if (documentData.isNotEmpty) {
                     DocumentReference vendorReference =
-                        documentData['userReference'];
+                        documentData['referencePath'];
 
                     return FutureBuilder<DocumentSnapshot>(
                       future: vendorReference
@@ -124,7 +224,7 @@ class _MyJobsState extends State<MyJobs> {
                         if (userSnapshot.connectionState ==
                             ConnectionState.waiting) {
                           // If user data is still loading, show a loading indicator
-                          return CircularProgressIndicator();
+                          return Center(child: CircularProgressIndicator());
                         } else if (userSnapshot.hasError) {
                           // Handle errors if any
                           return Text(
@@ -382,7 +482,7 @@ class _MyJobsState extends State<MyJobs> {
                                     serviceDetaisl("Service name",
                                         documentData['service_name']),
                                     serviceDetaisl(
-                                        "Date requested", formattedTimeAgo),
+                                        "Completed", formattedTimeAgo),
                                     serviceDetaisl(
                                         "Needed on",
                                         timeStampConverter(
@@ -417,26 +517,117 @@ class _MyJobsState extends State<MyJobs> {
                                     SizedBox(
                                       height: 10,
                                     ),
-                                    ElevatedButton.icon(
-                                      onPressed: () {
-                                        _service_actions_collection
-                                            .doc(docId)
-                                            .update({
-                                          'status': 'completed',
-                                          'dateRequested': DateTime.now()
+                                    Divider(
+                                      color: const Color.fromARGB(
+                                          123, 158, 158, 158),
+                                    ),
+                                    CheckboxListTile(
+                                      title: Text(
+                                        "Yes, I confirm that the above job is reviewed & stands completed.",
+                                        style: TextStyle(
+                                            fontSize: 14, color: Colors.white),
+                                      ),
+                                      checkColor: Colors.black,
+                                      activeColor: Colors.white,
+                                      value: isChecked,
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          isChecked = newValue!;
                                         });
                                       },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color.fromARGB(
-                                            255, 117, 76, 175),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                              20.0), // Adjust the radius as needed
-                                        ),
-                                      ),
-                                      icon: Icon(Icons.done_all),
-                                      label: Text("Mark this job as completed"),
                                     ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    isChecked
+                                        ? Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: ElevatedButton(
+                                              onPressed: isPaymentClicked
+                                                  ? null
+                                                  : () async {
+                                                      // _service_actions_collection
+                                                      //     .doc(docId)
+                                                      //     .update({
+                                                      //   'clientStatus': 'finished',
+                                                      //   'status': 'finished',
+                                                      //   'dateRequested':
+                                                      //       DateTime.now()
+                                                      // });
+
+                                                      setState(() {
+                                                        isPaymentClicked = true;
+                                                      });
+
+                                                      await makePayment(
+                                                          userData['name'],
+                                                          documentData['wage']);
+                                                    },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Color.fromARGB(
+                                                    255, 0, 110, 255),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20.0), // Adjust the radius as needed
+                                                ),
+                                              ), // Rupee icon
+                                              child: isPaymentClicked
+                                                  ? CircularProgressIndicator(
+                                                      color: Colors.white,
+                                                    )
+                                                  : Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Text(
+                                                          "Pay ", // ₹ is the Unicode character for the rupee symbol
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                        Icon(
+                                                          Icons.currency_rupee,
+                                                          size: 18,
+                                                        ),
+                                                        Text(
+                                                          "${documentData['wage']}", // ₹ is the Unicode character for the rupee symbol
+                                                          style: TextStyle(
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                            ),
+                                          )
+                                        : ElevatedButton.icon(
+                                            onPressed: () {
+                                              _service_actions_collection
+                                                  .doc(docId)
+                                                  .update({
+                                                'clientStatus': 'unfinished',
+                                                'status': 'unfinished',
+                                                'dateRequested': DateTime.now()
+                                              });
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Color.fromARGB(
+                                                  255, 175, 76, 76),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(
+                                                    20.0), // Adjust the radius as needed
+                                              ),
+                                            ),
+                                            icon: Icon(Icons.close),
+                                            label: Text("Mark not completed"),
+                                          )
                                   ],
                                 ),
                               ),

@@ -4,20 +4,13 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
-class Payment extends StatefulWidget {
-  const Payment({Key? key}) : super(key: key);
-
-  @override
-  State<Payment> createState() => _PaymentState();
-}
-
-class _PaymentState extends State<Payment> {
+class MakePayment {
   Map<String, dynamic>? paymentIntent;
   var log = Logger();
 
-  void makePayment() async {
+  void makePayment(recipientName, amount) async {
     try {
-      paymentIntent = await createPaymentIntent();
+      paymentIntent = await createPaymentIntent(amount);
       var gpay = const PaymentSheetGooglePay(
         merchantCountryCode: "US",
         currencyCode: "USD",
@@ -27,7 +20,7 @@ class _PaymentState extends State<Payment> {
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: paymentIntent!['client_secret'],
           style: ThemeMode.dark,
-          merchantDisplayName: "Don Benny",
+          merchantDisplayName: recipientName,
           googlePay: gpay,
         ),
       );
@@ -46,7 +39,7 @@ class _PaymentState extends State<Payment> {
     }
   }
 
-  Future<Map<String, dynamic>> createPaymentIntent() async {
+  Future<Map<String, dynamic>> createPaymentIntent(amount) async {
     try {
       // Replace 'YOUR_SECRET_KEY' with your actual Stripe secret key
       String secretKey =
@@ -54,7 +47,7 @@ class _PaymentState extends State<Payment> {
 
       // Define the request body
       Map<String, dynamic> body = {
-        "amount": "1000", // Amount in cents (e.g., $10.00)
+        "amount": amount, // Amount in cents (e.g., $10.00)
         "currency": "usd", // Currency code (e.g., USD)
       };
 
@@ -79,18 +72,5 @@ class _PaymentState extends State<Payment> {
       // Handle any exceptions that occur during the request
       throw Exception("Error creating PaymentIntent: $e");
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(
-        child: ElevatedButton(
-          onPressed: makePayment,
-          child: const Text("Make Payment"),
-        ),
-      ),
-    );
   }
 }

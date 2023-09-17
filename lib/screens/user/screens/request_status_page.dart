@@ -605,7 +605,10 @@ class NotificationItem extends StatelessWidget {
               : Align(
                   alignment: Alignment.bottomRight,
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushNamed(context, "job_review_page",
+                          arguments: docId);
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 111, 76, 175),
                       shape: RoundedRectangleBorder(
