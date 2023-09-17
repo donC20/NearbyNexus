@@ -6,6 +6,7 @@ import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/user/components/bottom_nav_global.dart';
 import 'package:NearbyNexus/screens/user/components/recent_user_tile.dart';
 import 'package:NearbyNexus/screens/user/components/user_list_tile.dart';
+import 'package:NearbyNexus/screens/user/screens/payout_log.dart';
 import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
 import 'package:NearbyNexus/screens/user/screens/service_completed_logs.dart';
 import 'package:NearbyNexus/screens/user/screens/service_logs.dart';
@@ -181,7 +182,7 @@ class _UserDashboardState extends State<UserDashboard> {
                 topTiles(context, "Service Rejected", Icons.close,
                     Color.fromARGB(255, 161, 35, 13), "", ServiceRejected()),
                 topTiles(context, "Payouts", Icons.payment,
-                    Color.fromARGB(255, 67, 54, 52), "", ServiceLogs()),
+                    Color.fromARGB(255, 67, 54, 52), "", PayoutLogs()),
               ],
             ),
             SizedBox(

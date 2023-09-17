@@ -129,7 +129,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
           _firestore.collection('payments').add(paymentData).then((value) {
             DocumentReference paymentId =
                 _firestore.collection('payments').doc(value.id);
-            jobId.update({'paymentStatus': 'paid'});
+            jobId.update({'paymentStatus': 'paid', 'paymentLog': paymentId});
 // update user
             payedBy.get().then((userDoc) {
               if (userDoc.exists) {

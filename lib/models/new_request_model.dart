@@ -3,19 +3,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class NewRequestModal {
-  final DocumentReference? vendor_reference;
-  final DocumentReference? user_reference;
   final String? service_name;
   final String? description;
   final String? service_level;
   final String? location;
-  final DateTime? dateRequested;
-  final DateTime? day;
   final String? status;
+  final String? clientStatus;
+  final String? paymentStatus;
+  final DateTime? day;
+  final DateTime? dateRequested;
+  final DocumentReference? vendor_reference;
+  final DocumentReference? user_reference;
+  final DocumentReference paymentLog;
+
   // final DateTime time;
   final int? wage;
   NewRequestModal(
-      {required this.vendor_reference,
+      {required this.clientStatus,
+      required this.paymentStatus,
+      required this.paymentLog,
+      required this.vendor_reference,
       required this.user_reference,
       required this.status,
       required this.description,
@@ -38,6 +45,9 @@ class NewRequestModal {
       'referencePath': vendor_reference,
       'userReference': user_reference,
       'status': status,
+      'clientStatus': clientStatus,
+      'paymentStatus': paymentStatus,
+      'paymentLog': paymentLog,
     };
   }
 }
