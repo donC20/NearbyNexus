@@ -12,6 +12,7 @@ import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/screens/update_vendor_screen.dart';
+import 'package:NearbyNexus/screens/vendor/screens/vendor_dashboard.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_notification_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile.dart';
@@ -90,6 +91,7 @@ class MyApp extends StatelessWidget {
         "update_vendor_screen": (context) => const UpdateVendorScreen(),
         "vendor_notification": (context) => const VendorNotificationScreen(),
         "view_requests": (context) => const ViewRequests(),
+        "vendor_dashboard": (context) => const VendorDashboard(),
         //  user_pages
         "user_home": (context) => const GeneralUserHome(),
         "user_dashboard": (context) => const UserDashboard(),

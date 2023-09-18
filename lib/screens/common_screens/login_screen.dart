@@ -66,6 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
             await FirebaseFirestore.instance.collection('users').doc(uid).get();
         Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
         String authorised = data!['status'];
+        log.d(authorised);
 
         if (snapshot.exists && authorised == 'active') {
           // Check if the document exists
@@ -86,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
             if (userType == "admin") {
               Navigator.popAndPushNamed(context, "admin_screen");
             } else if (userType == "vendor") {
-              Navigator.popAndPushNamed(context, "vendor_home");
+              Navigator.popAndPushNamed(context, "vendor_dashboard");
             } else if (userType == "general_user") {
               Navigator.popAndPushNamed(context, "user_dashboard");
             } else {
@@ -126,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
         errorMessage =
             "The password is invalid or the user does not have a password.";
       } else {
-        errorMessage = "Error: ${error.toString()}";
+        errorMessage = "Error from login: ${error.toString()}";
       }
       setState(() {
         isLoading = false;

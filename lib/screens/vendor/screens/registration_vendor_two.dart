@@ -172,14 +172,20 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
         name: vendorInitialData?['name'],
         userType: 'vendor',
         currentGeoLocation: vendorInitialData?['location'],
-        emailId: vendorInitialData?['email'],
+        emailId: {"id": vendorInitialData?['email'], "verified": true},
         govDocs: '',
         image: _imageUrl,
-        latitude: null,
-        longitude: null,
-        phone: vendorInitialData?['phone'].toString(),
+        phone: {
+          "number": vendorInitialData?['phone'].toString(),
+          "verified": true
+        },
         status: 'active',
         services: servicesList,
+        userFavourites: [],
+        working_days: [],
+        description: "",
+        paymentLogs:
+            FirebaseFirestore.instance.collection('payments').doc('someDocs'),
       );
 
       Map<String, dynamic> userData = user.toJson();

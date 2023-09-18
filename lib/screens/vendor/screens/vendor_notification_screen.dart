@@ -221,7 +221,7 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                         if (userSnapshot.connectionState ==
                             ConnectionState.waiting) {
                           // If user data is still loading, show a loading indicator
-                          return CircularProgressIndicator();
+                          return Center(child: CircularProgressIndicator());
                         } else if (userSnapshot.hasError) {
                           // Handle errors if any
                           return Text(
@@ -350,7 +350,10 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                             ),
                           );
                         } else {
-                          return Text('No data available for the user.');
+                          return Text(
+                            'No data available for the user.',
+                            style: TextStyle(color: Colors.white),
+                          );
                         }
                       },
                     );

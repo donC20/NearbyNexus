@@ -170,16 +170,26 @@ class _CompleteRegistrationByUserState
           print('Image upload error: $error');
         }
       }
+
       UserModel user = UserModel(
           name: name,
-          emailId: emailId,
-          phone: phone,
-          latitude: latitude,
-          longitude: longitude,
+          emailId: {
+            "id": emailId,
+            "verified": true,
+          },
+          phone: {
+            "number": phone,
+            "verified": true,
+          },
           image: _imageUrl,
           userType: userType,
           currentGeoLocation: currentGeoLocation,
-          status: 'active');
+          status: 'active',
+          address: '',
+          paymentLogs:
+              FirebaseFirestore.instance.collection('payments').doc('someDoc'),
+          paymentVerified: false,
+          about: '');
       Map<String, dynamic> userData = user.toJson();
       String uid = userTransferdData['uid'];
       await FirebaseFirestore.instance
