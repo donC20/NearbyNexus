@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
             if (userType == "admin") {
               Navigator.popAndPushNamed(context, "admin_screen");
             } else if (userType == "vendor") {
-              Navigator.popAndPushNamed(context, "vendor_dashboard");
+              Navigator.popAndPushNamed(context, "vendor_home");
             } else if (userType == "general_user") {
               Navigator.popAndPushNamed(context, "user_dashboard");
             } else {

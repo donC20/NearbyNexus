@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 
-import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/user/components/vendor_review_container.dart';
@@ -12,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VendorProfile extends StatefulWidget {
@@ -61,9 +59,9 @@ class _VendorProfileState extends State<VendorProfile> {
   String dpImage =
       "https://dealio.imgix.net/uploads/147885uploadshotel-pool-canaves.jpg";
   String geoLocation = "loading...";
-  List<dynamic> serviceList = [];
-  List<dynamic> workingDays = [];
-  List<dynamic> languages = [];
+  List<dynamic>? serviceList = [];
+  List<dynamic>? workingDays = [];
+  List<dynamic>? languages = [];
   String about = '';
   var log = Logger();
   void handleImageUploading(bool value) {
@@ -112,7 +110,8 @@ class _VendorProfileState extends State<VendorProfile> {
 
         setState(() {
           name = vendorData['name'];
-          dpImage = vendorData['image'];
+          dpImage = vendorData['image'] ??
+              "https://dealio.imgix.net/uploads/147885uploadshotel-pool-canaves.jpg";
           geoLocation = vendorData['geoLocation'];
           isFetching = false;
           serviceList = vendorData['services'];
@@ -287,33 +286,16 @@ class _VendorProfileState extends State<VendorProfile> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            progressCircles(30, "Jobs done"),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Container(
-                              width: 1.0,
-                              height: 55,
-                              color: const Color.fromARGB(154, 158, 158, 158),
-                            ),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            progressCircles(5, "Rating"),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Container(
-                              width: 1.0,
-                              height: 55,
-                              color: const Color.fromARGB(154, 158, 158, 158),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            progressCircles(5, "Experience"),
+                            modernCircularProgressBar(30, "Jobs done", 1000),
+                            SizedBox(width: 20),
+                            modernCircularProgressBar(
+                                4, "Rating", 5), // Adjusted to out of 5
+                            SizedBox(width: 20),
+                            modernCircularProgressBar(
+                                3, "Experience", 5), // Adjusted to out of 5
                           ],
                         ),
+
                         SizedBox(
                           height: 15,
                         ),
@@ -358,11 +340,11 @@ class _VendorProfileState extends State<VendorProfile> {
                           height: 5,
                         ),
                         // list of services
-                        serviceList.isNotEmpty
+                        serviceList!.isNotEmpty
                             ? Wrap(
                                 runSpacing: -5.0,
                                 spacing: 8.0,
-                                children: serviceList.map((e) {
+                                children: serviceList!.map((e) {
                                   return Chip(
                                       labelStyle:
                                           TextStyle(color: Colors.white54),
@@ -398,10 +380,10 @@ class _VendorProfileState extends State<VendorProfile> {
                         SizedBox(
                           height: 5,
                         ),
-                        workingDays.isNotEmpty
+                        workingDays!.isNotEmpty
                             ? Wrap(
                                 spacing: 5.0,
-                                children: workingDays.map((e) {
+                                children: workingDays!.map((e) {
                                   return Chip(
                                     shape: RoundedRectangleBorder(
                                       side: BorderSide(
@@ -448,7 +430,7 @@ class _VendorProfileState extends State<VendorProfile> {
                           child: ListView.separated(
                             physics: NeverScrollableScrollPhysics(),
                             itemBuilder: (BuildContext context, int index) {
-                              String language = languages[index];
+                              String language = languages![index];
                               // String proficiency =
                               //     languages.values.elementAt(index);
 
@@ -475,7 +457,7 @@ class _VendorProfileState extends State<VendorProfile> {
                                 endIndent: 0,
                               );
                             },
-                            itemCount: languages.length,
+                            itemCount: languages!.length,
                           ),
                         ),
                         SizedBox(
@@ -613,15 +595,12 @@ class _VendorProfileState extends State<VendorProfile> {
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      subtitle: FittedBox(
-                                        fit: BoxFit.cover,
-                                        child: Text(
-                                          vendor['geoLocation'],
-                                          style: TextStyle(
-                                              color: const Color.fromARGB(
-                                                  114, 255, 255, 255),
-                                              fontWeight: FontWeight.normal),
-                                        ),
+                                      subtitle: Text(
+                                        vendor['geoLocation'],
+                                        style: TextStyle(
+                                            color: const Color.fromARGB(
+                                                114, 255, 255, 255),
+                                            fontWeight: FontWeight.normal),
                                       ),
                                       trailing: OutlinedButton(
                                           onPressed: () {
@@ -658,29 +637,55 @@ class _VendorProfileState extends State<VendorProfile> {
 }
 
 // widgets
+Widget modernCircularProgressBar(int value, String tagline, int maxValue) {
+  double percentage = (value / maxValue) * 100;
 
-Widget progressCircles(int count, String tagline) {
   return Column(
     children: [
-      Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.all(Radius.circular(50))),
-        child: Center(
-          child: Text(
-            count.toString(),
-            style: TextStyle(color: Colors.grey),
+      Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.all(Radius.circular(30)),
+              color: Colors.white, // Add a background color
+            ),
+            child: Center(
+              child: Text(
+                '$value/$maxValue',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 12, // Adjusted font size
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
-        ),
+          SizedBox(
+            width: 75,
+            height: 75,
+            child: CircularProgressIndicator(
+              value: percentage / 100,
+              strokeWidth: 6,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.blue), // Change color to indicate progress
+              backgroundColor: Colors.grey.withOpacity(0.5),
+            ),
+          ),
+        ],
       ),
       SizedBox(
-        height: 5,
+        height: 10,
       ),
       Text(
         tagline,
-        style: TextStyle(color: Colors.white54, fontSize: 12),
+        style: TextStyle(
+          color: Colors.grey,
+          fontSize: 14,
+        ),
       ),
     ],
   );

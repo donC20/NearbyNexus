@@ -44,7 +44,7 @@ class _UserProfileOneState extends State<UserProfileOne> {
 
       // Assing admin data to the UI
       setState(() {
-        imageLink = fetchedData['image'];
+        imageLink = fetchedData['image']??"https://firebasestorage.googleapis.com/v0/b/nearbynexus1.appspot.com/o/profile_images%2Ficons8-user-default-96.png?alt=media&token=0ffd4c8b-fc40-4f19-a457-1ef1e0ba6ae5";
         nameLoginned = fetchedData['name'];
         email = fetchedData['emailId']['id'];
         isFetching = false;

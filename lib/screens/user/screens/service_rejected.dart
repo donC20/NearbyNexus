@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
+import 'package:NearbyNexus/screens/user/components/view_job_details.dart';
 import 'package:NearbyNexus/screens/user/screens/service_completed_logs.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +85,7 @@ class _ServiceRejectedState extends State<ServiceRejected> {
         leadingWidth: MediaQuery.sizeOf(context).width,
         leading: Padding(
           padding: const EdgeInsets.only(left: 15, top: 8.0),
-          child: Text("Service logs",
+          child: Text("Service rejected",
               style: TextStyle(color: Colors.white, fontSize: 18)),
         ),
       ),
@@ -95,8 +96,8 @@ class _ServiceRejectedState extends State<ServiceRejected> {
               .collection('service_actions')
               .where('userReference',
                   isEqualTo: _firestore.collection('users').doc(uid))
-              .where('clientStatus', isEqualTo: 'cancelled')
-              .where('status', isEqualTo: 'rejected')
+              .where('clientStatus', isEqualTo: 'canceled')
+              .where('status', isEqualTo: 'user rejected')
               .snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -139,28 +140,45 @@ class _ServiceRejectedState extends State<ServiceRejected> {
                           formattedTimeAgo =
                               formatTimestamp(documentData['dateRequested']);
 
-                          return Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Color.fromARGB(81, 42, 40, 40),
-                            ),
-                            child: ListTile(
-                              leading: UserLoadingAvatar(
-                                  userImage: userData['image']),
-                              title: Text(
-                                  convertToSentenceCase(
-                                      documentData['service_name']),
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold)),
-                              subtitle: Text(
-                                  timeStampConverter(
-                                      documentData['dateRequested']),
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 12)),
-                              trailing: Icon(
-                                Icons.arrow_forward_ios,
-                                color: Colors.white54,
+                          return Material(
+                            color: Colors.transparent,
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Color.fromARGB(81, 42, 40, 40),
+                              ),
+                              child: GestureDetector(
+                                onTap: (){Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ViewJobDetails(),
+                                  settings: RouteSettings(
+                                    arguments: {
+                                      'jobId': docId,
+                                    }, // Pass your arguments here
+                                  ),
+                                ),
+                              ); 
+                                },
+                                child: ListTile(
+                                  leading: UserLoadingAvatar(
+                                      userImage: userData['image']),
+                                  title: Text(
+                                      convertToSentenceCase(
+                                          documentData['service_name']),
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold)),
+                                  subtitle: Text(
+                                      timeStampConverter(
+                                          documentData['dateRequested']),
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12)),
+                                  trailing: Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.white54,
+                                  ),
+                                ),
                               ),
                             ),
                           );
@@ -203,4 +221,9 @@ class _ServiceRejectedState extends State<ServiceRejected> {
       ),
     );
   }
+}
+String timeStampConverter(Timestamp timeAndDate) {
+  DateTime dateTime = timeAndDate.toDate();
+  String formattedDateTime = DateFormat('MM/dd/yyyy hh:mm a').format(dateTime);
+  return formattedDateTime;
 }

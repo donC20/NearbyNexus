@@ -42,6 +42,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
   List<dynamic> serviceList = [];
   List<dynamic> workingDays = [];
   List<dynamic> languages = [];
+  String activityStatus="available";
   String about = '';
   var logger = Logger();
 
@@ -65,6 +66,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
           languages = vendorData['languages'];
           about = vendorData['about'];
           workingDays = vendorData['working_days'];
+          activityStatus=vendorData['activityStatus'];
         });
       }
     });
@@ -124,7 +126,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
                       ),
                     ),
-                    Positioned(
+                 Positioned(
                       bottom: 0,
                       child: Container(
                         width: MediaQuery.sizeOf(context).width,
@@ -179,7 +181,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
                       ),
                     ),
-                    Positioned(
+                     activityStatus=="available"?  Positioned(
                       bottom: 15,
                       right: 15,
                       child: ElevatedButton.icon(
@@ -204,7 +206,19 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                               Colors.white, // Set the background color to white
                         ),
                       ),
-                    )
+                    ): Positioned(
+                      bottom: 15,
+                      right: 15,
+                      child: Container(
+                        width: 110,
+                        height: 40,
+                        padding: EdgeInsets.all(5),
+
+                        decoration: BoxDecoration(color: Colors.red,borderRadius: BorderRadius.circular(10)),
+                        child: Text("Unavailable",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+                        ),
+                        
+                    ),
                   ],
                 ),
                 Expanded(
@@ -213,34 +227,16 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                     child: ListView(
                       children: [
                         // user status rating etc..
-                        Row(
+                       Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            progressCircles(30, "Jobs done"),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Container(
-                              width: 1.0,
-                              height: 55,
-                              color: const Color.fromARGB(154, 158, 158, 158),
-                            ),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            progressCircles(5, "Rating"),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Container(
-                              width: 1.0,
-                              height: 55,
-                              color: const Color.fromARGB(154, 158, 158, 158),
-                            ),
-                            SizedBox(
-                              width: 15,
-                            ),
-                            progressCircles(5, "Experience"),
+                            modernCircularProgressBar(30, "Jobs done", 1000),
+                            SizedBox(width: 20),
+                            modernCircularProgressBar(
+                                4, "Rating", 5), // Adjusted to out of 5
+                            SizedBox(width: 20),
+                            modernCircularProgressBar(
+                                3, "Experience", 5), // Adjusted to out of 5
                           ],
                         ),
                         SizedBox(
@@ -589,29 +585,59 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
 
 // widgets
 
-Widget progressCircles(int count, String tagline) {
+
+// widgets
+Widget modernCircularProgressBar(int value, String tagline, int maxValue) {
+  double percentage = (value / maxValue) * 100;
+
   return Column(
     children: [
-      Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.all(Radius.circular(50))),
-        child: Center(
-          child: Text(
-            count.toString(),
-            style: TextStyle(color: Colors.grey),
+      Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.all(Radius.circular(30)),
+              color: Colors.white, // Add a background color
+            ),
+            child: Center(
+              child: Text(
+                '$value/$maxValue',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 12, // Adjusted font size
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           ),
-        ),
+          SizedBox(
+            width: 75,
+            height: 75,
+            child: CircularProgressIndicator(
+              value: percentage / 100,
+              strokeWidth: 6,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.blue), // Change color to indicate progress
+              backgroundColor: Colors.grey.withOpacity(0.5),
+            ),
+          ),
+        ],
       ),
       SizedBox(
-        height: 5,
+        height: 10,
       ),
       Text(
         tagline,
-        style: TextStyle(color: Colors.white54, fontSize: 12),
+        style: TextStyle(
+          color: Colors.grey,
+          fontSize: 14,
+        ),
       ),
     ],
   );
 }
+

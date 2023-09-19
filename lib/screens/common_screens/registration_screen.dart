@@ -68,6 +68,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           'uid': uid,
           'email': email,
           'userType': userType!['value'],
+          'loginType':'normal'
         };
         setState(() {
           isLoading = false;
@@ -130,6 +131,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               'email': googleuser.email,
               'userType': selectedRadio,
               'name': googleuser.displayName,
+              'loginType':'google'
             };
             selectedRadio == "general_user"
                 ? Navigator.popAndPushNamed(

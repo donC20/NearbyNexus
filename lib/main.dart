@@ -3,6 +3,7 @@ import 'package:NearbyNexus/misc/firebase_notifications.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/common_screens/payment.dart';
+import 'package:NearbyNexus/screens/user/components/view_job_details.dart';
 import 'package:NearbyNexus/screens/user/screens/job_review_page.dart';
 import 'package:NearbyNexus/screens/user/screens/new_request.dart';
 import 'package:NearbyNexus/screens/user/screens/request_status_page.dart';
@@ -103,6 +104,7 @@ class MyApp extends StatelessWidget {
         "user_otp_screen": (context) => const UserOtpScreen(),
         "request_status_page": (context) => const RequestStatusPage(),
         "job_review_page": (context) => const JobReviewPage(),
+        "view_job_details": (context) => const ViewJobDetails(),
       },
       initialRoute: "splashScreen",
     );

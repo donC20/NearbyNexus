@@ -11,6 +11,8 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../components/view_job_details.dart';
+
 class ServiceLogs extends StatefulWidget {
   const ServiceLogs({super.key});
 
@@ -137,28 +139,45 @@ class _ServiceLogsState extends State<ServiceLogs> {
                           formattedTimeAgo =
                               formatTimestamp(documentData['dateRequested']);
 
-                          return Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Color.fromARGB(81, 42, 40, 40),
-                            ),
-                            child: ListTile(
-                              leading: UserLoadingAvatar(
-                                  userImage: userData['image']),
-                              title: Text(
-                                  convertToSentenceCase(
-                                      documentData['service_name']),
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold)),
-                              subtitle: Text(
-                                  timeStampConverter(
-                                      documentData['dateRequested']),
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 12)),
-                              trailing: Icon(
-                                Icons.arrow_forward_ios,
-                                color: Colors.white54,
+                          return Material(
+                            color: Colors.transparent,
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Color.fromARGB(81, 42, 40, 40),
+                              ),
+                              child: GestureDetector(
+                                onTap: (){Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ViewJobDetails(),
+                                  settings: RouteSettings(
+                                    arguments: {
+                                      'jobId': docId,
+                                    }, // Pass your arguments here
+                                  ),
+                                ),
+                              ); 
+                                },
+                                child: ListTile(
+                                  leading: UserLoadingAvatar(
+                                      userImage: userData['image']),
+                                  title: Text(
+                                      convertToSentenceCase(
+                                          documentData['service_name']),
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold)),
+                                  subtitle: Text(
+                                      timeStampConverter(
+                                          documentData['dateRequested']),
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12)),
+                                  trailing: Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.white54,
+                                  ),
+                                ),
                               ),
                             ),
                           );

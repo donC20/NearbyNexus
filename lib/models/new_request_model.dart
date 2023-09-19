@@ -17,7 +17,7 @@ class NewRequestModal {
   final DocumentReference paymentLog;
 
   // final DateTime time;
-  final int? wage;
+  final String? wage;
   NewRequestModal(
       {required this.clientStatus,
       required this.paymentStatus,

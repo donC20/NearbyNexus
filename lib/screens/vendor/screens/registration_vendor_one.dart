@@ -39,26 +39,27 @@ class _CompleteRegistrationByvendorState
 
   final TextEditingController _dateController = TextEditingController();
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1940),
-      lastDate: DateTime.now(),
-    );
+Future<void> _selectDate(BuildContext context) async {
+  final DateTime? picked = await showDatePicker(
+    context: context,
+    initialDate:DateTime(1963),
+    firstDate: DateTime(1963), // Set the first selectable year to 1963
+    lastDate: DateTime(2005),  // Set the last selectable year to 2005
+  );
 
-    if (picked != null && picked != DateTime.now()) {
-      final DateFormat formatter = DateFormat('dd-MM-yyyy');
-      final DateFormat yearFormatter = DateFormat('yyyy');
-      final String formattedDate = formatter.format(picked);
-      final int formattedYear = int.parse(yearFormatter.format(picked));
+  if (picked != null && picked != DateTime.now()) {
+    final DateFormat formatter = DateFormat('dd-MM-yyyy');
+    final DateFormat yearFormatter = DateFormat('yyyy');
+    final String formattedDate = formatter.format(picked);
+    final int formattedYear = int.parse(yearFormatter.format(picked));
 
-      final int age = DateTime.now().year - formattedYear;
+    final int age = DateTime.now().year - formattedYear;
 
-      _agecontroller.text = age.toString();
-      _dateController.text = formattedDate;
-    }
+    _agecontroller.text = age.toString();
+    _dateController.text = formattedDate;
   }
+}
+
 
   @override
   void dispose() {
@@ -169,7 +170,7 @@ class _CompleteRegistrationByvendorState
   Widget build(BuildContext context) {
     Map<String, dynamic>? userTransferdData =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    _nameController.text = userTransferdData?['name'];
+    _nameController.text = userTransferdData?['name']??"";
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Scaffold(
@@ -350,6 +351,7 @@ class _CompleteRegistrationByvendorState
                               });
                               _locationController.clear();
                               _getCurrentLocationAndSetAddress();
+                              print("pressed");
                             },
                             icon: const Icon(Icons.my_location_sharp)),
                         contentPadding:

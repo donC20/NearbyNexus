@@ -13,6 +13,8 @@ import 'package:logger/logger.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../user/components/view_job_details.dart';
+
 class VendorNotificationScreen extends StatefulWidget {
   const VendorNotificationScreen({super.key});
 
@@ -252,13 +254,28 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                             ),
                             child: ListTile(
                               onTap: () {
-                                Map<String, dynamic> docInfo = {
-                                  "dataReference": docId,
-                                  "userReference":
-                                      documentData['userReference'],
-                                };
-                                Navigator.pushNamed(context, "view_requests",
-                                    arguments: docInfo);
+                                if (documentData['clientStatus'] ==
+                                    'finished') {
+                                      Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ViewJobDetails(),
+                                  settings: RouteSettings(
+                                    arguments: {
+                                      'jobId': docId,
+                                    }, // Pass your arguments here
+                                  ),
+                                ),
+                              ); 
+                                } else {
+                                  Map<String, dynamic> docInfo = {
+                                    "dataReference": docId,
+                                    "userReference":
+                                        documentData['userReference'],
+                                  };
+                                  Navigator.pushNamed(context, "view_requests",
+                                      arguments: docInfo);
+                                }
                               },
                               leading: UserLoadingAvatar(
                                 userImage: imagePath,
@@ -272,7 +289,7 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                                   fontSize: 16,
                                 ),
                               ),
-                              subtitle: documentData['status'] == 'new'
+                              subtitle: documentData['paymentStatus'] == 'paid'
                                   ? Text.rich(
                                       TextSpan(
                                         text: userName,
@@ -282,17 +299,24 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                                         ),
                                         children: [
                                           TextSpan(
-                                            text:
-                                                " has requested for your service.",
+                                            text: " has paid you \u20B9",
                                             style: TextStyle(
                                               color: Colors.white54,
+                                              fontWeight: FontWeight.normal,
+                                            ),
+                                          ),
+                                          TextSpan(
+                                            text: documentData['wage'],
+                                            style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  252, 110, 247, 6),
                                               fontWeight: FontWeight.normal,
                                             ),
                                           ),
                                         ],
                                       ),
                                     )
-                                  : documentData['status'] == 'user negotiated'
+                                  : documentData['status'] == 'new'
                                       ? Text.rich(
                                           TextSpan(
                                             text: userName,
@@ -303,7 +327,7 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                                             children: [
                                               TextSpan(
                                                 text:
-                                                    " updated the price. take a look",
+                                                    " has requested for your service.",
                                                 style: TextStyle(
                                                   color: Colors.white54,
                                                   fontWeight: FontWeight.normal,
@@ -313,7 +337,7 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                                           ),
                                         )
                                       : documentData['status'] ==
-                                              'user canceled'
+                                              'user negotiated'
                                           ? Text.rich(
                                               TextSpan(
                                                 text: userName,
@@ -324,7 +348,7 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                                                 children: [
                                                   TextSpan(
                                                     text:
-                                                        " has cancelled their serivce request.",
+                                                        " updated the price. take a look",
                                                     style: TextStyle(
                                                       color: Colors.white54,
                                                       fontWeight:
@@ -334,12 +358,35 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                                                 ],
                                               ),
                                             )
-                                          : Text(
-                                              documentData['location'],
-                                              style: TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: 12),
-                                            ),
+                                          : documentData['status'] ==
+                                                  'user canceled'
+                                              ? Text.rich(
+                                                  TextSpan(
+                                                    text: userName,
+                                                    style: TextStyle(
+                                                      color: Colors.blueAccent,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                    children: [
+                                                      TextSpan(
+                                                        text:
+                                                            " has cancelled their serivce request.",
+                                                        style: TextStyle(
+                                                          color: Colors.white54,
+                                                          fontWeight:
+                                                              FontWeight.normal,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              : Text(
+                                                  documentData['location'],
+                                                  style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 12),
+                                                ),
                               trailing: Text(
                                 formattedTimeAgo ?? "",
                                 style: TextStyle(
@@ -369,7 +416,11 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                 itemCount: documentList.length,
               );
             } else {
-              return Center(child: Text('No data available.'));
+              return Center(
+                  child: Text(
+                '): you don\'t have any new notification.',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ));
             }
           },
         ),

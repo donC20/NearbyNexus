@@ -66,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen> {
           "admin_screen"); // Navigate using Get package (replace with your navigation code)
     } else if (userType == "vendor") {
       Navigator.popAndPushNamed(context,
-          "vendor_dashboard"); // Navigate using Get package (replace with your navigation code)
+          "vendor_home"); // Navigate using Get package (replace with your navigation code)
     } else if (userType == "general_user") {
       Navigator.popAndPushNamed(context,
           "user_dashboard"); // Navigate using Get package (replace with your navigation code)

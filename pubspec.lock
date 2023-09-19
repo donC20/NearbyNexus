@@ -540,10 +540,10 @@ packages:
     dependency: transitive
     description:
       name: google_sign_in_web
-      sha256: "939e9172a378ec4eaeb7f71eeddac9b55ebd0e8546d336daec476a68e5279766"
+      sha256: b48263e47f9493ba4120ccdfffe7412549ee297e82b97be9b8fa16ea8919ffbe
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.0+5"
+    version: "0.12.0+4"
   http:
     dependency: "direct main"
     description:
@@ -1113,10 +1113,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_web
-      sha256: "2942294a500b4fa0b918685aff406773ba0a4cd34b7f42198742a94083020ce5"
+      sha256: ba140138558fcc3eead51a1c42e92a9fb074a1b1149ed3c73e66035b2ccd94f2
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.20"
+    version: "2.0.19"
   url_launcher_windows:
     dependency: transitive
     description:
@@ -1198,5 +1198,5 @@ packages:
     source: hosted
     version: "6.3.0"
 sdks:
-  dart: ">=3.1.0 <4.0.0"
-  flutter: ">=3.13.0"
+  dart: ">=3.1.0-185.0.dev <4.0.0"
+  flutter: ">=3.10.0"

@@ -503,7 +503,10 @@ class _ViewRequestsState extends State<ViewRequests> {
                                         'status': 'accepted',
                                         'dateRequested': DateTime.now()
                                       });
-
+FirebaseFirestore.instance.collection('users').doc(docIds['referencePath'])
+                                          .update({
+                                        'activityStatus': 'busy',
+                                      });
                                       Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
@@ -532,6 +535,7 @@ class _ViewRequestsState extends State<ViewRequests> {
                                         'status': 'rejected',
                                         'dateRequested': DateTime.now()
                                       });
+                                      Navigator.pop(context);
                                     },
                                     icon: Icon(
                                       Icons.close,

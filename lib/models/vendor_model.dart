@@ -15,6 +15,7 @@ class VendorModel {
   final List<String>? services;
   final String govDocs;
   final String? languages;
+  final String? activityStatus;
   DocumentReference? paymentLogs =
       FirebaseFirestore.instance.collection('payments').doc('someDocs');
   final List<String> userFavourites;
@@ -33,6 +34,7 @@ class VendorModel {
       required this.govDocs,
       this.languages,
       this.paymentLogs,
+      required this.activityStatus,
       required this.userFavourites,
       required this.working_days});
 
@@ -52,6 +54,7 @@ class VendorModel {
       "paymentLogs": paymentLogs,
       "userFavourites": userFavourites,
       "working_days": working_days,
+      "activityStatus":activityStatus
     };
   }
 }

@@ -298,7 +298,41 @@ class NotificationItem extends StatelessWidget {
                         ],
                       ),
                     )
-                  : status == 'negotiate'
+                  :status == 'user negotiated'
+                  ? Text.rich(
+                      TextSpan(
+                        text: "You have negotiated the price for ",
+                        style: TextStyle(color: Colors.white54),
+                        children: [
+                          TextSpan(
+                            text: vendorName ?? "",
+                            style: TextStyle(
+                              color: Colors.blueAccent,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          
+                        ],
+                      ),
+                    )
+                  :status == 'user accepted'
+                  ? Text.rich(
+                      TextSpan(
+                        text: "You have accepted the negotiated price for ",
+                        style: TextStyle(color: Colors.white54),
+                        children: [
+                          TextSpan(
+                            text: vendorName ?? "",
+                            style: TextStyle(
+                              color: Colors.blueAccent,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          
+                        ],
+                      ),
+                    )
+                  :  status == 'negotiate'
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -482,68 +516,65 @@ class NotificationItem extends StatelessWidget {
                                                   height: 15,
                                                 ),
                                                 SizedBox(
-                                                  child: Form(
-                                                    key: _formKey,
-                                                    child: TextFormField(
-                                                      controller:
-                                                          _amountController,
-                                                      keyboardType:
-                                                          TextInputType.number,
-                                                      style:
-                                                          GoogleFonts.poppins(
-                                                        color: const Color
-                                                            .fromARGB(
-                                                            255, 0, 0, 0),
-                                                      ),
-                                                      decoration:
-                                                          InputDecoration(
-                                                        labelText:
-                                                            'Enter amount',
-                                                        labelStyle: TextStyle(
-                                                            color: const Color
-                                                                .fromARGB(
-                                                                255, 22, 0, 0),
-                                                            fontSize: 12),
-                                                        enabledBorder:
-                                                            OutlineInputBorder(
-                                                          borderSide:
-                                                              BorderSide(
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    73,
-                                                                    0,
-                                                                    0,
-                                                                    0),
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      8.0),
-                                                        ),
-                                                        focusedBorder:
-                                                            OutlineInputBorder(
-                                                          borderSide:
-                                                              BorderSide(
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    73,
-                                                                    0,
-                                                                    0,
-                                                                    0),
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      8.0),
-                                                        ),
-                                                      ),
-                                                      validator: (value) {
-                                                        if (value!.isEmpty) {
-                                                          return "You left this field empty!";
-                                                        }
-                                                        return null;
-                                                      },
+                                                  child: TextFormField(
+                                                    controller:
+                                                        _amountController,
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    style:
+                                                        GoogleFonts.poppins(
+                                                      color: const Color
+                                                          .fromARGB(
+                                                          255, 0, 0, 0),
                                                     ),
+                                                    decoration:
+                                                        InputDecoration(
+                                                      labelText:
+                                                          'Enter amount',
+                                                      labelStyle: TextStyle(
+                                                          color: const Color
+                                                              .fromARGB(
+                                                              255, 22, 0, 0),
+                                                          fontSize: 12),
+                                                      enabledBorder:
+                                                          OutlineInputBorder(
+                                                        borderSide:
+                                                            BorderSide(
+                                                          color:
+                                                              Color.fromARGB(
+                                                                  73,
+                                                                  0,
+                                                                  0,
+                                                                  0),
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                    8.0),
+                                                      ),
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                        borderSide:
+                                                            BorderSide(
+                                                          color:
+                                                              Color.fromARGB(
+                                                                  73,
+                                                                  0,
+                                                                  0,
+                                                                  0),
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(
+                                                                    8.0),
+                                                      ),
+                                                    ),
+                                                    validator: (value) {
+                                                      if (value!.isEmpty) {
+                                                        return "You left this field empty!";
+                                                      }
+                                                      return null;
+                                                    },
                                                   ),
                                                 ),
                                                 SizedBox(
@@ -597,7 +628,7 @@ class NotificationItem extends StatelessWidget {
                     IconButton.outlined(
                         onPressed: () {
                           _service_actions_collection.doc(docId).update({
-                            'status': ' ',
+                            'status': 'user rejected',
                             'clientStatus': 'canceled',
                             'dateRequested': DateTime.now()
                           });

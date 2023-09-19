@@ -24,7 +24,7 @@ class VendorDashboard extends StatefulWidget {
 class _VendorDashboardState extends State<VendorDashboard> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  String imageLink = "";
+  String imageLink = "https://icons8.com/icon/tZuAOUGm9AuS/user-default";
   String nameLoginned = "";
   bool isimageFetched = false;
   int _selectedItemPosition = 2;
@@ -56,7 +56,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
 
       // Assing admin data to the UI
       setState(() {
-        imageLink = fetchedData['image'];
+        imageLink = fetchedData['image']??"https://firebasestorage.googleapis.com/v0/b/nearbynexus1.appspot.com/o/profile_images%2Ficons8-user-default-96.png?alt=media&token=0ffd4c8b-fc40-4f19-a457-1ef1e0ba6ae5";
         nameLoginned = fetchedData['name'];
         isimageFetched = false;
       });
@@ -100,7 +100,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
             padding: const EdgeInsets.all(10.0),
             child: InkWell(
               onTap: () {
-                Navigator.pushNamed(context, "user_profile_one");
+                Navigator.pushNamed(context, "vendor_profile_one");
               },
               child: isimageFetched == true
                   ? Container(
@@ -145,6 +145,15 @@ class _VendorDashboardState extends State<VendorDashboard> {
                     ),
             ),
           ),
+
+          IconButton(
+              onPressed: () {
+                Navigator.pushNamed(context, "vendor_notification");
+              },
+              icon: Icon(
+                Icons.notifications_none,
+                color: Colors.white,
+              ))
         ],
       ),
       body: Padding(
@@ -180,7 +189,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
                         AsyncSnapshot<QuerySnapshot> newJobsSnapshot) {
                       if (newJobsSnapshot.connectionState ==
                           ConnectionState.waiting) {
-                        return CircularProgressIndicator();
+                        return Center(child: CircularProgressIndicator());
                       } else if (newJobsSnapshot.hasError) {
                         return Text(
                             'Error: ${newJobsSnapshot.error.toString()}');

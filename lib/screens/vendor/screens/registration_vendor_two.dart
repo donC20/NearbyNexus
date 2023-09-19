@@ -23,6 +23,7 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
   bool showErrorDp = false;
   bool isLoading = false;
   bool isLoadingList = true;
+  bool isloginTypeGoogle = false;
   String? _imageUrl;
 
   final TextEditingController _searchController = TextEditingController();
@@ -168,16 +169,28 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
           print('Image upload error: $error');
         }
       }
+      if (vendorInitialData?['loginType'] == 'normal') {
+        setState(() {
+          isloginTypeGoogle = false;
+        });
+      }else{
+         setState(() {
+          isloginTypeGoogle = true;
+        });
+      }
       VendorModel user = VendorModel(
         name: vendorInitialData?['name'],
         userType: 'vendor',
         currentGeoLocation: vendorInitialData?['location'],
-        emailId: {"id": vendorInitialData?['email'], "verified": true},
+        emailId: {
+          "id": vendorInitialData?['email'],
+          "verified": isloginTypeGoogle
+        },
         govDocs: '',
         image: _imageUrl,
         phone: {
           "number": vendorInitialData?['phone'].toString(),
-          "verified": true
+          "verified": false
         },
         status: 'active',
         services: servicesList,
@@ -186,6 +199,7 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
         description: "",
         paymentLogs:
             FirebaseFirestore.instance.collection('payments').doc('someDocs'),
+        activityStatus: 'available',
       );
 
       Map<String, dynamic> userData = user.toJson();

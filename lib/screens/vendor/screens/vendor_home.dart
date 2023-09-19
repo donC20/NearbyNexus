@@ -329,14 +329,7 @@ class _VendorHomeState extends State<VendorHome> {
                     ),
             ),
           ),
-          IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, "vendor_notification");
-              },
-              icon: Icon(
-                Icons.notifications_none,
-                color: Colors.white,
-              ))
+          
         ],
       ),
       body: isloadingLocation == true

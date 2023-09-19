@@ -603,14 +603,14 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
                     try {
                       final DocumentReference defaultRef = _firestore
                           .collection('payments')
-                          .doc('payments/docs');
+                          .doc('defaultPayPath');
                       NewRequestModal sendRequestData = NewRequestModal(
                           description: _descriptionController.text,
                           service_level: service_level,
                           location: _locationController.text,
                           dateRequested: DateTime.now(),
                           day: day,
-                          wage: int.tryParse(_budgetController.text),
+                          wage: _budgetController.text,
                           service_name: _serviceController.text,
                           vendor_reference: FirebaseFirestore.instance
                               .doc('/users/$vendorId'),
