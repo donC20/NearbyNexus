@@ -652,8 +652,10 @@ class _JobReviewPageState extends State<JobReviewPage> {
                                                       Navigator.popAndPushNamed(
                                                           context,
                                                           "rate_user_screen",
-                                                          arguments:
-                                                              "SXWjByatWxN7BI4sbOLuxeY1Cjq2");
+                                                          arguments: {
+                                                            "uid":
+                                                                "SXWjByatWxN7BI4sbOLuxeY1Cjq2"
+                                                          });
                                                     },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: Color.fromARGB(

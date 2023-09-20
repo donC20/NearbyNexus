@@ -10,31 +10,28 @@ class UserLoadingAvatar extends StatelessWidget {
     return CircleAvatar(
       backgroundColor:
           Colors.transparent, // Set a transparent background for the avatar
-      child: SizedBox(
-        width: 50,
-        child: ClipOval(
-          // Clip the image to an oval (circle) shape
-          child: Image.network(
-            userImage,
-            fit: BoxFit.cover,
-            loadingBuilder: (BuildContext context, Widget child,
-                ImageChunkEvent? loadingProgress) {
-              if (loadingProgress == null) {
-                return child;
-              } else if (loadingProgress.expectedTotalBytes != null &&
-                  loadingProgress.cumulativeBytesLoaded <
-                      loadingProgress.expectedTotalBytes!) {
-                return Center(
-                  child: LoadingAnimationWidget.discreteCircle(
-                    color: Colors.grey,
-                    size: 15,
-                  ),
-                );
-              } else {
-                return SizedBox();
-              }
-            },
-          ),
+      child: ClipOval(
+        // Clip the image to an oval (circle) shape
+        child: Image.network(
+          userImage,
+          fit: BoxFit.cover,
+          loadingBuilder: (BuildContext context, Widget child,
+              ImageChunkEvent? loadingProgress) {
+            if (loadingProgress == null) {
+              return child;
+            } else if (loadingProgress.expectedTotalBytes != null &&
+                loadingProgress.cumulativeBytesLoaded <
+                    loadingProgress.expectedTotalBytes!) {
+              return Center(
+                child: LoadingAnimationWidget.discreteCircle(
+                  color: Colors.grey,
+                  size: 15,
+                ),
+              );
+            } else {
+              return SizedBox();
+            }
+          },
         ),
       ),
     );
