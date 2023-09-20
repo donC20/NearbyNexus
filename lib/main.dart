@@ -6,6 +6,7 @@ import 'package:NearbyNexus/screens/common_screens/payment.dart';
 import 'package:NearbyNexus/screens/user/components/view_job_details.dart';
 import 'package:NearbyNexus/screens/user/screens/job_review_page.dart';
 import 'package:NearbyNexus/screens/user/screens/new_request.dart';
+import 'package:NearbyNexus/screens/user/screens/rate_user_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/request_status_page.dart';
 import 'package:NearbyNexus/screens/user/screens/user_dashboard.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';
@@ -105,6 +106,7 @@ class MyApp extends StatelessWidget {
         "request_status_page": (context) => const RequestStatusPage(),
         "job_review_page": (context) => const JobReviewPage(),
         "view_job_details": (context) => const ViewJobDetails(),
+        "rate_user_screen": (context) => const RateUserScreen(),
       },
       initialRoute: "splashScreen",
     );

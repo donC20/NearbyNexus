@@ -6,7 +6,6 @@ import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,21 +20,21 @@ class ServiceLogs extends StatefulWidget {
 }
 
 class _ServiceLogsState extends State<ServiceLogs> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  String uid = '';
   String? formattedTimeAgo;
   var logger = Logger();
+  String uid = '';
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
 
   @override
   void initState() {
     super.initState();
     initUser();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   void initUser() async {

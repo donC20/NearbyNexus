@@ -184,7 +184,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
             'status': 'finished',
             'dateRequested': DateTime.now()
           });
-          Navigator.pop(context);
+          Navigator.popAndPushNamed(context, "rate_user_screen");
         } catch (e) {
           logger.e(e);
         }
@@ -626,29 +626,34 @@ class _JobReviewPageState extends State<JobReviewPage> {
                                               onPressed: isPaymentClicked
                                                   ? null
                                                   : () async {
-                                                      setState(() {
-                                                        isPaymentClicked = true;
-                                                      });
+                                                      // setState(() {
+                                                      //   isPaymentClicked = true;
+                                                      // });
 
-                                                      final DocumentReference
-                                                          jobId = _firestore
-                                                              .collection(
-                                                                  'service_actions')
-                                                              .doc(docId);
-                                                      final DocumentReference
-                                                          payedBy = _firestore
-                                                              .collection(
-                                                                  'users')
-                                                              .doc(uid);
-                                                      final DocumentReference
-                                                          payedTo =
-                                                          vendorReference;
-                                                      await makePayment(
-                                                          userData['name'],
-                                                          documentData['wage'],
-                                                          jobId,
-                                                          payedBy,
-                                                          payedTo);
+                                                      // final DocumentReference
+                                                      //     jobId = _firestore
+                                                      //         .collection(
+                                                      //             'service_actions')
+                                                      //         .doc(docId);
+                                                      // final DocumentReference
+                                                      //     payedBy = _firestore
+                                                      //         .collection(
+                                                      //             'users')
+                                                      //         .doc(uid);
+                                                      // final DocumentReference
+                                                      //     payedTo =
+                                                      //     vendorReference;
+                                                      // await makePayment(
+                                                      //     userData['name'],
+                                                      //     documentData['wage'],
+                                                      //     jobId,
+                                                      //     payedBy,
+                                                      //     payedTo);
+                                                      Navigator.popAndPushNamed(
+                                                          context,
+                                                          "rate_user_screen",
+                                                          arguments:
+                                                              "SXWjByatWxN7BI4sbOLuxeY1Cjq2");
                                                     },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor: Color.fromARGB(
