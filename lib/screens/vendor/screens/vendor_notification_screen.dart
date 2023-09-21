@@ -1,13 +1,15 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_brace_in_string_interps
 
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:NearbyNexus/main.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
@@ -41,48 +43,6 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Subscribe to a topic (optional)
-    _firebaseMessaging.subscribeToTopic('your_topic_name');
-
-    // Initialize Firebase Cloud Messaging
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      // Handle incoming messages when the app is in the foreground
-      print("onMessage: $message");
-
-      // You can show a local notification here if needed
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      // Handle opening the app from a terminated state or background state
-      print("onMessageOpenedApp: $message");
-
-      // You can navigate to a specific screen or perform an action here
-    });
-
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  }
-
-  // Add a method to send notifications
-  // void sendNotification() async {
-  //   // Use Firebase Cloud Messaging to send notifications
-  //   await _firebaseMessaging.subscribeToTopic('your_topic_name');
-  //   final response = await _firebaseMessaging.subscribeToTopic('your_topic_name', <String, dynamic>{
-  //     'notification': <String, dynamic>{
-  //       'title': 'New Document Added',
-  //       'body': 'A new document has been added to the collection.',
-  //     },
-  //     'data': <String, dynamic>{
-  //       // You can include additional data if needed
-  //     },
-  //   });
-
-  //   print('Notification sent: $response');
-  // }
-
-  Future<void> _firebaseMessagingBackgroundHandler(
-      RemoteMessage message) async {
-    // Handle background messages here
-    print("Handling background message: $message");
   }
 
   void initUser() async {
@@ -113,53 +73,6 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
     }
   }
 
-  // Stream<List<Map<String, dynamic>>> getDocumentStream() {
-  //   // Reference to the "service_logs" collection
-  //   try {
-  //     CollectionReference serviceLogsCollection =
-  //         _firestore.collection('service_logs');
-
-  //     // StreamController for emitting updates
-  //     StreamController<List<Map<String, dynamic>>> streamController =
-  //         StreamController<List<Map<String, dynamic>>>();
-
-  //     // Stream to listen to changes in the "service_logs" collection
-  //     serviceLogsCollection.snapshots().listen((querySnapshot) async {
-  //       List<Map<String, dynamic>> documentDataList = [];
-
-  //       for (QueryDocumentSnapshot docSnapshot in querySnapshot.docs) {
-  //         // Reference to the "new_requests" subcollection within the current document
-  //         CollectionReference newRequestsCollection =
-  //             docSnapshot.reference.collection('new_requests');
-
-  //         // Stream to listen to changes in the "new_requests" subcollection
-  //         newRequestsCollection
-  //             .where(FieldPath.documentId, isEqualTo: uid)
-  //             .snapshots()
-  //             .listen((subcollectionSnapshot) {
-  //           if (subcollectionSnapshot.docs.isNotEmpty) {
-  //             // Document with the specific ID exists in the current subcollection
-  //             DocumentSnapshot targetDocument =
-  //                 subcollectionSnapshot.docs.first;
-  //             // String collectionPath = docSnapshot.reference.path;
-  //             // logger.d(collectionPath);
-  //             Map<String, dynamic> documentData =
-  //                 targetDocument.data() as Map<String, dynamic>;
-
-  //             documentDataList.add(documentData);
-  //             streamController.add(documentDataList);
-  //           }
-  //         });
-  //       }
-  //     });
-
-  //     return streamController.stream;
-  //   } catch (e) {
-  //     logger.d(e);
-  //     return Stream<List<Map<String, dynamic>>>.empty();
-  //   }
-  // }
-
   Future<Map<String, dynamic>?> fetchUserDetails(
       DocumentReference userReference) async {
     try {
@@ -170,6 +83,8 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
       return null; // Handle the error as needed
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -210,6 +125,10 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                   QueryDocumentSnapshot document = documentList[index];
                   Map<String, dynamic> documentData =
                       document.data() as Map<String, dynamic>;
+
+                  // notification manager
+                 
+
                   final docId = documentList[index].id;
                   // Check if the document data is not empty
                   if (documentData.isNotEmpty) {
@@ -256,17 +175,17 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                               onTap: () {
                                 if (documentData['clientStatus'] ==
                                     'finished') {
-                                      Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ViewJobDetails(),
-                                  settings: RouteSettings(
-                                    arguments: {
-                                      'jobId': docId,
-                                    }, // Pass your arguments here
-                                  ),
-                                ),
-                              ); 
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ViewJobDetails(),
+                                      settings: RouteSettings(
+                                        arguments: {
+                                          'jobId': docId,
+                                        }, // Pass your arguments here
+                                      ),
+                                    ),
+                                  );
                                 } else {
                                   Map<String, dynamic> docInfo = {
                                     "dataReference": docId,

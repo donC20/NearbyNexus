@@ -1,8 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/misc/firebase_notifications.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
-import 'package:NearbyNexus/screens/common_screens/payment.dart';
 import 'package:NearbyNexus/screens/user/components/view_job_details.dart';
 import 'package:NearbyNexus/screens/user/screens/job_review_page.dart';
 import 'package:NearbyNexus/screens/user/screens/new_request.dart';
@@ -13,6 +15,7 @@ import 'package:NearbyNexus/screens/user/screens/user_home.dart';
 import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
+import 'package:NearbyNexus/screens/vendor/components/global_notification.dart';
 import 'package:NearbyNexus/screens/vendor/screens/update_vendor_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_dashboard.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
@@ -20,11 +23,16 @@ import 'package:NearbyNexus/screens/vendor/screens/vendor_notification_screen.da
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/screens/view_requests.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config/themes/app_theme.dart';
 import 'screens/admin/screens/add_data.dart';
@@ -39,12 +47,28 @@ import 'screens/common_screens/splash_screen.dart';
 import 'screens/common_screens/user_or_vendor.dart';
 import 'screens/vendor/screens/registration_vendor_two.dart';
 
+var log = Logger();
+
+// notification local init
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+
+const InitializationSettings initializationSettings = InitializationSettings(
+  android: initializationSettingsAndroid,
+);
 void main() async {
+  GlobalNotifications allNotify = GlobalNotifications();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(
+      allNotify.firebaseMessagingBackgroundHandler);
+  allNotify.requestMonitor();
   final firebaseNotifications = FirebaseNotifications(); // Create an instance
   await firebaseNotifications.initNotifications();
-
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   Stripe.publishableKey =
       "pk_test_51NpN8rSJaMBnAdU7brX75geJWwHJ7OQnD9Aq9fZFaZFehX8ERy1w1yskGN1O0EOACM2am8XUjsAOkIr26U35YDSe00DbSFVmLl";
   final userProvider = UserProvider(); // Create an instance of UserProvider

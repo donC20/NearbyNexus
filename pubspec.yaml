@@ -44,6 +44,7 @@ dependencies:
   firebase_storage: ^11.2.5
   flutter:
     sdk: flutter
+  flutter_local_notifications: ^15.1.1
   flutter_phone_direct_caller: ^2.1.1
   flutter_rating_bar: ^4.0.1
   flutter_snake_navigationbar: ^0.6.1
