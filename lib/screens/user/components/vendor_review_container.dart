@@ -1,19 +1,23 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
-class Review {
-  final String reviewerName;
-  final String reviewText;
-  final double rating;
-
-  Review(this.reviewerName, this.reviewText, this.rating);
-}
+import 'package:intl/intl.dart';
 
 class UserReviewContainer extends StatelessWidget {
-  final Review review;
+  final String reviewerName;
+  final String reviewText;
+  final String image;
+  final Timestamp timePosted;
+  final double rating;
 
-  UserReviewContainer({required this.review});
+  const UserReviewContainer(
+      {required this.reviewerName,
+      required this.reviewText,
+      required this.image,
+      required this.rating,
+      required this.timePosted});
 
   @override
   Widget build(BuildContext context) {
@@ -32,17 +36,13 @@ class UserReviewContainer extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(
-                    Icons.account_circle,
-                    color: Colors.blue,
-                    size: 30,
-                  ),
+                  UserLoadingAvatar(userImage: image),
                   SizedBox(width: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        review.reviewerName,
+                        reviewerName,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16.0,
@@ -58,7 +58,7 @@ class UserReviewContainer extends StatelessWidget {
                           ),
                           SizedBox(width: 4),
                           Text(
-                            review.rating.toStringAsFixed(1),
+                            rating.toStringAsFixed(1),
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14.0,
@@ -71,7 +71,7 @@ class UserReviewContainer extends StatelessWidget {
                 ],
               ),
               Text(
-                '10 Jul, 2023', // Example review date
+                timeStampConverter(timePosted), // Example review date
                 style: TextStyle(
                   fontSize: 12.0,
                   color: Colors.grey,
@@ -81,7 +81,7 @@ class UserReviewContainer extends StatelessWidget {
           ),
           SizedBox(height: 8),
           Text(
-            review.reviewText,
+            reviewText,
             style: TextStyle(
               fontSize: 14.0,
               color: const Color.fromARGB(221, 150, 150, 150),
@@ -95,4 +95,10 @@ class UserReviewContainer extends StatelessWidget {
       ),
     );
   }
+}
+
+String timeStampConverter(Timestamp timeAndDate) {
+  DateTime dateTime = timeAndDate.toDate();
+  String formattedDateTime = DateFormat('MM-dd-yyyy hh:mm a').format(dateTime);
+  return formattedDateTime;
 }

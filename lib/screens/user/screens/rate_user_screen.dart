@@ -1,10 +1,11 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_final_fields, non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/models/rating_modal.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -25,19 +26,22 @@ class _RateUserScreenState extends State<RateUserScreen> {
   final _service_actions_collection =
       FirebaseFirestore.instance.collection('service_actions');
   TextEditingController _feedbackController = TextEditingController();
+  StreamSubscription<DocumentSnapshot>? vendorStreamSubscription;
+  StreamSubscription<DocumentSnapshot>? userStreamSubscription;
 
   double rating = 0;
   double totalUserRating = 0.0;
   String uid = '';
   String vendorName = "";
   String vendorImage = "";
+  bool isratingSubmitting = false;
   var logger = Logger();
   List<DocumentReference> allRatings = [];
+  List<DocumentReference> iamRated = [];
   late Map<String, dynamic> vendorUser;
   @override
   void initState() {
     super.initState();
-    initUser();
   }
 
   @override
@@ -47,7 +51,19 @@ class _RateUserScreenState extends State<RateUserScreen> {
       vendorUser =
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     });
+    initUser();
+
     fetchVendor();
+  }
+
+  @override
+  void dispose() {
+    stopListening();
+    super.dispose();
+  }
+
+  void stopListening() {
+    vendorStreamSubscription?.cancel();
   }
 
   void initUser() async {
@@ -58,22 +74,56 @@ class _RateUserScreenState extends State<RateUserScreen> {
     setState(() {
       uid = initData['uid'];
     });
+
+    // fetchfrom firebase
+    userStreamSubscription = _firestore
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .listen((DocumentSnapshot snapshot) {
+      if (snapshot.exists) {
+        Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
+        setState(() {
+          iamRated = List<DocumentReference>.from(userData['iamRated']);
+        });
+      }
+    });
   }
 
-  Future<void> fetchVendor() async {
-    logger.d("this is vendor UID  :  $vendorUser['uid']");
-    DocumentSnapshot snaps =
-        await _firestore.collection('users').doc(vendorUser['uid']).get();
-    if (snaps.exists) {
-      Map<String, dynamic> vendorData = snaps.data() as Map<String, dynamic>;
-      setState(() {
-        vendorName = vendorData['name'];
-        vendorImage = vendorData['image'];
-        totalUserRating = vendorData['totalRating'];
-        allRatings = vendorData['allRatings'];
-      });
-    }
+  void fetchVendor() {
+    vendorStreamSubscription = _firestore
+        .collection('users')
+        .doc(vendorUser['uid'])
+        .snapshots()
+        .listen((DocumentSnapshot snapshot) {
+      if (snapshot.exists) {
+        Map<String, dynamic> vendorData =
+            snapshot.data() as Map<String, dynamic>;
+        setState(() {
+          vendorName = vendorData['name'];
+          vendorImage = vendorData['image'];
+          totalUserRating = vendorData['totalRating'];
+          allRatings = List<DocumentReference>.from(vendorData['allRatings']);
+        });
+      }
+    });
   }
+
+  // snackbar
+  final snackBar = SnackBar(
+    /// need to set following properties for best effect of awesome_snackbar_content
+    elevation: 0,
+    behavior: SnackBarBehavior.floating,
+    backgroundColor: Colors.transparent,
+    content: AwesomeSnackbarContent(
+      title: 'On Snap!',
+      message:
+          'This is an example error message that will be shown in the body of snackbar!',
+
+      /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+      contentType: ContentType.failure,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -176,49 +226,96 @@ class _RateUserScreenState extends State<RateUserScreen> {
                 height: 15,
               ),
               ElevatedButton(
-                  onPressed: () async {
-                    RateUser userRated = RateUser(
-                        rating: rating,
-                        feedback: _feedbackController.text,
-                        jobReference:
-                            _service_actions_collection.doc('somedocs'),
-                        ratedBy: _firestore.collection('users').doc('ratedBy'),
-                        ratedTo: _firestore.collection('users').doc('ratedto'),
-                        timeRated: DateTime.now());
-                    Map<String, dynamic> ratingData = userRated.toJson();
-                    _firestore
-                        .collection('ratings')
-                        .add(ratingData)
-                        .then((value) {
-                      double averageRating = 0.0;
-                      if (allRatings.isNotEmpty) {
-                        averageRating = totalUserRating / allRatings.length;
-                        double newTotal = totalUserRating + rating;
-                        allRatings.add(
-                            _firestore.collection('ratings').doc(value.id));
-                        _firestore
-                            .collection('users')
-                            .doc(vendorUser['uid'])
-                            .update({
-                          'totalRating': newTotal,
-                          'actualRating': min(5.0, averageRating),
-                          'allRatings': allRatings
-                        });
-                      } else {
-                        allRatings.add(
-                            _firestore.collection('ratings').doc(value.id));
-                        _firestore
-                            .collection('users')
-                            .doc(vendorUser['uid'])
-                            .update({
-                          'totalRating': rating,
-                          'actualRating': rating,
-                          'allRatings': allRatings
-                        });
-                      }
-                    });
-                  },
-                  child: Text("Rate")),
+                  onPressed: isratingSubmitting
+                      ? null
+                      : () async {
+                          setState(() {
+                            isratingSubmitting = true;
+                          });
+                          RateUser userRated = RateUser(
+                              rating: rating,
+                              feedback: _feedbackController.text,
+                              jobReference: _service_actions_collection
+                                  .doc(vendorUser['jobId']),
+                              ratedBy: _firestore.collection('users').doc(uid),
+                              ratedTo: _firestore
+                                  .collection('users')
+                                  .doc(vendorUser['uid']),
+                              timeRated: DateTime.now());
+                          Map<String, dynamic> ratingData = userRated.toJson();
+                          _firestore
+                              .collection('ratings')
+                              .add(ratingData)
+                              .then((value) {
+                            double averageRating = 0.0;
+                            if (allRatings.isNotEmpty) {
+                              // Calculate the rating global
+                              averageRating =
+                                  totalUserRating / allRatings.length;
+                              double minimizedRating = min(5.0, averageRating);
+                              double newTotal = totalUserRating + rating;
+// add neccessory docs to the corresponding fields
+                              allRatings.add(_firestore
+                                  .collection('ratings')
+                                  .doc(value.id));
+                              iamRated.add(_firestore
+                                  .collection('ratings')
+                                  .doc(value.id));
+                              // Update corressponding fields for USERS/general_user
+                              _firestore
+                                  .collection('users')
+                                  .doc(uid)
+                                  .update({'iamRated': iamRated});
+                              // Update corressponding fields for USERS/Vendors
+                              _firestore
+                                  .collection('users')
+                                  .doc(vendorUser['uid'])
+                                  .update({
+                                'totalRating': newTotal,
+                                'actualRating': minimizedRating,
+                                'allRatings': allRatings
+                              });
+                              allRatings.clear();
+                              iamRated.clear();
+                              setState(() {
+                                isratingSubmitting = false;
+                              });
+                              Navigator.popAndPushNamed(
+                                  context, "user_dashboard");
+                            } else {
+                              allRatings.add(_firestore
+                                  .collection('ratings')
+                                  .doc(value.id));
+                              iamRated.add(_firestore
+                                  .collection('ratings')
+                                  .doc(value.id));
+                              // Update corressponding fields for USERS/general_user
+                              _firestore
+                                  .collection('users')
+                                  .doc(uid)
+                                  .update({'iamRated': iamRated});
+                              _firestore
+                                  .collection('users')
+                                  .doc(vendorUser['uid'])
+                                  .update({
+                                'totalRating': rating,
+                                'actualRating': rating,
+                                'allRatings': allRatings
+                              });
+                              allRatings.clear();
+                              setState(() {
+                                isratingSubmitting = false;
+                              });
+                              Navigator.popAndPushNamed(
+                                  context, "user_dashboard");
+                            }
+                          });
+                        },
+                  child: isratingSubmitting
+                      ? CircularProgressIndicator.adaptive(
+                          backgroundColor: Colors.white,
+                        )
+                      : Text("Rate")),
             ],
           ),
         ),

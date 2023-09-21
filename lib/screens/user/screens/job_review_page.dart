@@ -654,7 +654,8 @@ class _JobReviewPageState extends State<JobReviewPage> {
                                                           "rate_user_screen",
                                                           arguments: {
                                                             "uid":
-                                                                "SXWjByatWxN7BI4sbOLuxeY1Cjq2"
+                                                                "SXWjByatWxN7BI4sbOLuxeY1Cjq2",
+                                                            "jobId": docId
                                                           });
                                                     },
                                               style: ElevatedButton.styleFrom(

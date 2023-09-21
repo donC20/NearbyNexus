@@ -5,6 +5,7 @@ import 'package:NearbyNexus/screens/user/components/vendor_review_container.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
 
@@ -32,17 +33,19 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
   }
 
   // Variables to be used
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   bool isFetching = true;
   bool isImageUploading = false;
   String name = "loading...";
+  double totalRating = 0.0;
   String dpImage =
       "https://dealio.imgix.net/uploads/147885uploadshotel-pool-canaves.jpg";
   String geoLocation = "loading...";
   List<dynamic> serviceList = [];
   List<dynamic> workingDays = [];
   List<dynamic> languages = [];
-  String activityStatus="available";
+  String activityStatus = "available";
   String about = '';
   var logger = Logger();
 
@@ -59,6 +62,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
         logger.d(vendorData);
         setState(() {
           name = vendorData['name'];
+          totalRating = vendorData['actualRating'];
           dpImage = vendorData['image'];
           geoLocation = vendorData['geoLocation'];
           isFetching = false;
@@ -66,7 +70,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
           languages = vendorData['languages'];
           about = vendorData['about'];
           workingDays = vendorData['working_days'];
-          activityStatus=vendorData['activityStatus'];
+          activityStatus = vendorData['activityStatus'];
         });
       }
     });
@@ -126,7 +130,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
                       ),
                     ),
-                 Positioned(
+                    Positioned(
                       bottom: 0,
                       child: Container(
                         width: MediaQuery.sizeOf(context).width,
@@ -181,44 +185,51 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
                       ),
                     ),
-                     activityStatus=="available"?  Positioned(
-                      bottom: 15,
-                      right: 15,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pushNamed(context, "new_request",
-                              arguments: vendorId);
-                        },
-                        icon: Icon(
-                          Icons.work, // Change this to the desired icon
-                          color:
-                              Colors.black, // Change the icon color as needed
-                        ),
-                        label: Text(
-                          "Contact",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight
-                                  .bold), // Change the label color as needed
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Colors.white, // Set the background color to white
-                        ),
-                      ),
-                    ): Positioned(
-                      bottom: 15,
-                      right: 15,
-                      child: Container(
-                        width: 110,
-                        height: 40,
-                        padding: EdgeInsets.all(5),
-
-                        decoration: BoxDecoration(color: Colors.red,borderRadius: BorderRadius.circular(10)),
-                        child: Text("Unavailable",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
-                        ),
-                        
-                    ),
+                    activityStatus == "available"
+                        ? Positioned(
+                            bottom: 15,
+                            right: 15,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.pushNamed(context, "new_request",
+                                    arguments: vendorId);
+                              },
+                              icon: Icon(
+                                Icons.work, // Change this to the desired icon
+                                color: Colors
+                                    .black, // Change the icon color as needed
+                              ),
+                              label: Text(
+                                "Contact",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight
+                                        .bold), // Change the label color as needed
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors
+                                    .white, // Set the background color to white
+                              ),
+                            ),
+                          )
+                        : Positioned(
+                            bottom: 15,
+                            right: 15,
+                            child: Container(
+                              width: 110,
+                              height: 40,
+                              padding: EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Text(
+                                "Unavailable",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
                   ],
                 ),
                 Expanded(
@@ -227,7 +238,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                     child: ListView(
                       children: [
                         // user status rating etc..
-                       Row(
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             modernCircularProgressBar(30, "Jobs done", 1000),
@@ -421,19 +432,101 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                           height: 5,
                         ),
 
-                        UserReviewContainer(
-                          review: Review(
-                            'John Doe',
-                            'The service was excellent! I am very satisfied with their work.',
-                            4.5,
-                          ),
-                        ),
-                        UserReviewContainer(
-                          review: Review(
-                            'John Doe',
-                            'The service was excellent! I am very satisfied with their work.',
-                            4.5,
-                          ),
+                        StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                          stream: _firestore
+                              .collection('users')
+                              .doc(vendorId)
+                              .snapshots(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<DocumentSnapshot> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            } else if (snapshot.hasError) {
+                              return Center(
+                                  child: Text(
+                                      'Error: ${snapshot.error.toString()}'));
+                            } else if (snapshot.hasData &&
+                                snapshot.data!.exists) {
+                              Map<String, dynamic> userData =
+                                  snapshot.data!.data() as Map<String, dynamic>;
+                              List<DocumentReference> allRatings =
+                                  List<DocumentReference>.from(
+                                      userData['allRatings']);
+                              List<Future<Map<String, dynamic>>>
+                                  ratingDataFutures =
+                                  allRatings.map((ratingRef) async {
+                                DocumentSnapshot ratingSnapshot =
+                                    await ratingRef.get();
+                                Map<String, dynamic> ratingData = ratingSnapshot
+                                    .data() as Map<String, dynamic>;
+
+                                // Fetch user data for this rating
+                                DocumentReference userRef = ratingData[
+                                    'ratedBy']; // Assuming 'ratedBy' is the field referencing the user
+                                DocumentSnapshot userSnapshot =
+                                    await userRef.get();
+                                Map<String, dynamic> userData =
+                                    userSnapshot.data() as Map<String, dynamic>;
+
+                                return {
+                                  'userName': userData['name'],
+                                  'userImage': userData['image'],
+                                  'feedback': ratingData['feedback'],
+                                  'rating': ratingData['rating'],
+                                  'timeRated': ratingData['timeRated'],
+                                };
+                              }).toList();
+
+                              return FutureBuilder<List<Map<String, dynamic>>>(
+                                future: Future.wait(ratingDataFutures),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<List<Map<String, dynamic>>>
+                                        ratingSnapshot) {
+                                  if (ratingSnapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  } else if (ratingSnapshot.hasError) {
+                                    return Center(
+                                        child: Text(
+                                            'Error: ${ratingSnapshot.error.toString()}'));
+                                  } else if (ratingSnapshot.hasData) {
+                                    List<Map<String, dynamic>> ratingDataList =
+                                        ratingSnapshot.data!;
+
+                                    List<Widget> reviews =
+                                        ratingDataList.map((ratingData) {
+                                      String userName = ratingData['userName'];
+                                      String userImage =
+                                          ratingData['userImage'];
+                                      String feedback = ratingData['feedback'];
+                                      double rating = ratingData['rating'];
+                                      Timestamp timeRated =
+                                          ratingData['timeRated'];
+
+                                      return UserReviewContainer(
+                                        reviewerName: userName,
+                                        reviewText: feedback,
+                                        image: userImage,
+                                        rating: rating,
+                                        timePosted: timeRated,
+                                      );
+                                    }).toList();
+
+                                    return Column(
+                                      children: reviews,
+                                    );
+                                  } else {
+                                    return Center(
+                                        child: Text('No data available.'));
+                                  }
+                                },
+                              );
+                            } else {
+                              return Center(child: Text('No data available.'));
+                            }
+                          },
                         ),
 
                         SizedBox(
@@ -539,15 +632,12 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold),
                                       ),
-                                      subtitle: FittedBox(
-                                        fit: BoxFit.cover,
-                                        child: Text(
-                                          vendor['geoLocation'],
-                                          style: TextStyle(
-                                              color: const Color.fromARGB(
-                                                  114, 255, 255, 255),
-                                              fontWeight: FontWeight.normal),
-                                        ),
+                                      subtitle: Text(
+                                        vendor['geoLocation'],
+                                        style: TextStyle(
+                                            color: const Color.fromARGB(
+                                                114, 255, 255, 255),
+                                            fontWeight: FontWeight.normal),
                                       ),
                                       trailing: OutlinedButton(
                                           onPressed: () {
@@ -585,9 +675,8 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
 
 // widgets
 
-
 // widgets
-Widget modernCircularProgressBar(int value, String tagline, int maxValue) {
+Widget modernCircularProgressBar(double value, String tagline, int maxValue) {
   double percentage = (value / maxValue) * 100;
 
   return Column(
@@ -640,4 +729,3 @@ Widget modernCircularProgressBar(int value, String tagline, int maxValue) {
     ],
   );
 }
-

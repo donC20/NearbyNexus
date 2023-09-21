@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 
-
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/user/components/vendor_review_container.dart';
 import 'package:NearbyNexus/screens/vendor/components/vendor_image_name_update.dart';
@@ -476,21 +475,6 @@ class _VendorProfileState extends State<VendorProfile> {
                                 fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 5,
-                        ),
-
-                        UserReviewContainer(
-                          review: Review(
-                            'John Doe',
-                            'The service was excellent! I am very satisfied with their work.',
-                            4.5,
-                          ),
-                        ),
-                        UserReviewContainer(
-                          review: Review(
-                            'John Doe',
-                            'The service was excellent! I am very satisfied with their work.',
-                            4.5,
-                          ),
                         ),
 
                         SizedBox(
