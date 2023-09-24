@@ -2,17 +2,16 @@
 
 import 'dart:convert';
 
-import 'package:NearbyNexus/screens/admin/component/infoCard.dart';
-import 'package:NearbyNexus/screens/admin/config/size_config.dart';
-import 'package:NearbyNexus/screens/admin/style/colors.dart';
-import 'package:NearbyNexus/screens/admin/style/style.dart';
+import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/vendor/components/bottom_vendor_nav_global.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simple_ripple_animation/simple_ripple_animation.dart';
 
 class VendorDashboard extends StatefulWidget {
   const VendorDashboard({super.key});
@@ -56,7 +55,8 @@ class _VendorDashboardState extends State<VendorDashboard> {
 
       // Assing admin data to the UI
       setState(() {
-        imageLink = fetchedData['image']??"https://firebasestorage.googleapis.com/v0/b/nearbynexus1.appspot.com/o/profile_images%2Ficons8-user-default-96.png?alt=media&token=0ffd4c8b-fc40-4f19-a457-1ef1e0ba6ae5";
+        imageLink = fetchedData['image'] ??
+            "https://firebasestorage.googleapis.com/v0/b/nearbynexus1.appspot.com/o/profile_images%2Ficons8-user-default-96.png?alt=media&token=0ffd4c8b-fc40-4f19-a457-1ef1e0ba6ae5";
         nameLoginned = fetchedData['name'];
         isimageFetched = false;
       });
@@ -65,193 +65,357 @@ class _VendorDashboardState extends State<VendorDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: [SystemUiOverlay.top]);
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 0, 0, 0),
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 2,
-        shadowColor: Color.fromARGB(92, 158, 158, 158),
-        leadingWidth: MediaQuery.sizeOf(context).width,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 20, top: 10),
-          child: ShaderMask(
-            shaderCallback: (Rect bounds) {
-              return LinearGradient(
-                colors: const [
-                  Colors.blue,
-                  Colors.green
-                ], // Adjust gradient colors as needed
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              ).createShader(bounds);
-            },
-            child: Text(
-              "Dashboard",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
+      backgroundColor: Colors.black,
+      body: Column(
+        children: [
+          Container(
+            height: MediaQuery.sizeOf(context).height - 550,
+            decoration: BoxDecoration(
                 color: Colors.white,
+                borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(30),
+                    bottomRight: Radius.circular(30))),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Dashboard",
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            fontFamily: GoogleFonts.play().fontFamily),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                              onPressed: () {},
+                              icon: Icon(Icons.notifications)),
+                          UserLoadingAvatar(
+                            userImage: imageLink,
+                            width: 30,
+                            height: 30,
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                jobDoneContainer(12),
+                SizedBox(
+                  height: 20,
+                ),
+                summaryContainer(),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+              child: ListView(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                        color: Color(0xFF8B5FEC),
+                        borderRadius: BorderRadius.circular(5)),
+                    child: ListTile(
+                      onTap: () {},
+                      title: Text(
+                        "New jobs",
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            fontFamily: GoogleFonts.play().fontFamily),
+                      ),
+                      trailing: Text(
+                        "2",
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            fontFamily: GoogleFonts.play().fontFamily),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Text(
+                    "Explore more",
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 255, 255, 255),
+                        fontWeight: FontWeight.normal,
+                        fontSize: 12,
+                        fontFamily: GoogleFonts.play().fontFamily),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width - 30,
+                    padding: EdgeInsets.all(25),
+                    decoration: BoxDecoration(
+                      border:
+                          Border.all(color: Color.fromARGB(43, 158, 158, 158)),
+                      borderRadius: BorderRadius.circular(10),
+                      color: Color.fromARGB(186, 42, 40, 40),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.9),
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 40,
+                      runSpacing: 30,
+                      children: [
+                        cardItems(Icons.work, "New jobs", "", context),
+                        cardItems(Icons.payment, "Payments", "", context),
+                        cardItems(Icons.pending_actions, "Pending\npayments",
+                            "", context),
+                        cardItems(Icons.history, "Job log", "", context),
+                        cardItems(Icons.access_time_sharp, "Change status", "",
+                            context),
+                        cardItems(Icons.heart_broken_outlined, "Favourites", "",
+                            context),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Text(
+                    "Recent peoples",
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 255, 255, 255),
+                        fontWeight: FontWeight.normal,
+                        fontSize: 12,
+                        fontFamily: GoogleFonts.play().fontFamily),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Wrap(
+                      alignment: WrapAlignment.start,
+                      spacing: 20,
+                      runSpacing: 20,
+                      children: [
+                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
+                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
+                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
+                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
+                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
+                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
+                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
+                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: InkWell(
-              onTap: () {
-                Navigator.pushNamed(context, "vendor_profile_one");
-              },
-              child: isimageFetched == true
-                  ? Container(
-                      margin: EdgeInsets.only(right: 10),
-                      decoration: BoxDecoration(color: Colors.black),
-                      child: Center(
-                        child: LoadingAnimationWidget.fallingDot(
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                      ))
-                  : CircleAvatar(
-                      backgroundColor: Colors
-                          .transparent, // Set a transparent background for the avatar
-                      child: ClipOval(
-                        // Clip the image to an oval (circle) shape
-                        child: Image.network(
-                          imageLink,
-                          width: 30,
-                          height: 30,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (BuildContext context, Widget child,
-                              ImageChunkEvent? loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            } else if (loadingProgress.expectedTotalBytes !=
-                                    null &&
-                                loadingProgress.cumulativeBytesLoaded <
-                                    loadingProgress.expectedTotalBytes!) {
-                              return Center(
-                                child: LoadingAnimationWidget.discreteCircle(
-                                  color: Colors.grey,
-                                  size: 15,
-                                ),
-                              );
-                            } else {
-                              return SizedBox();
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-            ),
-          ),
-
-          IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, "vendor_notification");
-              },
-              icon: Icon(
-                Icons.notifications_none,
-                color: Colors.white,
-              ))
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 15),
-        child: ListView(
-          children: [
-            StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: _firestore
-                  .collection('service_actions')
-                  .where('referencePath',
-                      isEqualTo: _firestore.collection('users').doc(uid))
-                  .where('clientStatus', isEqualTo: 'finished')
-                  .snapshots(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error.toString()}');
-                } else if (snapshot.hasData) {
-                  List<QueryDocumentSnapshot> documentList =
-                      snapshot.data!.docs;
-                  int completedJobsCount = documentList.length;
-
-                  return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                    stream: _firestore
-                        .collection('service_actions')
-                        .where('referencePath',
-                            isEqualTo: _firestore.collection('users').doc(uid))
-                        .where('status', isEqualTo: 'new')
-                        .snapshots(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<QuerySnapshot> newJobsSnapshot) {
-                      if (newJobsSnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
-                      } else if (newJobsSnapshot.hasError) {
-                        return Text(
-                            'Error: ${newJobsSnapshot.error.toString()}');
-                      } else if (newJobsSnapshot.hasData) {
-                        List<QueryDocumentSnapshot> newDocumentList =
-                            newJobsSnapshot.data!.docs;
-                        int newJobsCount = newDocumentList.length;
-
-                        return Column(
-                          children: [
-                            summaryContainer(
-                                "Jobs completed", completedJobsCount, context),
-                            Divider(
-                              color: Colors.grey,
-                            ),
-                            summaryContainer("New Jobs", newJobsCount, context)
-                          ],
-                        );
-                      } else {
-                        return Text(
-                          'We can\'t find any records associated with this account.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white),
-                        );
-                      }
-                    },
-                  );
-                } else {
-                  return Text(
-                    'We can\'t find any records associated with this account.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white),
-                  );
-                }
-              },
-            )
-          ],
-        ),
-      ),
-      bottomNavigationBar: GlobalBottomNavVendor(),
     );
   }
 }
 
-Widget summaryContainer(label, count, BuildContext context) {
+Widget jobDoneContainer(value) {
   return Container(
-    padding: EdgeInsets.all(20),
-    width: MediaQuery.sizeOf(context).width,
-    height: 80,
-    decoration: BoxDecoration(color: Colors.white),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    height: 200,
+    width: 200,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: Color(0xFF09E063).withOpacity(0.1),
+    ),
+    child: Center(
+      child: Container(
+        height: 150,
+        width: 150,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Color(0xFF09E063).withOpacity(0.2),
+        ),
+        child: Center(
+          child: Container(
+            height: 100,
+            width: 100,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(0xFF09E063),
+            ),
+            child: Center(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      value.toString(),
+                      style: TextStyle(
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 25,
+                          fontFamily: GoogleFonts.play().fontFamily),
+                    ),
+                    Text(
+                      "Jobs done",
+                      style: TextStyle(
+                          color: const Color.fromARGB(255, 255, 255, 255),
+                          fontWeight: FontWeight.w900,
+                          fontSize: 12,
+                          fontFamily: GoogleFonts.play().fontFamily),
+                    ),
+                  ]),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget summaryContainer() {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      SizedBox(),
+      RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: "10\n",
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            TextSpan(
+              text: "All",
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+      Container(
+        height: 40,
+        width: 1,
+        color: Colors.grey, // Vertical line color
+        margin: const EdgeInsets.symmetric(horizontal: 10),
+      ),
+      RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: "5\n",
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            TextSpan(
+              text: "Active",
+              style: TextStyle(
+                color: Colors.green, // Change color to match your theme
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+      Container(
+        height: 40,
+        width: 1,
+        color: Colors.grey, // Vertical line color
+        margin: const EdgeInsets.symmetric(horizontal: 10),
+      ),
+      RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: "3\n",
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            TextSpan(
+              text: "Rejected",
+              style: TextStyle(
+                color: Colors.red, // Change color to match your theme
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+Widget cardItems(
+    IconData icon, String title, String ontapRoute, BuildContext context) {
+  return InkWell(
+    onTap: () {
+      Navigator.pushNamed(context, ontapRoute);
+    },
+    child: Column(
       children: [
-        Text(
-          label,
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        Icon(
+          icon,
+          color: Colors.white,
         ),
         Text(
-          count.toString(),
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: const Color.fromARGB(255, 255, 255, 255),
+              fontWeight: FontWeight.normal,
+              fontSize: 12,
+              fontFamily: GoogleFonts.play().fontFamily),
         ),
       ],
     ),
+  );
+}
+
+Widget recentUsers(String imagePath, String userName) {
+  return Column(
+    children: [
+      UserLoadingAvatar(userImage: imagePath),
+      Text(
+        userName,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+            color: const Color.fromARGB(255, 255, 255, 255),
+            fontWeight: FontWeight.normal,
+            fontSize: 12,
+            fontFamily: GoogleFonts.play().fontFamily),
+      ),
+    ],
   );
 }
