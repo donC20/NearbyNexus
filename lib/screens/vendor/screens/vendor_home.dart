@@ -3,8 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
-import 'package:NearbyNexus/screens/vendor/components/bottom_vendor_nav_global.dart';
+import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/screens/vendor/components/user_vendor_tile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -329,7 +328,6 @@ class _VendorHomeState extends State<VendorHome> {
                     ),
             ),
           ),
-          
         ],
       ),
       body: isloadingLocation == true
@@ -622,7 +620,9 @@ class _VendorHomeState extends State<VendorHome> {
                 ),
               ),
             ),
-      bottomNavigationBar: GlobalBottomNavVendor(),
+      bottomNavigationBar: BottomGNav(
+        activePage: 0, isSelectable: true,
+      ),
     );
   }
 }

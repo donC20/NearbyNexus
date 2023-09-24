@@ -1,17 +1,18 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
-import 'package:NearbyNexus/screens/vendor/components/bottom_vendor_nav_global.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:simple_ripple_animation/simple_ripple_animation.dart';
 
 class VendorDashboard extends StatefulWidget {
   const VendorDashboard({super.key});
@@ -26,12 +27,11 @@ class _VendorDashboardState extends State<VendorDashboard> {
   String imageLink = "https://icons8.com/icon/tZuAOUGm9AuS/user-default";
   String nameLoginned = "";
   bool isimageFetched = false;
-  int _selectedItemPosition = 2;
   String uid = '';
   SnakeShape snakeShape = SnakeShape.circle;
   Color unselectedColor = Colors.blueGrey;
   Color selectedColor = Colors.black;
-
+  var logger = Logger();
   @override
   void initState() {
     super.initState();
@@ -63,172 +63,294 @@ class _VendorDashboardState extends State<VendorDashboard> {
     }
   }
 
+  Stream<dynamic> summaryContainerStream() {
+    StreamController<dynamic> controller = StreamController<dynamic>();
+
+    _firestore
+        .collection('service_actions')
+        .where('referencePath',
+            isEqualTo: _firestore.collection('users').doc(uid))
+        .snapshots()
+        .listen((event) {
+      int all = event.size;
+
+      int jobCompletedCount =
+          event.docs.where((doc) => doc['clientStatus'] == 'finished').length;
+      int active =
+          event.docs.where((doc) => doc['status'] == 'accepted').length;
+      int rejected =
+          event.docs.where((doc) => doc['status'] == 'rejected').length;
+      int newJobs = event.docs.where((doc) => doc['status'] == 'new').length;
+
+      List<dynamic> userReferences = [];
+
+      // Get all userReference values
+      for (var doc in event.docs) {
+        var userReference = doc['userReference'];
+        if (userReference != null) {
+          userReferences.add(userReference);
+        }
+      }
+
+      Map<String, dynamic> summaryData = {
+        "all": all,
+        "active": active,
+        "rejected": rejected,
+        "jobCompletedCount": jobCompletedCount,
+        "newJobs": newJobs,
+        "userReferences": userReferences,
+      };
+      print(summaryData);
+      controller.add(summaryData);
+    });
+
+    return controller.stream;
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: [SystemUiOverlay.top]);
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          Container(
-            height: MediaQuery.sizeOf(context).height - 550,
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30))),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Dashboard",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            fontFamily: GoogleFonts.play().fontFamily),
-                      ),
-                      Row(
-                        children: [
-                          IconButton(
-                              onPressed: () {},
-                              icon: Icon(Icons.notifications)),
-                          UserLoadingAvatar(
-                            userImage: imageLink,
-                            width: 30,
-                            height: 30,
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
+      body: isimageFetched == true
+          ? Container(
+              margin: EdgeInsets.only(right: 10),
+              decoration: BoxDecoration(color: Colors.black),
+              child: Center(
+                child: LoadingAnimationWidget.fallingDot(
+                  color: Colors.white,
+                  size: 30,
                 ),
-                jobDoneContainer(12),
-                SizedBox(
-                  height: 20,
-                ),
-                summaryContainer(),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-              child: ListView(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Color(0xFF8B5FEC),
-                        borderRadius: BorderRadius.circular(5)),
-                    child: ListTile(
-                      onTap: () {},
-                      title: Text(
-                        "New jobs",
-                        style: TextStyle(
-                            color: const Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            fontFamily: GoogleFonts.play().fontFamily),
-                      ),
-                      trailing: Text(
-                        "2",
-                        style: TextStyle(
-                            color: const Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            fontFamily: GoogleFonts.play().fontFamily),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Text(
-                    "Explore more",
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                        fontWeight: FontWeight.normal,
-                        fontSize: 12,
-                        fontFamily: GoogleFonts.play().fontFamily),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width - 30,
-                    padding: EdgeInsets.all(25),
-                    decoration: BoxDecoration(
-                      border:
-                          Border.all(color: Color.fromARGB(43, 158, 158, 158)),
-                      borderRadius: BorderRadius.circular(10),
-                      color: Color.fromARGB(186, 42, 40, 40),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.9),
-                          blurRadius: 10,
-                          spreadRadius: 2,
+              ))
+          : StreamBuilder<dynamic>(
+              stream: summaryContainerStream(),
+              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                if (snapshot.connectionState == ConnectionState.active) {
+                  if (snapshot.hasData) {
+                    Map<String, dynamic> summaryData = snapshot.data;
+                    List<dynamic> userReferences =
+                        summaryData['userReferences'];
+                    // Use summaryData in your UI
+                    return Column(
+                      children: [
+                        Container(
+                          height: MediaQuery.sizeOf(context).height - 550,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(30),
+                                  bottomRight: Radius.circular(30))),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(15.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Dashboard",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          fontFamily:
+                                              GoogleFonts.play().fontFamily),
+                                    ),
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                            onPressed: () {
+                                              Navigator.pushNamed(context,
+                                                  "vendor_notification");
+                                            },
+                                            icon: Icon(Icons.notifications)),
+                                        InkWell(
+                                          onTap: () {
+                                            Navigator.pushNamed(
+                                                context, "vendor_profile_one");
+                                          },
+                                          child: UserLoadingAvatar(
+                                            userImage: imageLink,
+                                            width: 30,
+                                            height: 30,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              jobDoneContainer(
+                                  summaryData['jobCompletedCount']),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              summaryContainer(
+                                  summaryData['all'],
+                                  summaryData['active'],
+                                  summaryData['rejected']),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.only(left: 10.0, right: 10.0),
+                            child: ListView(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                      color: Color(0xFF8B5FEC),
+                                      borderRadius: BorderRadius.circular(5)),
+                                  child: ListTile(
+                                    onTap: () {},
+                                    title: Text(
+                                      "New jobs",
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 255, 255, 255),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          fontFamily:
+                                              GoogleFonts.play().fontFamily),
+                                    ),
+                                    trailing: Text(
+                                      summaryData['newJobs'].toString(),
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 255, 255, 255),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                          fontFamily:
+                                              GoogleFonts.play().fontFamily),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                Text(
+                                  "Explore more",
+                                  style: TextStyle(
+                                      color: const Color.fromARGB(
+                                          255, 255, 255, 255),
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 12,
+                                      fontFamily:
+                                          GoogleFonts.play().fontFamily),
+                                ),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                Container(
+                                  width: MediaQuery.of(context).size.width - 30,
+                                  padding: EdgeInsets.all(25),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color:
+                                            Color.fromARGB(43, 158, 158, 158)),
+                                    borderRadius: BorderRadius.circular(10),
+                                    color: Color.fromARGB(186, 42, 40, 40),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.9),
+                                        blurRadius: 10,
+                                        spreadRadius: 2,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Wrap(
+                                    alignment: WrapAlignment.center,
+                                    spacing: 40,
+                                    runSpacing: 30,
+                                    children: [
+                                      cardItems(Icons.payment, "Payments",
+                                          "payment_vendor_log", context),
+                                      cardItems(Icons.pending_actions,
+                                          "Pending\npayments", "", context),
+                                      cardItems(Icons.history, "Job log", "",
+                                          context),
+                                      cardItems(Icons.design_services,
+                                          "Manage\nservices", "", context),
+                                      cardItems(Icons.block, "Blocked users",
+                                          "", context),
+                                      cardItems(Icons.access_time_sharp,
+                                          "Change status", "", context),
+                                      cardItems(Icons.heart_broken_outlined,
+                                          "Favourites", "", context),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                Text(
+                                  "Recent peoples",
+                                  style: TextStyle(
+                                      color: const Color.fromARGB(
+                                          255, 255, 255, 255),
+                                      fontWeight: FontWeight.normal,
+                                      fontSize: 12,
+                                      fontFamily:
+                                          GoogleFonts.play().fontFamily),
+                                ),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Wrap(
+                                    alignment: WrapAlignment.start,
+                                    spacing: 20,
+                                    runSpacing: 20,
+                                    children: userReferences
+                                        .map<Widget>((userReference) {
+                                      String userId = userReference.id;
+                                      return StreamBuilder<DocumentSnapshot>(
+                                        stream: _firestore
+                                            .collection('users')
+                                            .doc(userId)
+                                            .snapshots(),
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<DocumentSnapshot>
+                                                userSnapshot) {
+                                          if (userSnapshot.connectionState ==
+                                              ConnectionState.active) {
+                                            if (userSnapshot.hasData) {
+                                              String imageUrl =
+                                                  userSnapshot.data?['image'];
+                                              String userName =
+                                                  userSnapshot.data?['name'];
+
+                                              return recentUsers(
+                                                  imageUrl, userName);
+                                            }
+                                          }
+                                          return SizedBox();
+                                        },
+                                      );
+                                    }).toList(),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                         ),
                       ],
-                    ),
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
-                      spacing: 40,
-                      runSpacing: 30,
-                      children: [
-                        cardItems(Icons.work, "New jobs", "", context),
-                        cardItems(Icons.payment, "Payments", "", context),
-                        cardItems(Icons.pending_actions, "Pending\npayments",
-                            "", context),
-                        cardItems(Icons.history, "Job log", "", context),
-                        cardItems(Icons.access_time_sharp, "Change status", "",
-                            context),
-                        cardItems(Icons.heart_broken_outlined, "Favourites", "",
-                            context),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Text(
-                    "Recent peoples",
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                        fontWeight: FontWeight.normal,
-                        fontSize: 12,
-                        fontFamily: GoogleFonts.play().fontFamily),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Wrap(
-                      alignment: WrapAlignment.start,
-                      spacing: 20,
-                      runSpacing: 20,
-                      children: [
-                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
-                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
-                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
-                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
-                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
-                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
-                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
-                        recentUsers("https://shorturl.at/BHKT1", "Nova Elin"),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                    );
+                  } else {
+                    return CircularProgressIndicator();
+                  }
+                } else {
+                  return Container(); // or some placeholder widget
+                }
+              },
             ),
-          ),
-        ],
+      bottomNavigationBar: BottomGNav(
+        activePage: 1,
+        isSelectable: true,
       ),
     );
   }
@@ -287,7 +409,7 @@ Widget jobDoneContainer(value) {
   );
 }
 
-Widget summaryContainer() {
+Widget summaryContainer(int all, int active, int rejected) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
@@ -297,7 +419,7 @@ Widget summaryContainer() {
         text: TextSpan(
           children: [
             TextSpan(
-              text: "10\n",
+              text: "${all.toString()}\n",
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -326,7 +448,7 @@ Widget summaryContainer() {
         text: TextSpan(
           children: [
             TextSpan(
-              text: "5\n",
+              text: "${active.toString()}\n",
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -355,7 +477,7 @@ Widget summaryContainer() {
         text: TextSpan(
           children: [
             TextSpan(
-              text: "3\n",
+              text: "${rejected.toString()}\n",
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
@@ -407,6 +529,9 @@ Widget recentUsers(String imagePath, String userName) {
   return Column(
     children: [
       UserLoadingAvatar(userImage: imagePath),
+      SizedBox(
+        height: 5,
+      ),
       Text(
         userName,
         textAlign: TextAlign.center,

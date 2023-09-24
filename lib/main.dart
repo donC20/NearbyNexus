@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/misc/firebase_notifications.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
@@ -16,14 +13,15 @@ import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/components/global_notification.dart';
+import 'package:NearbyNexus/screens/vendor/screens/payments_log.dart';
 import 'package:NearbyNexus/screens/vendor/screens/update_vendor_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_dashboard.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_notification_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile_one.dart';
+import 'package:NearbyNexus/screens/vendor/screens/vendor_side_search_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/view_requests.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +31,6 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config/themes/app_theme.dart';
 import 'screens/admin/screens/add_data.dart';
@@ -119,6 +116,9 @@ class MyApp extends StatelessWidget {
         "vendor_notification": (context) => const VendorNotificationScreen(),
         "view_requests": (context) => const ViewRequests(),
         "vendor_dashboard": (context) => const VendorDashboard(),
+        "search_screen_vendor": (context) => const VendorSideSearchScreen(),
+        "payment_vendor_log": (context) => const PaymentVendorLogScreen(),
+
         //  user_pages
         "user_home": (context) => const GeneralUserHome(),
         "user_dashboard": (context) => const UserDashboard(),
