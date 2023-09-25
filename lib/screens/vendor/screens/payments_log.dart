@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:NearbyNexus/components/bottom_g_nav.dart';
+import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -56,64 +57,119 @@ class _PaymentVendorLogScreenState extends State<PaymentVendorLogScreen> {
     }
   }
 
+  Future<Map<String, dynamic>> fetchAllPaymentData(
+      DocumentReference jobId, DocumentReference payBy) async {
+    DocumentSnapshot jobSnapshot = await jobId.get();
+    DocumentSnapshot payBySnapshot = await payBy.get();
+    Map<String, dynamic> jobDetails =
+        jobSnapshot.data() as Map<String, dynamic>;
+    Map<String, dynamic> userDetails =
+        payBySnapshot.data() as Map<String, dynamic>;
+    Map<String, dynamic> data = {
+      'userName': userDetails['name'],
+      'userImage': userDetails['image'],
+      'serviceName': jobDetails['service_name'],
+    };
+    return data;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: StreamBuilder(
-        stream: _firestore.collection('users').doc(uid).snapshots(),
-        builder:
-            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-          if (snapshot.connectionState == ConnectionState.active) {
-            if (snapshot.hasData) {
-              Map<String, dynamic>? vendorData =
-                  snapshot.data?.data() as Map<String, dynamic>?;
+      body: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: StreamBuilder(
+          stream: _firestore.collection('users').doc(uid).snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+            if (snapshot.connectionState == ConnectionState.active) {
+              if (snapshot.hasData) {
+                Map<String, dynamic>? vendorData =
+                    snapshot.data?.data() as Map<String, dynamic>?;
 
-              if (vendorData != null && vendorData.containsKey('paymentLogs')) {
-                List<dynamic> paymentList = vendorData['paymentLogs'];
+                if (vendorData != null &&
+                    vendorData.containsKey('paymentLogs')) {
+                  List<dynamic> paymentList = vendorData['paymentLogs'];
 
-                return ListView.separated(
-                  itemCount: paymentList.length,
-                  itemBuilder: (context, index) {
-                    String userId = paymentList[index].id;
+                  return ListView.separated(
+                    itemCount: paymentList.length,
+                    itemBuilder: (context, index) {
+                      String userId = paymentList[index].id;
 
-                    return StreamBuilder<DocumentSnapshot>(
-                      stream: _firestore
-                          .collection('payments')
-                          .doc(userId)
-                          .snapshots(),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<DocumentSnapshot> userSnapshot) {
-                        if (userSnapshot.connectionState ==
-                            ConnectionState.active) {
-                          if (userSnapshot.hasData) {
-                            Map<String, dynamic>? payData = userSnapshot.data
-                                ?.data() as Map<String, dynamic>?;
+                      return StreamBuilder<DocumentSnapshot>(
+                        stream: _firestore
+                            .collection('payments')
+                            .doc(userId)
+                            .snapshots(),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                          if (userSnapshot.connectionState ==
+                              ConnectionState.active) {
+                            if (userSnapshot.hasData) {
+                              Map<String, dynamic>? payData = userSnapshot.data
+                                  ?.data() as Map<String, dynamic>?;
+                              return FutureBuilder<Map<String, dynamic>>(
+                                future: fetchAllPaymentData(
+                                    payData?['jobId'], payData?['payedBy']),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<Map<String, dynamic>>
+                                        dataSnapshot) {
+                                  if (dataSnapshot.connectionState ==
+                                      ConnectionState.done) {
+                                    Map<String, dynamic> data =
+                                        dataSnapshot.data!;
+                                    logger.d(data);
 
-                            return SizedBox();
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
+                                      child: ListTile(
+                                        leading: UserLoadingAvatar(
+                                            userImage: data['userImage']),
+                                        title: Text(data['serviceName']),
+                                        subtitle: Text(data['userName']),
+                                        trailing: Text(
+                                          "\u20B9${payData?['amountPaid']}",
+                                          style: TextStyle(
+                                              color: const Color.fromARGB(
+                                                  255, 21, 169, 26),
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  }
+                                },
+                              );
+                            }
                           }
-                        }
-                        return SizedBox();
-                      },
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    return Divider(
-                      color: Colors.grey,
-                    );
-                  },
-                );
+                          return SizedBox();
+                        },
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return Divider(
+                        color: Colors.grey,
+                      );
+                    },
+                  );
+                }
               }
             }
-          }
 
-          return Center(
-            child: Text(
-              "You have no payment history",
-              style: TextStyle(color: Colors.white),
-            ),
-          );
-        },
+            return Center(
+              child: Text(
+                "You have no payment history",
+                style: TextStyle(color: Colors.white),
+              ),
+            );
+          },
+        ),
       ),
       bottomNavigationBar: BottomGNav(
         activePage: 3,

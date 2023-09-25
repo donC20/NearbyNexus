@@ -5,7 +5,7 @@ import 'dart:convert';
 // ignore: unused_import
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:flutter/material.dart';
-import 'package:location/location.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 Map<String, dynamic>? initialSession;
@@ -66,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen> {
           "admin_screen"); // Navigate using Get package (replace with your navigation code)
     } else if (userType == "vendor") {
       Navigator.popAndPushNamed(context,
-          "vendor_home"); // Navigate using Get package (replace with your navigation code)
+          "vendor_dashboard"); // Navigate using Get package (replace with your navigation code)
     } else if (userType == "general_user") {
       Navigator.popAndPushNamed(context,
           "user_dashboard"); // Navigate using Get package (replace with your navigation code)

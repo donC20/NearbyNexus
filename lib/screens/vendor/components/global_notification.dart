@@ -113,26 +113,26 @@ class GlobalNotifications {
   }
 
 // background
-  Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    final SharedPreferences sharedPreferences =
-        await SharedPreferences.getInstance();
-    var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData!);
-    String uid = initData['uid'];
-    log.d("Handling a background message: ${message.messageId}");
-    vendorStreamSubscription = FirebaseFirestore.instance
-        .collection('service_actions')
-        .where('referencePath',
-            isEqualTo: FirebaseFirestore.instance.collection('users').doc(uid))
-        .snapshots()
-        .listen((querySnapshot) {
-      for (var document in querySnapshot.docs) {
-        var status = document['status'];
-        if (status == "new") {
-          _showNotification(
-              "Hello there from background,", "You may have new requests");
-        }
-      }
-    });
-  }
+  // Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  //   final SharedPreferences sharedPreferences =
+  //       await SharedPreferences.getInstance();
+  //   var userLoginData = sharedPreferences.getString("userSessionData");
+  //   var initData = json.decode(userLoginData!);
+  //   String uid = initData['uid'];
+  //   log.d("Handling a background message: ${message.messageId}");
+  //   vendorStreamSubscription = FirebaseFirestore.instance
+  //       .collection('service_actions')
+  //       .where('referencePath',
+  //           isEqualTo: FirebaseFirestore.instance.collection('users').doc(uid))
+  //       .snapshots()
+  //       .listen((querySnapshot) {
+  //     for (var document in querySnapshot.docs) {
+  //       var status = document['status'];
+  //       if (status == "new") {
+  //         _showNotification(
+  //             "Hello there from background,", "You may have new requests");
+  //       }
+  //     }
+  //   });
+  // }
 }

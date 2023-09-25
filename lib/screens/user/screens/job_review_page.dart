@@ -101,7 +101,10 @@ class _JobReviewPageState extends State<JobReviewPage> {
               paymentSheetParameters: SetupPaymentSheetParameters(
                   paymentIntentClientSecret: paymentIntent!['client_secret'],
                   // applePay: const PaymentSheetApplePay(merchantCountryCode: '+92',),
-                  // googlePay: const PaymentSheetGooglePay(testEnv: true, currencyCode: "US", merchantCountryCode: "+92"),
+                  googlePay: const PaymentSheetGooglePay(
+                      testEnv: true,
+                      currencyCode: "INR",
+                      merchantCountryCode: "IN"),
                   style: ThemeMode.dark,
                   merchantDisplayName: recipientName))
           .then((value) {});
@@ -626,35 +629,34 @@ class _JobReviewPageState extends State<JobReviewPage> {
                                               onPressed: isPaymentClicked
                                                   ? null
                                                   : () async {
-                                                      // setState(() {
-                                                      //   isPaymentClicked = true;
-                                                      // });
+                                                      setState(() {
+                                                        isPaymentClicked = true;
+                                                      });
 
-                                                      // final DocumentReference
-                                                      //     jobId = _firestore
-                                                      //         .collection(
-                                                      //             'service_actions')
-                                                      //         .doc(docId);
-                                                      // final DocumentReference
-                                                      //     payedBy = _firestore
-                                                      //         .collection(
-                                                      //             'users')
-                                                      //         .doc(uid);
-                                                      // final DocumentReference
-                                                      //     payedTo =
-                                                      //     vendorReference;
-                                                      // await makePayment(
-                                                      //     userData['name'],
-                                                      //     documentData['wage'],
-                                                      //     jobId,
-                                                      //     payedBy,
-                                                      //     payedTo);
+                                                      final DocumentReference
+                                                          jobId = _firestore
+                                                              .collection(
+                                                                  'service_actions')
+                                                              .doc(docId);
+                                                      final DocumentReference
+                                                          payedBy = _firestore
+                                                              .collection(
+                                                                  'users')
+                                                              .doc(uid);
+                                                      final DocumentReference
+                                                          payedTo =
+                                                          vendorReference;
+                                                      await makePayment(
+                                                          userData['name'],
+                                                          documentData['wage'],
+                                                          jobId,
+                                                          payedBy,
+                                                          payedTo);
                                                       Navigator.popAndPushNamed(
                                                           context,
                                                           "rate_user_screen",
                                                           arguments: {
-                                                            "uid":
-                                                                "SXWjByatWxN7BI4sbOLuxeY1Cjq2",
+                                                            "uid": payedTo,
                                                             "jobId": docId
                                                           });
                                                     },

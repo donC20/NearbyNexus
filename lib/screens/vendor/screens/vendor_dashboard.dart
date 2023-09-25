@@ -32,6 +32,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
   Color unselectedColor = Colors.blueGrey;
   Color selectedColor = Colors.black;
   var logger = Logger();
+
   @override
   void initState() {
     super.initState();
@@ -65,7 +66,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
 
   Stream<dynamic> summaryContainerStream() {
     StreamController<dynamic> controller = StreamController<dynamic>();
-
+    logger.d(uid);
     _firestore
         .collection('service_actions')
         .where('referencePath',

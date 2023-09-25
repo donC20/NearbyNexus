@@ -61,8 +61,8 @@ void main() async {
   GlobalNotifications allNotify = GlobalNotifications();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(
-      allNotify.firebaseMessagingBackgroundHandler);
+  // FirebaseMessaging.onBackgroundMessage(
+  //     allNotify.firebaseMessagingBackgroundHandler);
   allNotify.requestMonitor();
   final firebaseNotifications = FirebaseNotifications(); // Create an instance
   await firebaseNotifications.initNotifications();
