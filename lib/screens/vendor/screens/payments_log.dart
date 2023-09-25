@@ -1,13 +1,20 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:NearbyNexus/components/bottom_g_nav.dart';
+import 'package:NearbyNexus/components/pdf_api.dart';
+import 'package:NearbyNexus/components/pdf_drawer.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:NearbyNexus/models/invoice_model.dart';
+import 'package:NearbyNexus/screens/user/components/vendor_review_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class PaymentVendorLogScreen extends StatefulWidget {
   const PaymentVendorLogScreen({super.key});
@@ -77,6 +84,13 @@ class _PaymentVendorLogScreenState extends State<PaymentVendorLogScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: Text(
+          "Payment logs",
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
         child: StreamBuilder(
@@ -119,25 +133,113 @@ class _PaymentVendorLogScreenState extends State<PaymentVendorLogScreen> {
                                       ConnectionState.done) {
                                     Map<String, dynamic> data =
                                         dataSnapshot.data!;
-                                    logger.d(data);
+                                    Timestamp time = payData?['paymentTime'];
 
                                     return Container(
+                                      padding: EdgeInsets.all(15),
                                       decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius:
                                               BorderRadius.circular(5)),
-                                      child: ListTile(
-                                        leading: UserLoadingAvatar(
-                                            userImage: data['userImage']),
-                                        title: Text(data['serviceName']),
-                                        subtitle: Text(data['userName']),
-                                        trailing: Text(
-                                          "\u20B9${payData?['amountPaid']}",
-                                          style: TextStyle(
-                                              color: const Color.fromARGB(
-                                                  255, 21, 169, 26),
-                                              fontWeight: FontWeight.bold),
-                                        ),
+                                      child: Column(
+                                        children: [
+                                          ListTile(
+                                            leading: UserLoadingAvatar(
+                                                userImage: data['userImage']),
+                                            title: Text(data['serviceName']),
+                                            subtitle: Text(data['userName']),
+                                            trailing: Text(
+                                              "\u20B9${payData?['amountPaid']}",
+                                              style: TextStyle(
+                                                  color: const Color.fromARGB(
+                                                      255, 21, 169, 26),
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16),
+                                            ),
+                                          ),
+                                          Divider(
+                                            color: const Color.fromARGB(
+                                                255, 40, 37, 37),
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              // ElevatedButton(
+                                              //     onPressed: () {},
+                                              //     child: Text("View more")),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              ElevatedButton.icon(
+                                                icon: Icon(Icons
+                                                    .arrow_circle_down_rounded),
+                                                onPressed: () {},
+                                                style: ButtonStyle(
+                                                  backgroundColor:
+                                                      MaterialStateProperty.all<
+                                                              Color>(
+                                                          Color.fromARGB(
+                                                              255,
+                                                              177,
+                                                              177,
+                                                              177)), // Set button color to green
+                                                  shape: MaterialStateProperty
+                                                      .all<OutlinedBorder>(
+                                                    StadiumBorder(), // Use stadium border
+                                                  ),
+                                                ),
+                                                label: Text("Expand",
+                                                    style: TextStyle(
+                                                        color: Colors.white)),
+                                              ),
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              ElevatedButton.icon(
+                                                icon: Icon(Icons.print),
+                                                onPressed: () async {
+                                                  try {
+                                                    final invoice = Invoice(
+                                                        userName:
+                                                            data['userName'],
+                                                        vendorName:
+                                                            vendorData['name'],
+                                                        invoiceId: userId,
+                                                        jobName:
+                                                            data['serviceName'],
+                                                        payDate:
+                                                            timeStampConverter(
+                                                                time),
+                                                        amount: payData?[
+                                                            'amountPaid'],
+                                                        description: '');
+                                                    final pdfFile =
+                                                        await PdfDrawer
+                                                            .generate(invoice);
+
+                                                    PdfApi.openFile(pdfFile);
+                                                  } catch (e) {
+                                                    logger.e(e);
+                                                  }
+                                                },
+                                                style: ButtonStyle(
+                                                  backgroundColor:
+                                                      MaterialStateProperty
+                                                          .all<Color>(Colors
+                                                              .blue), // Set button color to green
+                                                  shape: MaterialStateProperty
+                                                      .all<OutlinedBorder>(
+                                                    StadiumBorder(), // Use stadium border
+                                                  ),
+                                                ),
+                                                label: Text("Invoice",
+                                                    style: TextStyle(
+                                                        color: Colors.white)),
+                                              ),
+                                            ],
+                                          )
+                                        ],
                                       ),
                                     );
                                   } else {
