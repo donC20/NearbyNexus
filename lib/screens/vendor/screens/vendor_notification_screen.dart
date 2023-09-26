@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/main.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
@@ -84,8 +85,6 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,7 +126,6 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                       document.data() as Map<String, dynamic>;
 
                   // notification manager
-                 
 
                   final docId = documentList[index].id;
                   // Check if the document data is not empty
@@ -343,6 +341,10 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
             }
           },
         ),
+      ),
+      bottomNavigationBar: BottomGNav(
+        activePage: 5,
+        isSelectable: true,
       ),
     );
   }

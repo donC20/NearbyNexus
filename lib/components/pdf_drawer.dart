@@ -62,7 +62,7 @@ class PdfDrawer {
             _buildRow("Service name", invoice.jobName),
             SizedBox(height: 10), // Increase space between rows
             _buildDivider(),
-            _buildRow("Amount paid", invoice.amount, isAmount: true),
+            _buildRow("Amount paid", "${invoice.amount} INR", isAmount: true),
           ],
         ),
       );

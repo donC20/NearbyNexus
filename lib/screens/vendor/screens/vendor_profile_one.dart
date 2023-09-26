@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -43,7 +44,8 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
 
       // Assing admin data to the UI
       setState(() {
-        imageLink ="https://firebasestorage.googleapis.com/v0/b/nearbynexus1.appspot.com/o/profile_images%2Ficons8-user-default-96.png?alt=media&token=0ffd4c8b-fc40-4f19-a457-1ef1e0ba6ae5";
+        imageLink =
+            "https://firebasestorage.googleapis.com/v0/b/nearbynexus1.appspot.com/o/profile_images%2Ficons8-user-default-96.png?alt=media&token=0ffd4c8b-fc40-4f19-a457-1ef1e0ba6ae5";
         nameLoginned = fetchedData['name'];
         email = fetchedData['emailId']['id'];
         isFetching = false;
@@ -267,6 +269,10 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                 ],
               ),
             ),
+      bottomNavigationBar: BottomGNav(
+        activePage: 5,
+        isSelectable: true,
+      ),
     );
   }
 }

@@ -1,8 +1,6 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/pdf_api.dart';
@@ -14,7 +12,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pdf/widgets.dart' as pw;
 
 class PaymentVendorLogScreen extends StatefulWidget {
   const PaymentVendorLogScreen({super.key});
@@ -136,109 +133,110 @@ class _PaymentVendorLogScreenState extends State<PaymentVendorLogScreen> {
                                     Timestamp time = payData?['paymentTime'];
 
                                     return Container(
-                                      padding: EdgeInsets.all(15),
                                       decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius:
                                               BorderRadius.circular(5)),
-                                      child: Column(
+                                      child: ExpansionTile(
+                                        childrenPadding:
+                                            const EdgeInsets.all(15.0),
+                                        iconColor: Colors.black,
+                                        leading: UserLoadingAvatar(
+                                            userImage: data['userImage']),
+                                        title: Text(
+                                          data['serviceName'],
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        subtitle: Text(data['userName']),
+                                        trailing: Text(
+                                          "\u20B9${payData?['amountPaid']}",
+                                          style: TextStyle(
+                                              color: const Color.fromARGB(
+                                                  255, 21, 169, 26),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
+                                        ),
                                         children: [
-                                          ListTile(
-                                            leading: UserLoadingAvatar(
-                                                userImage: data['userImage']),
-                                            title: Text(data['serviceName']),
-                                            subtitle: Text(data['userName']),
-                                            trailing: Text(
-                                              "\u20B9${payData?['amountPaid']}",
-                                              style: TextStyle(
-                                                  color: const Color.fromARGB(
-                                                      255, 21, 169, 26),
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16),
-                                            ),
-                                          ),
-                                          Divider(
-                                            color: const Color.fromARGB(
-                                                255, 40, 37, 37),
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
+                                          Column(
                                             children: [
-                                              // ElevatedButton(
-                                              //     onPressed: () {},
-                                              //     child: Text("View more")),
+                                              Divider(
+                                                color: const Color.fromARGB(
+                                                    255, 40, 37, 37),
+                                              ),
+                                              detailsOfJob("Payed for",
+                                                  data['serviceName']),
                                               SizedBox(
-                                                width: 10,
+                                                height: 10,
                                               ),
-                                              ElevatedButton.icon(
-                                                icon: Icon(Icons
-                                                    .arrow_circle_down_rounded),
-                                                onPressed: () {},
-                                                style: ButtonStyle(
-                                                  backgroundColor:
-                                                      MaterialStateProperty.all<
-                                                              Color>(
-                                                          Color.fromARGB(
-                                                              255,
-                                                              177,
-                                                              177,
-                                                              177)), // Set button color to green
-                                                  shape: MaterialStateProperty
-                                                      .all<OutlinedBorder>(
-                                                    StadiumBorder(), // Use stadium border
-                                                  ),
-                                                ),
-                                                label: Text("Expand",
-                                                    style: TextStyle(
-                                                        color: Colors.white)),
-                                              ),
+                                              detailsOfJob(
+                                                  "Payed by", data['userName']),
                                               SizedBox(
-                                                width: 10,
+                                                height: 10,
                                               ),
-                                              ElevatedButton.icon(
-                                                icon: Icon(Icons.print),
-                                                onPressed: () async {
-                                                  try {
-                                                    final invoice = Invoice(
-                                                        userName:
-                                                            data['userName'],
-                                                        vendorName:
-                                                            vendorData['name'],
-                                                        invoiceId: userId,
-                                                        jobName:
-                                                            data['serviceName'],
-                                                        payDate:
-                                                            timeStampConverter(
-                                                                time),
-                                                        amount: payData?[
-                                                            'amountPaid'],
-                                                        description: '');
-                                                    final pdfFile =
-                                                        await PdfDrawer
-                                                            .generate(invoice);
+                                              detailsOfJob("Payed on",
+                                                  timeStampConverter(time)),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              detailsOfJob(
+                                                  "Payment id", userId),
+                                              SizedBox(
+                                                height: 10,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  ElevatedButton.icon(
+                                                    icon: Icon(Icons.print),
+                                                    onPressed: () async {
+                                                      try {
+                                                        final invoice = Invoice(
+                                                            userName: data[
+                                                                'userName'],
+                                                            vendorName:
+                                                                vendorData[
+                                                                    'name'],
+                                                            invoiceId: userId,
+                                                            jobName: data[
+                                                                'serviceName'],
+                                                            payDate:
+                                                                timeStampConverter(
+                                                                    time),
+                                                            amount: payData?[
+                                                                'amountPaid'],
+                                                            description: '');
+                                                        final pdfFile =
+                                                            await PdfDrawer
+                                                                .generate(
+                                                                    invoice);
 
-                                                    PdfApi.openFile(pdfFile);
-                                                  } catch (e) {
-                                                    logger.e(e);
-                                                  }
-                                                },
-                                                style: ButtonStyle(
-                                                  backgroundColor:
-                                                      MaterialStateProperty
-                                                          .all<Color>(Colors
-                                                              .blue), // Set button color to green
-                                                  shape: MaterialStateProperty
-                                                      .all<OutlinedBorder>(
-                                                    StadiumBorder(), // Use stadium border
+                                                        PdfApi.openFile(
+                                                            pdfFile);
+                                                      } catch (e) {
+                                                        logger.e(e);
+                                                      }
+                                                    },
+                                                    style: ButtonStyle(
+                                                      backgroundColor:
+                                                          MaterialStateProperty
+                                                              .all<Color>(Colors
+                                                                  .blue), // Set button color to green
+                                                      shape: MaterialStateProperty
+                                                          .all<OutlinedBorder>(
+                                                        StadiumBorder(), // Use stadium border
+                                                      ),
+                                                    ),
+                                                    label: Text("Invoice",
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.white)),
                                                   ),
-                                                ),
-                                                label: Text("Invoice",
-                                                    style: TextStyle(
-                                                        color: Colors.white)),
-                                              ),
+                                                ],
+                                              )
                                             ],
-                                          )
+                                          ),
                                         ],
                                       ),
                                     );
@@ -279,4 +277,21 @@ class _PaymentVendorLogScreenState extends State<PaymentVendorLogScreen> {
       ),
     );
   }
+}
+
+Widget detailsOfJob(String title, String value) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        title,
+        style:
+            TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontSize: 14),
+      ),
+      Text(
+        value,
+        style: TextStyle(color: Colors.grey, fontSize: 12),
+      ),
+    ],
+  );
 }

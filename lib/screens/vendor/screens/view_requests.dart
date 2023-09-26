@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/vendor/components/progress_message.dart';
@@ -503,7 +504,9 @@ class _ViewRequestsState extends State<ViewRequests> {
                                         'status': 'accepted',
                                         'dateRequested': DateTime.now()
                                       });
-FirebaseFirestore.instance.collection('users').doc(docIds['referencePath'])
+                                      FirebaseFirestore.instance
+                                          .collection('users')
+                                          .doc(docIds['referencePath'])
                                           .update({
                                         'activityStatus': 'busy',
                                       });
@@ -557,6 +560,10 @@ FirebaseFirestore.instance.collection('users').doc(docIds['referencePath'])
                 ),
               ),
             ),
+      bottomNavigationBar: BottomGNav(
+        activePage: 5,
+        isSelectable: true,
+      ),
     );
   }
 }

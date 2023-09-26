@@ -20,6 +20,8 @@ class VendorProfile extends StatefulWidget {
 }
 
 class _VendorProfileState extends State<VendorProfile> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   String? uid = '';
   @override
   void initState() {
@@ -475,6 +477,103 @@ class _VendorProfileState extends State<VendorProfile> {
                                 fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 5,
+                        ),
+
+                        StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                          stream: _firestore
+                              .collection('users')
+                              .doc(uid)
+                              .snapshots(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<DocumentSnapshot> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            } else if (snapshot.hasError) {
+                              return Center(
+                                  child: Text(
+                                      'Error: ${snapshot.error.toString()}'));
+                            } else if (snapshot.hasData &&
+                                snapshot.data!.exists) {
+                              Map<String, dynamic> userData =
+                                  snapshot.data!.data() as Map<String, dynamic>;
+                              List<DocumentReference> allRatings =
+                                  List<DocumentReference>.from(
+                                      userData['allRatings']);
+                              List<Future<Map<String, dynamic>>>
+                                  ratingDataFutures =
+                                  allRatings.map((ratingRef) async {
+                                DocumentSnapshot ratingSnapshot =
+                                    await ratingRef.get();
+                                Map<String, dynamic> ratingData = ratingSnapshot
+                                    .data() as Map<String, dynamic>;
+
+                                // Fetch user data for this rating
+                                DocumentReference userRef = ratingData[
+                                    'ratedBy']; // Assuming 'ratedBy' is the field referencing the user
+                                DocumentSnapshot userSnapshot =
+                                    await userRef.get();
+                                Map<String, dynamic> userData =
+                                    userSnapshot.data() as Map<String, dynamic>;
+
+                                return {
+                                  'userName': userData['name'],
+                                  'userImage': userData['image'],
+                                  'feedback': ratingData['feedback'],
+                                  'rating': ratingData['rating'],
+                                  'timeRated': ratingData['timeRated'],
+                                };
+                              }).toList();
+
+                              return FutureBuilder<List<Map<String, dynamic>>>(
+                                future: Future.wait(ratingDataFutures),
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<List<Map<String, dynamic>>>
+                                        ratingSnapshot) {
+                                  if (ratingSnapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  } else if (ratingSnapshot.hasError) {
+                                    return Center(
+                                        child: Text(
+                                            'Error: ${ratingSnapshot.error.toString()}'));
+                                  } else if (ratingSnapshot.hasData) {
+                                    List<Map<String, dynamic>> ratingDataList =
+                                        ratingSnapshot.data!;
+
+                                    List<Widget> reviews =
+                                        ratingDataList.map((ratingData) {
+                                      String userName = ratingData['userName'];
+                                      String userImage =
+                                          ratingData['userImage'];
+                                      String feedback = ratingData['feedback'];
+                                      double rating = ratingData['rating'];
+                                      Timestamp timeRated =
+                                          ratingData['timeRated'];
+
+                                      return UserReviewContainer(
+                                        reviewerName: userName,
+                                        reviewText: feedback,
+                                        image: userImage,
+                                        rating: rating,
+                                        timePosted: timeRated,
+                                      );
+                                    }).toList();
+
+                                    return Column(
+                                      children: reviews,
+                                    );
+                                  } else {
+                                    return Center(
+                                        child: Text('No data available.'));
+                                  }
+                                },
+                              );
+                            } else {
+                              return Center(child: Text('No data available.'));
+                            }
+                          },
                         ),
 
                         SizedBox(

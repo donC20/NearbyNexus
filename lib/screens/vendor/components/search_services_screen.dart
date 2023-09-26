@@ -2,10 +2,8 @@
 
 import 'package:NearbyNexus/components/bottom_sheet_contents.dart';
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
-import 'package:NearbyNexus/models/vendor_model.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -176,232 +174,234 @@ class _SearchScreenServicesState extends State<SearchScreenServices> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onBackPressed,
-      child: SingleChildScrollView(
-        child: SafeArea(
-          child: Form(
-            key: _fieldKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // const SizedBox(height: 80),
-                Transform.translate(
-                  offset: const Offset(20, 0.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          style: TextStyle(
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: GoogleFonts.poppins().fontFamily,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: "Tell us about your desired",
-                              style: TextStyle(
-                                  color: Color.fromARGB(255, 255, 255, 255)),
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: SingleChildScrollView(
+          child: SafeArea(
+            child: Form(
+              key: _fieldKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // const SizedBox(height: 80),
+                  Transform.translate(
+                    offset: const Offset(20, 0.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: GoogleFonts.poppins().fontFamily,
                             ),
-                            WidgetSpan(
-                              child: ShaderMask(
-                                shaderCallback: (Rect bounds) {
-                                  return LinearGradient(
-                                    colors: [
-                                      Colors.blue,
-                                      Colors.green,
-                                    ], // Adjust gradient colors as needed
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                  ).createShader(bounds);
-                                },
-                                child: Text(
-                                  "Field of services",
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                            children: [
+                              TextSpan(
+                                text: "Tell us about your desired",
+                                style: TextStyle(
+                                    color: Color.fromARGB(255, 255, 255, 255)),
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "This will help us to recommend jobs for you.",
-                        style: TextStyle(
-                            color: Color.fromARGB(163, 255, 255, 255)),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 30),
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: SizedBox(
-                        height: 55,
-                        child: TextFormField(
-                          controller: _searchController,
-                          style: GoogleFonts.poppins(color: Colors.black),
-                          decoration: InputDecoration(
-                            hintText: "Search your relevant jobs",
-                            hintStyle: const TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(114, 255, 255, 255)),
-                            contentPadding:
-                                const EdgeInsets.only(left: 25, bottom: 35),
-                            labelStyle: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(74, 158, 158, 158),
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(74, 158, 158, 158),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(74, 158, 158, 158),
-                              ),
-                            ),
-                            suffixIcon:
-                                const Icon(Icons.search, color: Colors.grey),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-                    Container(
-                      height: MediaQuery.sizeOf(context).height - 360,
-                      padding: const EdgeInsets.all(5),
-                      width: MediaQuery.sizeOf(context).width - 30,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: const Color.fromARGB(132, 158, 158, 158),
-                        ),
-                        borderRadius:
-                            const BorderRadius.all(Radius.circular(10)),
-                      ),
-                      child: isLoadingList == false
-                          ? ListView.separated(
-                              shrinkWrap: true,
-                              itemCount: _searchResults.length,
-                              itemBuilder: (context, index) {
-                                String result = _searchResults[index];
-                                bool isSelected =
-                                    _selectedItems.contains(result);
-
-                                return ListTile(
-                                  title: Text(
-                                    convertToSentenceCase(result),
+                              WidgetSpan(
+                                child: ShaderMask(
+                                  shaderCallback: (Rect bounds) {
+                                    return LinearGradient(
+                                      colors: [
+                                        Colors.blue,
+                                        Colors.green,
+                                      ], // Adjust gradient colors as needed
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                    ).createShader(bounds);
+                                  },
+                                  child: Text(
+                                    "Field of services",
                                     style: TextStyle(
-                                      color: Color.fromARGB(180, 255, 255, 255),
-                                      fontSize: 14,
-                                      fontFamily:
-                                          GoogleFonts.poppins().fontFamily,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
                                     ),
                                   ),
-                                  trailing: isSelected
-                                      ? IconButton(
-                                          onPressed: () {
-                                            _removeFromSelectedItems(result);
-                                          },
-                                          icon: const Icon(
-                                            Icons.close,
-                                            size: 18.0,
-                                            color:
-                                                Color.fromARGB(255, 223, 59, 9),
-                                          ),
-                                        )
-                                      : IconButton(
-                                          onPressed: () {
-                                            _addToSelectedItems(result);
-                                          },
-                                          icon: const Icon(
-                                            Icons.add,
-                                            size: 18.0,
-                                            color:
-                                                Color.fromARGB(255, 9, 87, 223),
-                                          ),
-                                        ),
-                                );
-                              },
-                              separatorBuilder: (context, index) =>
-                                  const Divider(
-                                color: Color.fromARGB(150, 158, 158, 158),
+                                ),
                               ),
-                            )
-                          : LoadingAnimationWidget.flickr(
-                              leftDotColor: Colors.black,
-                              rightDotColor: Colors.deepOrange,
-                              size: 40),
-                    ),
-
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(25.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          _openBottomSheet(context, _selectedItems,
-                              _removeFromSelectedItems);
-                        },
-                        child: Text(
-                          "${_selectedItems.length} jobs added",
+                            ],
+                          ),
+                        ),
+                        const Text(
+                          "This will help us to recommend jobs for you.",
                           style: TextStyle(
-                              color: const Color.fromARGB(255, 255, 255, 255),
-                              fontWeight: FontWeight.bold,
-                              fontFamily: GoogleFonts.poppins().fontFamily),
+                              color: Color.fromARGB(163, 255, 255, 255)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: SizedBox(
+                          height: 55,
+                          child: TextFormField(
+                            controller: _searchController,
+                            style: GoogleFonts.poppins(color: Colors.black),
+                            decoration: InputDecoration(
+                              hintText: "Search your relevant jobs",
+                              hintStyle: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color.fromARGB(114, 255, 255, 255)),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 25, bottom: 35),
+                              labelStyle: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Color.fromARGB(74, 158, 158, 158),
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Color.fromARGB(74, 158, 158, 158),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: Color.fromARGB(74, 158, 158, 158),
+                                ),
+                              ),
+                              suffixIcon:
+                                  const Icon(Icons.search, color: Colors.grey),
+                            ),
+                          ),
                         ),
                       ),
+                      const SizedBox(height: 10),
                       Container(
+                        height: MediaQuery.sizeOf(context).height - 360,
+                        padding: const EdgeInsets.all(5),
+                        width: MediaQuery.sizeOf(context).width - 30,
                         decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape
-                              .circle, // You can adjust the shape as needed
+                          border: Border.all(
+                            color: const Color.fromARGB(132, 158, 158, 158),
+                          ),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(10)),
                         ),
-                        child: IconButton(
-                          onPressed: isLoading
-                              ? null
-                              : () {
-                                  if (_fieldKey.currentState!.validate() &&
-                                      _selectedItems.isNotEmpty) {
-                                    setState(() {
-                                      isLoading = true;
-                                    });
-                                    submitApplication(_selectedItems);
-                                  }
+                        child: isLoadingList == false
+                            ? ListView.separated(
+                                shrinkWrap: true,
+                                itemCount: _searchResults.length,
+                                itemBuilder: (context, index) {
+                                  String result = _searchResults[index];
+                                  bool isSelected =
+                                      _selectedItems.contains(result);
+
+                                  return ListTile(
+                                    title: Text(
+                                      convertToSentenceCase(result),
+                                      style: TextStyle(
+                                        color:
+                                            Color.fromARGB(180, 255, 255, 255),
+                                        fontSize: 14,
+                                        fontFamily:
+                                            GoogleFonts.poppins().fontFamily,
+                                      ),
+                                    ),
+                                    trailing: isSelected
+                                        ? IconButton(
+                                            onPressed: () {
+                                              _removeFromSelectedItems(result);
+                                            },
+                                            icon: const Icon(
+                                              Icons.close,
+                                              size: 18.0,
+                                              color: Color.fromARGB(
+                                                  255, 223, 59, 9),
+                                            ),
+                                          )
+                                        : IconButton(
+                                            onPressed: () {
+                                              _addToSelectedItems(result);
+                                            },
+                                            icon: const Icon(
+                                              Icons.add,
+                                              size: 18.0,
+                                              color: Color.fromARGB(
+                                                  255, 9, 87, 223),
+                                            ),
+                                          ),
+                                  );
                                 },
-                          icon: isLoading == true
-                              ? LoadingAnimationWidget.staggeredDotsWave(
-                                  color: const Color.fromARGB(255, 0, 0, 0),
-                                  size: 20)
-                              : Icon(
-                                  Icons.arrow_right_alt,
-                                  color: Colors.black,
+                                separatorBuilder: (context, index) =>
+                                    const Divider(
+                                  color: Color.fromARGB(150, 158, 158, 158),
                                 ),
-                        ),
+                              )
+                            : LoadingAnimationWidget.flickr(
+                                leftDotColor: Colors.black,
+                                rightDotColor: Colors.deepOrange,
+                                size: 40),
                       ),
                     ],
                   ),
-                ),
-              ],
+                  Padding(
+                    padding: const EdgeInsets.all(25.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            _openBottomSheet(context, _selectedItems,
+                                _removeFromSelectedItems);
+                          },
+                          child: Text(
+                            "${_selectedItems.length} jobs added",
+                            style: TextStyle(
+                                color: const Color.fromARGB(255, 255, 255, 255),
+                                fontWeight: FontWeight.bold,
+                                fontFamily: GoogleFonts.poppins().fontFamily),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape
+                                .circle, // You can adjust the shape as needed
+                          ),
+                          child: IconButton(
+                            onPressed: isLoading
+                                ? null
+                                : () {
+                                    if (_fieldKey.currentState!.validate() &&
+                                        _selectedItems.isNotEmpty) {
+                                      setState(() {
+                                        isLoading = true;
+                                      });
+                                      submitApplication(_selectedItems);
+                                    }
+                                  },
+                            icon: isLoading == true
+                                ? LoadingAnimationWidget.staggeredDotsWave(
+                                    color: const Color.fromARGB(255, 0, 0, 0),
+                                    size: 20)
+                                : Icon(
+                                    Icons.arrow_right_alt,
+                                    color: Colors.black,
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -273,8 +273,11 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                           "Pending\npayments", "", context),
                                       cardItems(Icons.history, "Job log", "",
                                           context),
-                                      cardItems(Icons.design_services,
-                                          "Manage\nservices", "", context),
+                                      cardItems(
+                                          Icons.design_services,
+                                          "Add\nservices",
+                                          "add_services_screen",
+                                          context),
                                       cardItems(Icons.block, "Blocked users",
                                           "", context),
                                       cardItems(Icons.access_time_sharp,

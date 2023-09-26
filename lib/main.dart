@@ -13,6 +13,7 @@ import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/components/global_notification.dart';
+import 'package:NearbyNexus/screens/vendor/components/search_services_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/payments_log.dart';
 import 'package:NearbyNexus/screens/vendor/screens/update_vendor_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_dashboard.dart';
@@ -118,7 +119,7 @@ class MyApp extends StatelessWidget {
         "vendor_dashboard": (context) => const VendorDashboard(),
         "search_screen_vendor": (context) => const VendorSideSearchScreen(),
         "payment_vendor_log": (context) => const PaymentVendorLogScreen(),
-
+        "add_services_screen": (context) => const SearchScreenServices(),
         //  user_pages
         "user_home": (context) => const GeneralUserHome(),
         "user_dashboard": (context) => const UserDashboard(),

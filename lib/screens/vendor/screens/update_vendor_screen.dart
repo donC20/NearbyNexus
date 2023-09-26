@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 
-import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/screens/vendor/components/bottom_sheet_services.dart';
 import 'package:NearbyNexus/screens/vendor/components/days_mapper.dart';
 import 'package:NearbyNexus/screens/vendor/components/search_services_screen.dart';
@@ -10,7 +9,6 @@ import 'package:NearbyNexus/screens/vendor/screens/set_languages.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UpdateVendorScreen extends StatefulWidget {

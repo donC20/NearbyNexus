@@ -64,6 +64,7 @@ dependencies:
   location: ^5.0.3
   logger: ^2.0.2
   material_floating_search_bar_2: ^0.5.0
+  onesignal_flutter: ^5.0.1
   open_document: ^1.0.7
   open_file: ^3.3.2
   otp_text_field: ^1.1.3

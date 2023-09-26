@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -473,6 +474,10 @@ class _MyJobsState extends State<MyJobs> {
             }
           },
         ),
+      ),
+      bottomNavigationBar: BottomGNav(
+        activePage: 5,
+        isSelectable: true,
       ),
     );
   }
