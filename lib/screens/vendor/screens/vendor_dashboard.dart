@@ -39,6 +39,14 @@ class _VendorDashboardState extends State<VendorDashboard> {
     FetchUserData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // setState(() {
+    //   uid = Provider.of<UserProvider>(context, listen: false).uid;
+    // });
+  }
+
   Future<void> FetchUserData() async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
@@ -66,7 +74,6 @@ class _VendorDashboardState extends State<VendorDashboard> {
 
   Stream<dynamic> summaryContainerStream() {
     StreamController<dynamic> controller = StreamController<dynamic>();
-    logger.d(uid);
     _firestore
         .collection('service_actions')
         .where('referencePath',
@@ -206,7 +213,9 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                       color: Color(0xFF8B5FEC),
                                       borderRadius: BorderRadius.circular(5)),
                                   child: ListTile(
-                                    onTap: () {},
+                                    onTap: () {
+                                      Navigator.pushNamed(context, "new_jobs");
+                                    },
                                     title: Text(
                                       "New jobs",
                                       style: TextStyle(

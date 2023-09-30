@@ -14,6 +14,7 @@ import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/components/global_notification.dart';
 import 'package:NearbyNexus/screens/vendor/components/search_services_screen.dart';
+import 'package:NearbyNexus/screens/vendor/screens/new_jobs.dart';
 import 'package:NearbyNexus/screens/vendor/screens/payments_log.dart';
 import 'package:NearbyNexus/screens/vendor/screens/update_vendor_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_dashboard.dart';
@@ -24,7 +25,6 @@ import 'package:NearbyNexus/screens/vendor/screens/vendor_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_side_search_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/view_requests.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -115,7 +115,6 @@ class MyApp extends StatelessWidget {
         "vendor_profile_one": (context) => const VendorProfileOne(),
         "update_vendor_screen": (context) => const UpdateVendorScreen(),
         "vendor_notification": (context) => const VendorNotificationScreen(),
-        "view_requests": (context) => const ViewRequests(),
         "vendor_dashboard": (context) => const VendorDashboard(),
         "search_screen_vendor": (context) => const VendorSideSearchScreen(),
         "payment_vendor_log": (context) => const PaymentVendorLogScreen(),
@@ -132,6 +131,8 @@ class MyApp extends StatelessWidget {
         "request_status_page": (context) => const RequestStatusPage(),
         "job_review_page": (context) => const JobReviewPage(),
         "view_job_details": (context) => const ViewJobDetails(),
+        "view_requests": (context) => const ViewRequests(),
+        "new_jobs": (context) => const NewJobs(),
         "rate_user_screen": (context) => const RateUserScreen(),
       },
       initialRoute: "splashScreen",

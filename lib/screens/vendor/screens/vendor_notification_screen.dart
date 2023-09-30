@@ -172,7 +172,8 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                             child: ListTile(
                               onTap: () {
                                 if (documentData['clientStatus'] ==
-                                    'finished') {
+                                        'finished' ||
+                                    documentData['status'] == 'rejected') {
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
@@ -253,30 +254,30 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                                             ],
                                           ),
                                         )
-                                      : documentData['status'] ==
-                                              'user negotiated'
+                                      : documentData['status'] == 'rejected'
                                           ? Text.rich(
                                               TextSpan(
-                                                text: userName,
+                                                text:
+                                                    "you have declined this request made by ",
                                                 style: TextStyle(
-                                                  color: Colors.blueAccent,
-                                                  fontWeight: FontWeight.bold,
+                                                  color: Color.fromARGB(
+                                                      255, 218, 15, 15),
+                                                  fontWeight: FontWeight.normal,
                                                 ),
                                                 children: [
                                                   TextSpan(
-                                                    text:
-                                                        " updated the price. take a look",
+                                                    text: userName,
                                                     style: TextStyle(
-                                                      color: Colors.white54,
+                                                      color: Colors.blueAccent,
                                                       fontWeight:
-                                                          FontWeight.normal,
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                 ],
                                               ),
                                             )
                                           : documentData['status'] ==
-                                                  'user canceled'
+                                                  'user negotiated'
                                               ? Text.rich(
                                                   TextSpan(
                                                     text: userName,
@@ -288,7 +289,7 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                                                     children: [
                                                       TextSpan(
                                                         text:
-                                                            " has cancelled their serivce request.",
+                                                            " updated the price. take a look",
                                                         style: TextStyle(
                                                           color: Colors.white54,
                                                           fontWeight:
@@ -298,12 +299,38 @@ class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
                                                     ],
                                                   ),
                                                 )
-                                              : Text(
-                                                  documentData['location'],
-                                                  style: TextStyle(
-                                                      color: Colors.grey,
-                                                      fontSize: 12),
-                                                ),
+                                              : documentData['status'] ==
+                                                      'user canceled'
+                                                  ? Text.rich(
+                                                      TextSpan(
+                                                        text: userName,
+                                                        style: TextStyle(
+                                                          color:
+                                                              Colors.blueAccent,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                        children: [
+                                                          TextSpan(
+                                                            text:
+                                                                " has cancelled their serivce request.",
+                                                            style: TextStyle(
+                                                              color: Colors
+                                                                  .white54,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    )
+                                                  : Text(
+                                                      documentData['location'],
+                                                      style: TextStyle(
+                                                          color: Colors.grey,
+                                                          fontSize: 12),
+                                                    ),
                               trailing: Text(
                                 formattedTimeAgo ?? "",
                                 style: TextStyle(
