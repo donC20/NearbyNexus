@@ -41,7 +41,7 @@ class _ServiceCompletedState extends State<ServiceCompleted> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData!);
+    var initData = json.decode(userLoginData ??'');
     setState(() {
       uid = initData['uid'];
     });

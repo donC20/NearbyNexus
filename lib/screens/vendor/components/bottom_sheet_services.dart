@@ -36,7 +36,7 @@ class _BottomSheetVendorState extends State<BottomSheetVendor> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData!);
+    var initData = json.decode(userLoginData ??'');
     setState(() {
       uid = initData['uid'];
     });

@@ -10,14 +10,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class NewJobs extends StatefulWidget {
-  const NewJobs({super.key});
+class JobLogs extends StatefulWidget {
+  const JobLogs({super.key});
 
   @override
-  State<NewJobs> createState() => _NewJobsState();
+  State<JobLogs> createState() => _JobLogsState();
 }
 
-class _NewJobsState extends State<NewJobs> {
+class _JobLogsState extends State<JobLogs> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String uid = '';
   var logger = Logger();
@@ -40,41 +40,23 @@ class _NewJobsState extends State<NewJobs> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ??'');
+    var initData = json.decode(userLoginData ?? '');
 
     setState(() {
       uid = initData['uid'];
     });
-    // DocumentSnapshot snapshot =
-    //     await FirebaseFirestore.instance.collection('users').doc(uid).get();
-    // if (snapshot.exists) {
-    //   Map<String, dynamic> fetchedData =
-    //       snapshot.data() as Map<String, dynamic>;
-
-    // }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: Text('Job logs'),
+      ),
       body: Column(
         children: [
-          Container(
-            height: 150,
-            width: MediaQuery.sizeOf(context).height,
-            decoration:
-                BoxDecoration(color: const Color.fromARGB(255, 255, 255, 255)),
-            child: Center(
-                child: Text(
-              "New Jobs",
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: GoogleFonts.aboreto().fontFamily),
-            )),
-          ),
           Expanded(
               child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
             stream: _firestore
@@ -82,7 +64,6 @@ class _NewJobsState extends State<NewJobs> {
                 .where('referencePath',
                     isEqualTo:
                         FirebaseFirestore.instance.collection('users').doc(uid))
-                .where('status', isEqualTo: 'new')
                 .snapshots(),
             builder:
                 (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -93,7 +74,6 @@ class _NewJobsState extends State<NewJobs> {
                     child: Text('Error: ${snapshot.error.toString()}'));
               } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
                 List<QueryDocumentSnapshot> documentList = snapshot.data!.docs;
-                logger.d(documentList);
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ListView.separated(
@@ -107,8 +87,19 @@ class _NewJobsState extends State<NewJobs> {
                         width: MediaQuery.sizeOf(context).width,
                         height: 170,
                         decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10)),
+                          border: Border.all(
+                              color: Color.fromARGB(43, 158, 158, 158)),
+                          borderRadius: BorderRadius.circular(10),
+                          color: Color.fromARGB(186, 42, 40, 40),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color.fromARGB(255, 15, 14, 14)
+                                  .withOpacity(0.9),
+                              blurRadius: 10,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(15.0),
                           child: Stack(
@@ -124,24 +115,29 @@ class _NewJobsState extends State<NewJobs> {
                                       Text(
                                         documentData['service_name'],
                                         style: TextStyle(
-                                            color: Colors.black,
+                                            color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 20,
                                             fontFamily:
                                                 GoogleFonts.play().fontFamily),
                                       ),
                                       Chip(
-                                        backgroundColor: documentData[
-                                                    'service_level'] ==
-                                                "Very urgent"
-                                            ? Colors.red
-                                            : documentData['service_level'] ==
-                                                    "Urgent"
-                                                ? Colors.amber
-                                                : Colors.green,
+                                        backgroundColor:
+                                            documentData['status'] == "new"
+                                                ? Colors.red
+                                                : documentData[
+                                                            'clientStatus'] ==
+                                                        "finished"
+                                                    ? Colors.green
+                                                    : Colors.amber,
                                         label: Text(
-                                            documentData['service_level'] ??
-                                                "loading..",
+                                            documentData['status'] == 'new'
+                                                ? 'New'
+                                                : documentData[
+                                                            'clientStatus'] ==
+                                                        'finished'
+                                                    ? "Completed"
+                                                    : "Ongoing",
                                             style: TextStyle(
                                                 color: Color.fromARGB(
                                                     255, 255, 255, 255),
@@ -161,6 +157,8 @@ class _NewJobsState extends State<NewJobs> {
                                       Icon(
                                         Icons.history,
                                         size: 18,
+                                        color:
+                                            Color.fromARGB(147, 255, 255, 255),
                                       ),
                                       SizedBox(
                                         width: 5,
@@ -169,8 +167,7 @@ class _NewJobsState extends State<NewJobs> {
                                         timeStampConverter(
                                             documentData['dateRequested']),
                                         style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                148, 0, 0, 0),
+                                            color: Colors.white30,
                                             fontWeight: FontWeight.normal,
                                             fontSize: 12,
                                             fontFamily:
@@ -186,6 +183,8 @@ class _NewJobsState extends State<NewJobs> {
                                       Icon(
                                         Icons.location_on,
                                         size: 18,
+                                        color:
+                                            Color.fromARGB(147, 255, 255, 255),
                                       ),
                                       SizedBox(
                                         width: 5,
@@ -193,8 +192,7 @@ class _NewJobsState extends State<NewJobs> {
                                       Text(
                                         documentData['location'],
                                         style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                148, 0, 0, 0),
+                                            color: Colors.white30,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
                                             fontFamily:
@@ -210,6 +208,8 @@ class _NewJobsState extends State<NewJobs> {
                                       Icon(
                                         Icons.currency_rupee,
                                         size: 18,
+                                        color:
+                                            Color.fromARGB(147, 255, 255, 255),
                                       ),
                                       SizedBox(
                                         width: 5,
@@ -229,9 +229,46 @@ class _NewJobsState extends State<NewJobs> {
                                 ],
                               ),
                               Positioned(
-                                  bottom: 20,
-                                  right: 0,
-                                  child: OutlinedButton(
+                                bottom: 0,
+                                right: 0,
+                                child: Row(
+                                  children: [
+                                    ElevatedButton.icon(
+                                      icon: Icon(
+                                        Icons.arrow_circle_right,
+                                        color: Colors.black,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.pushNamed(
+                                            context, "job_log_timeline",
+                                            arguments: docId);
+                                      },
+                                      style: ButtonStyle(
+                                        backgroundColor: MaterialStateProperty
+                                            .all<Color>(const Color.fromARGB(
+                                                255,
+                                                255,
+                                                255,
+                                                255)), // Set button color to green
+                                        shape: MaterialStateProperty.all<
+                                            OutlinedBorder>(
+                                          StadiumBorder(), // Use stadium border
+                                        ),
+                                      ),
+                                      label: Text("Status",
+                                          style: TextStyle(
+                                              color: const Color.fromARGB(
+                                                  255, 0, 0, 0))),
+                                    ),
+                                    SizedBox(
+                                      width: 15,
+                                    ),
+                                    ElevatedButton.icon(
+                                      icon: Icon(
+                                        Icons.arrow_circle_right,
+                                        color: const Color.fromARGB(
+                                            255, 255, 255, 255),
+                                      ),
                                       onPressed: () {
                                         Map<String, dynamic> docInfo = {
                                           "dataReference": docId,
@@ -242,10 +279,26 @@ class _NewJobsState extends State<NewJobs> {
                                             context, "view_requests",
                                             arguments: docInfo);
                                       },
-                                      child: Text(
-                                        'Details',
-                                        style: TextStyle(color: Colors.black),
-                                      )))
+                                      style: ButtonStyle(
+                                        backgroundColor: MaterialStateProperty
+                                            .all<Color>(Color.fromARGB(
+                                                255,
+                                                154,
+                                                81,
+                                                250)), // Set button color to green
+                                        shape: MaterialStateProperty.all<
+                                            OutlinedBorder>(
+                                          StadiumBorder(), // Use stadium border
+                                        ),
+                                      ),
+                                      label: Text("View",
+                                          style: TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 255, 255, 255))),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),

@@ -16,11 +16,16 @@ class VendorModel {
   final String govDocs;
   final String? languages;
   final String? activityStatus;
+  final double actualRating;
+  final double totalRating;
   DocumentReference? paymentLogs =
+      FirebaseFirestore.instance.collection('payments').doc('someDocs');
+
+  DocumentReference? allRatings =
       FirebaseFirestore.instance.collection('payments').doc('someDocs');
   final List<String> userFavourites;
   List<String> working_days = [];
-  VendorModel( 
+  VendorModel(
       {this.id,
       required this.name,
       required this.emailId,
@@ -32,6 +37,9 @@ class VendorModel {
       this.description,
       this.services,
       required this.govDocs,
+      required this.allRatings,
+      required this.actualRating,
+      required this.totalRating,
       this.languages,
       this.paymentLogs,
       required this.activityStatus,
@@ -40,7 +48,6 @@ class VendorModel {
 
   toJson() {
     return {
-      
       "name": name,
       "emailId": emailId,
       "phone": phone,
@@ -54,7 +61,10 @@ class VendorModel {
       "paymentLogs": paymentLogs,
       "userFavourites": userFavourites,
       "working_days": working_days,
-      "activityStatus":activityStatus
+      "allRatings": allRatings,
+      "actualRating": actualRating,
+      "totalRating": totalRating,
+      "activityStatus": activityStatus
     };
   }
 }

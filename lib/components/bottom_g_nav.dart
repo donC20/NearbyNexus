@@ -40,8 +40,7 @@ class _BottomGNavState extends State<BottomGNav> {
                   case 1:
                     Navigator.pushReplacementNamed(context, "vendor_dashboard");
                   case 2:
-                    Navigator.pushReplacementNamed(
-                        context, "search_screen_vendor");
+                    Navigator.pushNamed(context, "search_screen_vendor");
                 }
               }
             },

@@ -28,6 +28,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
   String nameLoginned = "";
   bool isimageFetched = false;
   String uid = '';
+  bool activityStatusTapped = false;
   SnakeShape snakeShape = SnakeShape.circle;
   Color unselectedColor = Colors.blueGrey;
   Color selectedColor = Colors.black;
@@ -51,7 +52,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData!);
+    var initData = json.decode(userLoginData ?? '');
 
     setState(() {
       uid = initData['uid'];
@@ -198,7 +199,8 @@ class _VendorDashboardState extends State<VendorDashboard> {
                               summaryContainer(
                                   summaryData['all'],
                                   summaryData['active'],
-                                  summaryData['rejected']),
+                                  summaryData['rejected'],
+                                  context),
                             ],
                           ),
                         ),
@@ -211,7 +213,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                 Container(
                                   decoration: BoxDecoration(
                                       color: Color(0xFF8B5FEC),
-                                      borderRadius: BorderRadius.circular(5)),
+                                      borderRadius: BorderRadius.circular(100)),
                                   child: ListTile(
                                     onTap: () {
                                       Navigator.pushNamed(context, "new_jobs");
@@ -255,44 +257,64 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                   height: 15,
                                 ),
                                 Container(
-                                  width: MediaQuery.of(context).size.width - 30,
-                                  padding: EdgeInsets.all(25),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color:
-                                            Color.fromARGB(43, 158, 158, 158)),
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Color.fromARGB(186, 42, 40, 40),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.9),
-                                        blurRadius: 10,
-                                        spreadRadius: 2,
-                                      ),
-                                    ],
-                                  ),
+                                  padding: EdgeInsets.all(10),
                                   child: Wrap(
-                                    alignment: WrapAlignment.center,
-                                    spacing: 40,
-                                    runSpacing: 30,
+                                    alignment: WrapAlignment.spaceAround,
+                                    spacing: 10,
+                                    runSpacing: 20,
                                     children: [
-                                      cardItems(Icons.payment, "Payments",
-                                          "payment_vendor_log", context),
-                                      cardItems(Icons.pending_actions,
-                                          "Pending\npayments", "", context),
-                                      cardItems(Icons.history, "Job log", "",
-                                          context),
+                                      cardItems(
+                                          Icons.payment,
+                                          "Payments",
+                                          "payment_vendor_log",
+                                          context,
+                                          () {},
+                                          Colors.blueAccent),
+                                      // cardItems(
+                                      //     Icons.pending_actions,
+                                      //     "Pending\npayments",
+                                      //     "",
+                                      //     context,
+                                      //     () {}),
+                                      cardItems(
+                                          Icons.history,
+                                          "Job log",
+                                          "job_logs",
+                                          context,
+                                          () {},
+                                          Colors.red),
                                       cardItems(
                                           Icons.design_services,
-                                          "Add\nservices",
+                                          "Add services",
                                           "add_services_screen",
-                                          context),
-                                      cardItems(Icons.block, "Blocked users",
-                                          "", context),
-                                      cardItems(Icons.access_time_sharp,
-                                          "Change status", "", context),
-                                      cardItems(Icons.heart_broken_outlined,
-                                          "Favourites", "", context),
+                                          context,
+                                          () {},
+                                          Colors.white),
+                                      activityStatusTapped == true
+                                          ? cardItems(Icons.online_prediction,
+                                              "Go online", "", context, () {
+                                              setState(() {
+                                                activityStatusTapped = false;
+                                              });
+                                              _firestore
+                                                  .collection('users')
+                                                  .doc(uid)
+                                                  .update({
+                                                'activityStatus': 'available'
+                                              });
+                                            }, Colors.green)
+                                          : cardItems(Icons.access_time_sharp,
+                                              "Go offline", "", context, () {
+                                              setState(() {
+                                                activityStatusTapped = true;
+                                              });
+                                              _firestore
+                                                  .collection('users')
+                                                  .doc(uid)
+                                                  .update({
+                                                'activityStatus': 'busy'
+                                              });
+                                            }, Colors.amber),
                                     ],
                                   ),
                                 ),
@@ -319,6 +341,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                     spacing: 20,
                                     runSpacing: 20,
                                     children: userReferences
+                                        .toSet()
                                         .map<Widget>((userReference) {
                                       String userId = userReference.id;
                                       return StreamBuilder<DocumentSnapshot>(
@@ -422,32 +445,38 @@ Widget jobDoneContainer(value) {
   );
 }
 
-Widget summaryContainer(int all, int active, int rejected) {
+Widget summaryContainer(
+    int all, int active, int rejected, BuildContext context) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
       SizedBox(),
-      RichText(
-        textAlign: TextAlign.center,
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: "${all.toString()}\n",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+      InkWell(
+        onTap: () {
+          Navigator.pushNamed(context, "job_logs");
+        },
+        child: RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: "${all.toString()}\n",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
-            ),
-            TextSpan(
-              text: "All",
-              style: TextStyle(
-                color: Colors.grey,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+              TextSpan(
+                text: "All",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       Container(
@@ -512,30 +541,51 @@ Widget summaryContainer(int all, int active, int rejected) {
   );
 }
 
-Widget cardItems(
-    IconData icon, String title, String ontapRoute, BuildContext context) {
+Widget cardItems(IconData icon, String title, String ontapRoute,
+    BuildContext context, Function onTap, Color iconColor) {
   return InkWell(
-    onTap: () {
-      Navigator.pushNamed(context, ontapRoute);
-    },
-    child: Column(
-      children: [
-        Icon(
-          icon,
-          color: Colors.white,
+      onTap: () {
+        if (ontapRoute.isNotEmpty) {
+          Navigator.pushNamed(context, ontapRoute);
+        }
+        onTap();
+      },
+      child: Container(
+        width: 150,
+        padding: EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
+          borderRadius: BorderRadius.circular(10),
+          color: Color.fromARGB(186, 42, 40, 40),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.9),
+              blurRadius: 10,
+              spreadRadius: 2,
+            ),
+          ],
         ),
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-              color: const Color.fromARGB(255, 255, 255, 255),
-              fontWeight: FontWeight.normal,
-              fontSize: 12,
-              fontFamily: GoogleFonts.play().fontFamily),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: iconColor,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  fontFamily: GoogleFonts.play().fontFamily),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+      ));
 }
 
 Widget recentUsers(String imagePath, String userName) {

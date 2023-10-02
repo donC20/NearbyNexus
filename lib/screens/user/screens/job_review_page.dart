@@ -51,7 +51,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData!);
+    var initData = json.decode(userLoginData ?? '');
     setState(() {
       uid = initData['uid'];
     });
@@ -92,7 +92,8 @@ class _JobReviewPageState extends State<JobReviewPage> {
       String amount,
       DocumentReference jobId,
       DocumentReference payedBy,
-      DocumentReference payedTo) async {
+      DocumentReference payedTo,
+      List<dynamic> jobLogs) async {
     try {
       paymentIntent = await createPaymentIntent(amount, 'INR');
       //Payment Sheet
@@ -110,14 +111,18 @@ class _JobReviewPageState extends State<JobReviewPage> {
           .then((value) {});
 
       ///now finally display payment sheeet
-      displayPaymentSheet(amount, jobId, payedBy, payedTo);
+      displayPaymentSheet(amount, jobId, payedBy, payedTo, jobLogs);
     } catch (e, s) {
       print('exception:$e$s');
     }
   }
 
-  displayPaymentSheet(String amount, DocumentReference jobId,
-      DocumentReference payedBy, DocumentReference payedTo) async {
+  displayPaymentSheet(
+      String amount,
+      DocumentReference jobId,
+      DocumentReference payedBy,
+      DocumentReference payedTo,
+      List<dynamic> jobLogs) async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) {
 // successful payment then update database
@@ -128,11 +133,18 @@ class _JobReviewPageState extends State<JobReviewPage> {
               payedBy: payedBy,
               payedTo: payedTo,
               paymentTime: DateTime.now());
+          setState(() {
+            jobLogs.add("paid");
+          });
           Map<String, dynamic> paymentData = payModal.toJson();
           _firestore.collection('payments').add(paymentData).then((value) {
             DocumentReference paymentId =
                 _firestore.collection('payments').doc(value.id);
-            jobId.update({'paymentStatus': 'paid', 'paymentLog': paymentId});
+            jobId.update({
+              'paymentStatus': 'paid',
+              'paymentLog': paymentId,
+              'jobLogs': jobLogs
+            });
 // update user
             payedBy.get().then((userDoc) {
               if (userDoc.exists) {
@@ -363,7 +375,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
                                             onPressed: () async {
                                               final Uri _emailLaunchUri = Uri(
                                                 scheme: 'mailto',
-                                                path: 'donbenny916@gmail.com',
+                                                path: userData['emailId']['id'],
                                                 // queryParameters: {
                                                 //   'subject':
                                                 //       Uri.encodeComponent(subject),
@@ -651,7 +663,9 @@ class _JobReviewPageState extends State<JobReviewPage> {
                                                           documentData['wage'],
                                                           jobId,
                                                           payedBy,
-                                                          payedTo);
+                                                          payedTo,
+                                                          documentData[
+                                                              'jobLogs']);
                                                       Navigator.popAndPushNamed(
                                                           context,
                                                           "rate_user_screen",
@@ -706,12 +720,18 @@ class _JobReviewPageState extends State<JobReviewPage> {
                                           )
                                         : ElevatedButton.icon(
                                             onPressed: () {
+                                              List<dynamic> jobLog =
+                                                  documentData['jobLogs'];
+                                              setState(() {
+                                                jobLog.add('unfinished');
+                                              });
                                               _service_actions_collection
                                                   .doc(docId)
                                                   .update({
                                                 'clientStatus': 'unfinished',
                                                 'status': 'unfinished',
-                                                'dateRequested': DateTime.now()
+                                                'dateRequested': DateTime.now(),
+                                                'jobLogs': jobLog
                                               });
                                             },
                                             style: ElevatedButton.styleFrom(

@@ -76,14 +76,18 @@ dependencies:
   shimmer_animation: ^2.1.0+1
   simple_ripple_animation: ^0.0.7
   skeletons: ^0.0.3
+  timeline_tile: ^2.0.0
   transparent_image: ^2.0.1
   url_launcher: ^6.1.14
 
 dev_dependencies:
   flutter_blurhash: ^0.7.0
   flutter_lints: ^2.0.0
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
+  
   table_calendar: ^3.0.9
 
 # For information on the generic Dart part of this file, see the

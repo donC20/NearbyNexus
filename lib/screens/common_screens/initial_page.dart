@@ -56,6 +56,7 @@ class InitialPage extends StatelessWidget {
                     width: 300,
                     height: 60,
                     child: ElevatedButton(
+                      key: const Key('getStartedBtn'),
                       onPressed: () {
                         Navigator.popAndPushNamed(context, "login_screen");
                       },

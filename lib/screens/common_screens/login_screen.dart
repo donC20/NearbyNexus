@@ -263,6 +263,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: TextFormField(
+                    key: const Key('LoginEmail'),
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                     style: GoogleFonts.poppins(color: Colors.black),
@@ -307,6 +308,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: TextFormField(
+                    key: const Key('LoginPassword'),
                     controller: passController,
                     style: GoogleFonts.poppins(color: Colors.black),
                     obscureText: _isObscure, // Use the state variable here
@@ -359,6 +361,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: IgnorePointer(
                       ignoring: isButtonDisabled,
                       child: ElevatedButton(
+                        key: const Key('LoginButton'),
                         onPressed: isLoading
                             ? null
                             : () {

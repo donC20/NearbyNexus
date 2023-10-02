@@ -25,8 +25,16 @@ class UserReviewContainer extends StatelessWidget {
       padding: EdgeInsets.all(16.0),
       margin: EdgeInsets.symmetric(vertical: 10.0),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 6, 6, 6),
-        borderRadius: BorderRadius.circular(10.0),
+        border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
+        borderRadius: BorderRadius.circular(10),
+        color: Color.fromARGB(186, 42, 40, 40),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.9),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,35 +57,38 @@ class UserReviewContainer extends StatelessWidget {
                             color: Color.fromARGB(255, 255, 255, 255)),
                       ),
                       SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star,
-                            color: Colors.amber,
-                            size: 18,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            rating.toStringAsFixed(1),
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14.0,
-                                color: Colors.white),
-                          ),
-                        ],
+                      Text(
+                        timeStampConverter(timePosted), // Example review date
+                        style: TextStyle(
+                          fontSize: 10.0,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
-              Text(
-                timeStampConverter(timePosted), // Example review date
-                style: TextStyle(
-                  fontSize: 12.0,
-                  color: Colors.grey,
-                ),
+              Row(
+                children: [
+                  Icon(
+                    Icons.star,
+                    color: Colors.amber,
+                    size: 18,
+                  ),
+                  SizedBox(width: 4),
+                  Text(
+                    rating.toStringAsFixed(1),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14.0,
+                        color: Colors.white),
+                  ),
+                ],
               ),
             ],
+          ),
+          Divider(
+            color: const Color.fromARGB(68, 158, 158, 158),
           ),
           SizedBox(height: 8),
           Text(
@@ -86,10 +97,6 @@ class UserReviewContainer extends StatelessWidget {
               fontSize: 14.0,
               color: const Color.fromARGB(221, 150, 150, 150),
             ),
-          ),
-          SizedBox(height: 8),
-          Divider(
-            color: const Color.fromARGB(68, 158, 158, 158),
           ),
         ],
       ),

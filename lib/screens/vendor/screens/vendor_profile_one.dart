@@ -34,7 +34,7 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData!);
+    var initData = json.decode(userLoginData ??'');
     String uid = initData['uid'];
     DocumentSnapshot snapshot =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();

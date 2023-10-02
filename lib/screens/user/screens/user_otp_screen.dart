@@ -74,7 +74,7 @@ class _UserOtpScreenState extends State<UserOtpScreen> {
                           await SharedPreferences.getInstance();
                       var userLoginData =
                           sharedPreferences.getString("userSessionData");
-                      var initData = json.decode(userLoginData!);
+                      var initData = json.decode(userLoginData ??'');
                       String uid = initData['uid'];
                       final userDocRef = FirebaseFirestore.instance
                           .collection('users')

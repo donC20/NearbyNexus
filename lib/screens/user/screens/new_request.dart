@@ -68,7 +68,7 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData!);
+    var initData = json.decode(userLoginData ?? '');
     setState(() {
       uid = initData['uid'];
     });
@@ -619,7 +619,8 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
                           status: 'new',
                           clientStatus: 'requested',
                           paymentStatus: 'unPaid',
-                          paymentLog: defaultRef);
+                          paymentLog: defaultRef,
+                          jobLogs: ['new_job']);
                       Map<String, dynamic> requestData =
                           sendRequestData.toJson();
                       await _firestore

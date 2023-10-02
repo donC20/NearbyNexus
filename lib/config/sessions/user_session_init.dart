@@ -4,14 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserProvider extends ChangeNotifier {
-  String? uid;
+  String uid = '';
 
   void setUid() async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
+
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData!);
-    uid = initData['uid'];
-    notifyListeners();
+
+    if (userLoginData != null && userLoginData.isNotEmpty) {
+      var initData = json.decode(userLoginData);
+      uid = initData['uid'] ?? '';
+      notifyListeners();
+    }
   }
 }

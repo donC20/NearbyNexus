@@ -14,6 +14,8 @@ import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/components/global_notification.dart';
 import 'package:NearbyNexus/screens/vendor/components/search_services_screen.dart';
+import 'package:NearbyNexus/screens/vendor/screens/job_log_timeline.dart';
+import 'package:NearbyNexus/screens/vendor/screens/jobs_log.dart';
 import 'package:NearbyNexus/screens/vendor/screens/new_jobs.dart';
 import 'package:NearbyNexus/screens/vendor/screens/payments_log.dart';
 import 'package:NearbyNexus/screens/vendor/screens/update_vendor_screen.dart';
@@ -133,6 +135,8 @@ class MyApp extends StatelessWidget {
         "view_job_details": (context) => const ViewJobDetails(),
         "view_requests": (context) => const ViewRequests(),
         "new_jobs": (context) => const NewJobs(),
+        "job_logs": (context) => const JobLogs(),
+        "job_log_timeline": (context) => const JobLogTimeline(),
         "rate_user_screen": (context) => const RateUserScreen(),
       },
       initialRoute: "splashScreen",

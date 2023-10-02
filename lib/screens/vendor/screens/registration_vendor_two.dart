@@ -173,8 +173,8 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
         setState(() {
           isloginTypeGoogle = false;
         });
-      }else{
-         setState(() {
+      } else {
+        setState(() {
           isloginTypeGoogle = true;
         });
       }
@@ -200,6 +200,9 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
         paymentLogs:
             FirebaseFirestore.instance.collection('payments').doc('someDocs'),
         activityStatus: 'available',
+        allRatings: FirebaseFirestore.instance.collection('ratings').doc(''),
+        actualRating: 0.0,
+        totalRating: 0.0,
       );
 
       Map<String, dynamic> userData = user.toJson();

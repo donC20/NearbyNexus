@@ -15,6 +15,7 @@ class NewRequestModal {
   final DocumentReference? vendor_reference;
   final DocumentReference? user_reference;
   final DocumentReference paymentLog;
+  final List<dynamic> jobLogs;
 
   // final DateTime time;
   final String? wage;
@@ -31,7 +32,8 @@ class NewRequestModal {
       required this.dateRequested,
       required this.day,
       required this.wage,
-      required this.service_name});
+      required this.service_name,
+      required this.jobLogs});
 
   toJson() {
     return {
@@ -48,6 +50,7 @@ class NewRequestModal {
       'clientStatus': clientStatus,
       'paymentStatus': paymentStatus,
       'paymentLog': paymentLog,
+      'jobLogs': jobLogs
     };
   }
 }

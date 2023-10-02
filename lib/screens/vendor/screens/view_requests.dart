@@ -59,7 +59,7 @@ class _ViewRequestsState extends State<ViewRequests> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData!);
+    var initData = json.decode(userLoginData ?? '');
     setState(() {
       uid = initData['uid'];
     });
@@ -415,6 +415,13 @@ class _ViewRequestsState extends State<ViewRequests> {
                                                         if (_formKey
                                                             .currentState!
                                                             .validate()) {
+                                                          List<dynamic> jobLog =
+                                                              rawData[
+                                                                  'jobLogs'];
+                                                          setState(() {
+                                                            jobLog.add(
+                                                                'negotiate');
+                                                          });
                                                           _service_actions_collection
                                                               .doc(docIds[
                                                                   'dataReference'])
@@ -425,7 +432,8 @@ class _ViewRequestsState extends State<ViewRequests> {
                                                                 _amountController
                                                                     .text,
                                                             'dateRequested':
-                                                                DateTime.now()
+                                                                DateTime.now(),
+                                                            'jobLogs': jobLog
                                                           });
                                                           Navigator.pop(
                                                               context);
@@ -487,71 +495,90 @@ class _ViewRequestsState extends State<ViewRequests> {
                             SizedBox(
                               height: 15,
                             ),
-                            Align(
-                              alignment: Alignment.bottomCenter,
-                              child: Wrap(
-                                spacing: 15,
-                                children: [
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Color.fromARGB(170, 51, 204, 51),
+                            rawData['status'] == 'new' ||
+                                    rawData['status'] == 'negotiate' ||
+                                    rawData['status'] == 'user negotiated'
+                                ? Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: Wrap(
+                                      spacing: 15,
+                                      children: [
+                                        ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Color.fromARGB(
+                                                170, 51, 204, 51),
+                                          ),
+                                          onPressed: () {
+                                            List<dynamic> jobLog =
+                                                rawData['jobLogs'];
+                                            setState(() {
+                                              jobLog.add('accepted');
+                                            });
+                                            _service_actions_collection
+                                                .doc(docIds['dataReference'])
+                                                .update({
+                                              'status': 'accepted',
+                                              'dateRequested': DateTime.now(),
+                                              'jobLogs': jobLog
+                                            });
+                                            FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(docIds['referencePath'])
+                                                .update({
+                                              'activityStatus': 'busy',
+                                              'jobLogs': jobLog
+                                            });
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CongratulatoryScreen()),
+                                            );
+                                          },
+                                          icon: Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
+                                          ),
+                                          label: Text(
+                                            "Accept",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                        ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Color.fromARGB(
+                                                170, 204, 51, 51),
+                                          ),
+                                          onPressed: () {
+                                            List<dynamic> jobLog =
+                                                rawData['jobLogs'];
+                                            setState(() {
+                                              jobLog.add('rejected');
+                                            });
+                                            _service_actions_collection
+                                                .doc(docIds['dataReference'])
+                                                .update({
+                                              'status': 'rejected',
+                                              'dateRequested': DateTime.now,
+                                              'jobLogs': jobLog
+                                            });
+                                            Navigator.pop(context);
+                                          },
+                                          icon: Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                          ),
+                                          label: Text(
+                                            "Decline",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    onPressed: () {
-                                      _service_actions_collection
-                                          .doc(docIds['dataReference'])
-                                          .update({
-                                        'status': 'accepted',
-                                        'dateRequested': DateTime.now()
-                                      });
-                                      FirebaseFirestore.instance
-                                          .collection('users')
-                                          .doc(docIds['referencePath'])
-                                          .update({
-                                        'activityStatus': 'busy',
-                                      });
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                CongratulatoryScreen()),
-                                      );
-                                    },
-                                    icon: Icon(
-                                      Icons.check_circle,
-                                      color: Colors.white,
-                                    ),
-                                    label: Text(
-                                      "Accept",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Color.fromARGB(170, 204, 51, 51),
-                                    ),
-                                    onPressed: () {
-                                      _service_actions_collection
-                                          .doc(docIds['dataReference'])
-                                          .update({
-                                        'status': 'rejected',
-                                        'dateRequested': DateTime.now()
-                                      });
-                                      Navigator.pop(context);
-                                    },
-                                    icon: Icon(
-                                      Icons.close,
-                                      color: Colors.white,
-                                    ),
-                                    label: Text(
-                                      "Decline",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                                  )
+                                : SizedBox(),
                           ],
                         ),
                       ),

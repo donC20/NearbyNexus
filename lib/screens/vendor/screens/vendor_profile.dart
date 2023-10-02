@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
@@ -37,7 +38,7 @@ class _VendorProfileState extends State<VendorProfile> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData!);
+    var initData = json.decode(userLoginData ?? '');
     setState(() {
       uid = initData['uid'];
     });
@@ -63,7 +64,9 @@ class _VendorProfileState extends State<VendorProfile> {
   List<dynamic>? serviceList = [];
   List<dynamic>? workingDays = [];
   List<dynamic>? languages = [];
+  double rating = 0.0;
   String about = '';
+  Map<String, dynamic> summaryData = {};
   var log = Logger();
   void handleImageUploading(bool value) {
     setState(() {
@@ -114,13 +117,58 @@ class _VendorProfileState extends State<VendorProfile> {
           dpImage = vendorData['image'] ??
               "https://dealio.imgix.net/uploads/147885uploadshotel-pool-canaves.jpg";
           geoLocation = vendorData['geoLocation'];
+          geoLocation = vendorData['geoLocation'];
           isFetching = false;
           serviceList = vendorData['services'];
           languages = vendorData['languages'];
           about = vendorData['about'];
           workingDays = vendorData['working_days'];
+          rating = vendorData['actualRating'];
         });
       }
+    });
+    summaryContainerStream();
+  }
+
+  summaryContainerStream() {
+    // StreamController<dynamic> controller = StreamController<dynamic>();
+    _firestore
+        .collection('service_actions')
+        .where('referencePath',
+            isEqualTo: _firestore.collection('users').doc(uid))
+        .snapshots()
+        .listen((event) {
+      int all = event.size;
+      int jobCompletedCount =
+          event.docs.where((doc) => doc['clientStatus'] == 'finished').length;
+      double jobcompConverted = double.parse(jobCompletedCount.toString());
+      int active =
+          event.docs.where((doc) => doc['status'] == 'accepted').length;
+      int rejected =
+          event.docs.where((doc) => doc['status'] == 'rejected').length;
+      int newJobs = event.docs.where((doc) => doc['status'] == 'new').length;
+
+      List<dynamic> userReferences = [];
+
+      // Get all userReference values
+      for (var doc in event.docs) {
+        var userReference = doc['userReference'];
+        if (userReference != null) {
+          userReferences.add(userReference);
+        }
+      }
+      setState(() {
+        summaryData = {
+          "all": all,
+          "active": active,
+          "rejected": rejected,
+          "jobCompletedCount": jobcompConverted,
+          "newJobs": newJobs,
+          "userReferences": userReferences,
+        };
+      });
+      // print(summaryData);
+      // controller.add(summaryData);
     });
   }
 
@@ -287,13 +335,18 @@ class _VendorProfileState extends State<VendorProfile> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            modernCircularProgressBar(30, "Jobs done", 1000),
-                            SizedBox(width: 20),
                             modernCircularProgressBar(
-                                4, "Rating", 5), // Adjusted to out of 5
+                                summaryData['jobCompletedCount'] as double,
+                                "Jobs done",
+                                1000,
+                                false,
+                                Colors.green),
                             SizedBox(width: 20),
-                            modernCircularProgressBar(
-                                3, "Experience", 5), // Adjusted to out of 5
+                            modernCircularProgressBar(rating, "Rating", 5, true,
+                                Colors.amber), // Adjusted to out of 5
+                            SizedBox(width: 20),
+                            modernCircularProgressBar(3, "Experience", 5, false,
+                                Colors.blue), // Adjusted to out of 5
                           ],
                         ),
 
@@ -325,7 +378,7 @@ class _VendorProfileState extends State<VendorProfile> {
                         ),
                         Divider(
                           color: Color.fromARGB(50, 207, 216, 220),
-                          thickness: 3.0,
+                          thickness: 1.0,
                           indent: 0,
                           endIndent: 0,
                         ),
@@ -366,7 +419,7 @@ class _VendorProfileState extends State<VendorProfile> {
                         ),
                         Divider(
                           color: Color.fromARGB(50, 207, 216, 220),
-                          thickness: 3.0,
+                          thickness: 1.0,
                           indent: 0,
                           endIndent: 0,
                         ),
@@ -416,7 +469,7 @@ class _VendorProfileState extends State<VendorProfile> {
                         ),
                         Divider(
                           color: Color.fromARGB(50, 207, 216, 220),
-                          thickness: 3.0,
+                          thickness: 1.0,
                           indent: 0,
                           endIndent: 0,
                         ),
@@ -425,48 +478,22 @@ class _VendorProfileState extends State<VendorProfile> {
                                 color: Color.fromARGB(255, 208, 208, 208),
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold)),
-
-                        SizedBox(
-                          height: 250,
-                          child: ListView.separated(
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (BuildContext context, int index) {
-                              String language = languages![index];
-                              // String proficiency =
-                              //     languages.values.elementAt(index);
-
-                              return ListTile(
-                                title: Text(
-                                  language,
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                subtitle: Text(
-                                  "",
-                                  style: TextStyle(
-                                    color: const Color.fromARGB(
-                                        127, 255, 255, 255),
-                                  ),
-                                ),
-                              );
-                            },
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                              return Divider(
-                                color: Color.fromARGB(50, 207, 216, 220),
-                                thickness: 1.0,
-                                indent: 0,
-                                endIndent: 0,
-                              );
-                            },
-                            itemCount: languages!.length,
-                          ),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 15,
+                          children: [
+                            for (int index = 0;
+                                index < languages!.length;
+                                index++)
+                              Chip(label: Text(languages![index])),
+                          ],
                         ),
                         SizedBox(
                           height: 15,
                         ),
                         Divider(
                           color: Color.fromARGB(50, 207, 216, 220),
-                          thickness: 3.0,
+                          thickness: 1.0,
                           indent: 0,
                           endIndent: 0,
                         ),
@@ -479,234 +506,110 @@ class _VendorProfileState extends State<VendorProfile> {
                           height: 5,
                         ),
 
-                        StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                          stream: _firestore
-                              .collection('users')
-                              .doc(uid)
-                              .snapshots(),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<DocumentSnapshot> snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
-                              return Center(
-                                  child: Text(
-                                      'Error: ${snapshot.error.toString()}'));
-                            } else if (snapshot.hasData &&
-                                snapshot.data!.exists) {
-                              Map<String, dynamic> userData =
-                                  snapshot.data!.data() as Map<String, dynamic>;
-                              List<DocumentReference> allRatings =
-                                  List<DocumentReference>.from(
-                                      userData['allRatings']);
-                              List<Future<Map<String, dynamic>>>
-                                  ratingDataFutures =
-                                  allRatings.map((ratingRef) async {
-                                DocumentSnapshot ratingSnapshot =
-                                    await ratingRef.get();
-                                Map<String, dynamic> ratingData = ratingSnapshot
+                        SizedBox(
+                          height: 300,
+                          child: StreamBuilder<
+                              DocumentSnapshot<Map<String, dynamic>>>(
+                            stream: _firestore
+                                .collection('users')
+                                .doc(uid)
+                                .snapshots(),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<DocumentSnapshot> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                    child: Text(
+                                        'Error: ${snapshot.error.toString()}'));
+                              } else if (snapshot.hasData &&
+                                  snapshot.data!.exists) {
+                                Map<String, dynamic> userData = snapshot.data!
                                     .data() as Map<String, dynamic>;
+                                List<DocumentReference> allRatings =
+                                    List<DocumentReference>.from(
+                                        userData['allRatings']);
+                                List<Future<Map<String, dynamic>>>
+                                    ratingDataFutures =
+                                    allRatings.map((ratingRef) async {
+                                  DocumentSnapshot ratingSnapshot =
+                                      await ratingRef.get();
+                                  Map<String, dynamic> ratingData =
+                                      ratingSnapshot.data()
+                                          as Map<String, dynamic>;
 
-                                // Fetch user data for this rating
-                                DocumentReference userRef = ratingData[
-                                    'ratedBy']; // Assuming 'ratedBy' is the field referencing the user
-                                DocumentSnapshot userSnapshot =
-                                    await userRef.get();
-                                Map<String, dynamic> userData =
-                                    userSnapshot.data() as Map<String, dynamic>;
+                                  // Fetch user data for this rating
+                                  DocumentReference userRef = ratingData[
+                                      'ratedBy']; // Assuming 'ratedBy' is the field referencing the user
+                                  DocumentSnapshot userSnapshot =
+                                      await userRef.get();
+                                  Map<String, dynamic> userData = userSnapshot
+                                      .data() as Map<String, dynamic>;
 
-                                return {
-                                  'userName': userData['name'],
-                                  'userImage': userData['image'],
-                                  'feedback': ratingData['feedback'],
-                                  'rating': ratingData['rating'],
-                                  'timeRated': ratingData['timeRated'],
-                                };
-                              }).toList();
+                                  return {
+                                    'userName': userData['name'],
+                                    'userImage': userData['image'],
+                                    'feedback': ratingData['feedback'],
+                                    'rating': ratingData['rating'],
+                                    'timeRated': ratingData['timeRated'],
+                                  };
+                                }).toList();
 
-                              return FutureBuilder<List<Map<String, dynamic>>>(
-                                future: Future.wait(ratingDataFutures),
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<List<Map<String, dynamic>>>
-                                        ratingSnapshot) {
-                                  if (ratingSnapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return Center(
-                                        child: CircularProgressIndicator());
-                                  } else if (ratingSnapshot.hasError) {
-                                    return Center(
-                                        child: Text(
-                                            'Error: ${ratingSnapshot.error.toString()}'));
-                                  } else if (ratingSnapshot.hasData) {
-                                    List<Map<String, dynamic>> ratingDataList =
-                                        ratingSnapshot.data!;
+                                return FutureBuilder<
+                                    List<Map<String, dynamic>>>(
+                                  future: Future.wait(ratingDataFutures),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<List<Map<String, dynamic>>>
+                                          ratingSnapshot) {
+                                    if (ratingSnapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Center(
+                                          child: CircularProgressIndicator());
+                                    } else if (ratingSnapshot.hasError) {
+                                      return Center(
+                                          child: Text(
+                                              'Error: ${ratingSnapshot.error.toString()}'));
+                                    } else if (ratingSnapshot.hasData) {
+                                      List<Map<String, dynamic>>
+                                          ratingDataList = ratingSnapshot.data!;
+                                      return ListView.builder(
+                                        itemCount: ratingDataList.length,
+                                        itemBuilder: (context, index) {
+                                          // Extract data from ratingDataList
+                                          String reviewerName =
+                                              ratingDataList[index]['userName'];
+                                          String reviewText =
+                                              ratingDataList[index]['feedback'];
+                                          String image = ratingDataList[index]
+                                              ['userImage'];
+                                          double rating =
+                                              ratingDataList[index]['rating'];
+                                          Timestamp timePosted =
+                                              ratingDataList[index]
+                                                  ['timeRated'];
 
-                                    List<Widget> reviews =
-                                        ratingDataList.map((ratingData) {
-                                      String userName = ratingData['userName'];
-                                      String userImage =
-                                          ratingData['userImage'];
-                                      String feedback = ratingData['feedback'];
-                                      double rating = ratingData['rating'];
-                                      Timestamp timeRated =
-                                          ratingData['timeRated'];
-
-                                      return UserReviewContainer(
-                                        reviewerName: userName,
-                                        reviewText: feedback,
-                                        image: userImage,
-                                        rating: rating,
-                                        timePosted: timeRated,
+                                          return UserReviewContainer(
+                                            reviewerName: reviewerName,
+                                            reviewText: reviewText,
+                                            image: image,
+                                            rating: rating,
+                                            timePosted: timePosted,
+                                          );
+                                        },
                                       );
-                                    }).toList();
-
-                                    return Column(
-                                      children: reviews,
-                                    );
-                                  } else {
-                                    return Center(
-                                        child: Text('No data available.'));
-                                  }
-                                },
-                              );
-                            } else {
-                              return Center(child: Text('No data available.'));
-                            }
-                          },
-                        ),
-
-                        SizedBox(
-                          height: 15,
-                        ),
-                        Divider(
-                          color: Color.fromARGB(50, 207, 216, 220),
-                          thickness: 3.0,
-                          indent: 0,
-                          endIndent: 0,
-                        ),
-                        Text("Others with relavent job.",
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 208, 208, 208),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        SizedBox(
-                          height: 400,
-                          child: Expanded(
-                            child: StreamBuilder<QuerySnapshot>(
-                              stream: FirebaseFirestore.instance
-                                  .collection('users')
-                                  .where('userType', isEqualTo: 'vendor')
-                                  .where('services',
-                                      arrayContainsAny: serviceList)
-                                  .where(FieldPath.documentId,
-                                      isNotEqualTo: uid) // Filter by services
-                                  .snapshots(),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                      child: CircularProgressIndicator());
-                                }
-
-                                if (snapshot.hasError) {
-                                  return Text('Error: ${snapshot.error}');
-                                }
-
-                                final vendors = snapshot.data!
-                                    .docs; // List of QueryDocumentSnapshot
-
-                                if (vendors.isEmpty) {
-                                  return const Center(
-                                    child: Text("No users found!"),
-                                  );
-                                }
-                                return ListView.separated(
-                                  itemCount: vendors.length,
-                                  itemBuilder: (context, item) {
-                                    final vendor = vendors[item].data()
-                                        as Map<String, dynamic>;
-                                    final docId = vendors[item].id;
-
-                                    return ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundColor: Colors
-                                            .transparent, // Set a transparent background for the avatar
-                                        child: SizedBox(
-                                          width: 50,
-                                          child: ClipOval(
-                                            // Clip the image to an oval (circle) shape
-                                            child: Image.network(
-                                              vendor['image'],
-                                              fit: BoxFit.cover,
-                                              loadingBuilder:
-                                                  (BuildContext context,
-                                                      Widget child,
-                                                      ImageChunkEvent?
-                                                          loadingProgress) {
-                                                if (loadingProgress == null) {
-                                                  return child;
-                                                } else if (loadingProgress
-                                                            .expectedTotalBytes !=
-                                                        null &&
-                                                    loadingProgress
-                                                            .cumulativeBytesLoaded <
-                                                        loadingProgress
-                                                            .expectedTotalBytes!) {
-                                                  return Center(
-                                                    child:
-                                                        LoadingAnimationWidget
-                                                            .discreteCircle(
-                                                      color: Colors.grey,
-                                                      size: 15,
-                                                    ),
-                                                  );
-                                                } else {
-                                                  return SizedBox();
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      title: Text(
-                                        vendor['name'],
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: Text(
-                                        vendor['geoLocation'],
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                114, 255, 255, 255),
-                                            fontWeight: FontWeight.normal),
-                                      ),
-                                      trailing: OutlinedButton(
-                                          onPressed: () {
-                                            Navigator.pushReplacementNamed(
-                                                context,
-                                                "vendor_profile_opposite",
-                                                arguments: docId);
-                                          },
-                                          child: Text("View")),
-                                    );
-                                  },
-                                  separatorBuilder:
-                                      (BuildContext context, int index) {
-                                    return Divider(
-                                      color: Color.fromARGB(50, 207, 216, 220),
-                                      thickness: 1.0,
-                                      indent: 0,
-                                      endIndent: 0,
-                                    );
+                                    } else {
+                                      return Center(
+                                          child: Text('No data available.'));
+                                    }
                                   },
                                 );
-                              },
-                            ),
+                              } else {
+                                return Center(
+                                    child: Text('No data available.'));
+                              }
+                            },
                           ),
                         ),
                       ],
@@ -720,7 +623,8 @@ class _VendorProfileState extends State<VendorProfile> {
 }
 
 // widgets
-Widget modernCircularProgressBar(int value, String tagline, int maxValue) {
+Widget modernCircularProgressBar(double value, String tagline, int maxValue,
+    bool isProgressable, Color progressColor) {
   double percentage = (value / maxValue) * 100;
 
   return Column(
@@ -732,19 +636,27 @@ Widget modernCircularProgressBar(int value, String tagline, int maxValue) {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
               borderRadius: BorderRadius.all(Radius.circular(30)),
-              color: Colors.white, // Add a background color
+              color: Color.fromARGB(0, 255, 255, 255), // Add a background color
             ),
             child: Center(
-              child: Text(
-                '$value/$maxValue',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 12, // Adjusted font size
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: isProgressable
+                  ? Text(
+                      '$value/$maxValue',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 239, 255, 9),
+                        fontSize: 12, // Adjusted font size
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  : Text(
+                      '${value.toInt()}',
+                      style: TextStyle(
+                        color: const Color.fromARGB(255, 255, 255, 255),
+                        fontSize: 12, // Adjusted font size
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
           ),
           SizedBox(
@@ -754,7 +666,7 @@ Widget modernCircularProgressBar(int value, String tagline, int maxValue) {
               value: percentage / 100,
               strokeWidth: 6,
               valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.blue), // Change color to indicate progress
+                  progressColor), // Change color to indicate progress
               backgroundColor: Colors.grey.withOpacity(0.5),
             ),
           ),
