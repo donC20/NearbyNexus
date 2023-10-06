@@ -1,9 +1,10 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last
 
 import 'dart:convert';
 
 import 'package:NearbyNexus/screens/admin/component/header.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -139,27 +140,88 @@ class _UserDashboardMState extends State<UserDashboardM> {
             SizedBox(
               height: 25,
             ),
+            jobandPaymentsSummary(context),
+            SizedBox(
+              height: 25,
+            ),
+            Stack(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(20),
+                  width: MediaQuery.sizeOf(context).width,
+                  height: 150,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Searching\nfor services?",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 22,
+                          fontFamily: GoogleFonts.russoOne().fontFamily,
+                        ),
+                      ),
+                      // SizedBox(
+                      //   height: 10,
+                      // ),
+                      ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: Icon(Icons.search),
+                        label: Text(
+                          "Find services",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 0, 0, 0)),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  bottom: 15,
+                  right: 30,
+                  child: Image.asset(
+                    'assets/images/search_3d.png',
+                    width: 130,
+                    height: 130,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 25,
+            ),
             Expanded(
               child: ListView(
                 children: [
-                  Wrap(
-                    spacing: 50,
-                    runSpacing: 15,
-                    children: [
-                      cardItems(Icons.work, "Active Jobs", "", context, () {},
-                          Colors.green, "active_jobs"),
-                      cardItems(Icons.work_history, "Pending Jobs", "", context,
-                          () {}, Colors.red, "pending_jobs"),
-                      cardItems(Icons.favorite, "Favourites", "", context,
-                          () {}, Colors.white, "fd"),
-                      cardItems(Icons.history, "Job history", "d", context,
-                          () {}, Colors.amber, "fsd"),
-                    ],
+                  Align(
+                    alignment: Alignment.center,
+                    child: Wrap(
+                      spacing: 50,
+                      runSpacing: 15,
+                      children: [
+                        cardItems(Icons.work, "Active Jobs", "", context, () {},
+                            Colors.green, "active_jobs"),
+                        cardItems(Icons.work_history, "Pending Jobs", "",
+                            context, () {}, Colors.red, "pending_jobs"),
+                        cardItems(Icons.favorite, "Favourites", "", context,
+                            () {}, Colors.white, "fd"),
+                        cardItems(Icons.history, "Job history", "d", context,
+                            () {}, Colors.amber, "fsd"),
+                      ],
+                    ),
                   ),
                   SizedBox(
                     height: 25,
                   ),
-                  jobandPaymentsSummary(context)
                 ],
               ),
             ),
@@ -171,11 +233,81 @@ class _UserDashboardMState extends State<UserDashboardM> {
 }
 
 Widget jobandPaymentsSummary(BuildContext context) {
-  return Container(
-    width: MediaQuery.sizeOf(context).width,
-    height: 200,
-    decoration: BoxDecoration(
-        color: Color(0xFF1364ff), borderRadius: BorderRadius.circular(20)),
+  return Stack(
+    children: [
+      Container(
+        padding: EdgeInsets.all(20.0),
+        width: MediaQuery.sizeOf(context).width,
+        height: 200,
+        decoration: BoxDecoration(
+          color: Color(0xFF2d4fff),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Total payouts",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontFamily: GoogleFonts.kanit().fontFamily,
+                  ),
+                ),
+                Divider(
+                  color: Colors.white,
+                  endIndent: MediaQuery.sizeOf(context).width - 210,
+                ),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.currency_rupee,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                    Text(
+                      formatCurrency(5000),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text(
+                    "Payments",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                    ),
+                  ),
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      Positioned(
+        bottom: 0,
+        right: -30,
+        child: Image.asset(
+          'assets/images/back-bill.png',
+          width: 220,
+          height: 220,
+          fit: BoxFit.cover,
+        ),
+      ),
+    ],
   );
 }
 
@@ -225,4 +357,23 @@ Widget cardItems(IconData icon, String title, String ontapRoute,
           ],
         ),
       ));
+}
+
+String formatCurrency(double amount) {
+  String formattedAmount =
+      amount.toStringAsFixed(2); // Always keep 2 decimal places
+
+  List<String> parts = formattedAmount.split('.');
+  String wholePart = parts[0];
+  String decimalPart = parts[1];
+
+  String result = '';
+  for (int i = wholePart.length - 1; i >= 0; i--) {
+    result = wholePart[i] + result;
+    if ((wholePart.length - i) % 3 == 0 && i > 0) {
+      result = ',$result';
+    }
+  }
+
+  return '$result.$decimalPart';
 }
