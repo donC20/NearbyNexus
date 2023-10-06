@@ -25,7 +25,6 @@ class _JobLogsState extends State<JobLogs> {
   @override
   void initState() {
     super.initState();
-    fetchUserData();
   }
 
   @override
@@ -34,6 +33,7 @@ class _JobLogsState extends State<JobLogs> {
     // setState(() {
     //   uid = Provider.of<UserProvider>(context, listen: false).uid;
     // });
+    fetchUserData();
   }
 
   Future<void> fetchUserData() async {
@@ -59,12 +59,12 @@ class _JobLogsState extends State<JobLogs> {
         children: [
           Expanded(
               child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream: _firestore
+            stream:uid.isNotEmpty?_firestore
                 .collection('service_actions')
                 .where('referencePath',
                     isEqualTo:
                         FirebaseFirestore.instance.collection('users').doc(uid))
-                .snapshots(),
+                .snapshots():Stream.empty(),
             builder:
                 (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -264,6 +264,7 @@ class _JobLogsState extends State<JobLogs> {
                                       width: 15,
                                     ),
                                     ElevatedButton.icon(
+                                      key: Key(index.toString()),
                                       icon: Icon(
                                         Icons.arrow_circle_right,
                                         color: const Color.fromARGB(

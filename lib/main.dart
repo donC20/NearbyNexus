@@ -8,6 +8,7 @@ import 'package:NearbyNexus/screens/user/screens/new_request.dart';
 import 'package:NearbyNexus/screens/user/screens/rate_user_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/request_status_page.dart';
 import 'package:NearbyNexus/screens/user/screens/user_dashboard.dart';
+import 'package:NearbyNexus/screens/user/screens/user_dashboard_m.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';
 import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
@@ -124,6 +125,7 @@ class MyApp extends StatelessWidget {
         //  user_pages
         "user_home": (context) => const GeneralUserHome(),
         "user_dashboard": (context) => const UserDashboard(),
+        "user_dashboard_m": (context) => const UserDashboardM(),
         "new_request": (context) => NewServiceRequest(),
         "list_users": (context) => const ListUsers(),
         "data_entry": (context) => const DataEntry(),

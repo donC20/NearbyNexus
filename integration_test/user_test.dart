@@ -6,9 +6,9 @@
 // import 'package:NearbyNexus/main.dart' as app;
 
 // void main() {
-//   group('App test', () {
+//   group('User Test', () {
 //     IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-//     testWidgets("Full app test", (widgetTester) async {
+//     testWidgets("From login", (widgetTester) async {
 //       app.main();
 
 //       // Ensure the splash screen is shown.
@@ -17,7 +17,7 @@
 
 //       // Assuming the splash screen automatically navigates to the login screen.
 //       final getStartedBtn = find.byKey(Key('getStartedBtn'));
-      
+
 //       await widgetTester.tap(getStartedBtn);
 
 //       await widgetTester.pumpAndSettle();
@@ -32,6 +32,7 @@
 //       await widgetTester.pumpAndSettle();
 
 //       await widgetTester.tap(loginButtonTester);
+//       await widgetTester.pumpAndSettle(Duration(seconds: 5));
 //     });
 //   });
 // }

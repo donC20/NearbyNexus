@@ -71,48 +71,56 @@ class _VendorDashboardState extends State<VendorDashboard> {
         nameLoginned = fetchedData['name'];
         isimageFetched = false;
       });
+      summaryContainerStream();
     }
   }
 
   Stream<dynamic> summaryContainerStream() {
     StreamController<dynamic> controller = StreamController<dynamic>();
-    _firestore
-        .collection('service_actions')
-        .where('referencePath',
-            isEqualTo: _firestore.collection('users').doc(uid))
-        .snapshots()
-        .listen((event) {
-      int all = event.size;
 
-      int jobCompletedCount =
-          event.docs.where((doc) => doc['clientStatus'] == 'finished').length;
-      int active =
-          event.docs.where((doc) => doc['status'] == 'accepted').length;
-      int rejected =
-          event.docs.where((doc) => doc['status'] == 'rejected').length;
-      int newJobs = event.docs.where((doc) => doc['status'] == 'new').length;
+    // Ensure uid is not null or empty
+    if (uid != null && uid.isNotEmpty) {
+      _firestore
+          .collection('service_actions')
+          .where('referencePath',
+              isEqualTo: _firestore.collection('users').doc(uid))
+          .snapshots()
+          .listen((event) {
+        int all = event.size;
 
-      List<dynamic> userReferences = [];
+        int jobCompletedCount =
+            event.docs.where((doc) => doc['clientStatus'] == 'finished').length;
+        int active =
+            event.docs.where((doc) => doc['status'] == 'accepted').length;
+        int rejected =
+            event.docs.where((doc) => doc['status'] == 'rejected').length;
+        int newJobs = event.docs.where((doc) => doc['status'] == 'new').length;
 
-      // Get all userReference values
-      for (var doc in event.docs) {
-        var userReference = doc['userReference'];
-        if (userReference != null) {
-          userReferences.add(userReference);
+        List<dynamic> userReferences = [];
+
+        // Get all userReference values
+        for (var doc in event.docs) {
+          var userReference = doc['userReference'];
+          if (userReference != null) {
+            userReferences.add(userReference);
+          }
         }
-      }
 
-      Map<String, dynamic> summaryData = {
-        "all": all,
-        "active": active,
-        "rejected": rejected,
-        "jobCompletedCount": jobCompletedCount,
-        "newJobs": newJobs,
-        "userReferences": userReferences,
-      };
-      print(summaryData);
-      controller.add(summaryData);
-    });
+        Map<String, dynamic> summaryData = {
+          "all": all,
+          "active": active,
+          "rejected": rejected,
+          "jobCompletedCount": jobCompletedCount,
+          "newJobs": newJobs,
+          "userReferences": userReferences,
+        };
+
+        print(summaryData);
+        controller.add(summaryData);
+      });
+    } else {
+      print("Error: uid is null or empty");
+    }
 
     return controller.stream;
   }
@@ -280,7 +288,8 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                           "payment_vendor_log",
                                           context,
                                           () {},
-                                          Colors.blueAccent),
+                                          Colors.blueAccent,
+                                          "payment"),
                                       // cardItems(
                                       //     Icons.pending_actions,
                                       //     "Pending\npayments",
@@ -293,14 +302,16 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                           "job_logs",
                                           context,
                                           () {},
-                                          Colors.red),
+                                          Colors.red,
+                                          "job_logs_btn"),
                                       cardItems(
                                           Icons.design_services,
                                           "Add services",
                                           "add_services_screen",
                                           context,
                                           () {},
-                                          Colors.white),
+                                          Colors.white,
+                                          "add_services"),
                                       activityStatusTapped == true
                                           ? cardItems(Icons.online_prediction,
                                               "Go online", "", context, () {
@@ -313,7 +324,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                                   .update({
                                                 'activityStatus': 'available'
                                               });
-                                            }, Colors.green)
+                                            }, Colors.green, "go_online")
                                           : cardItems(Icons.access_time_sharp,
                                               "Go offline", "", context, () {
                                               setState(() {
@@ -325,7 +336,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                                   .update({
                                                 'activityStatus': 'busy'
                                               });
-                                            }, Colors.amber),
+                                            }, Colors.amber, "go_offline"),
                                     ],
                                   ),
                                 ),
@@ -553,8 +564,9 @@ Widget summaryContainer(
 }
 
 Widget cardItems(IconData icon, String title, String ontapRoute,
-    BuildContext context, Function onTap, Color iconColor) {
+    BuildContext context, Function onTap, Color iconColor, String key) {
   return InkWell(
+      key: Key(key),
       onTap: () {
         if (ontapRoute.isNotEmpty) {
           Navigator.pushNamed(context, ontapRoute);
@@ -598,6 +610,7 @@ Widget cardItems(IconData icon, String title, String ontapRoute,
         ),
       ));
 }
+
 
 Widget recentUsers(String imagePath, String userName) {
   return Column(

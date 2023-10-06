@@ -504,6 +504,7 @@ class _ViewRequestsState extends State<ViewRequests> {
                                       spacing: 15,
                                       children: [
                                         ElevatedButton.icon(
+                                          key: Key("accept_btn"),
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Color.fromARGB(
                                                 170, 51, 204, 51),

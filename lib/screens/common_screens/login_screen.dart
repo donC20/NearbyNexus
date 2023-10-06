@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
             if (userType == "admin") {
               Navigator.popAndPushNamed(context, "admin_screen");
             } else if (userType == "vendor") {
-              Navigator.popAndPushNamed(context, "vendor_home");
+              Navigator.popAndPushNamed(context, "vendor_dashboard");
             } else if (userType == "general_user") {
               Navigator.popAndPushNamed(context, "user_dashboard");
             } else {
@@ -198,9 +198,9 @@ class _LoginScreenState extends State<LoginScreen> {
             if (userType == "admin") {
               Navigator.popAndPushNamed(context, "admin_screen");
             } else if (userType == "vendor") {
-              Navigator.popAndPushNamed(context, "vendor_home");
+              Navigator.popAndPushNamed(context, "vendor_dashboard");
             } else if (userType == "general_user") {
-              Navigator.popAndPushNamed(context, "user_home");
+              Navigator.popAndPushNamed(context, "user_dashboard");
             } else {
               showSnackbar(":) Sorry we are unable to proccess your request! ",
                   Colors.red);

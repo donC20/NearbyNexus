@@ -5,17 +5,13 @@ import 'dart:convert';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/user/components/bottom_nav_global.dart';
 import 'package:NearbyNexus/screens/user/components/recent_user_tile.dart';
-import 'package:NearbyNexus/screens/user/components/user_list_tile.dart';
 import 'package:NearbyNexus/screens/user/screens/payout_log.dart';
-import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
 import 'package:NearbyNexus/screens/user/screens/service_completed_logs.dart';
 import 'package:NearbyNexus/screens/user/screens/service_logs.dart';
 import 'package:NearbyNexus/screens/user/screens/service_rejected.dart';
-import 'package:NearbyNexus/screens/user/screens/user_home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -107,6 +103,7 @@ class _UserDashboardState extends State<UserDashboard> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: InkWell(
+              key: Key("user_profile_tap"),
               onTap: () {
                 Navigator.pushNamed(context, "user_profile_one");
               },

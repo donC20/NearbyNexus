@@ -6,7 +6,15 @@ import 'package:flutter/material.dart';
 class Header extends StatelessWidget {
   String pageTitle;
   String subText;
-  Header({Key? key, required this.pageTitle, required this.subText})
+  Color pageTitleColor;
+  Color subTextColor;
+
+  Header(
+      {Key? key,
+      required this.pageTitle,
+      required this.subText,
+      this.pageTitleColor = const Color.fromARGB(255, 0, 0, 0),
+      this.subTextColor = AppColors.secondary})
       : super(key: key);
 
   @override
@@ -16,12 +24,17 @@ class Header extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PrimaryText(text: pageTitle, size: 30, fontWeight: FontWeight.w800),
+            PrimaryText(
+              text: pageTitle,
+              size: 30,
+              fontWeight: FontWeight.w800,
+              color: pageTitleColor,
+            ),
             PrimaryText(
               text: subText,
               size: 16,
               fontWeight: FontWeight.w400,
-              color: AppColors.secondary,
+              color: subTextColor,
             )
           ]),
       // const Spacer(

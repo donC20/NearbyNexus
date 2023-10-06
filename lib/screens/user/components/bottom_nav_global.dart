@@ -2,6 +2,7 @@
 
 import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
 import 'package:NearbyNexus/screens/user/screens/user_dashboard.dart';
+import 'package:NearbyNexus/screens/user/screens/user_dashboard_m.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
@@ -55,6 +56,11 @@ class _GlobalBottomNavUserState extends State<GlobalBottomNavUser> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => GeneralUserHome()),
+          );
+        } else if (index == 3) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => UserDashboardM()),
           );
         } else if (index == 4) {
           Navigator.pushReplacement(
