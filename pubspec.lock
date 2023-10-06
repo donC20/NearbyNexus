@@ -65,6 +65,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.3"
+  azblob:
+    dependency: "direct main"
+    description:
+      name: azblob
+      sha256: ec009d04b9b5d6a13551a0a148c2ab9f526b380674baf5d01b293073832b467c
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.6.0"
   barcode:
     dependency: transitive
     description:
@@ -688,7 +696,7 @@ packages:
     source: hosted
     version: "4.0.2"
   image:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: image
       sha256: "028f61960d56f26414eb616b48b04eb37d700cbe477b7fb09bf1d7ce57fd9271"
@@ -877,7 +885,7 @@ packages:
     source: hosted
     version: "1.9.1"
   mime:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: mime
       sha256: e4ff8e8564c03f255408decd16e7899da1733852a9110a58fe6d1b817684a63e
@@ -1297,6 +1305,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.0"
+  tflite_flutter:
+    dependency: "direct main"
+    description:
+      name: tflite_flutter
+      sha256: "7e5caf5cd6be80f417526f77dea5597184704ee89974b187eecd89b5a9dfb4e2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.2"
   timeline_tile:
     dependency: "direct main"
     description:
