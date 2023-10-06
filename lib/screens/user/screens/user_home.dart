@@ -2,10 +2,11 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:NearbyNexus/components/user_bottom_nav.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/user/components/bottom_nav_global.dart';
 import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
-import 'package:NearbyNexus/screens/user/screens/user_dashboard.dart';
+import 'package:NearbyNexus/screens/user/screens/user_dashboard_mod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
@@ -68,7 +69,7 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ??'');
+    var initData = json.decode(userLoginData ?? '');
     String uid = initData['uid'];
     DocumentSnapshot snapshot =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();
@@ -482,7 +483,10 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                 ),
               ),
             ),
-      bottomNavigationBar: GlobalBottomNavUser(),
+      bottomNavigationBar: BottomGNavUser(
+        activePage: 0,
+        isSelectable: true,
+      ),
     );
   }
 }

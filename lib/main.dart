@@ -7,10 +7,10 @@ import 'package:NearbyNexus/screens/user/screens/job_review_page.dart';
 import 'package:NearbyNexus/screens/user/screens/new_request.dart';
 import 'package:NearbyNexus/screens/user/screens/rate_user_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/request_status_page.dart';
-import 'package:NearbyNexus/screens/user/screens/user_dashboard.dart';
 import 'package:NearbyNexus/screens/user/screens/user_dashboard_m.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';
 import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
+import 'package:NearbyNexus/screens/user/screens/user_payments_log.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/components/global_notification.dart';
@@ -124,8 +124,7 @@ class MyApp extends StatelessWidget {
         "add_services_screen": (context) => const SearchScreenServices(),
         //  user_pages
         "user_home": (context) => const GeneralUserHome(),
-        "user_dashboard": (context) => const UserDashboard(),
-        "user_dashboard_m": (context) => const UserDashboardM(),
+        "user_dashboard": (context) => const UserDashboardM(),
         "new_request": (context) => NewServiceRequest(),
         "list_users": (context) => const ListUsers(),
         "data_entry": (context) => const DataEntry(),
@@ -140,6 +139,7 @@ class MyApp extends StatelessWidget {
         "job_logs": (context) => const JobLogs(),
         "job_log_timeline": (context) => const JobLogTimeline(),
         "rate_user_screen": (context) => const RateUserScreen(),
+        "user_payment_log":(context)=>const PaymentUserLogScreen(),
       },
       initialRoute: "splashScreen",
     );

@@ -1,20 +1,20 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
-import 'package:NearbyNexus/screens/user/screens/user_dashboard.dart';
-import 'package:NearbyNexus/screens/user/screens/user_dashboard_m.dart';
-import 'package:NearbyNexus/screens/user/screens/user_home.dart';
+import 'package:NearbyNexus/screens/vendor/components/search_services_screen.dart';
+import 'package:NearbyNexus/screens/vendor/screens/vendor_dashboard.dart';
+import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 
-class GlobalBottomNavUser extends StatefulWidget {
-  const GlobalBottomNavUser({super.key});
+class GlobalBottomNavVendor extends StatefulWidget {
+  const GlobalBottomNavVendor({super.key});
 
   @override
-  State<GlobalBottomNavUser> createState() => _GlobalBottomNavUserState();
+  State<GlobalBottomNavVendor> createState() => _GlobalBottomNavVendorState();
 }
 
-class _GlobalBottomNavUserState extends State<GlobalBottomNavUser> {
+class _GlobalBottomNavVendorState extends State<GlobalBottomNavVendor> {
   Gradient selectedGradient = const LinearGradient(colors: [
     Color.fromARGB(255, 8, 89, 210),
     Color.fromARGB(255, 24, 18, 1)
@@ -55,12 +55,7 @@ class _GlobalBottomNavUserState extends State<GlobalBottomNavUser> {
         if (index == 0) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => GeneralUserHome()),
-          );
-        } else if (index == 3) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => UserDashboardM()),
+            MaterialPageRoute(builder: (context) => VendorHome()),
           );
         } else if (index == 4) {
           Navigator.pushReplacement(
@@ -70,7 +65,7 @@ class _GlobalBottomNavUserState extends State<GlobalBottomNavUser> {
         } else if (index == 2) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => UserDashboard()),
+            MaterialPageRoute(builder: (context) => VendorDashboard()),
           );
         }
         setState(() => _selectedItemPosition = index);

@@ -393,7 +393,7 @@ class _UserDashboardState extends State<UserDashboard> {
           ],
         ),
       ),
-      bottomNavigationBar: GlobalBottomNavUser(),
+      // bottomNavigationBar: GlobalBottomNavUser(),
     );
   }
 }

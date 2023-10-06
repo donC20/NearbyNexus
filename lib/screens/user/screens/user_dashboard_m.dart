@@ -1,10 +1,12 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last
 
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:NearbyNexus/components/user_bottom_nav.dart';
+import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/admin/component/header.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -31,6 +33,7 @@ class _UserDashboardMState extends State<UserDashboardM> {
     FetchUserData();
   }
 
+  // ignore: non_constant_identifier_names
   Future<void> FetchUserData() async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
@@ -53,6 +56,66 @@ class _UserDashboardMState extends State<UserDashboardM> {
         isimageFetched = false;
       });
     }
+  }
+
+  Stream<dynamic> summaryContainerStream() {
+    StreamController<dynamic> controller = StreamController<dynamic>();
+
+    // Ensure uid is not null or empty
+    if (uid.isNotEmpty) {
+      _firestore
+          .collection('service_actions')
+          .where('userReference',
+              isEqualTo: _firestore.collection('users').doc(uid))
+          .snapshots()
+          .listen((event) async {
+        int all = event.size;
+        int jobCompletedCount =
+            event.docs.where((doc) => doc['clientStatus'] == 'finished').length;
+        int active =
+            event.docs.where((doc) => doc['status'] == 'accepted').length;
+        int rejected =
+            event.docs.where((doc) => doc['status'] == 'rejected').length;
+        int newJobs = event.docs.where((doc) => doc['status'] == 'new').length;
+        List<dynamic> userReferences = [];
+
+        // Get all userReference values
+        for (var doc in event.docs) {
+          var userReference = doc['referencePath'];
+          if (userReference != null) {
+            userReferences.add(userReference);
+          }
+        }
+
+        // Calculate total wage where paymentStatus is 'paid'
+        QuerySnapshot wageSnapshot = await _firestore
+            .collection('service_actions')
+            .where('userReference',
+                isEqualTo: _firestore.collection('users').doc(uid))
+            .where('paymentStatus', isEqualTo: 'paid')
+            .get();
+
+        double totalWage = wageSnapshot.docs
+            .fold(0, (sum, doc) => sum + (double.parse(doc['wage'] ?? '0')));
+
+        Map<String, dynamic> summaryData = {
+          "all": all,
+          "active": active,
+          "rejected": rejected,
+          "jobCompletedCount": jobCompletedCount,
+          "newJobs": newJobs,
+          "userReferences": userReferences,
+          "totalWage": totalWage, // Add total wage to summaryData
+        };
+
+        print(summaryData);
+        controller.add(summaryData);
+      });
+    } else {
+      print("Error: uid is null or empty");
+    }
+
+    return controller.stream;
   }
 
   @override
@@ -140,99 +203,209 @@ class _UserDashboardMState extends State<UserDashboardM> {
             SizedBox(
               height: 25,
             ),
-            jobandPaymentsSummary(context),
-            SizedBox(
-              height: 25,
-            ),
-            Stack(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(20),
-                  width: MediaQuery.sizeOf(context).width,
-                  height: 150,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Searching\nfor services?",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 22,
-                          fontFamily: GoogleFonts.russoOne().fontFamily,
-                        ),
-                      ),
-                      // SizedBox(
-                      //   height: 10,
-                      // ),
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: Icon(Icons.search),
-                        label: Text(
-                          "Find services",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(255, 0, 0, 0)),
-                      ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  bottom: 15,
-                  right: 30,
-                  child: Image.asset(
-                    'assets/images/search_3d.png',
-                    width: 130,
-                    height: 130,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 25,
-            ),
             Expanded(
-              child: ListView(
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: Wrap(
-                      spacing: 50,
-                      runSpacing: 15,
-                      children: [
-                        cardItems(Icons.work, "Active Jobs", "", context, () {},
-                            Colors.green, "active_jobs"),
-                        cardItems(Icons.work_history, "Pending Jobs", "",
-                            context, () {}, Colors.red, "pending_jobs"),
-                        cardItems(Icons.favorite, "Favourites", "", context,
-                            () {}, Colors.white, "fd"),
-                        cardItems(Icons.history, "Job history", "d", context,
-                            () {}, Colors.amber, "fsd"),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 25,
-                  ),
-                ],
-              ),
+              child: StreamBuilder<dynamic>(
+                  stream: summaryContainerStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.active) {
+                      if (snapshot.hasData) {
+                        Map<String, dynamic> summaryData = snapshot.data;
+                        List<dynamic> userReferences =
+                            summaryData['userReferences'];
+                        return ListView(
+                          children: [
+                            jobandPaymentsSummary(
+                                context, summaryData['totalWage']),
+                            SizedBox(
+                              height: 25,
+                            ),
+                            Stack(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(20),
+                                  width: MediaQuery.sizeOf(context).width,
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Searching\nfor services?",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 22,
+                                          fontFamily:
+                                              GoogleFonts.russoOne().fontFamily,
+                                        ),
+                                      ),
+                                      // SizedBox(
+                                      //   height: 10,
+                                      // ),
+                                      ElevatedButton.icon(
+                                        onPressed: () {},
+                                        icon: Icon(Icons.search),
+                                        label: Text(
+                                          "Find services",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    255, 0, 0, 0)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 15,
+                                  right: 30,
+                                  child: Image.asset(
+                                    'assets/images/search_3d.png',
+                                    width: 130,
+                                    height: 130,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 25,
+                            ),
+                            Align(
+                              alignment: Alignment.center,
+                              child: Wrap(
+                                spacing: 50,
+                                runSpacing: 15,
+                                children: [
+                                  cardItems(
+                                      Icons.work,
+                                      "Active Jobs",
+                                      "",
+                                      context,
+                                      () {},
+                                      Colors.green,
+                                      "active_jobs"),
+                                  cardItems(
+                                      Icons.work_history,
+                                      "Pending Jobs",
+                                      "",
+                                      context,
+                                      () {},
+                                      Colors.red,
+                                      "pending_jobs"),
+                                  cardItems(Icons.favorite, "Favourites", "",
+                                      context, () {}, Colors.white, "fd"),
+                                  cardItems(Icons.history, "Job history", "d",
+                                      context, () {}, Colors.amber, "fsd"),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 25,
+                            ),
+                            Text(
+                              "Recent workers",
+                              style: TextStyle(
+                                  color:
+                                      const Color.fromARGB(255, 255, 255, 255),
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 12,
+                                  fontFamily: GoogleFonts.play().fontFamily),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: userReferences.isNotEmpty
+                                  ? Wrap(
+                                      alignment: WrapAlignment.start,
+                                      spacing: 20,
+                                      runSpacing: 20,
+                                      children: userReferences
+                                          .toSet()
+                                          .map<Widget>((userReference) {
+                                        String userId = userReference.id;
+                                        return StreamBuilder<DocumentSnapshot>(
+                                          stream: _firestore
+                                              .collection('users')
+                                              .doc(userId)
+                                              .snapshots(),
+                                          builder: (BuildContext context,
+                                              AsyncSnapshot<DocumentSnapshot>
+                                                  userSnapshot) {
+                                            if (userSnapshot.connectionState ==
+                                                ConnectionState.active) {
+                                              if (userSnapshot.hasData) {
+                                                String imageUrl =
+                                                    userSnapshot.data?['image'];
+                                                String userName =
+                                                    userSnapshot.data?['name'];
+
+                                                return recentUsers(imageUrl,
+                                                    userName, userId, context);
+                                              }
+                                            }
+                                            return SizedBox();
+                                          },
+                                        );
+                                      }).toList(),
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        "No past workers found ):",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                            )
+                          ],
+                        );
+                      }
+                    }
+                    return SizedBox();
+                  }),
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomGNavUser(
+        activePage: 1,
+        isSelectable: true,
       ),
     );
   }
 }
 
-Widget jobandPaymentsSummary(BuildContext context) {
+Widget recentUsers(
+    String imagePath, String userName, docId, BuildContext context) {
+  return InkWell(
+    onTap: () {
+      Navigator.pushNamed(context, "vendor_profile_opposite", arguments: docId);
+    },
+    child: Column(
+      children: [
+        UserLoadingAvatar(userImage: imagePath),
+        SizedBox(
+          height: 5,
+        ),
+        Text(
+          userName,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: const Color.fromARGB(255, 255, 255, 255),
+              fontWeight: FontWeight.normal,
+              fontSize: 12,
+              fontFamily: GoogleFonts.play().fontFamily),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget jobandPaymentsSummary(BuildContext context, double amount) {
   return Stack(
     children: [
       Container(
@@ -269,7 +442,7 @@ Widget jobandPaymentsSummary(BuildContext context) {
                       size: 18,
                     ),
                     Text(
-                      formatCurrency(5000),
+                      formatCurrency(amount),
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -281,7 +454,9 @@ Widget jobandPaymentsSummary(BuildContext context) {
                   height: 10,
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, "user_payment_log");
+                  },
                   child: Text(
                     "Payments",
                     style: TextStyle(
