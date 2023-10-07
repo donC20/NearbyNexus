@@ -601,13 +601,17 @@ class _VendorProfileState extends State<VendorProfile> {
                                       );
                                     } else {
                                       return Center(
-                                          child: Text('No data available.'));
+                                          child: Text(
+                                        'No data available.',
+                                        style: TextStyle(color: Colors.white),
+                                      ));
                                     }
                                   },
                                 );
                               } else {
                                 return Center(
-                                    child: Text('No data available.'));
+                                    child: Text('No data available.',
+                                        style: TextStyle(color: Colors.white)));
                               }
                             },
                           ),

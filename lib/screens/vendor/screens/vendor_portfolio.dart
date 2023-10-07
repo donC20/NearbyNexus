@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:ffi';
+
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/user/components/vendor_review_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -47,6 +49,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
   String activityStatus = "available";
   String about = '';
   var logger = Logger();
+  Map<String, dynamic> summaryData = {};
 
   Future<void> getTheVendor(uid) async {
 // Get Vendor details by uid
@@ -61,7 +64,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
         logger.d(vendorData);
         setState(() {
           name = vendorData['name'];
-          totalRating = vendorData['actualRating'];
+          totalRating = vendorData['actualRating'].toDouble();
           dpImage = vendorData['image'];
           geoLocation = vendorData['geoLocation'];
           isFetching = false;
@@ -71,7 +74,50 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
           workingDays = vendorData['working_days'];
           activityStatus = vendorData['activityStatus'];
         });
+        summaryContainerStream(uid);
       }
+    });
+  }
+
+  summaryContainerStream(uid) {
+    // StreamController<dynamic> controller = StreamController<dynamic>();
+    _firestore
+        .collection('service_actions')
+        .where('referencePath',
+            isEqualTo: _firestore.collection('users').doc(uid))
+        .snapshots()
+        .listen((event) {
+      int all = event.size;
+      int jobCompletedCount =
+          event.docs.where((doc) => doc['clientStatus'] == 'finished').length;
+      double jobcompConverted = double.parse(jobCompletedCount.toString());
+      int active =
+          event.docs.where((doc) => doc['status'] == 'accepted').length;
+      int rejected =
+          event.docs.where((doc) => doc['status'] == 'rejected').length;
+      int newJobs = event.docs.where((doc) => doc['status'] == 'new').length;
+
+      List<dynamic> userReferences = [];
+
+      // Get all userReference values
+      for (var doc in event.docs) {
+        var userReference = doc['userReference'];
+        if (userReference != null) {
+          userReferences.add(userReference);
+        }
+      }
+      setState(() {
+        summaryData = {
+          "all": all,
+          "active": active,
+          "rejected": rejected,
+          "jobCompletedCount": jobcompConverted,
+          "newJobs": newJobs,
+          "userReferences": userReferences,
+        };
+      });
+      // print(summaryData);
+      // controller.add(summaryData);
     });
   }
 
@@ -240,13 +286,18 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            modernCircularProgressBar(30, "Jobs done", 1000),
-                            SizedBox(width: 20),
                             modernCircularProgressBar(
-                                4, "Rating", 5), // Adjusted to out of 5
+                                summaryData['jobCompletedCount'] as double,
+                                "Jobs done",
+                                1000,
+                                false,
+                                Colors.green),
                             SizedBox(width: 20),
-                            modernCircularProgressBar(
-                                3, "Experience", 5), // Adjusted to out of 5
+                            modernCircularProgressBar(totalRating, "Rating", 5,
+                                true, Colors.amber), // Adjusted to out of 5
+                            SizedBox(width: 20),
+                            modernCircularProgressBar(3, "Experience", 5, false,
+                                Colors.blue), // Adjusted to out of 5
                           ],
                         ),
                         SizedBox(
@@ -277,7 +328,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
                         Divider(
                           color: Color.fromARGB(50, 207, 216, 220),
-                          thickness: 3.0,
+                          thickness: 1.0,
                           indent: 0,
                           endIndent: 0,
                         ),
@@ -333,10 +384,10 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         SizedBox(
                           height: 5,
                         ),
-                        workingDays.isNotEmpty
+                        workingDays!.isNotEmpty
                             ? Wrap(
                                 spacing: 5.0,
-                                children: workingDays.map((e) {
+                                children: workingDays!.map((e) {
                                   return Chip(
                                     shape: RoundedRectangleBorder(
                                       side: BorderSide(
@@ -377,48 +428,22 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                                 color: Color.fromARGB(255, 208, 208, 208),
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold)),
-
-                        SizedBox(
-                          height: 250,
-                          child: ListView.separated(
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (BuildContext context, int index) {
-                              String language = languages[index];
-                              // String proficiency =
-                              //     languages.values.elementAt(index);
-
-                              return ListTile(
-                                title: Text(
-                                  language,
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                subtitle: Text(
-                                  "",
-                                  style: TextStyle(
-                                    color: const Color.fromARGB(
-                                        127, 255, 255, 255),
-                                  ),
-                                ),
-                              );
-                            },
-                            separatorBuilder:
-                                (BuildContext context, int index) {
-                              return Divider(
-                                color: Color.fromARGB(50, 207, 216, 220),
-                                thickness: 1.0,
-                                indent: 0,
-                                endIndent: 0,
-                              );
-                            },
-                            itemCount: languages.length,
-                          ),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 15,
+                          children: [
+                            for (int index = 0;
+                                index < languages.length;
+                                index++)
+                              Chip(label: Text(languages[index])),
+                          ],
                         ),
                         SizedBox(
                           height: 15,
                         ),
                         Divider(
                           color: Color.fromARGB(50, 207, 216, 220),
-                          thickness: 3.0,
+                          thickness: 1.0,
                           indent: 0,
                           endIndent: 0,
                         ),
@@ -675,7 +700,9 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
 // widgets
 
 // widgets
-Widget modernCircularProgressBar(double value, String tagline, int maxValue) {
+// widgets
+Widget modernCircularProgressBar(double value, String tagline, int maxValue,
+    bool isProgressable, Color progressColor) {
   double percentage = (value / maxValue) * 100;
 
   return Column(
@@ -687,19 +714,27 @@ Widget modernCircularProgressBar(double value, String tagline, int maxValue) {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
               borderRadius: BorderRadius.all(Radius.circular(30)),
-              color: Colors.white, // Add a background color
+              color: Color.fromARGB(0, 255, 255, 255), // Add a background color
             ),
             child: Center(
-              child: Text(
-                '$value/$maxValue',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 12, // Adjusted font size
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: isProgressable
+                  ? Text(
+                      '$value/$maxValue',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 239, 255, 9),
+                        fontSize: 12, // Adjusted font size
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  : Text(
+                      '${value.toInt()}',
+                      style: TextStyle(
+                        color: const Color.fromARGB(255, 255, 255, 255),
+                        fontSize: 12, // Adjusted font size
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
           ),
           SizedBox(
@@ -709,7 +744,7 @@ Widget modernCircularProgressBar(double value, String tagline, int maxValue) {
               value: percentage / 100,
               strokeWidth: 6,
               valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.blue), // Change color to indicate progress
+                  progressColor), // Change color to indicate progress
               backgroundColor: Colors.grey.withOpacity(0.5),
             ),
           ),
