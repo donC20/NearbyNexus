@@ -5,12 +5,9 @@ import 'dart:convert';
 
 import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
-import 'package:NearbyNexus/main.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
@@ -28,7 +25,6 @@ class VendorNotificationScreen extends StatefulWidget {
 
 class _VendorNotificationScreenState extends State<VendorNotificationScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final _firebaseMessaging = FirebaseMessaging.instance;
   // StreamController<List<Map<String, dynamic>>> _streamController =
   //     StreamController<List<Map<String, dynamic>>>.broadcast();
   String uid = '';

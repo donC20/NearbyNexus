@@ -2,7 +2,8 @@
 
 import 'dart:convert';
 
-import 'package:NearbyNexus/components/bottom_g_nav.dart';
+import 'package:NearbyNexus/components/functions_utils.dart';
+import 'package:NearbyNexus/components/user_bottom_nav.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
@@ -26,6 +27,7 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _service_actions_collection =
       FirebaseFirestore.instance.collection('service_actions');
+  FunctionInvoker functionInvoker = FunctionInvoker();
 
   bool isChecked = false;
   bool isPaymentClicked = false;
@@ -434,6 +436,44 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                               ],
                             ),
                           ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          documentData['status'] != 'completed' &&
+                                  documentData['clientStatus'] != 'finished'
+                              ? ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                      shape: StadiumBorder()),
+                                  onPressed: () {
+                                    declineFunction() {
+                                      print("finc called");
+                                      final List<dynamic> jobLogs =
+                                          documentData['jobLogs'];
+                                      jobLogs.add('user rejected');
+                                      _service_actions_collection
+                                          .doc(arguments['jobId'])
+                                          .update({
+                                        'status': 'user rejected',
+                                        'clientStatus': 'canceled',
+                                        'dateRequested': DateTime.now(),
+                                        'jobLogs': jobLogs
+                                      }).then((value) => functionInvoker
+                                              .showAwesomeSnackbar(
+                                                  context,
+                                                  "The service is rejected",
+                                                  Colors.green,
+                                                  Colors.white,
+                                                  Icons.check,
+                                                  Colors.amber));
+                                    }
+
+                                    functionInvoker.showCancelDialog(
+                                        context, declineFunction);
+                                  },
+                                  icon: Icon(Icons.close),
+                                  label: Text("Revoke"))
+                              : SizedBox(),
                         ],
                       );
                     } else {
@@ -449,7 +489,7 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
               }
             },
           )),
-      bottomNavigationBar: BottomGNav(
+      bottomNavigationBar: BottomGNavUser(
         activePage: 5,
         isSelectable: true,
       ),

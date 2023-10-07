@@ -20,7 +20,6 @@ class KYCScreen extends StatefulWidget {
 
 class _KYCScreenState extends State<KYCScreen> {
   File? _image;
-  String _imageUrl = '';
   String type = '';
   Future<void> _captureImage() async {
     final pickedFile =

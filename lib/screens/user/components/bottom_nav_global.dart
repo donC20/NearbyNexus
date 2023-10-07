@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
-import 'package:NearbyNexus/screens/vendor/components/search_services_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_dashboard.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
 import 'package:flutter/material.dart';

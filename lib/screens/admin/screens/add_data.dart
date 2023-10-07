@@ -306,7 +306,7 @@ Widget _buildTab2Content() {
       }
 
       final data = snapshot.data!.data() as Map<String, dynamic>;
-      if (data == null || !data.containsKey('service')) {
+      if (data.isEmpty || !data.containsKey('service')) {
         return const Center(
           child: Text("No services found!"),
         );

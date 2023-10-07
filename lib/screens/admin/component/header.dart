@@ -1,4 +1,3 @@
-import 'package:NearbyNexus/screens/admin/config/responsive.dart';
 import 'package:NearbyNexus/screens/admin/style/colors.dart';
 import 'package:NearbyNexus/screens/admin/style/style.dart';
 import 'package:flutter/material.dart';

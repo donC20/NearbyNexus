@@ -1,12 +1,11 @@
-// ignore_for_file: use_build_context_synchronously, prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, use_key_in_widget_constructors, unused_field, unused_local_variable, non_constant_identifier_names, prefer_const_declarations, avoid_print
+// ignore_for_file: use_build_context_synchronously, prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, use_key_in_widget_constructors, unused_field, unused_local_variable, non_constant_identifier_names, prefer_const_declarations, avoid_print, sized_box_for_whitespace
 
 import 'dart:async';
 import 'dart:convert';
 import 'package:NearbyNexus/components/user_bottom_nav.dart';
+import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
-import 'package:NearbyNexus/screens/user/components/bottom_nav_global.dart';
-import 'package:NearbyNexus/screens/user/screens/search_screen_global.dart';
-import 'package:NearbyNexus/screens/user/screens/user_dashboard_mod.dart';
+import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
@@ -18,7 +17,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../components/custom_floating_search_bar.dart';
-import '../components/user_list_tile.dart';
 import 'package:http/http.dart' as http;
 
 class GeneralUserHome extends StatefulWidget {
@@ -84,15 +82,6 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
         isimageFetched = false;
       });
     }
-  }
-
-  List<String> removeComma(String value) {
-    return value
-        .replaceAll(RegExp(r',+'), ',')
-        .split(',')
-        .map((word) => word.trim())
-        .where((word) => word.isNotEmpty)
-        .toList();
   }
 
   Future<void> _getCurrentLocationAndSetAddress() async {
@@ -293,200 +282,361 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
           )
         ],
       ),
-      body: isloadingLocation == true
-          ? Container(
-              decoration: BoxDecoration(color: Colors.black),
-              child: Center(
-                child: LoadingAnimationWidget.prograssiveDots(
-                    color: const Color.fromARGB(255, 255, 255, 255), size: 80),
-              ),
-            )
-          : SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 10,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 15.0),
+          child: DefaultTabController(
+            length: 2,
+            child: Column(
+              children: <Widget>[
+                ButtonsTabBar(
+                  backgroundColor: Color(0xFF2d4fff),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 30),
+                  radius: 20,
+                  labelSpacing: 2,
+                  unselectedBackgroundColor: Colors.grey[300],
+                  unselectedLabelStyle: TextStyle(color: Colors.black),
+                  labelStyle: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                  tabs: [
+                    Tab(
+                      icon: Icon(Icons.location_on),
+                      text: "My Location",
                     ),
-                    SizedBox(
-                      height: 40,
-                      width: MediaQuery.sizeOf(context).width,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          Chip(
-                            label: Text("Popular"),
-                          ),
-                          SizedBox(width: 10),
-                          Chip(label: Text("New")),
-                          SizedBox(width: 10),
-                          Chip(label: Text("Emergency")),
-                          SizedBox(width: 10),
-                          Chip(label: Text("Administration")),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Suggested services",
-                            style: TextStyle(color: Colors.grey, fontSize: 16),
-                          ),
-                          InkWell(
-                            child: SizedBox(
-                              width: 50,
-                              height: 40,
-                              child: SvgPicture.asset(
-                                  "assets/images/vector/equalizer.svg",
-                                  color: Color(0xFF838383)),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 1,
-                    ),
-                    Divider(
-                      color: const Color.fromARGB(145, 158, 158, 158),
-                    ),
-                    Expanded(
-                      child: StreamBuilder<QuerySnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('users')
-                            .where('userType', isEqualTo: 'vendor')
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
-
-                          if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          }
-
-                          final userDocumentData = snapshot.data!.docs;
-
-                          bool matchesFound = false;
-
-                          if (userDocumentData == null ||
-                              userDocumentData.isEmpty) {
-                            return Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset(
-                                    height: 250,
-                                    width: 250,
-                                    "assets/images/vector/404_error.svg",
-                                  ),
-                                  SizedBox(height: 15),
-                                  Text(
-                                    "Sorry, Something went wrong",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 16),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-
-                          List<Widget> resultList = [];
-
-                          for (int index = 0;
-                              index < userDocumentData.length;
-                              index++) {
-                            final vendor = userDocumentData[index].data()
-                                as Map<String, dynamic>;
-
-                            List<String> allServices =
-                                List<String>.from(vendor['services']);
-                            String concatenatedServices =
-                                allServices.join(', ');
-                            const int maxTruncatedLength = 32;
-                            String truncatedServices = concatenatedServices
-                                        .length >
-                                    maxTruncatedLength
-                                ? '${concatenatedServices.substring(0, maxTruncatedLength)}...'
-                                : concatenatedServices;
-
-                            final docId = userDocumentData[index].id;
-
-                            final geoLocation = vendor['geoLocation'];
-
-                            List<String> yrCurrentLocationWords =
-                                yrCurrentLocation.split(' ');
-                            List<String> geoLocationWords =
-                                removeComma(geoLocation);
-
-                            bool atLeastOneWordPresent =
-                                yrCurrentLocationWords.any((word) =>
-                                    geoLocationWords.any((geoWord) => geoWord
-                                        .toLowerCase()
-                                        .contains(word.toLowerCase())));
-
-                            if (atLeastOneWordPresent) {
-                              matchesFound = true;
-                              resultList.add(
-                                ModernServiceCard(
-                                  name: vendor['name'],
-                                  image: vendor['image'] ??
-                                      "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8dXNlcnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=600&q=60",
-                                  salary: "500 - 1000/day",
-                                  serviceNames:
-                                      convertToSentenceCase(truncatedServices),
-                                  uid: docId,
-                                ),
-                              );
-                            }
-                          }
-
-                          if (!matchesFound) {
-                            resultList.add(
-                              Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      height: 250,
-                                      width: 250,
-                                      "assets/images/vector/user_not_found.svg",
-                                    ),
-                                    SizedBox(height: 15),
-                                    Text(
-                                      "Sorry, no users found!",
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 16),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }
-
-                          return ListView(
-                            children: resultList,
-                          );
-                        },
-                      ),
+                    Tab(
+                      icon: Icon(Icons.travel_explore),
+                      text: "Off location",
                     ),
                   ],
                 ),
-              ),
+                Expanded(
+                  child: TabBarView(
+                    children: <Widget>[
+                      onLocationServices(yrCurrentLocation),
+                      offLocationServices(),
+                    ],
+                  ),
+                ),
+              ],
             ),
+          ),
+        ),
+      ),
       bottomNavigationBar: BottomGNavUser(
         activePage: 0,
         isSelectable: true,
       ),
     );
   }
+}
+
+Widget onLocationServices(yrCurrentLocation) {
+  bool isExpanded = false;
+  return Padding(
+    padding: const EdgeInsets.only(top: 8.0),
+    child: StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .where('userType', isEqualTo: 'vendor')
+          .where('activityStatus', isEqualTo: 'available')
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        }
+
+        final userDocumentData = snapshot.data!.docs;
+
+        bool matchesFound = false;
+
+        if (userDocumentData.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  height: 250,
+                  width: 250,
+                  "assets/images/vector/404_error.svg",
+                ),
+                SizedBox(height: 15),
+                Text(
+                  "Sorry, Something went wrong",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ],
+            ),
+          );
+        }
+
+        List<Widget> resultList = [];
+
+        for (int index = 0; index < userDocumentData.length; index++) {
+          final userData =
+              userDocumentData[index].data() as Map<String, dynamic>;
+
+          final docId = userDocumentData[index].id;
+
+          final geoLocation = userData['geoLocation'];
+
+          List<String> yrCurrentLocationWords = yrCurrentLocation.split(' ');
+          List<String> geoLocationWords = removeComma(geoLocation);
+
+          bool atLeastOneWordPresent = yrCurrentLocationWords.any((word) =>
+              geoLocationWords.any((geoWord) =>
+                  geoWord.toLowerCase().contains(word.toLowerCase())));
+
+          if (atLeastOneWordPresent) {
+            matchesFound = true;
+            resultList.add(
+              Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  child: vendorDisplayTile(context, userData)),
+            );
+          }
+        }
+
+        if (!matchesFound) {
+          resultList.add(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  height: 250,
+                  width: 250,
+                  "assets/images/vector/user_not_found.svg",
+                ),
+                SizedBox(height: 15),
+                Text(
+                  "Sorry, no users found!",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return ListView(
+          children: resultList,
+        );
+      },
+    ),
+  );
+}
+
+Widget offLocationServices() {
+  return StreamBuilder(
+    stream: FirebaseFirestore.instance
+        .collection('users')
+        .where('userType', isEqualTo: 'vendor')
+        .where('activityStatus', isEqualTo: 'available')
+        .snapshots(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      }
+      final userDocumentData = snapshot.data!.docs;
+
+      return ListView.separated(
+        itemBuilder: (context, index) {
+          Map<String, dynamic> userData = userDocumentData[index].data();
+
+          return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: vendorDisplayTile(context, userData));
+        },
+        separatorBuilder: (context, index) {
+          return Divider(
+            color: Colors.grey,
+            indent: 20,
+            endIndent: 20,
+          );
+        },
+        itemCount: userDocumentData.length,
+      );
+    },
+  );
+}
+
+Widget vendorDisplayTile(BuildContext context, userData) {
+  return Container(
+    padding: EdgeInsets.all(15),
+    width: MediaQuery.of(context).size.width,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: convertToSentenceCase(userData['services'][0]),
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  TextSpan(
+                    text:
+                        ' ( + ${userData['services'].length.toString()} more )',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.amber,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: Offset(0, 2), // changes position of shadow
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.star,
+                    size: 18,
+                    color: Colors
+                        .black, // You may adjust the color to your preference
+                  ),
+                  SizedBox(width: 5),
+                  Text(
+                    userData['actualRating'].toString(),
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+        Divider(
+          color: Color.fromARGB(255, 116, 115, 115),
+        ),
+        ExpansionTile(
+          onExpansionChanged: (value) {},
+          leading: UserLoadingAvatar(userImage: userData['image']),
+          title: Row(
+            children: [
+              Text(
+                userData['name'],
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              Icon(Icons.arrow_drop_down)
+            ],
+          ),
+          subtitle: Text(
+            userData['geoLocation'],
+            style: TextStyle(
+              color: const Color.fromARGB(121, 0, 0, 0),
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          trailing: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                primary: Color(0xFF2d4fff),
+                shape: StadiumBorder(),
+              ),
+              child: Text(
+                'Profile',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ),
+          ),
+          children: [
+            Text(
+              userData['about'],
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            // Padding(
+            //   padding: const EdgeInsets.only(left: 10.0),
+            //   child: Row(
+            //     children: [
+            //       Icon(
+            //         Icons.work_history,
+            //         color: Colors.blueGrey,
+            //       ),
+            //       SizedBox(
+            //         width: 5,
+            //       ),
+            //       Text(
+            //         '${userData['paymentLogs'].length.toString()} works done',
+            //         style: TextStyle(
+            //           color: const Color.fromARGB(122, 0, 0, 0),
+            //           fontSize: 12,
+            //           fontWeight: FontWeight.w300,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // )
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+List<String> removeComma(String value) {
+  return value
+      .replaceAll(RegExp(r',+'), ',')
+      .split(',')
+      .map((word) => word.trim())
+      .where((word) => word.isNotEmpty)
+      .toList();
 }

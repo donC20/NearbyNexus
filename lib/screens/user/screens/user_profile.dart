@@ -6,7 +6,6 @@ import 'package:NearbyNexus/screens/user/screens/update_user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +17,6 @@ class UserProfile extends StatefulWidget {
 }
 
 class _UserProfileState extends State<UserProfile> {
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
   final GlobalKey<_UserProfileState> backgroundContainerKeyWhite =
       GlobalKey<_UserProfileState>();
   String nameLoginned = "Jhon Doe";

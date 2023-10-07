@@ -1,15 +1,16 @@
-// ignore_for_file: deprecated_member_use, prefer_const_constructors, no_leading_underscores_for_local_identifiers, non_constant_identifier_names, use_build_context_synchronously, avoid_print
+// ignore_for_file: deprecated_member_use, prefer_const_constructors, no_leading_underscores_for_local_identifiers, non_constant_identifier_names, use_build_context_synchronously, avoid_print, prefer_const_literals_to_create_immutables
 
 import 'dart:convert';
 
+import 'package:NearbyNexus/components/functions_utils.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/models/payment_modal.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,6 +29,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final _service_actions_collection =
       FirebaseFirestore.instance.collection('service_actions');
+  FunctionInvoker functionInvoker = FunctionInvoker();
 
   bool isChecked = false;
   bool isPaymentClicked = false;
@@ -275,6 +277,8 @@ class _JobReviewPageState extends State<JobReviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, dynamic> arguments =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -282,516 +286,699 @@ class _JobReviewPageState extends State<JobReviewPage> {
         title: Text('Review job'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          stream: _firestore
-              .collection('service_actions')
-              .where('userReference',
-                  isEqualTo:
-                      FirebaseFirestore.instance.collection('users').doc(uid))
-              .where('status', isEqualTo: 'completed')
-              .snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error.toString()}'));
-            } else if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-              List<QueryDocumentSnapshot> documentList = snapshot.data!.docs;
+          padding: const EdgeInsets.all(16.0),
+          child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+            stream: _firestore
+                .collection('service_actions')
+                .doc(arguments['dataReference'])
+                .snapshots(),
+            builder: (BuildContext context,
+                AsyncSnapshot<DocumentSnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(
+                    child: Text('Error: ${snapshot.error.toString()}'));
+              } else if (!snapshot.hasData || snapshot.data!.data() == null) {
+                return Center(child: Text('No data available'));
+              } else {
+                Map<String, dynamic> documentData =
+                    snapshot.data!.data()! as Map<String, dynamic>;
+                // Access data here
+                DocumentReference vendorReference =
+                    documentData['referencePath'];
+                return FutureBuilder<DocumentSnapshot>(
+                  future:
+                      vendorReference.get(), // Fetch user data asynchronously
+                  builder: (context, userSnapshot) {
+                    if (userSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      // If user data is still loading, show a loading indicator
+                      return Center(child: CircularProgressIndicator());
+                    } else if (userSnapshot.hasError) {
+                      // Handle errors if any
+                      return Text('Error: ${userSnapshot.error.toString()}');
+                    } else if (userSnapshot.hasData) {
+                      // User data is available
 
-              return ListView.separated(
-                itemBuilder: (context, index) {
-                  QueryDocumentSnapshot document = documentList[index];
-                  Map<String, dynamic> documentData =
-                      document.data() as Map<String, dynamic>;
-                  final docId = documentList[index].id;
-                  // Check if the document data is not empty
-                  if (documentData.isNotEmpty) {
-                    DocumentReference vendorReference =
-                        documentData['referencePath'];
+                      Map<String, dynamic> userData =
+                          userSnapshot.data!.data() as Map<String, dynamic>;
 
-                    return FutureBuilder<DocumentSnapshot>(
-                      future: vendorReference
-                          .get(), // Fetch user data asynchronously
-                      builder: (context, userSnapshot) {
-                        if (userSnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          // If user data is still loading, show a loading indicator
-                          return Center(child: CircularProgressIndicator());
-                        } else if (userSnapshot.hasError) {
-                          // Handle errors if any
-                          return Text(
-                              'Error: ${userSnapshot.error.toString()}');
-                        } else if (userSnapshot.hasData) {
-                          // User data is available
+                      // Replace with actual field name
+                      formattedTimeAgo =
+                          formatTimestamp(documentData['dateRequested']);
 
-                          Map<String, dynamic> userData =
-                              userSnapshot.data!.data() as Map<String, dynamic>;
+                      return Column(
+                        children: [
+                          Container(
+                              padding: EdgeInsets.all(10),
+                              width: MediaQuery.of(context).size.width - 30,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: Color.fromARGB(43, 158, 158, 158)),
+                                borderRadius: BorderRadius.circular(10),
+                                color: Color.fromARGB(186, 42, 40, 40),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.9),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  UserLoadingAvatar(
+                                      userImage: userData['image']),
+                                  Text(
+                                    convertToSentenceCase(userData['name']),
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                      color: Colors.white54,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      ElevatedButton.icon(
+                                        onPressed: () async {
+                                          final Uri _emailLaunchUri = Uri(
+                                            scheme: 'mailto',
+                                            path: userData['emailId']['id'],
+                                            // queryParameters: {
+                                            //   'subject':
+                                            //       Uri.encodeComponent(subject),
+                                            //   'body': Uri.encodeComponent(body),
+                                            // },
+                                          );
 
-                          // Replace with actual field name
-                          formattedTimeAgo =
-                              formatTimestamp(documentData['dateRequested']);
+                                          final url =
+                                              _emailLaunchUri.toString();
+                                          if (await canLaunch(url)) {
+                                            await launch(url);
+                                          } else {
+                                            throw 'Could not launch $url';
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              Color.fromARGB(255, 251, 101, 8),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                20.0), // Adjust the radius as needed
+                                          ),
+                                        ),
+                                        icon: Icon(Icons.mail),
+                                        label: Text("Mail"),
+                                      ),
+                                      ElevatedButton.icon(
+                                        onPressed: () async {
+                                          final phoneNumber = userData['phone']
+                                                  ['number']
+                                              .toString(); // Replace with the recipient's phone number
+                                          const messageBody = 'Hello, there,';
 
-                          return Column(
-                            children: [
-                              Container(
-                                  padding: EdgeInsets.all(10),
-                                  width: MediaQuery.of(context).size.width - 30,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color:
-                                            Color.fromARGB(43, 158, 158, 158)),
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Color.fromARGB(186, 42, 40, 40),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.9),
-                                        blurRadius: 10,
-                                        spreadRadius: 2,
+                                          final Uri _smsLaunchUri = Uri(
+                                            scheme: 'sms',
+                                            path: phoneNumber,
+                                            queryParameters: {
+                                              'body': messageBody,
+                                            },
+                                          );
+
+                                          final url = _smsLaunchUri.toString();
+
+                                          if (await canLaunch(url)) {
+                                            await launch(url);
+                                          } else {
+                                            throw 'Could not launch $url';
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              Color.fromARGB(255, 0, 173, 203),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                20.0), // Adjust the radius as needed
+                                          ),
+                                        ),
+                                        icon: Icon(Icons.sms),
+                                        label: Text("SMS"),
+                                      ),
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          FlutterPhoneDirectCaller.callNumber(
+                                              userData['phone']['number']
+                                                  .toString());
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                20.0), // Adjust the radius as needed
+                                          ),
+                                        ),
+                                        icon: Icon(Icons.call),
+                                        label: Text("Call"),
                                       ),
                                     ],
                                   ),
-                                  child: Column(
+                                  Divider(
+                                    color: Colors.grey,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 20,
+                                        right: 15,
+                                        top: 10,
+                                        bottom: 5),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Icon(
+                                          Icons.email,
+                                          color: Colors.white,
+                                        ),
+                                        Text(
+                                          userData['emailId']['id'],
+                                          style: TextStyle(
+                                            fontSize: 12.0,
+                                            color: Colors.white54,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 20,
+                                        right: 15,
+                                        top: 10,
+                                        bottom: 5),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Icon(
+                                          Icons.phone,
+                                          color: Colors.white,
+                                        ),
+                                        Text(
+                                          "+91 ${userData['phone']['number'].toString()}",
+                                          style: TextStyle(
+                                            fontSize: 12.0,
+                                            color: Colors.white54,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 20,
+                                        right: 15,
+                                        top: 10,
+                                        bottom: 5),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Icon(
+                                          Icons.location_on_rounded,
+                                          color: Colors.white,
+                                        ),
+                                        Text(
+                                          documentData['location'].toString(),
+                                          style: TextStyle(
+                                            fontSize: 12.0,
+                                            color: Colors.white54,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            width: MediaQuery.of(context).size.width - 30,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: Color.fromARGB(43, 158, 158, 158)),
+                              borderRadius: BorderRadius.circular(10),
+                              color: Color.fromARGB(186, 42, 40, 40),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.9),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "Service details",
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                      color: Colors.white54,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Divider(
+                                  color:
+                                      const Color.fromARGB(123, 158, 158, 158),
+                                ),
+                                serviceDetaisl("Service name",
+                                    documentData['service_name']),
+                                serviceDetaisl("Completed", formattedTimeAgo),
+                                serviceDetaisl("Needed on",
+                                    timeStampConverter(documentData['day'])),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      UserLoadingAvatar(
-                                          userImage: userData['image']),
                                       Text(
-                                        convertToSentenceCase(userData['name']),
+                                        "Budjet",
                                         style: TextStyle(
-                                          fontSize: 18.0,
+                                          fontSize: 12.0,
                                           color: Colors.white54,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      SizedBox(
-                                        height: 15,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          ElevatedButton.icon(
-                                            onPressed: () async {
-                                              final Uri _emailLaunchUri = Uri(
-                                                scheme: 'mailto',
-                                                path: userData['emailId']['id'],
-                                                // queryParameters: {
-                                                //   'subject':
-                                                //       Uri.encodeComponent(subject),
-                                                //   'body': Uri.encodeComponent(body),
-                                                // },
-                                              );
-
-                                              final url =
-                                                  _emailLaunchUri.toString();
-                                              if (await canLaunch(url)) {
-                                                await launch(url);
-                                              } else {
-                                                throw 'Could not launch $url';
-                                              }
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color.fromARGB(
-                                                  255, 251, 101, 8),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(
-                                                    20.0), // Adjust the radius as needed
-                                              ),
-                                            ),
-                                            icon: Icon(Icons.mail),
-                                            label: Text("Mail"),
-                                          ),
-                                          ElevatedButton.icon(
-                                            onPressed: () async {
-                                              final phoneNumber = userData[
-                                                      'phone']['number']
-                                                  .toString(); // Replace with the recipient's phone number
-                                              const messageBody =
-                                                  'Hello, there,';
-
-                                              final Uri _smsLaunchUri = Uri(
-                                                scheme: 'sms',
-                                                path: phoneNumber,
-                                                queryParameters: {
-                                                  'body': messageBody,
-                                                },
-                                              );
-
-                                              final url =
-                                                  _smsLaunchUri.toString();
-
-                                              if (await canLaunch(url)) {
-                                                await launch(url);
-                                              } else {
-                                                throw 'Could not launch $url';
-                                              }
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color.fromARGB(
-                                                  255, 0, 173, 203),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(
-                                                    20.0), // Adjust the radius as needed
-                                              ),
-                                            ),
-                                            icon: Icon(Icons.sms),
-                                            label: Text("SMS"),
-                                          ),
-                                          ElevatedButton.icon(
-                                            onPressed: () {
-                                              FlutterPhoneDirectCaller
-                                                  .callNumber(userData['phone']
-                                                          ['number']
-                                                      .toString());
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.green,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(
-                                                    20.0), // Adjust the radius as needed
-                                              ),
-                                            ),
-                                            icon: Icon(Icons.call),
-                                            label: Text("Call"),
-                                          ),
-                                        ],
-                                      ),
-                                      Divider(
-                                        color: Colors.grey,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 20,
-                                            right: 15,
-                                            top: 10,
-                                            bottom: 5),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Icon(
-                                              Icons.email,
-                                              color: Colors.white,
-                                            ),
-                                            Text(
-                                              userData['emailId']['id'],
-                                              style: TextStyle(
-                                                fontSize: 12.0,
-                                                color: Colors.white54,
-                                                fontWeight: FontWeight.normal,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 20,
-                                            right: 15,
-                                            top: 10,
-                                            bottom: 5),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Icon(
-                                              Icons.phone,
-                                              color: Colors.white,
-                                            ),
-                                            Text(
-                                              "+91 ${userData['phone']['number'].toString()}",
-                                              style: TextStyle(
-                                                fontSize: 12.0,
-                                                color: Colors.white54,
-                                                fontWeight: FontWeight.normal,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 20,
-                                            right: 15,
-                                            top: 10,
-                                            bottom: 5),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Icon(
-                                              Icons.location_on_rounded,
-                                              color: Colors.white,
-                                            ),
-                                            Text(
-                                              documentData['location']
-                                                  .toString(),
-                                              style: TextStyle(
-                                                fontSize: 12.0,
-                                                color: Colors.white54,
-                                                fontWeight: FontWeight.normal,
-                                              ),
-                                            ),
-                                          ],
+                                      Text(
+                                        documentData['wage'],
+                                        style: TextStyle(
+                                          fontSize: 12.0,
+                                          color: Colors.white54,
+                                          fontWeight: FontWeight.normal,
                                         ),
                                       ),
                                     ],
-                                  )),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Container(
-                                padding: EdgeInsets.all(10),
-                                width: MediaQuery.of(context).size.width - 30,
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: Color.fromARGB(43, 158, 158, 158)),
-                                  borderRadius: BorderRadius.circular(10),
-                                  color: Color.fromARGB(186, 42, 40, 40),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.9),
-                                      blurRadius: 10,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                                child: Column(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        "Service details",
-                                        style: TextStyle(
-                                          fontSize: 18.0,
-                                          color: Colors.white54,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                    Divider(
-                                      color: const Color.fromARGB(
-                                          123, 158, 158, 158),
-                                    ),
-                                    serviceDetaisl("Service name",
-                                        documentData['service_name']),
-                                    serviceDetaisl(
-                                        "Completed", formattedTimeAgo),
-                                    serviceDetaisl(
-                                        "Needed on",
-                                        timeStampConverter(
-                                            documentData['day'])),
-                                    serviceDetaisl(
-                                        "Location", documentData['location']),
-                                    Text(
-                                      "Description",
-                                      style: TextStyle(
-                                        fontSize: 12.0,
-                                        color: Colors.white54,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Divider(
-                                      color: const Color.fromARGB(
-                                          123, 158, 158, 158),
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Text(
-                                      convertToSentenceCase(
-                                          documentData['description']),
-                                      textAlign: TextAlign.justify,
-                                      style: TextStyle(
-                                        fontSize: 12.0,
-                                        color: Colors.white54,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Divider(
-                                      color: const Color.fromARGB(
-                                          123, 158, 158, 158),
-                                    ),
-                                    CheckboxListTile(
-                                      title: Text(
-                                        "Yes, I confirm that the above job is reviewed & stands completed.",
-                                        style: TextStyle(
-                                            fontSize: 14, color: Colors.white),
-                                      ),
-                                      checkColor: Colors.black,
-                                      activeColor: Colors.white,
-                                      value: isChecked,
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          isChecked = newValue!;
-                                        });
-                                      },
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    isChecked
-                                        ? Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: ElevatedButton(
-                                              onPressed: isPaymentClicked
-                                                  ? null
-                                                  : () async {
-                                                      setState(() {
-                                                        isPaymentClicked = true;
-                                                      });
+                                Text(
+                                  "Description",
+                                  style: TextStyle(
+                                    fontSize: 12.0,
+                                    color: Colors.white54,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Divider(
+                                  color:
+                                      const Color.fromARGB(123, 158, 158, 158),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  convertToSentenceCase(
+                                      documentData['description']),
+                                  textAlign: TextAlign.justify,
+                                  style: TextStyle(
+                                    fontSize: 12.0,
+                                    color: Colors.white54,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Divider(
+                                  color:
+                                      const Color.fromARGB(123, 158, 158, 158),
+                                ),
 
-                                                      final DocumentReference
-                                                          jobId = _firestore
-                                                              .collection(
-                                                                  'service_actions')
-                                                              .doc(docId);
-                                                      final DocumentReference
-                                                          payedBy = _firestore
-                                                              .collection(
-                                                                  'users')
-                                                              .doc(uid);
-                                                      final DocumentReference
-                                                          payedTo =
-                                                          vendorReference;
-                                                      await makePayment(
-                                                          userData['name'],
-                                                          documentData['wage'],
-                                                          jobId,
-                                                          payedBy,
-                                                          payedTo,
-                                                          documentData[
-                                                              'jobLogs']);
-                                                      Navigator.popAndPushNamed(
-                                                          context,
-                                                          "rate_user_screen",
-                                                          arguments: {
-                                                            "uid": payedTo,
-                                                            "jobId": docId
-                                                          });
-                                                    },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Color.fromARGB(
-                                                    255, 0, 110, 255),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          20.0), // Adjust the radius as needed
+                                // if job completed
+                                documentData['status'] == 'completed' &&
+                                        documentData['status'] != 'unfinished'
+                                    ? reviewAndPay(vendorReference, userData,
+                                        arguments, documentData)
+                                    : documentData['status'] == 'negotiate'
+                                        ? negotiateAmount(
+                                            context,
+                                            documentData,
+                                            arguments['dataReference'],
+                                            "Negotiate")
+                                        : documentData['status'] ==
+                                                'user negotiated'
+                                            ? negotiateAmount(
+                                                context,
+                                                documentData,
+                                                arguments['dataReference'],
+                                                "Change amount")
+                                            : ElevatedButton.icon(
+                                                onPressed: () {
+                                                  Map<String, dynamic> logData =
+                                                      {
+                                                    "docId": arguments[
+                                                        'dataReference'],
+                                                    "from": "user"
+                                                  };
+
+                                                  Navigator.pushNamed(context,
+                                                      "job_log_timeline",
+                                                      arguments: logData);
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    shape: StadiumBorder()),
+                                                icon: Icon(
+                                                  Icons.donut_large_rounded,
+                                                  color: Colors.black,
                                                 ),
-                                              ), // Rupee icon
-                                              child: isPaymentClicked
-                                                  ? CircularProgressIndicator(
-                                                      color: Colors.white,
-                                                    )
-                                                  : Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        Text(
-                                                          "Pay ", // ₹ is the Unicode character for the rupee symbol
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                        Icon(
-                                                          Icons.currency_rupee,
-                                                          size: 18,
-                                                        ),
-                                                        Text(
-                                                          "${documentData['wage']}", // ₹ is the Unicode character for the rupee symbol
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                            ),
-                                          )
-                                        : ElevatedButton.icon(
-                                            onPressed: () {
-                                              List<dynamic> jobLog =
-                                                  documentData['jobLogs'];
-                                              setState(() {
-                                                jobLog.add('unfinished');
-                                              });
-                                              _service_actions_collection
-                                                  .doc(docId)
-                                                  .update({
-                                                'clientStatus': 'unfinished',
-                                                'status': 'unfinished',
-                                                'dateRequested': DateTime.now(),
-                                                'jobLogs': jobLog
-                                              });
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color.fromARGB(
-                                                  255, 175, 76, 76),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(
-                                                    20.0), // Adjust the radius as needed
-                                              ),
-                                            ),
-                                            icon: Icon(Icons.close),
-                                            label: Text("Mark not completed"),
-                                          )
-                                  ],
+                                                label: Text(
+                                                  "View log",
+                                                  style: TextStyle(
+                                                      color: Colors.black),
+                                                )),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return Center(
+                        child: Text(
+                          'No data available for the user.',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }
+                  },
+                );
+              }
+            },
+          )),
+    );
+  }
+
+// if user amount negotiated then show this
+  Widget negotiateAmount(
+      BuildContext context, documentData, docId, String text) {
+    final TextEditingController _amountController = TextEditingController();
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ElevatedButton.icon(
+            onPressed: () {
+              showDialog(
+                // barrierDismissible: false,
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    elevation: 0,
+                    backgroundColor: Colors.transparent,
+                    child: Container(
+                      padding: EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Align(
+                              alignment: Alignment.topCenter,
+                              child: Text(
+                                "Negotiate the price",
+                                style: TextStyle(
+                                    color: Color.fromARGB(170, 0, 0, 0),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Text(
+                              "Enter amount",
+                              style: TextStyle(
+                                  color: Color.fromARGB(170, 0, 0, 0),
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            SizedBox(
+                              child: TextFormField(
+                                controller: _amountController,
+                                keyboardType: TextInputType.number,
+                                style: GoogleFonts.poppins(
+                                  color: const Color.fromARGB(255, 0, 0, 0),
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: 'Enter amount',
+                                  labelStyle: TextStyle(
+                                      color:
+                                          const Color.fromARGB(255, 22, 0, 0),
+                                      fontSize: 12),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Color.fromARGB(73, 0, 0, 0),
+                                    ),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Color.fromARGB(73, 0, 0, 0),
+                                    ),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return "You left this field empty!";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Align(
+                              alignment: Alignment.bottomCenter,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    final List<dynamic> jobLogs =
+                                        documentData['jobLogs'];
+                                    jobLogs.add('user negotiated');
+
+                                    _service_actions_collection
+                                        .doc(docId)
+                                        .update({
+                                      'status': 'user negotiated',
+                                      'wage': _amountController.text,
+                                      'dateRequested': DateTime.now(),
+                                      'jobLogs': jobLogs
+                                    });
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                child: Text(
+                                  text,
+                                  style: TextStyle(
+                                      color: Color.fromARGB(255, 252, 252, 252),
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
-                            ],
-                          );
-                        } else {
-                          return Center(
-                            child: Text(
-                              'No data available for the user.',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          );
-                        }
-                      },
-                    );
-                  } else {
-                    return Center(
-                      child: Text(
-                        'No data available for the user.',
-                        style: TextStyle(color: Colors.white),
+                            )
+                          ],
+                        ),
                       ),
-                    );
-                  }
-                },
-                separatorBuilder: (context, index) {
-                  return Divider(
-                    color: Colors.grey,
+                    ),
                   );
                 },
-                itemCount: documentList.length,
               );
-            } else {
-              return Center(child: Text('No data available.'));
-            }
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 83, 41, 255),
+                shape: StadiumBorder()),
+            icon: Icon(Icons.new_label),
+            label: Text(text)),
+        SizedBox(
+          width: 10,
+        ),
+        ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, shape: StadiumBorder()),
+            onPressed: () {
+              declineFunction() {
+                print("finc called");
+                final List<dynamic> jobLogs = documentData['jobLogs'];
+                jobLogs.add('user rejected');
+                _service_actions_collection.doc(docId).update({
+                  'status': 'user rejected',
+                  'clientStatus': 'canceled',
+                  'dateRequested': DateTime.now(),
+                  'jobLogs': jobLogs
+                }).then((value) => functionInvoker.showAwesomeSnackbar(
+                    context,
+                    "The service is rejected",
+                    Colors.green,
+                    Colors.white,
+                    Icons.check,
+                    Colors.amber));
+              }
+
+              functionInvoker.showCancelDialog(context, declineFunction);
+            },
+            icon: Icon(Icons.close),
+            label: Text("Revoke")),
+      ],
+    );
+  }
+
+// payment verify function
+  Widget reviewAndPay(vendorReference, userData, arguments, documentData) {
+    return Column(
+      children: [
+        CheckboxListTile(
+          title: Text(
+            "Yes, I confirm that the above job is reviewed & stands completed.",
+            style: TextStyle(fontSize: 14, color: Colors.white),
+          ),
+          checkColor: Colors.black,
+          activeColor: Colors.white,
+          value: isChecked,
+          onChanged: (newValue) {
+            setState(() {
+              isChecked = newValue!;
+            });
           },
         ),
-      ),
+        SizedBox(
+          height: 10,
+        ),
+        isChecked
+            ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: isPaymentClicked
+                      ? null
+                      : () async {
+                          setState(() {
+                            isPaymentClicked = true;
+                          });
+
+                          final DocumentReference jobId = _firestore
+                              .collection('service_actions')
+                              .doc(arguments['dataReference']);
+                          final DocumentReference payedBy =
+                              _firestore.collection('users').doc(uid);
+                          final DocumentReference payedTo = vendorReference;
+                          await makePayment(
+                              userData['name'],
+                              documentData['wage'],
+                              jobId,
+                              payedBy,
+                              payedTo,
+                              documentData['jobLogs']);
+                          Navigator.popAndPushNamed(context, "rate_user_screen",
+                              arguments: {
+                                "uid": payedTo,
+                                "jobId": arguments['dataReference']
+                              });
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 0, 110, 255),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          20.0), // Adjust the radius as needed
+                    ),
+                  ), // Rupee icon
+                  child: isPaymentClicked
+                      ? CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Pay ", // ₹ is the Unicode character for the rupee symbol
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Icon(
+                              Icons.currency_rupee,
+                              size: 18,
+                            ),
+                            Text(
+                              "${documentData['wage']}", // ₹ is the Unicode character for the rupee symbol
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              )
+            : ElevatedButton.icon(
+                onPressed: () {
+                  List<dynamic> jobLog = documentData['jobLogs'];
+                  setState(() {
+                    jobLog.add('unfinished');
+                  });
+                  _service_actions_collection
+                      .doc(arguments['dataReference'])
+                      .update({
+                    'clientStatus': 'unfinished',
+                    'status': 'unfinished',
+                    'dateRequested': DateTime.now(),
+                    'jobLogs': jobLog
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 175, 76, 76),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        20.0), // Adjust the radius as needed
+                  ),
+                ),
+                icon: Icon(Icons.close),
+                label: Text("Mark not completed"),
+              )
+      ],
     );
   }
 }
 
+// time stamp converter
 String timeStampConverter(Timestamp timeAndDate) {
   DateTime dateTime = timeAndDate.toDate();
   String formattedDateTime = DateFormat('MM/dd/yyyy hh:mm a').format(dateTime);
   return formattedDateTime;
 }
 
+// servcce boc
 Widget serviceDetaisl(serviceTitle, serviceName) {
   return Padding(
     padding: const EdgeInsets.only(bottom: 10),

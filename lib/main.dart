@@ -3,9 +3,12 @@ import 'package:NearbyNexus/misc/firebase_notifications.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/user/components/view_job_details.dart';
+import 'package:NearbyNexus/screens/user/screens/active_jobs.dart';
+import 'package:NearbyNexus/screens/user/screens/job_history.dart';
 import 'package:NearbyNexus/screens/user/screens/job_review_page.dart';
 import 'package:NearbyNexus/screens/user/screens/new_request.dart';
 import 'package:NearbyNexus/screens/user/screens/rate_user_screen.dart';
+import 'package:NearbyNexus/screens/user/screens/request_pending_user.dart';
 import 'package:NearbyNexus/screens/user/screens/request_status_page.dart';
 import 'package:NearbyNexus/screens/user/screens/user_dashboard_m.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';
@@ -92,7 +95,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
@@ -139,7 +142,10 @@ class MyApp extends StatelessWidget {
         "job_logs": (context) => const JobLogs(),
         "job_log_timeline": (context) => const JobLogTimeline(),
         "rate_user_screen": (context) => const RateUserScreen(),
-        "user_payment_log":(context)=>const PaymentUserLogScreen(),
+        "user_payment_log": (context) => const PaymentUserLogScreen(),
+        "user_active_jobs": (context) => const UserActiveJobs(),
+        "user_pending_requets": (context) => const RequestsPendingUser(),
+        "/user_job_history": (context) => const UserJobHistory(),
       },
       initialRoute: "splashScreen",
     );

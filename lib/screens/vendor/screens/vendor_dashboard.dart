@@ -79,7 +79,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
     StreamController<dynamic> controller = StreamController<dynamic>();
 
     // Ensure uid is not null or empty
-    if (uid != null && uid.isNotEmpty) {
+    if ( uid.isNotEmpty) {
       _firestore
           .collection('service_actions')
           .where('referencePath',

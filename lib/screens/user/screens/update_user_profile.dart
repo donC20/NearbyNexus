@@ -5,7 +5,6 @@ import 'dart:convert';
 
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/screens/user/components/enter_password_container.dart';
-import 'package:NearbyNexus/screens/vendor/components/bottom_sheet_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -50,7 +49,7 @@ class _UpdateUserProfileState extends State<UpdateUserProfile> {
     super.initState();
     Future.delayed(Duration(seconds: 0), () {
       setState(() {
-        uid = Provider.of<UserProvider>(context, listen: false).uid!;
+        uid = Provider.of<UserProvider>(context, listen: false).uid;
         FetchUserData(uid);
       });
     });
@@ -339,6 +338,7 @@ class _UpdateUserProfileState extends State<UpdateUserProfile> {
                   setState(() {});
                   return "You left this field empty!";
                 }
+                return null;
               },
             ),
             Visibility(

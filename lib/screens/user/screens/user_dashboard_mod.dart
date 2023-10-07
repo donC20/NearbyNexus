@@ -3,11 +3,10 @@
 import 'dart:convert';
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
-import 'package:NearbyNexus/screens/user/components/bottom_nav_global.dart';
 import 'package:NearbyNexus/screens/user/components/recent_user_tile.dart';
 import 'package:NearbyNexus/screens/user/screens/payout_log.dart';
+import 'package:NearbyNexus/screens/user/screens/request_pending_user.dart';
 import 'package:NearbyNexus/screens/user/screens/service_completed_logs.dart';
-import 'package:NearbyNexus/screens/user/screens/service_logs.dart';
 import 'package:NearbyNexus/screens/user/screens/service_rejected.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +27,6 @@ class _UserDashboardState extends State<UserDashboard> {
   String imageLink = "";
   String nameLoginned = "";
   bool isimageFetched = false;
-  int _selectedItemPosition = 2;
   String uid = '';
   SnakeShape snakeShape = SnakeShape.circle;
   Color unselectedColor = Colors.blueGrey;
@@ -44,7 +42,7 @@ class _UserDashboardState extends State<UserDashboard> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ??'');
+    var initData = json.decode(userLoginData ?? '');
 
     setState(() {
       uid = initData['uid'];
@@ -168,7 +166,7 @@ class _UserDashboardState extends State<UserDashboard> {
               spacing: 15,
               children: [
                 topTiles(context, "Service logs", Icons.multiple_stop_sharp,
-                    Colors.blue[900], "", ServiceLogs()),
+                    Colors.blue[900], "", RequestsPendingUser()),
                 topTiles(
                     context,
                     "Service completed",

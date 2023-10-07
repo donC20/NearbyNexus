@@ -111,7 +111,7 @@ class _PayoutLogsState extends State<PayoutLogs> {
                   QueryDocumentSnapshot document = documentList[index];
                   Map<String, dynamic> documentData =
                       document.data() as Map<String, dynamic>;
-                  final docId = documentList[index].id;
+                  // final docId = documentList[index].id;
                   // Check if the document data is not empty
                   if (documentData.isNotEmpty) {
                     DocumentReference vendorReference =

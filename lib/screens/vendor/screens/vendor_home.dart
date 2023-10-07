@@ -76,7 +76,7 @@ class _VendorHomeState extends State<VendorHome> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ??'');
+    var initData = json.decode(userLoginData ?? '');
     setState(() {
       uid = initData['uid'];
     });
@@ -596,32 +596,13 @@ class _VendorHomeState extends State<VendorHome> {
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: InkWell(
-                        onTap: () {},
-                        child: ListTile(
-                          shape: Border.all(
-                              color: Color.fromARGB(74, 158, 158, 158)),
-                          title: Text(
-                            "My Favourites",
-                            style: TextStyle(
-                                color: const Color.fromARGB(255, 255, 255, 255),
-                                fontSize: 14),
-                          ),
-                          trailing: Icon(
-                            Icons.arrow_right_alt,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
             ),
       bottomNavigationBar: BottomGNav(
-        activePage: 0, isSelectable: true,
+        activePage: 0,
+        isSelectable: true,
       ),
     );
   }

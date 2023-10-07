@@ -146,7 +146,7 @@ class _ListUsersState extends State<ListUsers> {
 
 // ?User tile model
 
-// ignore: must_be_immutable
+// ignore: must_be_immutabl
 class UserTile extends StatelessWidget {
   String name;
   String email;

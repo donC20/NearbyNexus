@@ -44,8 +44,10 @@ class _JobLogTimelineState extends State<JobLogTimeline> {
 
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic> logData =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     setState(() {
-      uid = ModalRoute.of(context)!.settings.arguments as String;
+      uid = logData['docId'];
     });
     log.e(uid);
     return Scaffold(
@@ -120,39 +122,77 @@ class _JobLogTimelineState extends State<JobLogTimeline> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                history[index] == "new_job"
-                                    ? "New job received"
-                                    : history[index] == "negotiate"
-                                        ? "You have negotiated the job"
-                                        : history[index] == "user negotiated"
-                                            ? "You user has negotiated the price"
-                                            : history[index] == "rejected"
-                                                ? "You declined the request"
-                                                : history[index] ==
-                                                        "user rejeted"
-                                                    ? "User has removed the request"
-                                                    : history[index] ==
-                                                            "completed"
-                                                        ? "You tagged the job as completed."
-                                                        : history[index] ==
-                                                                "finished"
-                                                            ? "The user has accepted & job is complete"
-                                                            : history[index] ==
-                                                                    "unfinished"
-                                                                ? "User tagged the job is not complete."
-                                                                : history[index] ==
-                                                                        "paid"
-                                                                    ? "The user has paid you."
-                                                                    : history[index] ==
-                                                                            "accepted"
-                                                                        ? "The user has accepted your request."
-                                                                        : "",
-                                style: TextStyle(
-                                    color:
-                                        const Color.fromARGB(255, 61, 61, 61),
-                                    fontWeight: FontWeight.bold),
-                              ),
+                              logData['from'] == 'vendor'
+                                  ? Text(
+                                      history[index] == "new_job"
+                                          ? "New job received"
+                                          : history[index] == "negotiate"
+                                              ? "You have negotiated the job"
+                                              : history[index] ==
+                                                      "user negotiated"
+                                                  ? "You user has negotiated the price"
+                                                  : history[index] == "rejected"
+                                                      ? "You declined the request"
+                                                      : history[index] ==
+                                                              "user rejeted"
+                                                          ? "User has removed the request"
+                                                          : history[index] ==
+                                                                  "completed"
+                                                              ? "You tagged the job as completed."
+                                                              : history[index] ==
+                                                                      "finished"
+                                                                  ? "The user has accepted & job is complete"
+                                                                  : history[index] ==
+                                                                          "unfinished"
+                                                                      ? "User tagged the job is not complete."
+                                                                      : history[index] ==
+                                                                              "paid"
+                                                                          ? "The user has paid you."
+                                                                          : history[index] == "user accepted"
+                                                                              ? "The user has accepted your request."
+                                                                              : history[index] == "accepted"
+                                                                                  ? "You have agreed to the terms"
+                                                                                  : "",
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 61, 61, 61),
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  : Text(
+                                      history[index] == "new_job"
+                                          ? "You have requested a service"
+                                          : history[index] == "negotiate"
+                                              ? "Provider have negotiated the amount"
+                                              : history[index] ==
+                                                      "user negotiated"
+                                                  ? "You have negotiated the amount"
+                                                  : history[index] == "rejected"
+                                                      ? "Provider declined the request"
+                                                      : history[index] ==
+                                                              "user rejected"
+                                                          ? "You have revoked the service"
+                                                          : history[index] ==
+                                                                  "completed"
+                                                              ? "Provider tagged the job as completed."
+                                                              : history[index] ==
+                                                                      "finished"
+                                                                  ? "You have agreed that job is complete"
+                                                                  : history[index] ==
+                                                                          "unfinished"
+                                                                      ? "You have tagged the job is not complete."
+                                                                      : history[index] ==
+                                                                              "paid"
+                                                                          ? "You have paid an amount."
+                                                                          : history[index] == "accepted"
+                                                                              ? "The provider has accepted your request."
+                                                                              : history[index] == "user accepted"
+                                                                                  ? "You have accepted to the providers terms"
+                                                                                  : "",
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 61, 61, 61),
+                                          fontWeight: FontWeight.bold),
+                                    ),
                               Text(
                                 timeStampConverter(
                                     documentData['dateRequested']),

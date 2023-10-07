@@ -59,12 +59,15 @@ class _JobLogsState extends State<JobLogs> {
         children: [
           Expanded(
               child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream:uid.isNotEmpty?_firestore
-                .collection('service_actions')
-                .where('referencePath',
-                    isEqualTo:
-                        FirebaseFirestore.instance.collection('users').doc(uid))
-                .snapshots():Stream.empty(),
+            stream: uid.isNotEmpty
+                ? _firestore
+                    .collection('service_actions')
+                    .where('referencePath',
+                        isEqualTo: FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(uid))
+                    .snapshots()
+                : Stream.empty(),
             builder:
                 (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -239,9 +242,14 @@ class _JobLogsState extends State<JobLogs> {
                                         color: Colors.black,
                                       ),
                                       onPressed: () {
+                                        Map<String, dynamic> logData = {
+                                          "docId": docId,
+                                          "from": "vendor"
+                                        };
+
                                         Navigator.pushNamed(
                                             context, "job_log_timeline",
-                                            arguments: docId);
+                                            arguments: logData);
                                       },
                                       style: ButtonStyle(
                                         backgroundColor: MaterialStateProperty

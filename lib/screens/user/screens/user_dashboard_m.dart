@@ -127,81 +127,87 @@ class _UserDashboardMState extends State<UserDashboardM> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Header(
-                  pageTitle: "DashBoard",
-                  subText: "Manage and view your activities",
-                  pageTitleColor: Colors.white,
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, "vendor_notification");
+            Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Header(
+                    pageTitle: "DashBoard",
+                    subText: "Manage and view your activities",
+                    pageTitleColor: Colors.white,
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, "request_status_page");
+                          },
+                          icon: Icon(
+                            Icons.notifications,
+                            color: Colors.white,
+                          )),
+                      InkWell(
+                        key: Key("user_profile_tap"),
+                        onTap: () {
+                          Navigator.pushNamed(context, "user_profile_one");
                         },
-                        icon: Icon(
-                          Icons.notifications,
-                          color: Colors.white,
-                        )),
-                    InkWell(
-                      key: Key("user_profile_tap"),
-                      onTap: () {
-                        Navigator.pushNamed(context, "user_profile_one");
-                      },
-                      child: isimageFetched == true
-                          ? Container(
-                              margin: EdgeInsets.only(right: 10),
-                              decoration: BoxDecoration(color: Colors.black),
-                              child: Center(
-                                child: LoadingAnimationWidget.fallingDot(
-                                  color: Colors.white,
-                                  size: 30,
-                                ),
-                              ))
-                          : CircleAvatar(
-                              backgroundColor: Colors
-                                  .transparent, // Set a transparent background for the avatar
-                              child: ClipOval(
-                                // Clip the image to an oval (circle) shape
-                                child: Image.network(
-                                  imageLink,
-                                  width: 30,
-                                  height: 30,
-                                  fit: BoxFit.cover,
-                                  loadingBuilder: (BuildContext context,
-                                      Widget child,
-                                      ImageChunkEvent? loadingProgress) {
-                                    if (loadingProgress == null) {
-                                      return child;
-                                    } else if (loadingProgress
-                                                .expectedTotalBytes !=
-                                            null &&
-                                        loadingProgress.cumulativeBytesLoaded <
-                                            loadingProgress
-                                                .expectedTotalBytes!) {
-                                      return Center(
-                                        child: LoadingAnimationWidget
-                                            .discreteCircle(
-                                          color: Colors.grey,
-                                          size: 15,
-                                        ),
-                                      );
-                                    } else {
-                                      return SizedBox();
-                                    }
-                                  },
-                                ),
-                              ),
-                            ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 25,
+                        child: isimageFetched == true
+                            ? Container(
+                                margin: EdgeInsets.only(right: 10),
+                                decoration: BoxDecoration(color: Colors.black),
+                                child: Center(
+                                  child: LoadingAnimationWidget.fallingDot(
+                                    color: Colors.white,
+                                    size: 30,
+                                  ),
+                                ))
+                            : imageLink.isEmpty
+                                ? LoadingAnimationWidget.discreteCircle(
+                                    color: Colors.grey,
+                                    size: 15,
+                                  )
+                                : CircleAvatar(
+                                    backgroundColor: Colors
+                                        .transparent, // Set a transparent background for the avatar
+                                    child: ClipOval(
+                                      // Clip the image to an oval (circle) shape
+                                      child: Image.network(
+                                        imageLink,
+                                        width: 30,
+                                        height: 30,
+                                        fit: BoxFit.cover,
+                                        loadingBuilder: (BuildContext context,
+                                            Widget child,
+                                            ImageChunkEvent? loadingProgress) {
+                                          if (loadingProgress == null) {
+                                            return child;
+                                          } else if (loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null &&
+                                              loadingProgress
+                                                      .cumulativeBytesLoaded <
+                                                  loadingProgress
+                                                      .expectedTotalBytes!) {
+                                            return Center(
+                                              child: LoadingAnimationWidget
+                                                  .discreteCircle(
+                                                color: Colors.grey,
+                                                size: 15,
+                                              ),
+                                            );
+                                          } else {
+                                            return SizedBox();
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             Expanded(
               child: StreamBuilder<dynamic>(
@@ -277,6 +283,9 @@ class _UserDashboardMState extends State<UserDashboardM> {
                             SizedBox(
                               height: 25,
                             ),
+                            SizedBox(
+                              height: 25,
+                            ),
                             Align(
                               alignment: Alignment.center,
                               child: Wrap(
@@ -286,7 +295,7 @@ class _UserDashboardMState extends State<UserDashboardM> {
                                   cardItems(
                                       Icons.work,
                                       "Active Jobs",
-                                      "",
+                                      "user_active_jobs",
                                       context,
                                       () {},
                                       Colors.green,
@@ -294,15 +303,21 @@ class _UserDashboardMState extends State<UserDashboardM> {
                                   cardItems(
                                       Icons.work_history,
                                       "Pending Jobs",
-                                      "",
+                                      "user_pending_requets",
                                       context,
                                       () {},
                                       Colors.red,
                                       "pending_jobs"),
                                   cardItems(Icons.favorite, "Favourites", "",
                                       context, () {}, Colors.white, "fd"),
-                                  cardItems(Icons.history, "Job history", "d",
-                                      context, () {}, Colors.amber, "fsd"),
+                                  cardItems(
+                                      Icons.history,
+                                      "Job history",
+                                      "/user_job_history",
+                                      context,
+                                      () {},
+                                      Colors.amber,
+                                      "fsd"),
                                 ],
                               ),
                             ),

@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 
-import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/pdf_api.dart';
 import 'package:NearbyNexus/components/pdf_drawer.dart';
 import 'package:NearbyNexus/components/user_bottom_nav.dart';
@@ -94,7 +93,9 @@ class _PaymentUserLogScreenState extends State<PaymentUserLogScreen> {
       body: Padding(
         padding: const EdgeInsets.all(15.0),
         child: StreamBuilder(
-          stream: _firestore.collection('users').doc(uid).snapshots(),
+          stream: uid.isNotEmpty
+              ? _firestore.collection('users').doc(uid).snapshots()
+              : null,
           builder:
               (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.connectionState == ConnectionState.active) {
@@ -106,160 +107,163 @@ class _PaymentUserLogScreenState extends State<PaymentUserLogScreen> {
                     vendorData.containsKey('paymentLogs')) {
                   List<dynamic> paymentList = vendorData['paymentLogs'];
 
-                  return ListView.separated(
-                    itemCount: paymentList.length,
-                    itemBuilder: (context, index) {
-                      String userId = paymentList[index].id;
+                  if (paymentList.isNotEmpty) {
+                    return ListView.separated(
+                      itemCount: paymentList.length,
+                      itemBuilder: (context, index) {
+                        String userId = paymentList[index].id;
 
-                      return StreamBuilder<DocumentSnapshot>(
-                        stream: _firestore
-                            .collection('payments')
-                            .doc(userId)
-                            .snapshots(),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<DocumentSnapshot> userSnapshot) {
-                          if (userSnapshot.connectionState ==
-                              ConnectionState.active) {
-                            if (userSnapshot.hasData) {
-                              Map<String, dynamic>? payData = userSnapshot.data
-                                  ?.data() as Map<String, dynamic>?;
-                              return FutureBuilder<Map<String, dynamic>>(
-                                future: fetchAllPaymentData(
-                                    payData?['jobId'], payData?['payedTo']),
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<Map<String, dynamic>>
-                                        dataSnapshot) {
-                                  if (dataSnapshot.connectionState ==
-                                      ConnectionState.done) {
-                                    Map<String, dynamic> data =
-                                        dataSnapshot.data!;
-                                    Timestamp time = payData?['paymentTime'];
+                        return StreamBuilder<DocumentSnapshot>(
+                          stream: _firestore
+                              .collection('payments')
+                              .doc(userId)
+                              .snapshots(),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<DocumentSnapshot> userSnapshot) {
+                            if (userSnapshot.connectionState ==
+                                ConnectionState.active) {
+                              if (userSnapshot.hasData) {
+                                Map<String, dynamic>? payData =
+                                    userSnapshot.data?.data()
+                                        as Map<String, dynamic>?;
+                                return FutureBuilder<Map<String, dynamic>>(
+                                  future: fetchAllPaymentData(
+                                      payData?['jobId'], payData?['payedTo']),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<Map<String, dynamic>>
+                                          dataSnapshot) {
+                                    if (dataSnapshot.connectionState ==
+                                        ConnectionState.done) {
+                                      Map<String, dynamic> data =
+                                          dataSnapshot.data!;
+                                      Timestamp time = payData?['paymentTime'];
 
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
-                                      child: ExpansionTile(
-                                        childrenPadding:
-                                            const EdgeInsets.all(15.0),
-                                        iconColor: Colors.black,
-                                        leading: UserLoadingAvatar(
-                                            userImage: data['userImage']),
-                                        title: Text(
-                                          data['serviceName'],
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        subtitle: Text(data['userName']),
-                                        trailing: Text(
-                                          "\u20B9${payData?['amountPaid']}",
-                                          style: TextStyle(
-                                              color: Color.fromARGB(
-                                                  255, 255, 58, 9),
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16),
-                                        ),
-                                        children: [
-                                          Column(
-                                            children: [
-                                              Divider(
-                                                color: const Color.fromARGB(
-                                                    255, 40, 37, 37),
-                                              ),
-                                              detailsOfJob("Payed for",
-                                                  data['serviceName']),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              detailsOfJob("Payed on",
-                                                  timeStampConverter(time)),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              detailsOfJob(
-                                                  "Payment id", userId),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  ElevatedButton.icon(
-                                                    icon: Icon(Icons.print),
-                                                    onPressed: () async {
-                                                      try {
-                                                        final invoice = Invoice(
-                                                            userName: data[
-                                                                'userName'],
-                                                            vendorName:
-                                                                vendorData[
-                                                                    'name'],
-                                                            invoiceId: userId,
-                                                            jobName: data[
-                                                                'serviceName'],
-                                                            payDate:
-                                                                timeStampConverter(
-                                                                    time),
-                                                            amount: payData?[
-                                                                'amountPaid'],
-                                                            description: '');
-                                                        final pdfFile =
-                                                            await PdfDrawer
-                                                                .generate(
-                                                                    invoice);
-
-                                                        PdfApi.openFile(
-                                                            pdfFile);
-                                                      } catch (e) {
-                                                        logger.e(e);
-                                                      }
-                                                    },
-                                                    style: ButtonStyle(
-                                                      backgroundColor:
-                                                          MaterialStateProperty
-                                                              .all<Color>(Colors
-                                                                  .blue), // Set button color to green
-                                                      shape: MaterialStateProperty
-                                                          .all<OutlinedBorder>(
-                                                        StadiumBorder(), // Use stadium border
-                                                      ),
-                                                    ),
-                                                    label: Text("Invoice",
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.white)),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(5)),
+                                        child: ExpansionTile(
+                                          childrenPadding:
+                                              const EdgeInsets.all(15.0),
+                                          iconColor: Colors.black,
+                                          leading: UserLoadingAvatar(
+                                              userImage: data['userImage']),
+                                          title: Text(
+                                            data['serviceName'],
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
                                           ),
-                                        ],
-                                      ),
-                                    );
-                                  } else {
-                                    return Center(
-                                        child: CircularProgressIndicator());
-                                  }
-                                },
-                              );
+                                          subtitle: Text(data['userName']),
+                                          trailing: Text(
+                                            "\u20B9${payData?['amountPaid']}",
+                                            style: TextStyle(
+                                                color: Color.fromARGB(
+                                                    255, 255, 58, 9),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16),
+                                          ),
+                                          children: [
+                                            Column(
+                                              children: [
+                                                Divider(
+                                                  color: const Color.fromARGB(
+                                                      255, 40, 37, 37),
+                                                ),
+                                                detailsOfJob("Payed for",
+                                                    data['serviceName']),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                detailsOfJob("Payed on",
+                                                    timeStampConverter(time)),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                detailsOfJob(
+                                                    "Payment id", userId),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    ElevatedButton.icon(
+                                                      icon: Icon(Icons.print),
+                                                      onPressed: () async {
+                                                        try {
+                                                          final invoice = Invoice(
+                                                              userName: data[
+                                                                  'userName'],
+                                                              vendorName:
+                                                                  vendorData[
+                                                                      'name'],
+                                                              invoiceId: userId,
+                                                              jobName: data[
+                                                                  'serviceName'],
+                                                              payDate:
+                                                                  timeStampConverter(
+                                                                      time),
+                                                              amount: payData?[
+                                                                  'amountPaid'],
+                                                              description: '');
+                                                          final pdfFile =
+                                                              await PdfDrawer
+                                                                  .generate(
+                                                                      invoice);
+
+                                                          PdfApi.openFile(
+                                                              pdfFile);
+                                                        } catch (e) {
+                                                          logger.e(e);
+                                                        }
+                                                      },
+                                                      style: ButtonStyle(
+                                                        backgroundColor:
+                                                            MaterialStateProperty
+                                                                .all<Color>(Colors
+                                                                    .blue), // Set button color to green
+                                                        shape: MaterialStateProperty
+                                                            .all<
+                                                                OutlinedBorder>(
+                                                          StadiumBorder(), // Use stadium border
+                                                        ),
+                                                      ),
+                                                      label: Text("Invoice",
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white)),
+                                                    ),
+                                                  ],
+                                                )
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    } else {
+                                      return Center(
+                                          child: CircularProgressIndicator());
+                                    }
+                                  },
+                                );
+                              }
                             }
-                          }
-                          return SizedBox();
-                        },
-                      );
-                    },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return Divider(
-                        color: Colors.grey,
-                      );
-                    },
-                  );
+                            return SizedBox();
+                          },
+                        );
+                      },
+                      separatorBuilder: (BuildContext context, int index) {
+                        return Divider(
+                          color: Colors.grey,
+                        );
+                      },
+                    );
+                  }
                 }
               }
             }
-
             return Center(
               child: Text(
                 "You have no payment history",
