@@ -369,6 +369,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 if (_formField.currentState!.validate()) {
                                   // user logion validation
                                   signInWithEmailAndPasswordAndCheckEmailVerification();
+                                  FocusScopeNode currentFocus =
+                                      FocusScope.of(context);
+                                  if (!currentFocus.hasPrimaryFocus) {
+                                    currentFocus.unfocus();
+                                  }
                                   setState(() {
                                     isLoading = true;
                                     isButtonDisabled = true;

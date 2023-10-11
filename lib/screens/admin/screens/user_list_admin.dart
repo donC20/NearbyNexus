@@ -2,6 +2,8 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server.dart';
 import '../component/appBarActionItems.dart';
 import '../component/header.dart';
 import '../component/sideMenu.dart';
@@ -194,6 +196,70 @@ String convertToSentenceCase(String input) {
   return input[0].toUpperCase() + input.substring(1).toLowerCase();
 }
 
+class EmailSender {
+  static Future<void> sendEmailBan(
+      String userEmail, String recipientName) async {
+    String username = 'hexated100@gmail.com'; // Your Gmail address
+    String password = 'ghytoizvwiqtibtn'; // Your Gmail password
+
+    final smtpServer = gmail(username, password);
+
+    final message = Message()
+      ..from = Address(username, 'NearbyNexus')
+      ..recipients.add(userEmail)
+      ..subject = 'Urgent - Account Banned'
+      ..html = '''
+        <div style="background-color: #333; color: #fff; padding: 20px; border-radius: 10px;">
+          <h1 style="color: #ff5722;">Account Banned</h1>
+          <p>Dear, <strong>$recipientName</strong></p>
+          <p>Your account has been banned due to a violation of our terms of service.</p>
+          <p>Contact our support team for further details and assistance.</p>
+          <hr>
+          <p>Thank you for your understanding.</p>
+        </div>
+      ''';
+
+    try {
+      final sendReport = await send(message, smtpServer);
+      print('Message sent: $sendReport');
+    } on MailerException catch (e) {
+      print('Message not sent. ${e.message}');
+    }
+  }
+
+  static Future<void> sendEmailUnBan(
+      String userEmail, String recipientName) async {
+    String username = 'hexated100@gmail.com'; // Your Gmail address
+    String password = 'ghytoizvwiqtibtn '; // Your Gmail password
+
+    final smtpServer = gmail(username, password);
+
+    final message = Message()
+      ..from = Address(username, 'NearbyNexus') // Your name
+      ..recipients.add(userEmail) // Recipient's email address
+      ..subject = 'Urgent - Account activated' // Email subject
+      ..html = '''
+        <div style="background-color: #333; color: #fff; padding: 20px; border-radius: 10px;">
+          <h1 style="color: #7CFC00;">Suspention revoked!</h1>
+          <p>Dear, <strong>$recipientName</strong></p>
+          <p>Your account suspention has been revoked..</p>
+          <p>Contact our support team for further details and assistance.</p>
+          <hr>
+          <p>Thank you for your patience.</p>
+        </div>
+      '''; // Email body
+
+    try {
+      final sendReport = await send(message, smtpServer);
+      print('Message sent: $sendReport');
+    } on MailerException catch (e) {
+      print('Message not sent. ${e.message}');
+    }
+  }
+}
+
+// Usage
+
 // ?model box
 void _showModal(BuildContext context, String uid) {
   showDialog(
@@ -353,6 +419,10 @@ void _showModal(BuildContext context, String uid) {
                                                     }).then((_) {
                                                       print(
                                                           "Document status updated successfully");
+                                                      EmailSender.sendEmailBan(
+                                                          userData['emailId']
+                                                              ['id'],
+                                                          userData['name']);
                                                     }).catchError((error) {
                                                       print(
                                                           "Error updating document status: $error");
@@ -424,6 +494,12 @@ void _showModal(BuildContext context, String uid) {
                                                         .update({
                                                       'status': 'active',
                                                     }).then((_) {
+                                                      EmailSender
+                                                          .sendEmailUnBan(
+                                                              userData[
+                                                                      'emailId']
+                                                                  ['id'],
+                                                              userData['name']);
                                                       print(
                                                           "Document status updated successfully");
                                                     }).catchError((error) {

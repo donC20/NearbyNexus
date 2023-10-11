@@ -187,7 +187,10 @@ class _ViewRequestsState extends State<ViewRequests> {
                                 style: TextStyle(color: Colors.white54),
                               ),
                               subtitle: Text(
-                                  timeStampConverter(rawData['dateRequested']),
+                                  rawData['dateRequested'] != null
+                                      ? timeStampConverter(
+                                          rawData['dateRequested'])
+                                      : "loading..",
                                   style: TextStyle(
                                       color: Colors.white54, fontSize: 10)),
                             ),
@@ -200,7 +203,10 @@ class _ViewRequestsState extends State<ViewRequests> {
                                         const Color.fromARGB(56, 255, 255, 255),
                                     fontWeight: FontWeight.bold)),
                             Text(
-                              convertToSentenceCase(rawData['service_name']),
+                              rawData['service_name'] != null
+                                  ? convertToSentenceCase(
+                                      rawData['service_name'])
+                                  : "loading...",
                               style: TextStyle(color: Colors.white54),
                             ),
                           ],
@@ -239,7 +245,9 @@ class _ViewRequestsState extends State<ViewRequests> {
                                             56, 255, 255, 255),
                                         fontWeight: FontWeight.bold)),
                                 Text(
-                                  timeStampConverter(rawData['day']),
+                                  rawData['day'] != null
+                                      ? timeStampConverter(rawData['day'])
+                                      : "loading..",
                                   style: TextStyle(
                                       color: Colors.white54, fontSize: 12),
                                 ),
@@ -257,7 +265,10 @@ class _ViewRequestsState extends State<ViewRequests> {
                                             56, 255, 255, 255),
                                         fontWeight: FontWeight.bold)),
                                 Text(
-                                  convertToSentenceCase(rawData['location']),
+                                  rawData['location'] != null
+                                      ? convertToSentenceCase(
+                                          rawData['location'])
+                                      : "loading..",
                                   style: TextStyle(color: Colors.white54),
                                 ),
                               ],
@@ -281,7 +292,9 @@ class _ViewRequestsState extends State<ViewRequests> {
                                         Icon(Icons.currency_rupee_sharp,
                                             size: 16, color: Colors.white54),
                                         Text(
-                                          rawData['wage'].toString(),
+                                          rawData['wage'] != null
+                                              ? rawData['wage'].toString()
+                                              : "loading...",
                                           style:
                                               TextStyle(color: Colors.white54),
                                         ),
@@ -488,7 +501,7 @@ class _ViewRequestsState extends State<ViewRequests> {
                               height: 5,
                             ),
                             Text(
-                              rawData['description'],
+                              rawData['description'] ?? "loadng..",
                               textAlign: TextAlign.justify,
                               style: TextStyle(color: Colors.white54),
                             ),

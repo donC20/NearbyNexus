@@ -12,6 +12,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:mailer/mailer.dart';
+import 'package:mailer/smtp_server/gmail.dart';
 
 class CompleteRegistrationByUser extends StatefulWidget {
   const CompleteRegistrationByUser({super.key});
@@ -198,6 +200,7 @@ class _CompleteRegistrationByUserState
           .set(userData)
           .then((value) {
         // insert success
+        EmailSender.sendEmailRegSuccess(emailId, name);
         showSnackbar("Registration Successful", Colors.green);
         Navigator.popAndPushNamed(context, "login_screen");
         setState(() {
@@ -507,7 +510,7 @@ class _CompleteRegistrationByUserState
                                               size: 50)
                                       : const Flexible(
                                           child: Text(
-                                            "Continue",
+                                            "Done",
                                             textAlign: TextAlign.center,
                                           ),
                                         ),
@@ -527,5 +530,37 @@ class _CompleteRegistrationByUserState
         ),
       ),
     );
+  }
+}
+
+class EmailSender {
+  static Future<void> sendEmailRegSuccess(
+      String userEmail, String recipientName) async {
+    String username = 'hexated100@gmail.com'; // Your Gmail address
+    String password = 'ghytoizvwiqtibtn'; // Your Gmail password
+
+    final smtpServer = gmail(username, password);
+
+    final message = Message()
+      ..from = Address(username, 'NearbyNexus')
+      ..recipients.add(userEmail)
+      ..subject = 'Welcome'
+      ..html = '''
+        <div style="background-color: #333; color: #fff; padding: 20px; border-radius: 10px;">
+          <h1 style="color: #7CFC00;">Registration Successfull!</h1>
+          <p>Dear, <strong>$recipientName</strong></p>
+          <p>Your have successfully registerd for NearbyNexus</p>
+          <p>Contact our support team for further details and assistance.</p>
+          <hr>
+          <p>Thank you for joining us.</p>
+        </div>
+      ''';
+
+    try {
+      final sendReport = await send(message, smtpServer);
+      print('Message sent: $sendReport');
+    } on MailerException catch (e) {
+      print('Message not sent. ${e.message}');
+    }
   }
 }

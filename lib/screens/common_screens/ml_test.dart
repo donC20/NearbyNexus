@@ -19,6 +19,12 @@ class KYCScreen extends StatefulWidget {
 }
 
 class _KYCScreenState extends State<KYCScreen> {
+  bool isPredicting = false;
+  String name = "";
+  String gender = "";
+  String dob = "";
+  String id_number = "";
+  String status = '';
   File? _image;
   String type = '';
   Future<void> _captureImage() async {
@@ -33,6 +39,10 @@ class _KYCScreenState extends State<KYCScreen> {
   }
 
   Future<void> _uploadImageToAzure() async {
+    setState(() {
+      isPredicting = true;
+      status = "Uploading to Cloud";
+    });
     if (_image != null) {
       Uint8List content = await _image!.readAsBytes();
 
@@ -62,13 +72,19 @@ class _KYCScreenState extends State<KYCScreen> {
 
   Future<Map<String, dynamic>> _sendAPIRequest(imageUrl) async {
     if (imageUrl.isEmpty) {
+      setState(() {
+        isPredicting = false;
+      });
       print('Please upload an image first.');
       return {'error': 'Image URL is empty.'};
     }
 
     try {
+      setState(() {
+        status = "Classifiying...";
+      });
       final response = await http.post(
-        Uri.parse('http://3.85.39.225/predict'), // Replace with your API URL
+        Uri.parse('http://54.159.158.131/predict'), // Replace with your API URL
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -80,32 +96,57 @@ class _KYCScreenState extends State<KYCScreen> {
         print(response.body);
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         setState(() {
+          isPredicting = false;
           String predicted = jsonResponse['predicted_class'];
-          Map<String, dynamic> data = jsonResponse['data'];
-          String name = data['name'] ?? "";
-          String gender = data['gender'] ?? "";
-          String dob = data['dob'] ?? "";
-          String id_number = data['id_number'] ?? "";
-
-          if (predicted == "Aadhaar") {
-            if (name.isEmpty ||
-                gender.isEmpty ||
-                dob.isEmpty ||
-                id_number.isEmpty) {
+          print(predicted);
+          if (jsonResponse['data'] == 'unavailable') {
+            String data = jsonResponse['data'] ?? "";
+            print(data);
+            setState(() {
+              status = jsonResponse['data'];
               type = "Not an Aadhaar";
-            } else {
-              type = "Aadhaar";
-            }
+            });
           } else {
-            type = "Not an Aadhaar";
+            Map<String, dynamic> data = jsonResponse['data'];
+
+            setState(() {
+              name = data['name'] ?? "";
+              gender = data['gender'] ?? "";
+              dob = data['dob'] ?? "";
+              id_number = data['id_number'];
+            });
+            if (predicted == "Aadhaar") {
+              if (name.isEmpty ||
+                  gender.isEmpty ||
+                  dob.isEmpty ||
+                  id_number.isEmpty) {
+                setState(() {
+                  type = "Not an Aadhaar";
+                });
+              } else {
+                setState(() {
+                  type = "Aadhaar";
+                });
+              }
+            } else {
+              setState(() {
+                type = "Not an Aadhaar";
+              });
+            }
           }
         });
         return jsonDecode(response.body);
       } else {
+        setState(() {
+          isPredicting = false;
+        });
         // If server returns an error response
         throw Exception('Failed to load data');
       }
     } catch (e) {
+      setState(() {
+        isPredicting = false;
+      });
       print('Error: $e');
       return {'error': 'An error occurred while making the request.'};
     }
@@ -122,10 +163,115 @@ class _KYCScreenState extends State<KYCScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        "Status : ",
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                            fontSize: 16),
+                      ),
+                      Text(
+                        status,
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 15, 209, 1),
+                            fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        "Name : ",
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                            fontSize: 16),
+                      ),
+                      Text(
+                        name,
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 15, 209, 1),
+                            fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        "Gender : ",
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                            fontSize: 16),
+                      ),
+                      Text(
+                        gender,
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 15, 209, 1),
+                            fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        "DOB : ",
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                            fontSize: 16),
+                      ),
+                      Text(
+                        dob,
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 15, 209, 1),
+                            fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        "Number : ",
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                            fontSize: 16),
+                      ),
+                      Text(
+                        id_number,
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 15, 209, 1),
+                            fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                ],
+              ),
+            ),
+            Center(
               child: Text(
                 type,
                 style: TextStyle(color: Colors.red, fontSize: 18),
               ),
+            ),
+            SizedBox(
+              height: 15,
             ),
             _image != null
                 ? Image.file(_image!, height: 200)
@@ -137,8 +283,9 @@ class _KYCScreenState extends State<KYCScreen> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _uploadImageToAzure,
-              child: Text('Upload Image to Firebase'),
+              onPressed: isPredicting ? () {} : _uploadImageToAzure,
+              child:
+                  isPredicting ? CircularProgressIndicator() : Text('Verify'),
             ),
             SizedBox(height: 20),
             // ElevatedButton(

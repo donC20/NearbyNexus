@@ -79,7 +79,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
     StreamController<dynamic> controller = StreamController<dynamic>();
 
     // Ensure uid is not null or empty
-    if ( uid.isNotEmpty) {
+    if (uid.isNotEmpty) {
       _firestore
           .collection('service_actions')
           .where('referencePath',
@@ -282,49 +282,73 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                     spacing: 10,
                                     runSpacing: 20,
                                     children: [
-                                      cardItems(
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.pushNamed(
+                                              context, "payment_vendor_log");
+                                        },
+                                        child: cardItems(
                                           Icons.payment,
                                           "Payments",
                                           "payment_vendor_log",
                                           context,
                                           () {},
                                           Colors.blueAccent,
-                                          "payment"),
+                                        ),
+                                      ),
                                       // cardItems(
                                       //     Icons.pending_actions,
                                       //     "Pending\npayments",
                                       //     "",
                                       //     context,
                                       //     () {}),
-                                      cardItems(
-                                          Icons.history,
-                                          "Job log",
-                                          "job_logs",
-                                          context,
-                                          () {},
-                                          Colors.red,
-                                          "job_logs_btn"),
-                                      cardItems(
+                                      InkWell(
+                                        key: Key('job_logs_btn'),
+                                        onTap: () {
+                                          Navigator.pushNamed(
+                                              context, "job_logs");
+                                        },
+                                        child: cardItems(
+                                            Icons.history,
+                                            "Job log",
+                                            "job_logs",
+                                            context,
+                                            () {},
+                                            Colors.red),
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.pushNamed(
+                                              context, "add_services_screen");
+                                        },
+                                        child: cardItems(
                                           Icons.design_services,
                                           "Add services",
                                           "add_services_screen",
                                           context,
                                           () {},
                                           Colors.white,
-                                          "add_services"),
+                                        ),
+                                      ),
                                       activityStatusTapped == true
-                                          ? cardItems(Icons.online_prediction,
-                                              "Go online", "", context, () {
-                                              setState(() {
-                                                activityStatusTapped = false;
-                                              });
-                                              _firestore
-                                                  .collection('users')
-                                                  .doc(uid)
-                                                  .update({
-                                                'activityStatus': 'available'
-                                              });
-                                            }, Colors.green, "go_online")
+                                          ? cardItems(
+                                              Icons.online_prediction,
+                                              "Go online",
+                                              "",
+                                              context,
+                                              () {
+                                                setState(() {
+                                                  activityStatusTapped = false;
+                                                });
+                                                _firestore
+                                                    .collection('users')
+                                                    .doc(uid)
+                                                    .update({
+                                                  'activityStatus': 'available'
+                                                });
+                                              },
+                                              Colors.green,
+                                            )
                                           : cardItems(Icons.access_time_sharp,
                                               "Go offline", "", context, () {
                                               setState(() {
@@ -336,7 +360,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                                   .update({
                                                 'activityStatus': 'busy'
                                               });
-                                            }, Colors.amber, "go_offline"),
+                                            }, Colors.amber),
                                     ],
                                   ),
                                 ),
@@ -564,53 +588,44 @@ Widget summaryContainer(
 }
 
 Widget cardItems(IconData icon, String title, String ontapRoute,
-    BuildContext context, Function onTap, Color iconColor, String key) {
-  return InkWell(
-      key: Key(key),
-      onTap: () {
-        if (ontapRoute.isNotEmpty) {
-          Navigator.pushNamed(context, ontapRoute);
-        }
-        onTap();
-      },
-      child: Container(
-        width: 150,
-        padding: EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
-          borderRadius: BorderRadius.circular(10),
-          color: Color.fromARGB(186, 42, 40, 40),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.9),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
-          ],
+    BuildContext context, Function onTap, Color iconColor) {
+  return Container(
+    width: 150,
+    padding: EdgeInsets.all(15),
+    decoration: BoxDecoration(
+      border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
+      borderRadius: BorderRadius.circular(10),
+      color: Color.fromARGB(186, 42, 40, 40),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.9),
+          blurRadius: 10,
+          spreadRadius: 2,
         ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: iconColor,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                  fontFamily: GoogleFonts.play().fontFamily),
-            ),
-          ],
+      ],
+    ),
+    child: Column(
+      children: [
+        Icon(
+          icon,
+          color: iconColor,
         ),
-      ));
+        SizedBox(
+          height: 10,
+        ),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: const Color.fromARGB(255, 255, 255, 255),
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              fontFamily: GoogleFonts.play().fontFamily),
+        ),
+      ],
+    ),
+  );
 }
-
 
 Widget recentUsers(String imagePath, String userName) {
   return Column(

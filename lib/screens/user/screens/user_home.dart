@@ -396,7 +396,7 @@ Widget onLocationServices(yrCurrentLocation) {
               Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  child: vendorDisplayTile(context, userData)),
+                  child: vendorDisplayTile(context, userData, docId)),
             );
           }
         }
@@ -448,10 +448,10 @@ Widget offLocationServices() {
       return ListView.separated(
         itemBuilder: (context, index) {
           Map<String, dynamic> userData = userDocumentData[index].data();
-
+          String docId = userDocumentData[index].id;
           return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: vendorDisplayTile(context, userData));
+              child: vendorDisplayTile(context, userData, docId));
         },
         separatorBuilder: (context, index) {
           return Divider(
@@ -466,7 +466,7 @@ Widget offLocationServices() {
   );
 }
 
-Widget vendorDisplayTile(BuildContext context, userData) {
+Widget vendorDisplayTile(BuildContext context, userData, docId) {
   return Container(
     padding: EdgeInsets.all(15),
     width: MediaQuery.of(context).size.width,
@@ -579,7 +579,10 @@ Widget vendorDisplayTile(BuildContext context, userData) {
               ],
             ),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, "vendor_profile_opposite",
+                    arguments: docId);
+              },
               style: ElevatedButton.styleFrom(
                 primary: Color(0xFF2d4fff),
                 shape: StadiumBorder(),

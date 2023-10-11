@@ -292,32 +292,51 @@ class _UserDashboardMState extends State<UserDashboardM> {
                                 spacing: 50,
                                 runSpacing: 15,
                                 children: [
-                                  cardItems(
-                                      Icons.work,
-                                      "Active Jobs",
-                                      "user_active_jobs",
-                                      context,
-                                      () {},
-                                      Colors.green,
-                                      "active_jobs"),
-                                  cardItems(
-                                      Icons.work_history,
-                                      "Pending Jobs",
-                                      "user_pending_requets",
-                                      context,
-                                      () {},
-                                      Colors.red,
-                                      "pending_jobs"),
+                                  InkWell(
+                                    key: Key("active_jobs"),
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                          context, "user_active_jobs");
+                                    },
+                                    child: cardItems(
+                                        Icons.work,
+                                        "Active Jobs",
+                                        "user_active_jobs",
+                                        context,
+                                        () {},
+                                        Colors.green,
+                                        "active_jobs"),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                          context, "user_pending_requets");
+                                    },
+                                    child: cardItems(
+                                        Icons.work_history,
+                                        "Pending Jobs",
+                                        "user_pending_requets",
+                                        context,
+                                        () {},
+                                        Colors.red,
+                                        "pending_jobs"),
+                                  ),
                                   cardItems(Icons.favorite, "Favourites", "",
                                       context, () {}, Colors.white, "fd"),
-                                  cardItems(
-                                      Icons.history,
-                                      "Job history",
-                                      "/user_job_history",
-                                      context,
-                                      () {},
-                                      Colors.amber,
-                                      "fsd"),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                          context, "/user_job_history");
+                                    },
+                                    child: cardItems(
+                                        Icons.history,
+                                        "Job history",
+                                        "/user_job_history",
+                                        context,
+                                        () {},
+                                        Colors.amber,
+                                        "fsd"),
+                                  ),
                                 ],
                               ),
                             ),
@@ -503,50 +522,42 @@ Widget jobandPaymentsSummary(BuildContext context, double amount) {
 
 Widget cardItems(IconData icon, String title, String ontapRoute,
     BuildContext context, Function onTap, Color iconColor, String key) {
-  return InkWell(
-      key: Key(key),
-      onTap: () {
-        if (ontapRoute.isNotEmpty) {
-          Navigator.pushNamed(context, ontapRoute);
-        }
-        onTap();
-      },
-      child: Container(
-        width: 150,
-        padding: EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
-          borderRadius: BorderRadius.circular(10),
-          color: Color.fromARGB(186, 42, 40, 40),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.9),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
-          ],
+  return Container(
+    width: 150,
+    padding: EdgeInsets.all(15),
+    decoration: BoxDecoration(
+      border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
+      borderRadius: BorderRadius.circular(10),
+      color: Color.fromARGB(186, 42, 40, 40),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.9),
+          blurRadius: 10,
+          spreadRadius: 2,
         ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: iconColor,
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  color: const Color.fromARGB(255, 255, 255, 255),
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                  fontFamily: GoogleFonts.play().fontFamily),
-            ),
-          ],
+      ],
+    ),
+    child: Column(
+      children: [
+        Icon(
+          icon,
+          color: iconColor,
         ),
-      ));
+        SizedBox(
+          height: 10,
+        ),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              color: const Color.fromARGB(255, 255, 255, 255),
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              fontFamily: GoogleFonts.play().fontFamily),
+        ),
+      ],
+    ),
+  );
 }
 
 String formatCurrency(double amount) {

@@ -66,6 +66,7 @@ dependencies:
   loading_animation_widget: ^1.2.0+4
   location: ^5.0.3
   logger: ^2.0.2
+  mailer: ^6.0.1
   material_floating_search_bar_2: ^0.5.0
   mime: ^1.0.4
   onesignal_flutter: ^5.0.1

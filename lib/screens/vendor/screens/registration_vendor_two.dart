@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, unused_element, non_constant_identifier_names, prefer_const_constructors
 
+import 'package:NearbyNexus/screens/user/screens/complete_registration_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -213,6 +214,8 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
           .set(userData)
           .then((value) {
         // insert success
+        EmailSender.sendEmailRegSuccess(
+            vendorInitialData?['email'], vendorInitialData?['name']);
         showSnackbar("Registration Successful", Colors.green);
         Navigator.popAndPushNamed(context, "login_screen");
         setState(() {

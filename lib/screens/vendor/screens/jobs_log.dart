@@ -272,7 +272,7 @@ class _JobLogsState extends State<JobLogs> {
                                       width: 15,
                                     ),
                                     ElevatedButton.icon(
-                                      key: Key(index.toString()),
+                                      key: Key("${index.toString()}_button"),
                                       icon: Icon(
                                         Icons.arrow_circle_right,
                                         color: const Color.fromARGB(

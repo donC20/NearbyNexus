@@ -701,6 +701,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton.icon(
+          key: Key("negotiate_start"),
             onPressed: () {
               showDialog(
                 // barrierDismissible: false,
@@ -743,6 +744,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
                             ),
                             SizedBox(
                               child: TextFormField(
+                                key: Key("enter_amount"),
                                 controller: _amountController,
                                 keyboardType: TextInputType.number,
                                 style: GoogleFonts.poppins(
@@ -781,6 +783,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
                             Align(
                               alignment: Alignment.bottomCenter,
                               child: ElevatedButton(
+                                key: Key("negotiate_final"),
                                 onPressed: () {
                                   if (_formKey.currentState!.validate()) {
                                     final List<dynamic> jobLogs =

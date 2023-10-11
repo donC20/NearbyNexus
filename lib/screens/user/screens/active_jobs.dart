@@ -279,6 +279,7 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
                                           bottom: 20,
                                           right: 0,
                                           child: OutlinedButton(
+                                            key: Key("${index.toString()}_button_user"),
                                               onPressed: () {
                                                 Map<String, dynamic> docInfo = {
                                                   "dataReference": docId,
