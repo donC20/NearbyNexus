@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/common_screens/ml_test.dart';
+import 'package:NearbyNexus/screens/vendor/screens/initial_kyc_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,6 +34,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
   SnakeShape snakeShape = SnakeShape.circle;
   Color unselectedColor = Colors.blueGrey;
   Color selectedColor = Colors.black;
+  bool kycStatus = false;
   var logger = Logger();
 
   @override
@@ -70,6 +72,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
             "https://firebasestorage.googleapis.com/v0/b/nearbynexus1.appspot.com/o/profile_images%2Ficons8-user-default-96.png?alt=media&token=0ffd4c8b-fc40-4f19-a457-1ef1e0ba6ae5";
         nameLoginned = fetchedData['name'];
         isimageFetched = false;
+        kycStatus = fetchedData['kyc']['verified'];
       });
       summaryContainerStream();
     }
@@ -213,22 +216,78 @@ class _VendorDashboardState extends State<VendorDashboard> {
                             ],
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => KYCScreen()),
-                            );
-                          },
-                          child: Text('Go to Details'),
-                        ),
                         Expanded(
                           child: Padding(
                             padding:
                                 const EdgeInsets.only(left: 10.0, right: 10.0),
                             child: ListView(
                               children: [
+                                // KYC container
+                                Visibility(
+                                  visible: !kycStatus,
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.only(bottom: 20.0),
+                                    child: Container(
+                                      padding: EdgeInsets.all(15),
+                                      width: MediaQuery.sizeOf(context).width,
+                                      height: 150,
+                                      decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Color.fromARGB(
+                                                  81, 255, 255, 255)),
+                                          color:
+                                              Color.fromARGB(45, 255, 255, 255),
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: Stack(
+                                        children: [
+                                          Text(
+                                            'Take a moment to\ncomplete KYC.',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18,
+                                                fontFamily:
+                                                    GoogleFonts.aBeeZee()
+                                                        .fontFamily,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Positioned(
+                                            bottom: -30,
+                                            right: 0,
+                                            child: Image.asset(
+                                              'assets/images/man_with_key.png',
+                                              width: 180,
+                                              height: 180,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          Positioned(
+                                            bottom: 10,
+                                            child: ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            KYCInstructionScreen()),
+                                                  );
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                    backgroundColor:
+                                                        Colors.white),
+                                                child: Text(
+                                                  "I'm ready",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.black),
+                                                )),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
                                 Container(
                                   decoration: BoxDecoration(
                                       color: Color(0xFF8B5FEC),
