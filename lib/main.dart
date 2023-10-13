@@ -25,6 +25,7 @@ import 'package:NearbyNexus/screens/vendor/screens/payments_log.dart';
 import 'package:NearbyNexus/screens/vendor/screens/update_vendor_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_dashboard.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
+import 'package:NearbyNexus/screens/vendor/screens/vendor_kyc.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_notification_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_profile_one.dart';
@@ -125,6 +126,7 @@ class MyApp extends StatelessWidget {
         "search_screen_vendor": (context) => const VendorSideSearchScreen(),
         "payment_vendor_log": (context) => const PaymentVendorLogScreen(),
         "add_services_screen": (context) => const SearchScreenServices(),
+        "/vendor_kyc_screen": (context) => KYCScreen(),
         //  user_pages
         "user_home": (context) => const GeneralUserHome(),
         "user_dashboard": (context) => const UserDashboardM(),

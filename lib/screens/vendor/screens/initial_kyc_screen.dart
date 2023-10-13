@@ -59,13 +59,14 @@ class KYCInstructionScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(bottom: 50, left: 20, right: 20),
+        padding: EdgeInsets.only(bottom: 50, left: 50, right: 50),
         child: SizedBox(
           height: 50,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
             onPressed: () {
               // Add functionality for the button here
+              Navigator.pushNamed(context, "/vendor_kyc_screen");
             },
             child: Text(
               'Continue',

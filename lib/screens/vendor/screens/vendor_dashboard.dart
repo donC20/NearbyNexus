@@ -5,7 +5,7 @@ import 'dart:convert';
 
 import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
-import 'package:NearbyNexus/screens/common_screens/ml_test.dart';
+import 'package:NearbyNexus/screens/vendor/screens/vendor_kyc.dart';
 import 'package:NearbyNexus/screens/vendor/screens/initial_kyc_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
