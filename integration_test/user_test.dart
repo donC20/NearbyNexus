@@ -6,7 +6,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:NearbyNexus/main.dart' as app;
 
 void main() {
-  group('Vendor Test', () {
+  group('User Test', () {
     IntegrationTestWidgetsFlutterBinding.ensureInitialized();
     testWidgets("User function test", (widgetTester) async {
       app.main();
