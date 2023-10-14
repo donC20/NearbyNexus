@@ -85,7 +85,7 @@ class _KYCScreenState extends State<KYCScreen> {
         status = "Classifiying...";
       });
       final response = await http.post(
-        Uri.parse('http://18.206.249.10/predict'), // Replace with your API URL
+        Uri.parse('http://52.90.42.210/predict'), // Replace with your API URL
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -109,7 +109,7 @@ class _KYCScreenState extends State<KYCScreen> {
             Map<String, dynamic> data = jsonResponse['data'];
             setState(() {
               id_number = data['Id'];
-              dob = data['Dob'] ?? "";
+              dob = data['Dob'];
             });
             if (dob.isEmpty || id_number.isEmpty) {
               setState(() {
@@ -122,6 +122,7 @@ class _KYCScreenState extends State<KYCScreen> {
             }
           }
         });
+        print(type);
         return jsonDecode(response.body);
       } else {
         setState(() {
@@ -169,12 +170,19 @@ class _KYCScreenState extends State<KYCScreen> {
               SizedBox(
                 height: 15,
               ),
-              Center(
-                child: SvgPicture.asset(
-                  "assets/images/vector/Verified-rafiki.svg",
-                  height: 350,
-                ),
-              ),
+              type == "not_pan" || type == "img_not_clear"
+                  ? Center(
+                      child: Image.asset(
+                        "assets/images/invalid.png",
+                        height: 350,
+                      ),
+                    )
+                  : Center(
+                      child: SvgPicture.asset(
+                        "assets/images/vector/Verified-rafiki.svg",
+                        height: 350,
+                      ),
+                    ),
               !isPredicting
                   ? type.isEmpty
                       ? Expanded(
@@ -283,35 +291,109 @@ class _KYCScreenState extends State<KYCScreen> {
                           ),
                         )
                       : type == 'not_pan'
-                          ? Expanded(
-                              child: Container(
+                          ? Container(
                               padding: EdgeInsets.all(15),
-                              width: MediaQuery.sizeOf(context).width,
-                              height: 80,
+                              width: MediaQuery.of(context).size.width,
                               decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: Color.fromARGB(81, 255, 0, 0)),
-                                  color: Color.fromARGB(44, 255, 0, 0),
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: Text(
-                                'Please note.',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontFamily:
-                                        GoogleFonts.aBeeZee().fontFamily,
-                                    fontWeight: FontWeight.bold),
+                                border: Border.all(
+                                    color: Color.fromARGB(81, 255, 0, 0)),
+                                color: Color.fromARGB(44, 255, 0, 0),
+                                borderRadius: BorderRadius.circular(5),
                               ),
-                            ))
-                          : Expanded(
-                              child: Center(
-                                child: LoadingAnimationWidget.threeArchedCircle(
-                                  color: Colors.white,
-                                  size: 50,
-                                ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Invalid PAN Card!',
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 18,
+                                      fontFamily:
+                                          GoogleFonts.russoOne().fontFamily,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  ListTile(
+                                    leading: Icon(
+                                      Icons.error,
+                                      color: Colors.white,
+                                    ),
+                                    horizontalTitleGap: 8,
+                                    title: Text(
+                                      'We are unable to identify this card as a PAN card. Please ensure that you have provided a valid PAN card.',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontFamily:
+                                            GoogleFonts.aBeeZee().fontFamily,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             )
-                  : SizedBox(),
+                          : type == 'img_not_clear'
+                              ? Container(
+                                  padding: EdgeInsets.all(15),
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Color.fromARGB(81, 255, 0, 0)),
+                                    color: Color.fromARGB(44, 255, 0, 0),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Unclear card!',
+                                        style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 18,
+                                          fontFamily:
+                                              GoogleFonts.russoOne().fontFamily,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      ListTile(
+                                        leading: Icon(
+                                          Icons.error,
+                                          color: Colors.white,
+                                        ),
+                                        horizontalTitleGap: 8,
+                                        title: Text(
+                                          'We are unable to identify your card. Kindly provide a clear image of your PAN card. Please retry!',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontFamily: GoogleFonts.aBeeZee()
+                                                .fontFamily,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Expanded(
+                                  child: Center(
+                                    child: LoadingAnimationWidget
+                                        .threeArchedCircle(
+                                      color: Colors.white,
+                                      size: 50,
+                                    ),
+                                  ),
+                                )
+                  : Expanded(
+                      child: Center(
+                        child: LoadingAnimationWidget.threeArchedCircle(
+                          color: Colors.white,
+                          size: 50,
+                        ),
+                      ),
+                    ),
               SizedBox(
                 height: 50,
               ),
@@ -326,16 +408,22 @@ class _KYCScreenState extends State<KYCScreen> {
           child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white, shape: StadiumBorder()),
-            onPressed: _captureImage,
+            onPressed: isPredicting ? null : _captureImage,
             icon: Icon(
               Icons.document_scanner,
               color: Colors.black,
             ),
-            label: Text(
-              'Scan now',
-              style:
-                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-            ),
+            label: isPredicting
+                ? CircularProgressIndicator(
+                    color: Colors.black,
+                  )
+                : Text(
+                    type == "not_pan" || type == "img_not_clear"
+                        ? 'Retry now'
+                        : "Scan now",
+                    style: TextStyle(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
           ),
         ),
       ),
