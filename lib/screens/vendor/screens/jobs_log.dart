@@ -289,14 +289,22 @@ class _JobLogsState extends State<JobLogs> {
                                                   255, 255, 255, 255),
                                             ),
                                             onPressed: () {
-                                              Map<String, dynamic> docInfo = {
-                                                "dataReference": docId,
-                                                "userReference": documentData[
-                                                    'userReference'],
-                                              };
-                                              Navigator.pushNamed(
-                                                  context, "view_requests",
-                                                  arguments: docInfo);
+                                              if (documentData['status'] ==
+                                                      'accepted' ||
+                                                  documentData['status'] ==
+                                                      'user accepted') {
+                                                Navigator.pushNamed(context,
+                                                    "vendor_accepted_job");
+                                              } else {  
+                                                Map<String, dynamic> docInfo = {
+                                                  "dataReference": docId,
+                                                  "userReference": documentData[
+                                                      'userReference'],
+                                                };
+                                                Navigator.pushNamed(
+                                                    context, "view_requests",
+                                                    arguments: docInfo);
+                                              }
                                             },
                                             style: ButtonStyle(
                                               backgroundColor: MaterialStateProperty

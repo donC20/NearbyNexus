@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class FunctionInvoker {
 // dialog
-  showCancelDialog(BuildContext context, Function onTapFunction) {
+  showCancelDialog(BuildContext context, Function onTapFunction,title) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -13,7 +13,7 @@ class FunctionInvoker {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Text(
-                "Do you want to cancel this service request?",
+                title,
                 style: TextStyle(fontSize: 18),
               ),
               SizedBox(height: 10),

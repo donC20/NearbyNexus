@@ -187,6 +187,7 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
           "id": vendorInitialData?['email'],
           "verified": isloginTypeGoogle
         },
+        kyc: {"dob": '', "pan_id": '', "verified": false},
         govDocs: '',
         image: _imageUrl,
         phone: {

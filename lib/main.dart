@@ -18,6 +18,7 @@ import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/components/global_notification.dart';
 import 'package:NearbyNexus/screens/vendor/components/search_services_screen.dart';
+import 'package:NearbyNexus/screens/vendor/screens/job_details.dart';
 import 'package:NearbyNexus/screens/vendor/screens/job_log_timeline.dart';
 import 'package:NearbyNexus/screens/vendor/screens/jobs_log.dart';
 import 'package:NearbyNexus/screens/vendor/screens/new_jobs.dart';
@@ -127,6 +128,7 @@ class MyApp extends StatelessWidget {
         "payment_vendor_log": (context) => const PaymentVendorLogScreen(),
         "add_services_screen": (context) => const SearchScreenServices(),
         "/vendor_kyc_screen": (context) => KYCScreen(),
+        "vendor_accepted_job": (context) => MyJobs(),
         //  user_pages
         "user_home": (context) => const GeneralUserHome(),
         "user_dashboard": (context) => const UserDashboardM(),

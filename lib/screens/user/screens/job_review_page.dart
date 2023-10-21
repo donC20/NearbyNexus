@@ -201,7 +201,9 @@ class _JobReviewPageState extends State<JobReviewPage> {
             'status': 'finished',
             'dateRequested': DateTime.now()
           });
-          Navigator.popAndPushNamed(context, "rate_user_screen");
+          // Navigator.popAndPushNamed(context, "rate_user_screen");
+          Navigator.popAndPushNamed(context, "rate_user_screen",
+              arguments: {"uid": payedTo, "jobId": jobId});
         } catch (e) {
           logger.e(e);
         }
@@ -328,7 +330,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
                       formattedTimeAgo =
                           formatTimestamp(documentData['dateRequested']);
 
-                      return Column(
+                      return ListView(
                         children: [
                           Container(
                               padding: EdgeInsets.all(10),
@@ -697,11 +699,11 @@ class _JobReviewPageState extends State<JobReviewPage> {
       BuildContext context, documentData, docId, String text) {
     final TextEditingController _amountController = TextEditingController();
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
       children: [
         ElevatedButton.icon(
-          key: Key("negotiate_start"),
+            key: Key("negotiate_start"),
             onPressed: () {
               showDialog(
                 // barrierDismissible: false,
@@ -847,10 +849,37 @@ class _JobReviewPageState extends State<JobReviewPage> {
                     Colors.amber));
               }
 
-              functionInvoker.showCancelDialog(context, declineFunction);
+              functionInvoker.showCancelDialog(context, declineFunction,
+                  "Do you want to cancel this service request?");
             },
             icon: Icon(Icons.close),
             label: Text("Revoke")),
+        ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green, shape: StadiumBorder()),
+            onPressed: () {
+              declineFunction() {
+                print("finc called");
+                final List<dynamic> jobLogs = documentData['jobLogs'];
+                jobLogs.add('user accepted');
+                _service_actions_collection.doc(docId).update({
+                  'status': 'user accepted',
+                  'dateRequested': DateTime.now(),
+                  'jobLogs': jobLogs
+                }).then((value) => functionInvoker.showAwesomeSnackbar(
+                    context,
+                    "The service is accepted",
+                    Colors.green,
+                    Colors.white,
+                    Icons.check,
+                    Colors.amber));
+              }
+
+              functionInvoker.showCancelDialog(context, declineFunction,
+                  "Do you want to accept this service request?");
+            },
+            icon: Icon(Icons.check),
+            label: Text("Accept")),
       ],
     );
   }
@@ -900,11 +929,11 @@ class _JobReviewPageState extends State<JobReviewPage> {
                               payedBy,
                               payedTo,
                               documentData['jobLogs']);
-                          Navigator.popAndPushNamed(context, "rate_user_screen",
-                              arguments: {
-                                "uid": payedTo,
-                                "jobId": arguments['dataReference']
-                              });
+                          // Navigator.popAndPushNamed(context, "rate_user_screen",
+                          //     arguments: {
+                          //       "uid": payedTo,
+                          //       "jobId": arguments['dataReference']
+                          //     });
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromARGB(255, 0, 110, 255),

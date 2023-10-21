@@ -7,6 +7,7 @@ class VendorModel {
   final String? name;
   final Map<String, dynamic>? emailId;
   final Map<String, dynamic>? phone;
+  final Map<String, dynamic>? kyc;
   final String? image;
   final String? currentGeoLocation;
   final String? userType;
@@ -29,6 +30,7 @@ class VendorModel {
       {this.id,
       required this.name,
       required this.emailId,
+      required this.kyc,
       required this.phone,
       required this.image,
       required this.userType,
@@ -64,7 +66,8 @@ class VendorModel {
       "allRatings": allRatings,
       "actualRating": actualRating,
       "totalRating": totalRating,
-      "activityStatus": activityStatus
+      "activityStatus": activityStatus,
+      "kyc": kyc
     };
   }
 }

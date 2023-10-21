@@ -139,7 +139,7 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                       formattedTimeAgo =
                           formatTimestamp(documentData['dateRequested']);
 
-                      return Column(
+                      return ListView(
                         children: [
                           Container(
                               padding: EdgeInsets.all(10),
@@ -469,7 +469,7 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                     }
 
                                     functionInvoker.showCancelDialog(
-                                        context, declineFunction);
+                                        context, declineFunction,"Do you want to cancel this service request?");
                                   },
                                   icon: Icon(Icons.close),
                                   label: Text("Revoke"))

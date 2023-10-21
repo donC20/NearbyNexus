@@ -1,7 +1,9 @@
-// ignore_for_file: avoid_print, prefer_const_constructors, use_key_in_widget_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: avoid_print, prefer_const_constructors, use_key_in_widget_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously, sort_child_properties_last
 
 import 'dart:typed_data';
 
+import 'package:NearbyNexus/screens/vendor/components/stage_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 // ignore: unused_import
 import 'package:firebase_storage/firebase_storage.dart';
@@ -11,10 +13,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:logger/logger.dart';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:mime/mime.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class KYCScreen extends StatefulWidget {
   @override
@@ -30,6 +34,50 @@ class _KYCScreenState extends State<KYCScreen> {
   String status = '';
   File? pickedImage;
   String type = '';
+  String api_ip = '0.0.0.0';
+
+  String uid = '';
+
+  var logger = Logger();
+
+  @override
+  void initState() {
+    super.initState();
+    FetchUserData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // setState(() {
+    //   uid = Provider.of<UserProvider>(context, listen: false).uid;
+    // });
+  }
+
+  Future<void> FetchUserData() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData ?? '');
+
+    setState(() {
+      uid = initData['uid'];
+    });
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('app_config')
+        .doc('api_reference')
+        .get();
+    if (snapshot.exists) {
+      Map<String, dynamic> fetchedData =
+          snapshot.data() as Map<String, dynamic>;
+
+      // Assing admin data to the UI
+      setState(() {
+        api_ip = fetchedData['api_ip'];
+      });
+    }
+  }
+
   Future<void> _captureImage() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.camera);
@@ -85,7 +133,7 @@ class _KYCScreenState extends State<KYCScreen> {
         status = "Classifiying...";
       });
       final response = await http.post(
-        Uri.parse('http://52.90.42.210/predict'), // Replace with your API URL
+        Uri.parse('http://3.94.53.249/predict'), // Replace with your API URL
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -110,6 +158,7 @@ class _KYCScreenState extends State<KYCScreen> {
             setState(() {
               id_number = data['Id'];
               dob = data['Dob'];
+              isPredicting = false;
             });
             if (dob.isEmpty || id_number.isEmpty) {
               setState(() {
@@ -118,6 +167,7 @@ class _KYCScreenState extends State<KYCScreen> {
             } else {
               setState(() {
                 type = "PAN";
+                openBottomSheet(context, id_number, dob, uid);
               });
             }
           }
@@ -427,6 +477,231 @@ class _KYCScreenState extends State<KYCScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+// update query
+void updateUserData(
+    String uid, Map<String, dynamic> kycData, BuildContext context) async {
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  try {
+    await firestore.collection('users').doc(uid).update({
+      'kyc': kycData,
+    });
+    print('Document updated successfully!');
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CustomAlertDialog(
+          title: 'Success!',
+          message: 'Your KYC is successfully verified.',
+        );
+      },
+    );
+  } catch (e) {
+    print('Error updating document: $e');
+  }
+}
+
+openBottomSheet(BuildContext context, String panNumber, dob, uid) {
+  final dobController = TextEditingController();
+  final panController = TextEditingController();
+  dobController.text = dob;
+  panController.text = panNumber;
+  showModalBottomSheet(
+    isScrollControlled: true,
+    context: context,
+    builder: (context) => SingleChildScrollView(
+      child: Container(
+        color: Colors.white,
+        height:
+            MediaQuery.of(context).size.height * 0.5, // Adjust the height here
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            Center(
+              child: Container(
+                height: 100,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: <Widget>[
+                    StageWidget(
+                      color: Colors.green,
+                      icon: Icons.check,
+                      belowText: 'PAN identified',
+                      isLast: false,
+                    ),
+                    StageWidget(
+                      color: Colors.green,
+                      icon: Icons.check,
+                      belowText: 'Extracted',
+                      isLast: false,
+                    ),
+                    StageWidget(
+                      color: Colors.yellow,
+                      icon: Icons.ac_unit,
+                      belowText: 'Verify details',
+                      isLast: true,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  "Verify your details",
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 60,
+              child: TextFormField(
+                readOnly: true,
+                onTap: () {
+                  showDatePicker(
+                    context: context,
+                    initialDate: DateTime(1963),
+                    firstDate: DateTime(1963),
+                    lastDate: DateTime(2005),
+                  );
+                },
+                controller: dobController,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.calendar_today),
+                  labelText: "Date of Birth",
+                  contentPadding: const EdgeInsets.only(left: 25, bottom: 35),
+                  hintText: "Your date of birth",
+                  hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                  labelStyle: const TextStyle(
+                      color: Color.fromARGB(182, 0, 0, 0), fontSize: 14),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(50),
+                    borderSide: const BorderSide(
+                      color: Color.fromARGB(166, 158, 158, 158),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(
+                      color: Color.fromARGB(166, 158, 158, 158),
+                    ),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 20.0),
+            TextFormField(
+              controller: panController,
+              keyboardType: TextInputType.text,
+              readOnly: false,
+              style: GoogleFonts.poppins(color: Colors.black),
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.numbers),
+                labelText: "PAN number",
+                contentPadding: const EdgeInsets.only(left: 25, bottom: 35),
+                hintText: "Your pan number",
+                hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                labelStyle: const TextStyle(
+                    color: Color.fromARGB(182, 0, 0, 0), fontSize: 14),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(50),
+                  borderSide: const BorderSide(
+                    color: Color.fromARGB(166, 158, 158, 158),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Color.fromARGB(166, 158, 158, 158),
+                  ),
+                  borderRadius: BorderRadius.circular(50),
+                ),
+              ),
+            ),
+            SizedBox(height: 20.0),
+            SizedBox(
+              width: MediaQuery.sizeOf(context).width - 50,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  Map<String, dynamic> kycData = {
+                    'dob': dobController.text, // Example date of birth
+                    'pan_id': panController.text,
+                    'verified': true, // Example PAN ID
+                  };
+                  updateUserData(uid, kycData, context);
+                },
+                child: Text('Complete'),
+                style: ElevatedButton.styleFrom(
+                  shape: StadiumBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+// custom dialog
+class CustomAlertDialog extends StatelessWidget {
+  final String title;
+  final String message;
+
+  CustomAlertDialog({required this.title, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.green,
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Icon(
+                Icons.check,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+          ),
+          SizedBox(height: 20),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(message),
+        ],
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            Navigator.pushReplacementNamed(context, "vendor_dashboard");
+          },
+          child: Text('OK'),
+        ),
+      ],
     );
   }
 }

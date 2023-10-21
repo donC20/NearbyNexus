@@ -289,7 +289,7 @@ class _UserDashboardMState extends State<UserDashboardM> {
                             Align(
                               alignment: Alignment.center,
                               child: Wrap(
-                                spacing: 50,
+                                spacing: 30,
                                 runSpacing: 15,
                                 children: [
                                   InkWell(
