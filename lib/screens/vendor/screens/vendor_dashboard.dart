@@ -155,7 +155,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
                     return Column(
                       children: [
                         Container(
-                          height: MediaQuery.sizeOf(context).height - 400,
+                          height: 400,
                           decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.only(

@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'dart:ffi';
+import 'dart:convert';
 
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/user/components/vendor_review_container.dart';
@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VendorPortfolio extends StatefulWidget {
   const VendorPortfolio({super.key});
@@ -30,6 +31,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
     setState(() {
       vendorId = ModalRoute.of(context)!.settings.arguments as String;
     });
+    fetchUserData();
     getTheVendor(vendorId);
   }
 
@@ -38,6 +40,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
 
   bool isFetching = true;
   bool isImageUploading = false;
+  bool isFavourited = false;
   String name = "loading...";
   double totalRating = 0.0;
   String dpImage =
@@ -48,6 +51,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
   List<dynamic> languages = [];
   String activityStatus = "available";
   String about = '';
+  String uid = '';
   var logger = Logger();
   Map<String, dynamic> summaryData = {};
 
@@ -75,6 +79,29 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
           activityStatus = vendorData['activityStatus'];
         });
         summaryContainerStream(uid);
+      }
+    });
+  }
+
+  // fetch user
+  Future<void> fetchUserData() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData ?? '');
+    setState(() {
+      uid = initData['uid'];
+    });
+    _firestore.collection('users').doc(uid).snapshots().listen((event) {
+      if (event.exists) {
+        var data = event.data() as Map<String, dynamic>;
+        List<String> userFavourites = List<String>.from(data['userFavourites']);
+        List<String> favList = [];
+        if (userFavourites.contains(vendorId)) {
+          setState(() {
+            isFavourited = true;
+          });
+        }
       }
     });
   }
@@ -230,51 +257,105 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
                       ),
                     ),
-                    activityStatus == "available"
-                        ? Positioned(
-                            bottom: 15,
-                            right: 15,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.pushNamed(context, "new_request",
-                                    arguments: vendorId);
+                    Positioned(
+                      bottom: 15,
+                      right: 15,
+                      child: Row(
+                        children: [
+                          activityStatus == "available"
+                              ? ElevatedButton.icon(
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, "new_request",
+                                        arguments: vendorId);
+                                  },
+                                  icon: Icon(
+                                    Icons
+                                        .work, // Change this to the desired icon
+                                    color: Colors
+                                        .black, // Change the icon color as needed
+                                  ),
+                                  label: Text(
+                                    "Contact",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight
+                                            .bold), // Change the label color as needed
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors
+                                        .white, // Set the background color to white
+                                  ),
+                                )
+                              : Container(
+                                  width: 110,
+                                  height: 40,
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: Text(
+                                    "Unavailable",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                          IconButton(
+                              onPressed: () async {
+                                var data = await _firestore
+                                    .collection('users')
+                                    .doc(uid)
+                                    .get();
+
+                                if (data.exists) {
+                                  List<String> userFavourites =
+                                      List<String>.from(data['userFavourites']);
+
+                                  if (!userFavourites.contains(vendorId)) {
+                                    // Vendor ID not in the list, add it and update Firestore
+                                    userFavourites.add(vendorId);
+                                    setState(() {
+                                      isFavourited = true;
+                                    });
+                                  } else {
+                                    // Vendor ID already in the list, remove it and update Firestore
+                                    userFavourites.remove(vendorId);
+                                    setState(() {
+                                      isFavourited = false;
+                                    });
+                                  }
+
+                                  await _firestore
+                                      .collection('users')
+                                      .doc(uid)
+                                      .update({
+                                    'userFavourites': userFavourites,
+                                  });
+
+                                  final snackBar = SnackBar(
+                                    duration: Duration(seconds: 1),
+                                    content: Text(
+                                      isFavourited
+                                          ? "Added to favorites."
+                                          : "Removed from favorites.",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    backgroundColor: Colors.white,
+                                  );
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(snackBar);
+                                }
                               },
                               icon: Icon(
-                                Icons.work, // Change this to the desired icon
-                                color: Colors
-                                    .black, // Change the icon color as needed
-                              ),
-                              label: Text(
-                                "Contact",
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight
-                                        .bold), // Change the label color as needed
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors
-                                    .white, // Set the background color to white
-                              ),
-                            ),
-                          )
-                        : Positioned(
-                            bottom: 15,
-                            right: 15,
-                            child: Container(
-                              width: 110,
-                              height: 40,
-                              padding: EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: Text(
-                                "Unavailable",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
+                                isFavourited
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: Colors.white,
+                                size: 25,
+                              ))
+                        ],
+                      ),
+                    ),
                   ],
                 ),
                 Expanded(
@@ -384,10 +465,10 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         SizedBox(
                           height: 5,
                         ),
-                        workingDays!.isNotEmpty
+                        workingDays.isNotEmpty
                             ? Wrap(
                                 spacing: 5.0,
-                                children: workingDays!.map((e) {
+                                children: workingDays.map((e) {
                                   return Chip(
                                     shape: RoundedRectangleBorder(
                                       side: BorderSide(

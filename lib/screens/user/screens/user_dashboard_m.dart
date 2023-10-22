@@ -321,8 +321,20 @@ class _UserDashboardMState extends State<UserDashboardM> {
                                         Colors.red,
                                         "pending_jobs"),
                                   ),
-                                  cardItems(Icons.favorite, "Favourites", "",
-                                      context, () {}, Colors.white, "fd"),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                          context, "/my_favourites");
+                                    },
+                                    child: cardItems(
+                                        Icons.favorite,
+                                        "Favourites",
+                                        "",
+                                        context,
+                                        () {},
+                                        Colors.white,
+                                        "fd"),
+                                  ),
                                   InkWell(
                                     onTap: () {
                                       Navigator.pushNamed(

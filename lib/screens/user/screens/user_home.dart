@@ -282,46 +282,54 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
           )
         ],
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 15.0),
-          child: DefaultTabController(
-            length: 2,
-            child: Column(
-              children: <Widget>[
-                ButtonsTabBar(
-                  backgroundColor: Color(0xFF2d4fff),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 30),
-                  radius: 20,
-                  labelSpacing: 2,
-                  unselectedBackgroundColor: Colors.grey[300],
-                  unselectedLabelStyle: TextStyle(color: Colors.black),
-                  labelStyle: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                  tabs: [
-                    Tab(
-                      icon: Icon(Icons.location_on),
-                      text: "My Location",
-                    ),
-                    Tab(
-                      icon: Icon(Icons.travel_explore),
-                      text: "Off location",
-                    ),
-                  ],
-                ),
-                Expanded(
-                  child: TabBarView(
+      body: isloadingLocation == true
+          ? Container(
+              decoration: BoxDecoration(color: Colors.black),
+              child: Center(
+                child: LoadingAnimationWidget.prograssiveDots(
+                    color: const Color.fromARGB(255, 255, 255, 255), size: 80),
+              ),
+            )
+          : SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 15.0),
+                child: DefaultTabController(
+                  length: 2,
+                  child: Column(
                     children: <Widget>[
-                      onLocationServices(yrCurrentLocation),
-                      offLocationServices(),
+                      ButtonsTabBar(
+                        backgroundColor: Color(0xFF2d4fff),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 30),
+                        radius: 20,
+                        labelSpacing: 2,
+                        unselectedBackgroundColor: Colors.grey[300],
+                        unselectedLabelStyle: TextStyle(color: Colors.black),
+                        labelStyle: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                        tabs: [
+                          Tab(
+                            icon: Icon(Icons.location_on),
+                            text: "My Location",
+                          ),
+                          Tab(
+                            icon: Icon(Icons.travel_explore),
+                            text: "Off location",
+                          ),
+                        ],
+                      ),
+                      Expanded(
+                        child: TabBarView(
+                          children: <Widget>[
+                            onLocationServices(yrCurrentLocation),
+                            offLocationServices(),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
       bottomNavigationBar: BottomGNavUser(
         activePage: 0,
         isSelectable: true,
