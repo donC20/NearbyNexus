@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'dart:convert';
 
@@ -6,6 +6,7 @@ import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/screens/user/components/vendor_review_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,7 +41,7 @@ class _NewJobsState extends State<NewJobs> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ??'');
+    var initData = json.decode(userLoginData ?? '');
 
     setState(() {
       uid = initData['uid'];
@@ -260,7 +261,26 @@ class _NewJobsState extends State<NewJobs> {
                   ),
                 );
               }
-              return SizedBox();
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      "assets/images/vector/ship_wrek.svg",
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Text(
+                      "You don't have any new jobs.",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+              );
             },
           ))
         ],

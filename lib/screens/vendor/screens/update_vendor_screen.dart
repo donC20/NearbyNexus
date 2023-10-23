@@ -67,6 +67,7 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
           DateTime date = timestamp.toDate();
           selectedDates.add(date);
         }
+        _aboutController.text = userData['about'];
       });
       logger.e(selectedDates);
     }
@@ -429,7 +430,7 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
                     },
                   );
                 },
-                child: Text('Save Selected Dates'),
+                child: Text('View Selected Dates'),
               ),
               headings("Choose your working days.",
                   "This helps users to contact you on the days you specified. Provide the days you are available for services."),

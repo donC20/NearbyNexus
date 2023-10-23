@@ -203,7 +203,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
           });
           // Navigator.popAndPushNamed(context, "rate_user_screen");
           Navigator.popAndPushNamed(context, "rate_user_screen",
-              arguments: {"uid": payedTo, "jobId": jobId});
+              arguments: {"uid": payedTo.id, "jobId": jobId.id});
         } catch (e) {
           logger.e(e);
         }
@@ -922,6 +922,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
                           final DocumentReference payedBy =
                               _firestore.collection('users').doc(uid);
                           final DocumentReference payedTo = vendorReference;
+                          logger.d(payedTo.id);
                           await makePayment(
                               userData['name'],
                               documentData['wage'],
@@ -929,11 +930,6 @@ class _JobReviewPageState extends State<JobReviewPage> {
                               payedBy,
                               payedTo,
                               documentData['jobLogs']);
-                          // Navigator.popAndPushNamed(context, "rate_user_screen",
-                          //     arguments: {
-                          //       "uid": payedTo,
-                          //       "jobId": arguments['dataReference']
-                          //     });
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromARGB(255, 0, 110, 255),

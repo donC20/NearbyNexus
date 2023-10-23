@@ -96,6 +96,7 @@ class _UserJobHistoryState extends State<UserJobHistory> {
           ),
         ),
       ),
+    
     );
   }
 }

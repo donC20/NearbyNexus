@@ -4,8 +4,10 @@ import 'dart:convert';
 
 import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:NearbyNexus/screens/admin/screens/add_data.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/vendor/components/progress_message.dart';
+import 'package:NearbyNexus/screens/vendor/screens/initial_kyc_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -35,7 +37,7 @@ class _ViewRequestsState extends State<ViewRequests> {
   Map<String, dynamic> docIds = {};
   Map<String, dynamic> rawData = {};
   bool isloadingPage = true;
-
+  bool kycStatus = false;
   String? uid = "";
   @override
   void initState() {
@@ -50,9 +52,9 @@ class _ViewRequestsState extends State<ViewRequests> {
       docIds =
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     });
+    logger.d(docIds);
     fetchUserData(docIds['userReference']);
     fetchRequestData(docIds['dataReference']);
-    logger.d(docIds);
   }
 
   void initUser() async {
@@ -63,6 +65,17 @@ class _ViewRequestsState extends State<ViewRequests> {
     setState(() {
       uid = initData['uid'];
     });
+    DocumentSnapshot snapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    if (snapshot.exists) {
+      Map<String, dynamic> fetchedData =
+          snapshot.data() as Map<String, dynamic>;
+
+      // Assing admin data to the UI
+      setState(() {
+        kycStatus = fetchedData['kyc']['verified'];
+      });
+    }
   }
 
   Future<void> fetchUserData(DocumentReference userRef) async {
@@ -136,6 +149,7 @@ class _ViewRequestsState extends State<ViewRequests> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
+                          key: Key('mainContainer'),
                           width: MediaQuery.of(context).size.width - 30,
                           decoration: BoxDecoration(
                             border: Border.all(
@@ -213,6 +227,238 @@ class _ViewRequestsState extends State<ViewRequests> {
                                           rawData['service_name'])
                                       : "loading...",
                                   style: TextStyle(color: Colors.white54),
+                                ),
+                                Container(
+                                  width: MediaQuery.sizeOf(context).width,
+                                  margin: EdgeInsets.only(top: 15),
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: rawData['service_name'] == 'new'
+                                      ? RichText(
+                                          text: TextSpan(children: [
+                                          TextSpan(
+                                              text: "Service update\n",
+                                              style: TextStyle(
+                                                  color: Colors.red,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold)),
+                                          WidgetSpan(
+                                              child: Divider(
+                                            color: Colors.grey,
+                                          )),
+                                          TextSpan(
+                                              text: nameUser,
+                                              style: TextStyle(
+                                                  color: Colors.blue,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold)),
+                                          TextSpan(
+                                              text:
+                                                  " has requested a new job please review the job carefully and proceed. ",
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 16,
+                                                  fontWeight:
+                                                      FontWeight.normal)),
+                                        ]))
+                                      : rawData['service_name'] ==
+                                              'user negotiated'
+                                          ? RichText(
+                                              text: TextSpan(children: [
+                                              TextSpan(
+                                                  text: "Service update\n",
+                                                  style: TextStyle(
+                                                      color: Colors.red,
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                              WidgetSpan(
+                                                  child: Divider(
+                                                color: Colors.grey,
+                                              )),
+                                              TextSpan(
+                                                  text: nameUser,
+                                                  style: TextStyle(
+                                                      color: Colors.blue,
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                              TextSpan(
+                                                  text:
+                                                      " has updated the amount based on your past negotiation on the amount. The new amount is ",
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.normal)),
+                                              TextSpan(
+                                                  text: rawData['wage'],
+                                                  style: TextStyle(
+                                                      color: Colors.green,
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                              TextSpan(
+                                                  text:
+                                                      ". User the negotiate button to negotiate again!",
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.normal)),
+                                            ]))
+                                          : rawData['clientStatus'] ==
+                                                  'canceled'
+                                              ? RichText(
+                                                  text: TextSpan(children: [
+                                                  TextSpan(
+                                                      text: "Service update\n",
+                                                      style: TextStyle(
+                                                          color: Colors.red,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                  WidgetSpan(
+                                                      child: Divider(
+                                                    color: Colors.grey,
+                                                  )),
+                                                  TextSpan(
+                                                      text: nameUser,
+                                                      style: TextStyle(
+                                                          color: Colors.blue,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                  TextSpan(
+                                                      text:
+                                                          " has canceled the service request",
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight
+                                                              .normal)),
+                                                  TextSpan(
+                                                      text:
+                                                          ". Better luck on next job!",
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight
+                                                              .normal)),
+                                                ]))
+                                              : rawData['status'] == 'completed'
+                                                  ? RichText(
+                                                      text: TextSpan(children: [
+                                                      TextSpan(
+                                                          text:
+                                                              "Service update\n",
+                                                          style: TextStyle(
+                                                              color: Colors.red,
+                                                              fontSize: 16,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                      WidgetSpan(
+                                                          child: Divider(
+                                                        color: Colors.grey,
+                                                      )),
+                                                      TextSpan(
+                                                          text:
+                                                              "You have tagged as the service is ",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.black,
+                                                              fontSize: 16,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal)),
+                                                      TextSpan(
+                                                          text: "completed.",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.green,
+                                                              fontSize: 16,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                      TextSpan(
+                                                          text:
+                                                              " Please wait for the ",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.black,
+                                                              fontSize: 16,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal)),
+                                                      TextSpan(
+                                                          text: nameUser,
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.blue,
+                                                              fontSize: 16,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold)),
+                                                      TextSpan(
+                                                          text: " to respond.",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.black,
+                                                              fontSize: 16,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .normal)),
+                                                    ]))
+                                                  : rawData['clientStatus'] ==
+                                                          'finished'
+                                                      ? RichText(
+                                                          text: TextSpan(
+                                                              children: [
+                                                              TextSpan(
+                                                                  text:
+                                                                      "Service update\n",
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .red,
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold)),
+                                                              WidgetSpan(
+                                                                  child:
+                                                                      Divider(
+                                                                color:
+                                                                    Colors.grey,
+                                                              )),
+                                                              TextSpan(
+                                                                  text:
+                                                                      "This job is successfully ",
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .normal)),
+                                                              TextSpan(
+                                                                  text:
+                                                                      "completed.",
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .green,
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold)),
+                                                            ]))
+                                                      : Text(
+                                                          "Always respond as soon as possible to avoid cancelation of the request. "),
                                 ),
                               ],
                             ),
@@ -312,210 +558,236 @@ class _ViewRequestsState extends State<ViewRequests> {
                                         ),
                                       ],
                                     ),
-                                    TextButton.icon(
-                                      onPressed: () {
-                                        showDialog(
-                                          // barrierDismissible: false,
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return Dialog(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(16.0),
-                                              ),
-                                              elevation: 0,
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              child: Container(
-                                                padding: EdgeInsets.all(15),
-                                                decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10)),
-                                                child: Form(
-                                                  key: _formKey,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Align(
-                                                        alignment:
-                                                            Alignment.topCenter,
-                                                        child: Text(
-                                                          "Negotiate the price",
-                                                          style: TextStyle(
-                                                              color: Color
-                                                                  .fromARGB(170,
-                                                                      0, 0, 0),
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        "Enter amount",
-                                                        style: TextStyle(
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    170,
-                                                                    0,
-                                                                    0,
-                                                                    0),
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      SizedBox(
-                                                        height: 15,
-                                                      ),
-                                                      SizedBox(
-                                                        child: TextFormField(
-                                                          controller:
-                                                              _amountController,
-                                                          keyboardType:
-                                                              TextInputType
-                                                                  .number,
-                                                          style: GoogleFonts
-                                                              .poppins(
-                                                            color: const Color
-                                                                .fromARGB(
-                                                                255, 0, 0, 0),
-                                                          ),
-                                                          decoration:
-                                                              InputDecoration(
-                                                            labelText:
-                                                                'Enter amount',
-                                                            labelStyle: TextStyle(
-                                                                color: const Color
-                                                                    .fromARGB(
-                                                                    255,
-                                                                    22,
-                                                                    0,
-                                                                    0),
-                                                                fontSize: 12),
-                                                            enabledBorder:
-                                                                OutlineInputBorder(
-                                                              borderSide:
-                                                                  BorderSide(
-                                                                color: Color
-                                                                    .fromARGB(
-                                                                        73,
-                                                                        0,
-                                                                        0,
-                                                                        0),
+                                    rawData['status'] == 'rejected' ||
+                                            rawData['status'] ==
+                                                'user rejected' ||
+                                            rawData['clientStatus'] ==
+                                                'canceled' ||
+                                            rawData['status'] == 'completed' ||
+                                            rawData['status'] == 'accepted' ||
+                                            rawData['status'] == 'user accepted'
+                                        ? SizedBox()
+                                        : TextButton.icon(
+                                            onPressed: () {
+                                              showDialog(
+                                                // barrierDismissible: false,
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return Dialog(
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              16.0),
+                                                    ),
+                                                    elevation: 0,
+                                                    backgroundColor:
+                                                        Colors.transparent,
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.all(15),
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      10)),
+                                                      child: Form(
+                                                        key: _formKey,
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            Align(
+                                                              alignment:
+                                                                  Alignment
+                                                                      .topCenter,
+                                                              child: Text(
+                                                                "Negotiate the price",
+                                                                style: TextStyle(
+                                                                    color: Color
+                                                                        .fromARGB(
+                                                                            170,
+                                                                            0,
+                                                                            0,
+                                                                            0),
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
                                                               ),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          8.0),
                                                             ),
-                                                            focusedBorder:
-                                                                OutlineInputBorder(
-                                                              borderSide:
-                                                                  BorderSide(
-                                                                color: Color
-                                                                    .fromARGB(
-                                                                        73,
-                                                                        0,
-                                                                        0,
-                                                                        0),
+                                                            Text(
+                                                              "Enter amount",
+                                                              style: TextStyle(
+                                                                  color: Color
+                                                                      .fromARGB(
+                                                                          170,
+                                                                          0,
+                                                                          0,
+                                                                          0),
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                            SizedBox(
+                                                              height: 15,
+                                                            ),
+                                                            SizedBox(
+                                                              child:
+                                                                  TextFormField(
+                                                                controller:
+                                                                    _amountController,
+                                                                keyboardType:
+                                                                    TextInputType
+                                                                        .number,
+                                                                style:
+                                                                    GoogleFonts
+                                                                        .poppins(
+                                                                  color: const Color
+                                                                      .fromARGB(
+                                                                      255,
+                                                                      0,
+                                                                      0,
+                                                                      0),
+                                                                ),
+                                                                decoration:
+                                                                    InputDecoration(
+                                                                  labelText:
+                                                                      'Enter amount',
+                                                                  labelStyle: TextStyle(
+                                                                      color: const Color
+                                                                          .fromARGB(
+                                                                          255,
+                                                                          22,
+                                                                          0,
+                                                                          0),
+                                                                      fontSize:
+                                                                          12),
+                                                                  enabledBorder:
+                                                                      OutlineInputBorder(
+                                                                    borderSide:
+                                                                        BorderSide(
+                                                                      color: Color
+                                                                          .fromARGB(
+                                                                              73,
+                                                                              0,
+                                                                              0,
+                                                                              0),
+                                                                    ),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            8.0),
+                                                                  ),
+                                                                  focusedBorder:
+                                                                      OutlineInputBorder(
+                                                                    borderSide:
+                                                                        BorderSide(
+                                                                      color: Color
+                                                                          .fromARGB(
+                                                                              73,
+                                                                              0,
+                                                                              0,
+                                                                              0),
+                                                                    ),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            8.0),
+                                                                  ),
+                                                                ),
+                                                                onChanged:
+                                                                    (value) {
+                                                                  setState(
+                                                                      () {});
+                                                                  // _formKey.currentState!.validate();
+                                                                },
+                                                                validator:
+                                                                    (value) {
+                                                                  if (value!
+                                                                      .isEmpty) {
+                                                                    return "You left this field empty!";
+                                                                  }
+                                                                  return null;
+                                                                },
                                                               ),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          8.0),
                                                             ),
-                                                          ),
-                                                          onChanged: (value) {
-                                                            setState(() {});
-                                                            // _formKey.currentState!.validate();
-                                                          },
-                                                          validator: (value) {
-                                                            if (value!
-                                                                .isEmpty) {
-                                                              return "You left this field empty!";
-                                                            }
-                                                            return null;
-                                                          },
+                                                            SizedBox(
+                                                              height: 15,
+                                                            ),
+                                                            Align(
+                                                              alignment: Alignment
+                                                                  .bottomCenter,
+                                                              child:
+                                                                  ElevatedButton(
+                                                                onPressed: () {
+                                                                  if (_formKey
+                                                                      .currentState!
+                                                                      .validate()) {
+                                                                    List<dynamic>
+                                                                        jobLog =
+                                                                        rawData[
+                                                                            'jobLogs'];
+                                                                    setState(
+                                                                        () {
+                                                                      jobLog.add(
+                                                                          'negotiate');
+                                                                    });
+                                                                    _service_actions_collection
+                                                                        .doc(docIds[
+                                                                            'dataReference'])
+                                                                        .update({
+                                                                      'status':
+                                                                          'negotiate',
+                                                                      'wage': _amountController
+                                                                          .text,
+                                                                      'dateRequested':
+                                                                          DateTime
+                                                                              .now(),
+                                                                      'jobLogs':
+                                                                          jobLog
+                                                                    });
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                  }
+                                                                },
+                                                                child: Text(
+                                                                  "Negotiate",
+                                                                  style: TextStyle(
+                                                                      color: Color.fromARGB(
+                                                                          255,
+                                                                          252,
+                                                                          252,
+                                                                          252),
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                              ),
+                                                            )
+                                                          ],
                                                         ),
                                                       ),
-                                                      SizedBox(
-                                                        height: 15,
-                                                      ),
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .bottomCenter,
-                                                        child: ElevatedButton(
-                                                          onPressed: () {
-                                                            if (_formKey
-                                                                .currentState!
-                                                                .validate()) {
-                                                              List<dynamic>
-                                                                  jobLog =
-                                                                  rawData[
-                                                                      'jobLogs'];
-                                                              setState(() {
-                                                                jobLog.add(
-                                                                    'negotiate');
-                                                              });
-                                                              _service_actions_collection
-                                                                  .doc(docIds[
-                                                                      'dataReference'])
-                                                                  .update({
-                                                                'status':
-                                                                    'negotiate',
-                                                                'wage':
-                                                                    _amountController
-                                                                        .text,
-                                                                'dateRequested':
-                                                                    DateTime
-                                                                        .now(),
-                                                                'jobLogs':
-                                                                    jobLog
-                                                              });
-                                                              Navigator.pop(
-                                                                  context);
-                                                            }
-                                                          },
-                                                          child: Text(
-                                                            "Negotiate",
-                                                            style: TextStyle(
-                                                                color: Color
-                                                                    .fromARGB(
-                                                                        255,
-                                                                        252,
-                                                                        252,
-                                                                        252),
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                      },
-                                      icon: Icon(
-                                        Icons.change_circle,
-                                        color: Color.fromARGB(170, 51, 89, 204),
-                                        size: 20,
-                                      ),
-                                      label: Text(
-                                        "Negotiate",
-                                        style: TextStyle(
-                                            color: Color.fromARGB(
-                                                170, 51, 89, 204)),
-                                      ),
-                                    )
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            icon: Icon(
+                                              Icons.change_circle,
+                                              color: Color.fromARGB(
+                                                  170, 51, 89, 204),
+                                              size: 20,
+                                            ),
+                                            label: Text(
+                                              "Negotiate",
+                                              style: TextStyle(
+                                                  color: Color.fromARGB(
+                                                      170, 51, 89, 204)),
+                                            ),
+                                          )
                                   ],
                                 ),
                                 Divider(
@@ -552,7 +824,51 @@ class _ViewRequestsState extends State<ViewRequests> {
                                                     170, 51, 204, 51),
                                               ),
                                               onPressed: () {
-                                                if (docIds['dataReference']
+                                                if (!kycStatus) {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return AlertDialog(
+                                                        content: Container(
+                                                          width:
+                                                              double.maxFinite,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Colors.white,
+                                                          ),
+                                                          child: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              // Add your widgets here
+                                                              Text(
+                                                                  'Please complete your KYC to accept any jobs.'),
+                                                              // Add more widgets as needed
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        actions: [
+                                                          ElevatedButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                                Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                      builder:
+                                                                          (context) =>
+                                                                              KYCInstructionScreen()),
+                                                                );
+                                                              },
+                                                              child: Text(
+                                                                  "Go to my KYC"))
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+                                                } else if (docIds[
+                                                        'dataReference']
                                                     .isNotEmpty) {
                                                   List<dynamic> jobLog =
                                                       rawData['jobLogs'];
@@ -600,20 +916,32 @@ class _ViewRequestsState extends State<ViewRequests> {
                                                     170, 204, 51, 51),
                                               ),
                                               onPressed: () {
-                                                List<dynamic> jobLog =
-                                                    rawData['jobLogs'];
-                                                setState(() {
-                                                  jobLog.add('rejected');
-                                                });
-                                                _service_actions_collection
-                                                    .doc(
-                                                        docIds['dataReference'])
-                                                    .update({
-                                                  'status': 'rejected',
-                                                  'dateRequested': DateTime.now,
-                                                  'jobLogs': jobLog
-                                                });
-                                                Navigator.pop(context);
+                                                try {
+                                                  List<dynamic> jobLog =
+                                                      rawData['jobLogs'];
+                                                  setState(() {
+                                                    jobLog.add('rejected');
+                                                  });
+                                                  _service_actions_collection
+                                                      .doc(docIds[
+                                                          'dataReference'])
+                                                      .update({
+                                                    'status': 'rejected',
+                                                    'dateRequested':
+                                                        DateTime.now(),
+                                                    'jobLogs': jobLog
+                                                  });
+                                                  Navigator.pop(context);
+                                                  showSnackbar(
+                                                      "Service request is rejected successfully!",
+                                                      Colors.red,
+                                                      context);
+                                                } catch (e) {
+                                                  showSnackbar(
+                                                      "Can't Complete the request!",
+                                                      Colors.red,
+                                                      context);
+                                                }
                                               },
                                               icon: Icon(
                                                 Icons.close,

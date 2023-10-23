@@ -40,6 +40,7 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
   bool isListEmpty = false;
   bool isLoadingserviceList = false;
   bool isListServiceEmpty = false;
+  List<DateTime> selectedDates = [];
   DateTime? day;
   int? wage;
   final _aboutController = TextEditingController();
@@ -61,6 +62,7 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
       vendorId = ModalRoute.of(context)!.settings.arguments as String;
     });
     initUser();
+    initvendor(vendorId);
   }
 
   void initUser() async {
@@ -71,6 +73,31 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
     setState(() {
       uid = initData['uid'];
     });
+  }
+
+// initialzing the vendor details
+  void initvendor(vendorId) async {
+    DocumentSnapshot userSnapshotData = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(vendorId)
+        .get();
+
+    if (userSnapshotData.exists) {
+      Map<String, dynamic> userData =
+          userSnapshotData.data() as Map<String, dynamic>;
+      List<dynamic> rawData = userData['unavailableDays'];
+      List<Timestamp> selectedTimestamps = [];
+
+      selectedTimestamps = rawData.cast<Timestamp>();
+
+      setState(() {
+        for (var timestamp in selectedTimestamps) {
+          DateTime date = timestamp.toDate();
+          selectedDates.add(date);
+        }
+        logger.e("this os the dates $selectedDates");
+      });
+    }
   }
 
 // Search places api
@@ -545,6 +572,16 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
                       initialDate: DateTime.now(),
                       firstDate: DateTime.now(),
                       lastDate: DateTime(2101),
+                      selectableDayPredicate: (DateTime date) {
+                        for (DateTime d in selectedDates) {
+                          if (d.year == date.year &&
+                              d.month == date.month &&
+                              d.day == date.day) {
+                            return false; // Disable dates that are in selectedDates
+                          }
+                        }
+                        return true; // Enable all other dates
+                      },
                     );
                     if (selectedDate != null) {
                       final selectedTime = await showTimePicker(
@@ -552,14 +589,15 @@ class _NewServiceRequestState extends State<NewServiceRequest> {
                         initialTime: TimeOfDay.now(),
                       );
                       if (selectedTime != null) {
+                        DateTime selectedDateTime = DateTime(
+                          selectedDate.year,
+                          selectedDate.month,
+                          selectedDate.day,
+                          selectedTime.hour,
+                          selectedTime.minute,
+                        );
                         setState(() {
-                          day = DateTime(
-                            selectedDate.year,
-                            selectedDate.month,
-                            selectedDate.day,
-                            selectedTime.hour,
-                            selectedTime.minute,
-                          );
+                          day = selectedDateTime;
                         });
                       }
                     }
