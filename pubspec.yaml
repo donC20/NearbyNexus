@@ -81,6 +81,7 @@ dependencies:
   shimmer_animation: ^2.1.0+1
   simple_ripple_animation: ^0.0.7
   skeletons: ^0.0.3
+  table_calendar: ^3.0.9
   tflite_flutter: ^0.10.2
   timeline_tile: ^2.0.0
   transparent_image: ^2.0.1
@@ -94,7 +95,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   
-  table_calendar: ^3.0.9
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

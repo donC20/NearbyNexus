@@ -117,8 +117,8 @@ class _MyFavouritesState extends State<MyFavourites> {
 
                         return Padding(
                           padding: const EdgeInsets.all(10.0),
-                          child: userTileModel(
-                              userName, userImage, userLocation, context),
+                          child: userTileModel(userName, userImage,
+                              userLocation, context, userFavourites[index]),
                         );
                       } else {
                         return SizedBox(); // You can return a placeholder or handle the case when no data is found
@@ -138,11 +138,10 @@ class _MyFavouritesState extends State<MyFavourites> {
   }
 }
 
-Widget userTileModel(name, image, location, BuildContext context) {
+Widget userTileModel(name, image, location, BuildContext context, docId) {
   return Container(
     padding: EdgeInsets.all(10),
     width: MediaQuery.sizeOf(context).width,
-    height: 200,
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(10),
@@ -157,20 +156,44 @@ Widget userTileModel(name, image, location, BuildContext context) {
                 color: const Color.fromARGB(174, 0, 0, 0),
                 fontWeight: FontWeight.bold),
           ),
-        ),
-        Divider(
-          color: Colors.grey,
-        ),
-        Row(
-          children: [
-            Text(
-              location,
-              style: TextStyle(
+          subtitle: Text(
+            location,
+            style: TextStyle(
                 color: const Color.fromARGB(174, 0, 0, 0),
+                fontWeight: FontWeight.normal),
+          ),
+          trailing: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, "vendor_profile_opposite",
+                    arguments: docId);
+              },
+              style: ElevatedButton.styleFrom(
+                primary: Color(0xFF2d4fff),
+                shape: StadiumBorder(),
+              ),
+              child: Text(
+                'Profile',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
-          ],
-        )
+          ),
+        ),
       ],
     ),
   );

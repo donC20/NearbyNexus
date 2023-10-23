@@ -22,9 +22,14 @@ class UpdateUserProfile extends StatefulWidget {
 }
 
 class _UpdateUserProfileState extends State<UpdateUserProfile> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyName = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyPhone = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   Timer? emailVerificationTimer;
 // timer
 
@@ -41,6 +46,8 @@ class _UpdateUserProfileState extends State<UpdateUserProfile> {
   bool otpSendProgress = false;
   String otpAuthCode = '';
   bool hidenOpenBtn = false;
+  bool hidenOpenBtnName = false;
+  bool hidenOpenBtnPhone = false;
   var logger = Logger();
   var user = FirebaseAuth.instance.currentUser;
   // ////
@@ -132,7 +139,7 @@ class _UpdateUserProfileState extends State<UpdateUserProfile> {
 // email verification checker
 
   Future<void> FetchUserData(uid) async {
-    FirebaseFirestore.instance
+    _firestore
         .collection('users')
         .doc(uid)
         .snapshots()
@@ -275,7 +282,12 @@ class _UpdateUserProfileState extends State<UpdateUserProfile> {
                       ? null
                       : () async {
                           logger.e(user);
-                          _showDialog(context, oldEmail, _emailController.text);
+                          _showDialog(context, oldEmail, _emailController.text,
+                              _emailController, hidenOpenBtn);
+                          setState(() {
+                            hidenOpenBtn = false;
+                            _emailController.clear();
+                          });
                         },
                   child: Text("Update"),
                   style: ButtonStyle(
@@ -303,54 +315,133 @@ class _UpdateUserProfileState extends State<UpdateUserProfile> {
               ),
             ),
             headings("Update name", "Here change your name. "),
-            TextFormField(
-              controller: _nameController,
-              keyboardType: TextInputType.emailAddress,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-              ),
-              decoration: InputDecoration(
-                labelText: 'Whats your name?',
-                labelStyle: TextStyle(
-                    color: Color.fromARGB(255, 164, 162, 162), fontSize: 12),
-                // Display remaining character count
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color.fromARGB(74, 158, 158, 158),
-                  ),
-                  borderRadius: BorderRadius.circular(8.0),
+            Form(
+              key: _formKeyName,
+              child: TextFormField(
+                controller: _nameController,
+                keyboardType: TextInputType.emailAddress,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color.fromARGB(74, 158, 158, 158),
+                decoration: InputDecoration(
+                  labelText: 'Whats your name?',
+                  labelStyle: TextStyle(
+                      color: Color.fromARGB(255, 164, 162, 162), fontSize: 12),
+                  // Display remaining character count
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(74, 158, 158, 158),
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  borderRadius: BorderRadius.circular(8.0),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Color.fromARGB(74, 158, 158, 158),
+                    ),
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  // suffixIcon: _nameController.text.isEmpty
+                  //     ? Icon(Icons.close, color: Colors.red)
+                  //     : Icon(Icons.check, color: Colors.green),
                 ),
-                // suffixIcon: _nameController.text.isEmpty
-                //     ? Icon(Icons.close, color: Colors.red)
-                //     : Icon(Icons.check, color: Colors.green),
+                onChanged: (value) {
+                  _formKeyName.currentState!.validate();
+                },
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    setState(() {
+                      hidenOpenBtnName = false;
+                    });
+                    return "You left this field empty!";
+                  }
+
+                  // Define a regular expression for a valid name
+                  RegExp nameRegExp = RegExp(r'^[A-Za-z ]{3,}$');
+
+                  if (!nameRegExp.hasMatch(value)) {
+                    setState(() {
+                      hidenOpenBtnName = false;
+                    });
+                    return "Please enter a valid name";
+                  }
+                  setState(() {
+                    hidenOpenBtnName = true;
+                  });
+                  return null;
+                },
               ),
-              onChanged: (value) {
-                _formKey.currentState!.validate();
-              },
-              validator: (value) {
-                if (value!.isEmpty) {
-                  setState(() {});
-                  return "You left this field empty!";
-                }
-                return null;
-              },
             ),
             Visibility(
-              visible: hidenOpenBtn,
+              visible: hidenOpenBtnName,
               child: Padding(
                 padding: const EdgeInsets.only(top: 15),
                 child: ElevatedButton(
                   onPressed: duplicateEmailId
                       ? null
                       : () async {
-                          logger.e(user);
-                          _showDialog(context, oldEmail, _emailController.text);
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Success"),
+                                content: Text(
+                                    "Confirm that you are updating the name."),
+                                actions: [
+                                  TextButton(
+                                    child: Text("Yes i confirm"),
+                                    onPressed: () {
+                                      try {
+                                        _firestore
+                                            .collection('users')
+                                            .doc(uid)
+                                            .update(
+                                                {'name': _nameController.text});
+                                        Navigator.pop(context);
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text("Success"),
+                                              content: Text(
+                                                  "Email updated successfully!"),
+                                              actions: [
+                                                TextButton(
+                                                  child: Text("OK"),
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      } catch (e) {
+                                        Navigator.pop(context);
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text("Success"),
+                                              content:
+                                                  Text("Can't update name"),
+                                              actions: [
+                                                TextButton(
+                                                  child: Text("OK"),
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                   child: Text("Update"),
                   style: ButtonStyle(
@@ -377,44 +468,198 @@ class _UpdateUserProfileState extends State<UpdateUserProfile> {
                 ),
               ),
             ),
+            // headings("Update phone number", "Here change your phone number. "),
+            // Form(
+            //   key: _formKeyPhone,
+            //   child: TextFormField(
+            //     controller: _phoneController,
+            //     keyboardType: TextInputType.emailAddress,
+            //     style: GoogleFonts.poppins(
+            //       color: Colors.white,
+            //     ),
+            //     decoration: InputDecoration(
+            //       labelText: 'Whats your name?',
+            //       labelStyle: TextStyle(
+            //           color: Color.fromARGB(255, 164, 162, 162), fontSize: 12),
+            //       // Display remaining character count
+            //       enabledBorder: OutlineInputBorder(
+            //         borderSide: BorderSide(
+            //           color: Color.fromARGB(74, 158, 158, 158),
+            //         ),
+            //         borderRadius: BorderRadius.circular(8.0),
+            //       ),
+            //       focusedBorder: OutlineInputBorder(
+            //         borderSide: BorderSide(
+            //           color: Color.fromARGB(74, 158, 158, 158),
+            //         ),
+            //         borderRadius: BorderRadius.circular(8.0),
+            //       ),
+            //       // suffixIcon: _nameController.text.isEmpty
+            //       //     ? Icon(Icons.close, color: Colors.red)
+            //       //     : Icon(Icons.check, color: Colors.green),
+            //     ),
+            //     onChanged: (value) {
+            //       _formKeyPhone.currentState!.validate();
+            //     },
+            //     validator: (value) {
+            //       if (value!.isEmpty) {
+            //         setState(() {
+            //           hidenOpenBtnPhone = false;
+            //         });
+            //         return "You left this field empty!";
+            //       }
+
+            //       // Define a regular expression for a valid name
+            //       RegExp indianMobileNumber = RegExp(r'^[6789]\d{9}$');
+
+            //       if (!indianMobileNumber.hasMatch(value)) {
+            //         setState(() {
+            //           hidenOpenBtnPhone = false;
+            //         });
+            //         return "Please enter a valid name";
+            //       }
+            //       setState(() {
+            //         hidenOpenBtnPhone = true;
+            //       });
+            //       return null;
+            //     },
+            //   ),
+            // ),
+            // Visibility(
+            //   visible: hidenOpenBtnPhone,
+            //   child: Padding(
+            //     padding: const EdgeInsets.only(top: 15),
+            //     child: ElevatedButton(
+            //       onPressed: duplicateEmailId
+            //           ? null
+            //           : () async {
+            //               showDialog(
+            //                 context: context,
+            //                 builder: (BuildContext context) {
+            //                   return AlertDialog(
+            //                     title: Text("Success"),
+            //                     content: Text(
+            //                         "Confirm that you are updating the name."),
+            //                     actions: [
+            //                       TextButton(
+            //                         child: Text("Yes i confirm"),
+            //                         onPressed: () {
+            //                           try {
+            //                             _firestore
+            //                                 .collection('users')
+            //                                 .doc(uid)
+            //                                 .update(
+            //                                     {'name': _nameController.text});
+            //                             Navigator.pop(context);
+            //                             showDialog(
+            //                               context: context,
+            //                               builder: (BuildContext context) {
+            //                                 return AlertDialog(
+            //                                   title: Text("Success"),
+            //                                   content: Text(
+            //                                       "Email updated successfully!"),
+            //                                   actions: [
+            //                                     TextButton(
+            //                                       child: Text("OK"),
+            //                                       onPressed: () {
+            //                                         Navigator.pop(context);
+            //                                       },
+            //                                     ),
+            //                                   ],
+            //                                 );
+            //                               },
+            //                             );
+            //                           } catch (e) {
+            //                             Navigator.pop(context);
+            //                             showDialog(
+            //                               context: context,
+            //                               builder: (BuildContext context) {
+            //                                 return AlertDialog(
+            //                                   title: Text("Success"),
+            //                                   content:
+            //                                       Text("Can't update name"),
+            //                                   actions: [
+            //                                     TextButton(
+            //                                       child: Text("OK"),
+            //                                       onPressed: () {
+            //                                         Navigator.pop(context);
+            //                                       },
+            //                                     ),
+            //                                   ],
+            //                                 );
+            //                               },
+            //                             );
+            //                           }
+            //                         },
+            //                       ),
+            //                     ],
+            //                   );
+            //                 },
+            //               );
+            //             },
+            //       child: Text("Update"),
+            //       style: ButtonStyle(
+            //         backgroundColor: MaterialStateProperty.all<Color>(
+            //             Colors.blue), // Change the background color
+            //         padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+            //           EdgeInsets.symmetric(
+            //               horizontal: 24, vertical: 12), // Adjust padding
+            //         ),
+            //         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            //           RoundedRectangleBorder(
+            //             borderRadius:
+            //                 BorderRadius.circular(5.0), // Round the corners
+            //           ),
+            //         ),
+            //         textStyle: MaterialStateProperty.all<TextStyle>(
+            //           TextStyle(
+            //             fontSize: 18, // Adjust the font size
+            //             fontWeight: FontWeight.bold, // Apply bold font weight
+            //             color: Colors.white, // Text color
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(right: 30, bottom: 30),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                // updateAbout(_aboutController.text);
-              },
-              child: Text("Update"),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(
-                    Colors.blue), // Change the background color
-                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                  EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 12), // Adjust padding
-                ),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(20.0), // Round the corners
-                  ),
-                ),
-                textStyle: MaterialStateProperty.all<TextStyle>(
-                  TextStyle(
-                    fontSize: 18, // Adjust the font size
-                    fontWeight: FontWeight.bold, // Apply bold font weight
-                    color: Colors.white, // Text color
-                  ),
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
+      // bottomNavigationBar: Padding(
+      //   padding: const EdgeInsets.only(right: 30, bottom: 30),
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.end,
+      //     children: [
+      //       ElevatedButton(
+      //         onPressed: () {
+      //           // updateAbout(_aboutController.text);
+      //         },
+      //         child: Text("Update"),
+      //         style: ButtonStyle(
+      //           backgroundColor: MaterialStateProperty.all<Color>(
+      //               Colors.blue), // Change the background color
+      //           padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+      //             EdgeInsets.symmetric(
+      //                 horizontal: 24, vertical: 12), // Adjust padding
+      //           ),
+      //           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+      //             RoundedRectangleBorder(
+      //               borderRadius:
+      //                   BorderRadius.circular(20.0), // Round the corners
+      //             ),
+      //           ),
+      //           textStyle: MaterialStateProperty.all<TextStyle>(
+      //             TextStyle(
+      //               fontSize: 18, // Adjust the font size
+      //               fontWeight: FontWeight.bold, // Apply bold font weight
+      //               color: Colors.white, // Text color
+      //             ),
+      //           ),
+      //         ),
+      //       )
+      //     ],
+      //   ),
+      // ),
     );
   }
 }
@@ -473,7 +718,8 @@ Widget headings(String heading, String subheading) {
 // Widget bottomNav(Function updateAbout) {
 //   return ;
 // }
-void _showDialog(BuildContext context, email, newEmail) async {
+void _showDialog(BuildContext context, email, newEmail, emailController,
+    hidenOpenBtn) async {
   Completer<bool> completer = Completer<bool>(); // Create a Completer
 
   showDialog(
@@ -496,6 +742,8 @@ void _showDialog(BuildContext context, email, newEmail) async {
               completer.complete(false); // Complete with failure
             }
           },
+          emailController: emailController,
+          hidenOpenBtn: hidenOpenBtn,
         ),
       );
     },

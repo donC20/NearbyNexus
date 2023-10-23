@@ -251,7 +251,10 @@ class _UserDashboardMState extends State<UserDashboardM> {
                                       //   height: 10,
                                       // ),
                                       ElevatedButton.icon(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.pushNamed(
+                                              context, "search_screen_vendor");
+                                        },
                                         icon: Icon(Icons.search),
                                         label: Text(
                                           "Find services",

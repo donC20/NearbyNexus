@@ -205,6 +205,7 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
         allRatings: FirebaseFirestore.instance.collection('ratings').doc(''),
         actualRating: 0.0,
         totalRating: 0.0,
+        unavailableDays: [],
       );
 
       Map<String, dynamic> userData = user.toJson();

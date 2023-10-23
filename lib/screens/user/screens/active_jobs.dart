@@ -6,6 +6,7 @@ import 'package:NearbyNexus/components/user_bottom_nav.dart';
 import 'package:NearbyNexus/screens/user/components/vendor_review_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,7 +55,7 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
       body: Stack(
         children: [
           Container(
-            padding: EdgeInsets.only(top: 20),
+            padding: EdgeInsets.only(top: 40),
             width: MediaQuery.sizeOf(context).width,
             height: MediaQuery.sizeOf(context).height,
             decoration: BoxDecoration(
@@ -104,7 +105,6 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
                             .where('status', whereNotIn: [
                             'new',
                             'completed',
-                            'rejected'
                             'user rejected'
                           ]) // Add the statuses you want to include
                             .snapshots()
@@ -279,7 +279,8 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
                                           bottom: 20,
                                           right: 0,
                                           child: OutlinedButton(
-                                            key: Key("${index.toString()}_button_user"),
+                                              key: Key(
+                                                  "${index.toString()}_button_user"),
                                               onPressed: () {
                                                 Map<String, dynamic> docInfo = {
                                                   "dataReference": docId,
@@ -308,8 +309,27 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
                             itemCount: documentList.length,
                           ),
                         );
+                      } else {
+                        return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(
+                                "assets/images/vector/ship_wrek.svg",
+                                width: 300,
+                                height: 300,
+                              ),
+                              SizedBox(
+                                height: 15,
+                              ),
+                              Text(
+                                "No active jobs found!",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    fontFamily:
+                                        GoogleFonts.blackHanSans().fontFamily),
+                              )
+                            ]);
                       }
-                      return SizedBox();
                     },
                   ))
                 ],

@@ -389,12 +389,8 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                         ),
                                       ),
                                       activityStatusTapped == true
-                                          ? cardItems(
-                                              Icons.online_prediction,
-                                              "Go online",
-                                              "",
-                                              context,
-                                              () {
+                                          ? InkWell(
+                                              onTap: () {
                                                 setState(() {
                                                   activityStatusTapped = false;
                                                 });
@@ -405,20 +401,35 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                                   'activityStatus': 'available'
                                                 });
                                               },
-                                              Colors.green,
+                                              child: cardItems(
+                                                Icons.online_prediction,
+                                                "Go online",
+                                                "",
+                                                context,
+                                                () {},
+                                                Colors.green,
+                                              ),
                                             )
-                                          : cardItems(Icons.access_time_sharp,
-                                              "Go offline", "", context, () {
-                                              setState(() {
-                                                activityStatusTapped = true;
-                                              });
-                                              _firestore
-                                                  .collection('users')
-                                                  .doc(uid)
-                                                  .update({
-                                                'activityStatus': 'busy'
-                                              });
-                                            }, Colors.amber),
+                                          : InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  activityStatusTapped = true;
+                                                });
+                                                _firestore
+                                                    .collection('users')
+                                                    .doc(uid)
+                                                    .update({
+                                                  'activityStatus': 'busy'
+                                                });
+                                              },
+                                              child: cardItems(
+                                                  Icons.access_time_sharp,
+                                                  "Go offline",
+                                                  "",
+                                                  context,
+                                                  () {},
+                                                  Colors.amber),
+                                            ),
                                     ],
                                   ),
                                 ),

@@ -39,7 +39,7 @@ class _UserProfileState extends State<UserProfile> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ??'');
+    var initData = json.decode(userLoginData ?? '');
     String uid = initData['uid'];
     DocumentSnapshot snapshot =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();
@@ -215,40 +215,7 @@ class _UserProfileState extends State<UserProfile> {
                         padding: const EdgeInsets.only(
                             left: 30.0, right: 30.0, top: 10),
                         child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.work_history_rounded,
-                                  color: Colors.white38,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "Recent hirings",
-                                  style: TextStyle(
-                                    color: Colors.white38,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            proposedJobs(
-                                "Auto rickshaw",
-                                "Koovapally, Kerala, India",
-                                "27/08/2023",
-                                false,
-                                "Mohan Babu"),
-                            proposedJobs(
-                                "Auto rickshaw",
-                                "Koovapally, Kerala, India",
-                                "27/08/2023",
-                                true,
-                                "Mohan Babu"),
-                          ],
+                          children: [],
                         ),
                       ),
                     ],

@@ -18,12 +18,16 @@ import 'package:http/http.dart' as http;
 class AuthDoor extends StatefulWidget {
   final String emailText;
   final String newEmail;
+  bool hidenOpenBtn = true;
+  final TextEditingController emailController;
   final Function(bool success) onAuthorizationComplete;
-  const AuthDoor(
+  AuthDoor(
       {super.key,
       required this.emailText,
       required this.newEmail,
-      required this.onAuthorizationComplete});
+      required this.onAuthorizationComplete,
+      required this.emailController,
+      required this.hidenOpenBtn});
 
   @override
   State<AuthDoor> createState() => _AuthDoorState();
@@ -58,7 +62,7 @@ class _AuthDoorState extends State<AuthDoor> {
   String email = "";
   String? uid = "";
   List<Map<String, dynamic>> resultList = [];
-
+  String? passwordError;
   @override
   void initState() {
     super.initState();
@@ -240,24 +244,22 @@ class _AuthDoorState extends State<AuthDoor> {
                                     color: const Color.fromARGB(
                                         255, 226, 223, 223)),
                                 decoration: new InputDecoration(
-                                  // prefixIcon: Icon(Icons.account_circle_rounded,
-                                  //     color: Colors.white54),
                                   labelStyle: TextStyle(
                                       color:
                                           Color.fromARGB(232, 255, 255, 255)),
                                   labelText: 'Enter your Password?',
                                   enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: Colors
-                                          .white54, // Set your desired border color here
+                                      color: Colors.white54,
                                     ),
                                   ),
                                   focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: const Color.fromARGB(137, 255, 255,
-                                          255), // Set your desired border color here
+                                      color: const Color.fromARGB(
+                                          137, 255, 255, 255),
                                     ),
                                   ),
+                                  errorText: passwordError,
                                 ),
                                 onChanged: (value) {
                                   _formKey.currentState!.validate();
@@ -275,76 +277,109 @@ class _AuthDoorState extends State<AuthDoor> {
                               height: 15,
                             ),
                             ElevatedButton(
-                                onPressed: isAuthorizing
-                                    ? null
-                                    : () async {
-                                        setState(() {
-                                          isAuthorizing = true;
-                                        });
-                                        try {
-                                          // Get the current user
-                                          User? user = _auth.currentUser;
-                                          logger.t(widget.newEmail);
-                                          if (user != null) {
-                                            // Re-authenticate the user
-                                            AuthCredential credential =
-                                                EmailAuthProvider.credential(
-                                                    email: widget.emailText,
-                                                    password:
-                                                        _passwordController
-                                                            .text);
-                                            await user
-                                                .reauthenticateWithCredential(
-                                                    credential);
+                              onPressed: isAuthorizing
+                                  ? null
+                                  : () async {
+                                      setState(() {
+                                        isAuthorizing = true;
+                                      });
+                                      try {
+                                        UserCredential userCredential =
+                                            await _auth
+                                                .signInWithEmailAndPassword(
+                                          email: widget.emailText,
+                                          password: _passwordController.text,
+                                        );
 
-                                            // Update the email address
+                                        User? user = userCredential.user;
+
+                                        if (user != null) {
+                                          // Update the email address (if needed)
+                                          if (widget.newEmail !=
+                                              widget.emailText) {
                                             await user
                                                 .updateEmail(widget.newEmail);
-                                            logger.d(
-                                                'Email updated successfully');
-                                            Map<String, dynamic> emaildata = {};
-                                            setState(() {
-                                              isEmailVerified = true;
-                                              isEmailOtpSend = false;
-                                              trueOtp = false;
-                                              isAuthorizing = false;
-                                              emaildata = {
-                                                "id": widget.newEmail,
-                                                "verified": true
-                                              };
-                                            });
-                                            FirebaseFirestore.instance
-                                                .collection('users')
-                                                .doc(uid)
-                                                .update({'emailId': emaildata});
-                                            Navigator.pop(context);
-                                          } else {
-                                            // Handle the case where the user is null
-
-                                            setState(() {
-                                              isAuthorizing = false;
-                                            });
-                                            logger.d(
-                                                'User is not authenticated.');
                                           }
-                                        } catch (e) {
+
+                                          Map<String, dynamic> emaildata = {
+                                            "id": widget.newEmail,
+                                            "verified": true
+                                          };
+
+                                          // Update email in Firestore
+                                          await FirebaseFirestore.instance
+                                              .collection('users')
+                                              .doc(uid)
+                                              .update({'emailId': emaildata});
+
+                                          setState(() {
+                                            isEmailVerified = true;
+                                            isEmailOtpSend = false;
+                                            trueOtp = false;
+                                            isAuthorizing = false;
+                                          });
+
+                                          Navigator.pop(context);
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text("Success"),
+                                                content: Text(
+                                                    "Email updated successfully!"),
+                                                actions: [
+                                                  TextButton(
+                                                    child: Text("OK"),
+                                                    onPressed: () {
+                                                      widget.emailController
+                                                          .clear();
+                                                      Navigator.pop(context);
+                                                      setState(() {
+                                                        widget.hidenOpenBtn =
+                                                            false;
+                                                      });
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        } else {
+                                          setState(() {
+                                            isAuthorizing = false;
+                                          });
                                           logger
-                                              .d('Failed to update email: $e');
+                                              .d('User is not authenticated.');
+                                        }
+                                      } catch (e) {
+                                        setState(() {
+                                          isAuthorizing = false;
+                                        });
+
+                                        if (e is FirebaseAuthException &&
+                                            e.code == 'wrong-password') {
+                                          setState(() {
+                                            passwordError = 'Invalid password';
+                                          });
+                                        } else {
+                                          logger.d(
+                                              'Failed to login or update email: $e');
                                           setState(() {
                                             isEmailVerified = false;
                                             isEmailOtpSend = true;
                                             trueOtp = false;
-                                            isAuthorizing = false;
                                           });
                                         }
-                                      },
-                                child: isAuthorizing
-                                    ? LoadingAnimationWidget.discreteCircle(
-                                        color: Colors.white, size: 20)
-                                    : Text(
-                                        "Authorize",
-                                        style: TextStyle(color: Colors.white),
-                                      ))
+                                      }
+                                    },
+                              child: isAuthorizing
+                                  ? LoadingAnimationWidget.discreteCircle(
+                                      color: Colors.white, size: 20)
+                                  : Text(
+                                      "Authorize",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                            )
                           ],
                         )
                       : Column(

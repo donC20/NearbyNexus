@@ -26,6 +26,7 @@ class VendorModel {
       FirebaseFirestore.instance.collection('payments').doc('someDocs');
   final List<String> userFavourites;
   List<String> working_days = [];
+  List<String> unavailableDays = [];
   VendorModel(
       {this.id,
       required this.name,
@@ -35,6 +36,7 @@ class VendorModel {
       required this.image,
       required this.userType,
       required this.status,
+      required this.unavailableDays,
       required this.currentGeoLocation,
       this.description,
       this.services,
@@ -67,7 +69,8 @@ class VendorModel {
       "actualRating": actualRating,
       "totalRating": totalRating,
       "activityStatus": activityStatus,
-      "kyc": kyc
+      "kyc": kyc,
+      "unavailableDays": unavailableDays,
     };
   }
 }

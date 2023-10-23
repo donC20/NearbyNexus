@@ -181,17 +181,18 @@ class _CompleteRegistrationByUserState
           },
           phone: {
             "number": phone,
-            "verified": true,
+            "verified": false,
           },
           image: _imageUrl,
           userType: userType,
           currentGeoLocation: currentGeoLocation,
           status: 'active',
           address: '',
-          paymentLogs:
-              FirebaseFirestore.instance.collection('payments').doc('someDoc'),
+          paymentLogs: [],
           paymentVerified: false,
-          about: '');
+          about: '',
+          userFavourites: [],
+          iamRated: []);
       Map<String, dynamic> userData = user.toJson();
       String uid = userTransferdData['uid'];
       await FirebaseFirestore.instance

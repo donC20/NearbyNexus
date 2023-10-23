@@ -1306,7 +1306,7 @@ packages:
     source: hosted
     version: "0.3.1"
   table_calendar:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: table_calendar
       sha256: "1e3521a3e6d3fc7f645a58b135ab663d458ab12504f1ea7f9b4b81d47086c478"
