@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class VendorProfileOne extends StatefulWidget {
   const VendorProfileOne({super.key});
@@ -34,7 +35,7 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ??'');
+    var initData = json.decode(userLoginData ?? '');
     String uid = initData['uid'];
     DocumentSnapshot snapshot =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();
@@ -184,7 +185,23 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                     ),
                     horizontalTitleGap: -5,
                     trailing: IconButton(
-                        onPressed: () {},
+                        onPressed: () async {
+                          final Uri _emailLaunchUri = Uri(
+                            scheme: 'mailto',
+                            path: 'hexated100@gmail.com',
+                            queryParameters: {
+                              'subject': 'Support ticket',
+                              'body': 'Hello, this is the body of the email!'
+                            },
+                          );
+
+                          final String url = _emailLaunchUri.toString();
+                          if (await canLaunch(url)) {
+                            await launch(url);
+                          } else {
+                            throw 'Could not launch $url';
+                          }
+                        },
                         icon: Icon(
                           Icons.arrow_right_alt,
                           color: Colors.white,
@@ -201,7 +218,9 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                     ),
                     horizontalTitleGap: -5,
                     trailing: IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushNamed(context, "terms_Conditions");
+                        },
                         icon: Icon(
                           Icons.arrow_right_alt,
                           color: Colors.white,

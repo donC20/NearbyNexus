@@ -2,6 +2,7 @@ import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/misc/firebase_notifications.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
+import 'package:NearbyNexus/screens/common_screens/terms_nd_conditions.dart';
 import 'package:NearbyNexus/screens/user/components/view_job_details.dart';
 import 'package:NearbyNexus/screens/user/screens/active_jobs.dart';
 import 'package:NearbyNexus/screens/user/screens/favorites.dart';
@@ -112,8 +113,7 @@ class MyApp extends StatelessWidget {
         "forgot_password_screen": (context) => const ForgotPasswordScreen(),
         "user_or_vendor": (context) => const UserOrVendor(),
         "registration_screen": (context) => const RegistrationScreen(),
-        "complete_registration_user": (context) =>
-            const CompleteRegistrationByUser(),
+        "terms_Conditions": (context) => const TermsAndConditionsScreen(),
         // vendor _screens
         "complete_registration_vendor": (context) =>
             const CompleteRegistrationByvendor(),

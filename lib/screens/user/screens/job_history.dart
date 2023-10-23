@@ -96,7 +96,6 @@ class _UserJobHistoryState extends State<UserJobHistory> {
           ),
         ),
       ),
-    
     );
   }
 }
@@ -116,8 +115,8 @@ Stream<QuerySnapshot> getServiceActionsStream(String uid, String tab) {
       query = query.where('status', whereIn: ['rejected', 'user rejected']);
       break;
     case "ongoing":
-      query = query
-          .where('status', whereNotIn: ['new', 'rejected', 'user rejected']);
+      query = query.where('status',
+          whereNotIn: ['new', 'rejected', 'user rejected', 'finished']);
       break;
   }
 
