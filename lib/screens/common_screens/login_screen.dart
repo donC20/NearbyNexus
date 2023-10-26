@@ -64,8 +64,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
         DocumentSnapshot snapshot =
             await FirebaseFirestore.instance.collection('users').doc(uid).get();
-        Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
-        String authorised = data!['status'];
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+        String authorised = data['status'];
         log.d(authorised);
 
         if (snapshot.exists && authorised == 'active') {
@@ -177,8 +177,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
         DocumentSnapshot snapshot =
             await FirebaseFirestore.instance.collection('users').doc(uid).get();
-        Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
-        String authorised = data!['status'];
+        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+        String authorised = data['status'];
 
         if (snapshot.exists && authorised == 'active') {
           // Check if the document exists

@@ -10,6 +10,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:azblob/azblob.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -33,6 +34,7 @@ class _KYCScreenState extends State<KYCScreen> {
   String id_number = "";
   String status = '';
   File? pickedImage;
+  File? finalCroppedImage;
   String type = '';
   String api_ip = '0.0.0.0';
 
@@ -63,6 +65,7 @@ class _KYCScreenState extends State<KYCScreen> {
     setState(() {
       uid = initData['uid'];
     });
+
     DocumentSnapshot snapshot = await FirebaseFirestore.instance
         .collection('app_config')
         .doc('api_reference')
@@ -83,8 +86,19 @@ class _KYCScreenState extends State<KYCScreen> {
         await ImagePicker().pickImage(source: ImageSource.camera);
 
     if (pickedFile != null) {
-      pickedImage = File(pickedFile.path);
-      _uploadImageToAzure(pickedImage);
+      _cropImage(pickedFile.path);
+    }
+  }
+
+  void _cropImage(String filePath) async {
+    CroppedFile? croppedImage = await ImageCropper()
+        .cropImage(sourcePath: filePath, maxHeight: 1080, maxWidth: 1080);
+    if (croppedImage != null) {
+      setState(() {
+        finalCroppedImage = File(croppedImage.path);
+      });
+      logger.e(finalCroppedImage);
+      _uploadImageToAzure(finalCroppedImage);
     }
   }
 
@@ -133,7 +147,7 @@ class _KYCScreenState extends State<KYCScreen> {
         status = "Classifiying...";
       });
       final response = await http.post(
-        Uri.parse('http://3.94.53.249/predict'), // Replace with your API URL
+        Uri.parse('http://44.211.201.42/predict'), // Replace with your API URL
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

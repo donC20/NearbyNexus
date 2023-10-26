@@ -120,7 +120,7 @@ class _VendorProfileState extends State<VendorProfile> {
           geoLocation = vendorData['geoLocation'];
           isFetching = false;
           serviceList = vendorData['services'];
-          languages = vendorData['languages'];
+          languages = vendorData['languages'] ?? [];
           about = vendorData['about'];
           workingDays = vendorData['working_days'];
           rating = vendorData['actualRating'];
@@ -364,15 +364,24 @@ class _VendorProfileState extends State<VendorProfile> {
                           height: 0,
                         ),
 
-                        Text(
-                          about,
-                          textAlign: TextAlign.justify,
-                          style: TextStyle(
-                            color: Color.fromARGB(191, 208, 208, 208),
-                            fontSize: 12,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
+                        about.isEmpty
+                            ? Center(
+                                child: Text("Please add your about.",
+                                    style: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 208, 208, 208),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.normal)),
+                              )
+                            : Text(
+                                about,
+                                textAlign: TextAlign.justify,
+                                style: TextStyle(
+                                  color: Color.fromARGB(191, 208, 208, 208),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
                         SizedBox(
                           height: 15,
                         ),
@@ -478,16 +487,25 @@ class _VendorProfileState extends State<VendorProfile> {
                                 color: Color.fromARGB(255, 208, 208, 208),
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold)),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 15,
-                          children: [
-                            for (int index = 0;
-                                index < languages!.length;
-                                index++)
-                              Chip(label: Text(languages![index])),
-                          ],
-                        ),
+                        languages!.isEmpty
+                            ? Center(
+                                child: Text("Please add your.",
+                                    style: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 208, 208, 208),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.normal)),
+                              )
+                            : Wrap(
+                                spacing: 10,
+                                runSpacing: 15,
+                                children: [
+                                  for (int index = 0;
+                                      index < languages!.length;
+                                      index++)
+                                    Chip(label: Text(languages![index])),
+                                ],
+                              ),
                         SizedBox(
                           height: 15,
                         ),

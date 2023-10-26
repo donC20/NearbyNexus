@@ -199,10 +199,9 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
         userFavourites: [],
         working_days: [],
         description: "",
-        paymentLogs:
-            FirebaseFirestore.instance.collection('payments').doc('someDocs'),
+        paymentLogs: [],
         activityStatus: 'available',
-        allRatings: FirebaseFirestore.instance.collection('ratings').doc(''),
+        allRatings: [],
         actualRating: 0.0,
         totalRating: 0.0,
         unavailableDays: [],

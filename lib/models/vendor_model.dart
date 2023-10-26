@@ -19,11 +19,9 @@ class VendorModel {
   final String? activityStatus;
   final double actualRating;
   final double totalRating;
-  DocumentReference? paymentLogs =
-      FirebaseFirestore.instance.collection('payments').doc('someDocs');
+  final List<DocumentReference> paymentLogs;
 
-  DocumentReference? allRatings =
-      FirebaseFirestore.instance.collection('payments').doc('someDocs');
+  final List<DocumentReference> allRatings;
   final List<String> userFavourites;
   List<String> working_days = [];
   List<String> unavailableDays = [];
@@ -45,7 +43,7 @@ class VendorModel {
       required this.actualRating,
       required this.totalRating,
       this.languages,
-      this.paymentLogs,
+      required this.paymentLogs,
       required this.activityStatus,
       required this.userFavourites,
       required this.working_days});

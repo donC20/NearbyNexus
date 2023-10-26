@@ -48,7 +48,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
   String geoLocation = "loading...";
   List<dynamic> serviceList = [];
   List<dynamic> workingDays = [];
-  List<dynamic> languages = [];
+  List<dynamic>? languages = [];
   String activityStatus = "available";
   String about = '';
   String uid = '';
@@ -73,7 +73,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
           geoLocation = vendorData['geoLocation'];
           isFetching = false;
           serviceList = vendorData['services'];
-          languages = vendorData['languages'];
+          languages = vendorData['languages'] ?? [];
           about = vendorData['about'];
           workingDays = vendorData['working_days'];
           activityStatus = vendorData['activityStatus'];
@@ -368,7 +368,8 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             modernCircularProgressBar(
-                                summaryData['jobCompletedCount'] as double,
+                                summaryData['jobCompletedCount'] as double ??
+                                    1.0,
                                 "Jobs done",
                                 1000,
                                 false,
@@ -395,15 +396,24 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                           height: 0,
                         ),
 
-                        Text(
-                          about,
-                          textAlign: TextAlign.justify,
-                          style: TextStyle(
-                            color: Color.fromARGB(191, 208, 208, 208),
-                            fontSize: 12,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
+                        about.isEmpty
+                            ? Center(
+                                child: Text("About unavailable.",
+                                    style: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 208, 208, 208),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.normal)),
+                              )
+                            : Text(
+                                about,
+                                textAlign: TextAlign.justify,
+                                style: TextStyle(
+                                  color: Color.fromARGB(191, 208, 208, 208),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
                         SizedBox(
                           height: 15,
                         ),
@@ -490,11 +500,14 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                                   );
                                 }).toList(),
                               )
-                            : Text("Working days not available.",
-                                style: TextStyle(
-                                    color: Color.fromARGB(255, 208, 208, 208),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold)),
+                            : Center(
+                                child: Text("Working days not available.",
+                                    style: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 208, 208, 208),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.normal)),
+                              ),
                         SizedBox(
                           height: 15,
                         ),
@@ -509,16 +522,25 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                                 color: Color.fromARGB(255, 208, 208, 208),
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold)),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 15,
-                          children: [
-                            for (int index = 0;
-                                index < languages.length;
-                                index++)
-                              Chip(label: Text(languages[index])),
-                          ],
-                        ),
+                        languages!.isEmpty
+                            ? Center(
+                                child: Text("Languages unavailable.",
+                                    style: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 208, 208, 208),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.normal)),
+                              )
+                            : Wrap(
+                                spacing: 10,
+                                runSpacing: 15,
+                                children: [
+                                  for (int index = 0;
+                                      index < languages!.length;
+                                      index++)
+                                    Chip(label: Text(languages![index])),
+                                ],
+                              ),
                         SizedBox(
                           height: 15,
                         ),
@@ -624,12 +646,24 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                                     );
                                   } else {
                                     return Center(
-                                        child: Text('No data available.'));
+                                        child: Text('No data available.',
+                                            style: TextStyle(
+                                                color: Color.fromARGB(
+                                                    255, 208, 208, 208),
+                                                fontSize: 14,
+                                                fontWeight:
+                                                    FontWeight.normal)));
                                   }
                                 },
                               );
                             } else {
-                              return Center(child: Text('No data available.'));
+                              return Center(
+                                  child: Text('No data available.',
+                                      style: TextStyle(
+                                          color: Color.fromARGB(
+                                              255, 208, 208, 208),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.normal)));
                             }
                           },
                         ),
@@ -680,7 +714,12 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
 
                                 if (vendors.isEmpty) {
                                   return const Center(
-                                    child: Text("No users found!"),
+                                    child: Text("No users found!",
+                                        style: TextStyle(
+                                            color: Color.fromARGB(
+                                                255, 208, 208, 208),
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.normal)),
                                   );
                                 }
                                 return ListView.separated(
