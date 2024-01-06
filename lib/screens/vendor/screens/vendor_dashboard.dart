@@ -287,33 +287,37 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                     ),
                                   ),
                                 ),
-                                Container(
-                                  decoration: BoxDecoration(
-                                      color: Color(0xFF8B5FEC),
-                                      borderRadius: BorderRadius.circular(100)),
-                                  child: ListTile(
-                                    onTap: () {
-                                      Navigator.pushNamed(context, "new_jobs");
-                                    },
-                                    title: Text(
-                                      "New jobs",
-                                      style: TextStyle(
-                                          color: const Color.fromARGB(
-                                              255, 255, 255, 255),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          fontFamily:
-                                              GoogleFonts.play().fontFamily),
-                                    ),
-                                    trailing: Text(
-                                      summaryData['newJobs'].toString(),
-                                      style: TextStyle(
-                                          color: const Color.fromARGB(
-                                              255, 255, 255, 255),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                          fontFamily:
-                                              GoogleFonts.play().fontFamily),
+                                InkWell(
+                                  key: Key('new_job'),
+                                  onTap: () {
+                                    Navigator.pushNamed(context, "new_jobs");
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Color(0xFF8B5FEC),
+                                        borderRadius:
+                                            BorderRadius.circular(100)),
+                                    child: ListTile(
+                                      title: Text(
+                                        "New jobs",
+                                        style: TextStyle(
+                                            color: const Color.fromARGB(
+                                                255, 255, 255, 255),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                            fontFamily:
+                                                GoogleFonts.play().fontFamily),
+                                      ),
+                                      trailing: Text(
+                                        summaryData['newJobs'].toString(),
+                                        style: TextStyle(
+                                            color: const Color.fromARGB(
+                                                255, 255, 255, 255),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                            fontFamily:
+                                                GoogleFonts.play().fontFamily),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -390,6 +394,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                       ),
                                       activityStatusTapped == true
                                           ? InkWell(
+                                              key: Key('set_offline'),
                                               onTap: () {
                                                 setState(() {
                                                   activityStatusTapped = false;

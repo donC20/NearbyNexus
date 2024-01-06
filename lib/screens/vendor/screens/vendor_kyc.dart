@@ -147,7 +147,7 @@ class _KYCScreenState extends State<KYCScreen> {
         status = "Classifiying...";
       });
       final response = await http.post(
-        Uri.parse('http://44.211.201.42/predict'), // Replace with your API URL
+        Uri.parse('http://44.204.17.112/predict'), // Replace with your API URL
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

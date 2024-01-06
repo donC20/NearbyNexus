@@ -6,9 +6,9 @@ import 'package:integration_test/integration_test.dart';
 import 'package:NearbyNexus/main.dart' as app;
 
 void main() {
-  group('Category addition by admin', () {
+  group('New jobs test', () {
     IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-    testWidgets("Category addition by admin test", (widgetTester) async {
+    testWidgets("New job function test", (widgetTester) async {
       try {
         app.main();
 
@@ -20,37 +20,30 @@ void main() {
         final getStartedBtn = find.byKey(Key('getStartedBtn'));
 
         await widgetTester.tap(getStartedBtn);
-        print("Step 1: Tapped 'Logged into application' button");
+        print("Step 1: Tapped 'Get Started' button");
         await widgetTester.pumpAndSettle();
 
         final loginEmailTester = find.byKey(Key('LoginEmail'));
         final loginPasswordTester = find.byKey(Key('LoginPassword'));
         final loginButtonTester = find.byKey(Key('LoginButton'));
-        final job_logs_btn = find.byKey(Key('job_logs_btn'));
-        final view_requests_btn = find.byKey(Key('0_button'));
-        final accept_job_btn = find.byKey(Key('accept_btn'));
+        final new_job = find.byKey(Key('new_job'));
 
         await widgetTester.enterText(loginEmailTester, "prizedrops@gmail.com");
         await widgetTester.enterText(loginPasswordTester, "123456");
-        print("Step 2: Widgets loaded");
+        print("Step 2: Entered email and password");
 
         await widgetTester.pumpAndSettle();
 
         await widgetTester.tap(loginButtonTester);
-        print("Step 3:  new category name entered in the income add text field");
-        await widgetTester.pumpAndSettle(Duration(seconds: 5));
+        print("Step 3: Tapped 'Login' button");
+        await widgetTester.pumpAndSettle(Duration(seconds: 8));
 
-        await widgetTester.tap(job_logs_btn);
-        print("Step 4:Tapped the add button");
+        await widgetTester.tap(new_job);
+        print("Step 4: Tapped 'new_job' button");
         await widgetTester.pumpAndSettle(Duration(seconds: 10));
 
-        await widgetTester.tap(view_requests_btn);
-        print("Step 5: New category name entered in the expense category add text field");
-        await widgetTester.pumpAndSettle(Duration(seconds: 10));
+        print("Opened new jobs successfully!");
 
-        await widgetTester.tap(accept_job_btn);
-        print("Step 6: Tapped add button");
-        print("Step 7: Added Successfully");
         await widgetTester.pumpAndSettle(Duration(seconds: 5));
       } catch (e) {
         print("Error occurred on page: ${e}");
