@@ -68,7 +68,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           'uid': uid,
           'email': email,
           'userType': userType!['value'],
-          'loginType':'normal'
+          'loginType': 'normal'
         };
         setState(() {
           isLoading = false;
@@ -131,7 +131,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               'email': googleuser.email,
               'userType': selectedRadio,
               'name': googleuser.displayName,
-              'loginType':'google'
+              'loginType': 'google'
             };
             selectedRadio == "general_user"
                 ? Navigator.popAndPushNamed(
@@ -145,6 +145,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             print("Failed to sign in with Google");
           }
         } else {
+          await _googleSignIn.signOut();
           showSnackbar("An account with this mail id already exists",
               const Color.fromARGB(255, 244, 54, 54));
         }

@@ -83,7 +83,6 @@ dependencies:
   simple_ripple_animation: ^0.0.7
   skeletons: ^0.0.3
   table_calendar: ^3.0.9
-  tflite_flutter: ^0.10.2
   timeline_tile: ^2.0.0
   transparent_image: ^2.0.1
   url_launcher: ^6.1.14

@@ -164,6 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
           await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
 
       if (signInMethods.isEmpty) {
+        await _googleSignIn.signOut();
         showSnackbar("Sorry, this mail id is not associated with any account.",
             Colors.red);
       } else {
@@ -202,6 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
             } else if (userType == "general_user") {
               Navigator.popAndPushNamed(context, "user_dashboard");
             } else {
+              await _googleSignIn.signOut();
               showSnackbar(":) Sorry we are unable to proccess your request! ",
                   Colors.red);
             }
@@ -213,12 +215,14 @@ class _LoginScreenState extends State<LoginScreen> {
             print('User Type not found in the document');
           }
         } else {
+          await _googleSignIn.signOut();
           showSnackbar(
               ":) Sorry you are currently banned from the  application ",
               Colors.red);
         }
       }
     } catch (e) {
+      await _googleSignIn.signOut();
       print("Error checking email existence: $e");
     }
   }
