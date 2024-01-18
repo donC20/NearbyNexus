@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously
+// ignore_for_file: avoid_print, use_build_context_synchronously, prefer_const_constructors
 
 import 'dart:convert';
 
@@ -28,6 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
   bool isButtonDisabled = false;
   bool isVerifiedByOtherMethod = false;
+  bool isGoogleSignRespond = true;
 
   // snack bar
   void showSnackbar(String message, Color backgroundColor) {
@@ -142,6 +143,9 @@ class _LoginScreenState extends State<LoginScreen> {
 // !Login with google
   Future<void> signInWithGoogle() async {
     try {
+      setState(() {
+        isGoogleSignRespond = false;
+      });
       final GoogleSignInAccount? googleSignInAccount =
           await _googleSignIn.signIn();
 
@@ -154,6 +158,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final email = googleSignInAccount.email;
       checkEmailExists(email, credential);
     } catch (e) {
+      setState(() {
+        isGoogleSignRespond = true;
+      });
       print("Error signing in with Google: $e");
     }
   }
@@ -164,6 +171,9 @@ class _LoginScreenState extends State<LoginScreen> {
           await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
 
       if (signInMethods.isEmpty) {
+        setState(() {
+          isGoogleSignRespond = true;
+        });
         await _googleSignIn.signOut();
         showSnackbar("Sorry, this mail id is not associated with any account.",
             Colors.red);
@@ -203,18 +213,29 @@ class _LoginScreenState extends State<LoginScreen> {
             } else if (userType == "general_user") {
               Navigator.popAndPushNamed(context, "user_dashboard");
             } else {
+              setState(() {
+                isGoogleSignRespond = true;
+              });
               await _googleSignIn.signOut();
               showSnackbar(":) Sorry we are unable to proccess your request! ",
                   Colors.red);
             }
             emailController.clear();
             passController.clear();
-
+            setState(() {
+              isGoogleSignRespond = true;
+            });
             showSnackbar("Login successful", Colors.green);
           } else {
+            setState(() {
+              isGoogleSignRespond = true;
+            });
             print('User Type not found in the document');
           }
         } else {
+          setState(() {
+            isGoogleSignRespond = true;
+          });
           await _googleSignIn.signOut();
           showSnackbar(
               ":) Sorry you are currently banned from the  application ",
@@ -222,6 +243,9 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       }
     } catch (e) {
+      setState(() {
+        isGoogleSignRespond = true;
+      });
       await _googleSignIn.signOut();
       print("Error checking email existence: $e");
     }
@@ -481,6 +505,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: OutlinedButton(
                       onPressed: () async {
                         await signInWithGoogle();
+                        isGoogleSignRespond
+                            ? SizedBox()
+                            : showDialog(
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: Text("loading"),
+                                  );
+                                });
                       },
                       style: OutlinedButton.styleFrom(
                           side: const BorderSide(

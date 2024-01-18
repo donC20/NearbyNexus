@@ -110,11 +110,11 @@ class _KYCScreenState extends State<KYCScreen> {
       Uint8List content = await pickedImage!.readAsBytes();
 
       var storage = AzureStorage.parse(
-          'DefaultEndpointsProtocol=https;AccountName=nearbystorage;AccountKey=K2Vtgfs2CapuWIYzFMxXtELXRiJtyRAQ4lSo1sr9ElVHJGNuSISr6P1R8yeRwnnEtfF+5QJDt8rE+AStmaAn8A==;EndpointSuffix=core.windows.net');
+          'DefaultEndpointsProtocol=https;AccountName=nearbynexusblob;AccountKey=B4N3BiiEq6HNqMSPytSCErkiu/bKjaHebesnbdXcPqCW1IYxRPv4zAmL3r+AdAJqTZtTXBTiGM5p+ASt4J5nVA==;EndpointSuffix=core.windows.net');
 
       String? contentType = lookupMimeType(pickedImage!.path);
 
-      String blobName = 'nearbyblob/testimg';
+      String blobName = 'nearbynexus-blobstore/testimg';
 
       await storage.putBlob(blobName,
           bodyBytes: content,
@@ -147,7 +147,8 @@ class _KYCScreenState extends State<KYCScreen> {
         status = "Classifiying...";
       });
       final response = await http.post(
-        Uri.parse('http://44.204.17.112/predict'), // Replace with your API URL
+        Uri.parse(
+            'https://don100.pythonanywhere.com/predict'), // Replace with your API URL
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
