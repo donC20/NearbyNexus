@@ -123,14 +123,13 @@ class _UserDashboardMState extends State<UserDashboardM> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: Padding(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(7.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.only(top: 20),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Header(
                     pageTitle: "DashBoard",
@@ -139,6 +138,15 @@ class _UserDashboardMState extends State<UserDashboardM> {
                   ),
                   Row(
                     children: [
+                      IconButton(
+                          onPressed: () {
+                            Navigator.pushNamed(
+                                context, "search_screen_vendor");
+                          },
+                          icon: Icon(
+                            Icons.search,
+                            color: Colors.white,
+                          )),
                       IconButton(
                           onPressed: () {
                             Navigator.pushNamed(context, "request_status_page");
@@ -223,137 +231,61 @@ class _UserDashboardMState extends State<UserDashboardM> {
                             jobandPaymentsSummary(
                                 context, summaryData['totalWage']),
                             SizedBox(
-                              height: 25,
+                              height: 20,
                             ),
-                            Stack(
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  padding: EdgeInsets.all(20),
-                                  width: MediaQuery.sizeOf(context).width,
-                                  height: 150,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(20)),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Searching\nfor services?",
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 22,
-                                          fontFamily:
-                                              GoogleFonts.russoOne().fontFamily,
-                                        ),
-                                      ),
-                                      // SizedBox(
-                                      //   height: 10,
-                                      // ),
-                                      ElevatedButton.icon(
-                                        onPressed: () {
-                                          Navigator.pushNamed(
-                                              context, "search_screen_vendor");
-                                        },
-                                        icon: Icon(Icons.search),
-                                        label: Text(
-                                          "Find services",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                        style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                const Color.fromARGB(
-                                                    255, 0, 0, 0)),
-                                      ),
-                                    ],
-                                  ),
+                                Text(
+                                  "More actions",
+                                  style: TextStyle(color: Colors.white),
                                 ),
-                                Positioned(
-                                  bottom: 15,
-                                  right: 30,
-                                  child: Image.asset(
-                                    'assets/images/search_3d.png',
-                                    width: 130,
-                                    height: 130,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
+                                cardItems(
+                                    Icons.post_add_outlined,
+                                    "Post new job",
+                                    "add_post",
+                                    context,
+                                    () {},
+                                    Colors.blueAccent,
+                                    "post_add",
+                                    "Create new job post, and make the post public."),
+                                cardItems(
+                                    Icons.work,
+                                    "Active Jobs",
+                                    "user_active_jobs",
+                                    context,
+                                    () {},
+                                    Colors.green,
+                                    "active_jobs",
+                                    "See all the jobs that are currently active."),
+                                cardItems(
+                                    Icons.work_history,
+                                    "Pending Jobs",
+                                    "user_pending_requets",
+                                    context,
+                                    () {},
+                                    Colors.red,
+                                    "pending_jobs",
+                                    "View all jobs that need your attention."),
+                                cardItems(
+                                    Icons.favorite,
+                                    "Favourite connections",
+                                    "/my_favourites",
+                                    context,
+                                    () {},
+                                    Colors.white,
+                                    "fd",
+                                    "View all the favourite connections of yours."),
+                                cardItems(
+                                    Icons.history,
+                                    "Job history",
+                                    "/user_job_history",
+                                    context,
+                                    () {},
+                                    Colors.amber,
+                                    "fsd",
+                                    "All the transactions are listed here."),
                               ],
-                            ),
-                            SizedBox(
-                              height: 25,
-                            ),
-                            SizedBox(
-                              height: 25,
-                            ),
-                            Align(
-                              alignment: Alignment.center,
-                              child: Wrap(
-                                spacing: 30,
-                                runSpacing: 15,
-                                children: [
-                                  InkWell(
-                                    key: Key("active_jobs"),
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, "user_active_jobs");
-                                    },
-                                    child: cardItems(
-                                        Icons.work,
-                                        "Active Jobs",
-                                        "user_active_jobs",
-                                        context,
-                                        () {},
-                                        Colors.green,
-                                        "active_jobs"),
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, "user_pending_requets");
-                                    },
-                                    child: cardItems(
-                                        Icons.work_history,
-                                        "Pending Jobs",
-                                        "user_pending_requets",
-                                        context,
-                                        () {},
-                                        Colors.red,
-                                        "pending_jobs"),
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, "/my_favourites");
-                                    },
-                                    child: cardItems(
-                                        Icons.favorite,
-                                        "Favourites",
-                                        "",
-                                        context,
-                                        () {},
-                                        Colors.white,
-                                        "fd"),
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, "/user_job_history");
-                                    },
-                                    child: cardItems(
-                                        Icons.history,
-                                        "Job history",
-                                        "/user_job_history",
-                                        context,
-                                        () {},
-                                        Colors.amber,
-                                        "fsd"),
-                                  ),
-                                ],
-                              ),
                             ),
                             SizedBox(
                               height: 25,
@@ -535,43 +467,46 @@ Widget jobandPaymentsSummary(BuildContext context, double amount) {
   );
 }
 
-Widget cardItems(IconData icon, String title, String ontapRoute,
-    BuildContext context, Function onTap, Color iconColor, String key) {
-  return Container(
-    width: 150,
-    padding: EdgeInsets.all(15),
-    decoration: BoxDecoration(
-      border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
-      borderRadius: BorderRadius.circular(10),
-      color: Color.fromARGB(186, 42, 40, 40),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.9),
-          blurRadius: 10,
-          spreadRadius: 2,
-        ),
-      ],
-    ),
-    child: Column(
-      children: [
-        Icon(
+Widget cardItems(
+    IconData icon,
+    String title,
+    String ontapRoute,
+    BuildContext context,
+    Function onTap,
+    Color iconColor,
+    String key,
+    String subtitle) {
+  return Column(
+    children: [
+      ListTile(
+        onTap: () {
+          Navigator.pushNamed(context, ontapRoute);
+        },
+        leading: Icon(
           icon,
           color: iconColor,
         ),
-        SizedBox(
-          height: 10,
+        trailing: Icon(
+          Icons.arrow_right_alt_sharp,
+          color: Colors.white,
         ),
-        Text(
+        title: Text(
           title,
-          textAlign: TextAlign.center,
           style: TextStyle(
               color: const Color.fromARGB(255, 255, 255, 255),
               fontWeight: FontWeight.bold,
               fontSize: 12,
               fontFamily: GoogleFonts.play().fontFamily),
         ),
-      ],
-    ),
+        subtitle: Text(
+          subtitle,
+          style: TextStyle(color: Colors.white54, fontSize: 10),
+        ),
+      ),
+      Divider(
+        color: Color.fromARGB(109, 158, 158, 158),
+      ),
+    ],
   );
 }
 

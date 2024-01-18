@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously, prefer_const_constructors
+// ignore_for_file: avoid_print, use_build_context_synchronously, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'dart:convert';
 
@@ -143,9 +143,6 @@ class _LoginScreenState extends State<LoginScreen> {
 // !Login with google
   Future<void> signInWithGoogle() async {
     try {
-      setState(() {
-        isGoogleSignRespond = false;
-      });
       final GoogleSignInAccount? googleSignInAccount =
           await _googleSignIn.signIn();
 
@@ -504,24 +501,42 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 60,
                     child: OutlinedButton(
                       onPressed: () async {
+                        setState(() {
+                          isGoogleSignRespond = false;
+                        });
+
+                        if (isGoogleSignRespond) {
+                          return;
+                        }
+
+                        showDialog(
+                          barrierDismissible: false,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              content: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(
+                                    width: 15,
+                                  ),
+                                  Text("Please wait..")
+                                ],
+                              ),
+                            );
+                          },
+                        );
                         await signInWithGoogle();
-                        isGoogleSignRespond
-                            ? SizedBox()
-                            : showDialog(
-                                barrierDismissible: false,
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    content: Text("loading"),
-                                  );
-                                });
+                        Navigator.pop(context);
                       },
                       style: OutlinedButton.styleFrom(
                           side: const BorderSide(
                               color: Color.fromARGB(77, 0, 0, 0)),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(50))),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Image(
