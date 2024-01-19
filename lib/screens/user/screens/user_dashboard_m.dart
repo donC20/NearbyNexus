@@ -243,7 +243,7 @@ class _UserDashboardMState extends State<UserDashboardM> {
                                 cardItems(
                                     Icons.post_add_outlined,
                                     "Post new job",
-                                    "add_post",
+                                    "/create_job_post",
                                     context,
                                     () {},
                                     Colors.blueAccent,
@@ -468,14 +468,15 @@ Widget jobandPaymentsSummary(BuildContext context, double amount) {
 }
 
 Widget cardItems(
-    IconData icon,
-    String title,
-    String ontapRoute,
-    BuildContext context,
-    Function onTap,
-    Color iconColor,
-    String key,
-    String subtitle) {
+  IconData icon,
+  String title,
+  String ontapRoute,
+  BuildContext context,
+  Function onTap,
+  Color iconColor,
+  String key,
+  String subtitle,
+) {
   return Column(
     children: [
       ListTile(

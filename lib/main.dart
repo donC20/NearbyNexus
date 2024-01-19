@@ -5,6 +5,7 @@ import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/common_screens/terms_nd_conditions.dart';
 import 'package:NearbyNexus/screens/user/components/view_job_details.dart';
 import 'package:NearbyNexus/screens/user/screens/active_jobs.dart';
+import 'package:NearbyNexus/screens/user/screens/create_job_post.dart';
 import 'package:NearbyNexus/screens/user/screens/favorites.dart';
 import 'package:NearbyNexus/screens/user/screens/job_history.dart';
 import 'package:NearbyNexus/screens/user/screens/job_review_page.dart';
@@ -152,6 +153,8 @@ class MyApp extends StatelessWidget {
         "user_pending_requets": (context) => const RequestsPendingUser(),
         "/user_job_history": (context) => const UserJobHistory(),
         "/my_favourites": (context) => const MyFavourites(),
+        // main
+        "/create_job_post": (context) => const CreateJobPost(),
       },
       initialRoute: "splashScreen",
     );
