@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, avoid_print, unused_element, sized_box_for_whitespace
 
 import 'package:NearbyNexus/functions/api_functions.dart';
+import 'package:NearbyNexus/models/job_post_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,6 +17,18 @@ class CreateJobPost extends StatefulWidget {
 }
 
 class _CreateJobPostState extends State<CreateJobPost> {
+// Firebase
+  late final FirebaseFirestore _firestore;
+  late final CollectionReference<Map<String, dynamic>> _jobPostCollection;
+
+  // init
+  @override
+  void initState() {
+    super.initState();
+    _firestore = FirebaseFirestore.instance;
+    _jobPostCollection = _firestore.collection('job_posts');
+  }
+
   // controllers
   final titleController = TextEditingController();
   final budgetController = TextEditingController();
@@ -76,7 +90,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
     }
   }
 
-// search places
+  // search places
   void handleInputChange(String value) {
     setState(() {
       inputValue = value;
@@ -97,7 +111,23 @@ class _CreateJobPostState extends State<CreateJobPost> {
     });
   }
 
-  //
+  //submit form
+  void broadcastPost(jobTitle, jobDescription, jobPostDate, expiryDateTime,
+      budget, jobPostedBy, applicants, skills, prefferedLocation) async {
+    // job post model
+    JobPostModel jobPostData = JobPostModel(
+        jobTitle: jobTitle,
+        jobDescription: jobDescription,
+        jobPostDate: jobPostDate,
+        expiryDateTime: expiryDateTime,
+        budget: budget,
+        jobPostedBy: jobPostedBy,
+        skills: skills,
+        prefferedLocation: prefferedLocation);
+
+    // firebase actions
+    await _jobPostCollection.add(jobPostData.toJson() as Map<String, dynamic>);
+  }
 
   @override
   Widget build(BuildContext context) {
