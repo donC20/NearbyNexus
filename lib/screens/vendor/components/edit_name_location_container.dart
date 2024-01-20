@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/screens/user/components/custom_otp.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
@@ -51,6 +52,7 @@ class _EditNameLocationState extends State<EditNameLocation> {
   bool isOtpvalid = true;
   bool isAuthorizing = false;
   String otpAuthCode = "";
+  String inputValue = "";
   String otpValue = "";
   String selectedName = "";
   String yrCurrentLocation = "loading..";
@@ -77,7 +79,7 @@ class _EditNameLocationState extends State<EditNameLocation> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ??'');
+    var initData = json.decode(userLoginData ?? '');
     setState(() {
       uid = initData['uid'];
     });
@@ -111,51 +113,25 @@ class _EditNameLocationState extends State<EditNameLocation> {
 
 // Api calls
 // Search places api
-  Future<List<Map<String, dynamic>>> searchPlaces(String query) async {
+  // search places
+  void handleInputChange(String value) {
     setState(() {
+      inputValue = value;
       isLocationFetchingList = true;
     });
-    final apiKey = '6451cd2838mshaa799c052193673p158fa6jsn14d05424a21d';
-
-    final headers = {
-      'X-RapidAPI-Host': 'geoapify-address-autocomplete.p.rapidapi.com',
-      'X-RapidAPI-Key': apiKey,
-    };
-    final params = {'text': query};
-
-    final uri = Uri.https(
-      'geoapify-address-autocomplete.p.rapidapi.com',
-      '/v1/geocode/autocomplete',
-      params,
-    );
-
-    final response = await http.get(
-      uri,
-      headers: headers,
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final features = data["features"] as List<dynamic>;
-
+    ApiFunctions().searchPlaces(value).then((result) {
       setState(() {
         isLocationFetchingList = false;
-        resultList = features.map((feature) {
-          final properties = feature["properties"] as Map<String, dynamic>;
-          return properties;
-        }).toList();
-      });
-      setState(() {
+        resultList = result;
         isListEmpty = resultList.isEmpty;
       });
-      return resultList;
-    } else {
-      // Handle errors here.
-      logger.d('Error: ${response.statusCode}');
-      return []; // Return an empty list in case of an error.
-    }
+    }).catchError((error) {
+      setState(() {
+        isLocationFetchingList = false;
+      });
+      print('Error searching places: $error');
+    });
   }
-
   // Send verify email otp
 
   Future<Map<String, dynamic>> sendOTP(String recipient) async {
@@ -819,9 +795,7 @@ class _EditNameLocationState extends State<EditNameLocation> {
                                     ),
                                   ),
                                 ),
-                                onChanged: (value) {
-                                  searchPlaces(value);
-                                },
+                                onChanged: (value) => handleInputChange(value),
                                 validator: (value) {
                                   if (value!.isEmpty) {
                                     return "You left this field empty!";
