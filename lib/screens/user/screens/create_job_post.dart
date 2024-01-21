@@ -1,13 +1,19 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, avoid_print, unused_element, sized_box_for_whitespace
 
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:NearbyNexus/functions/api_functions.dart';
+import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/models/job_post_model.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateJobPost extends StatefulWidget {
   const CreateJobPost({super.key});
@@ -25,6 +31,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
   @override
   void initState() {
     super.initState();
+    initUser();
     _firestore = FirebaseFirestore.instance;
     _jobPostCollection = _firestore.collection('job_posts');
   }
@@ -33,15 +40,22 @@ class _CreateJobPostState extends State<CreateJobPost> {
   final titleController = TextEditingController();
   final budgetController = TextEditingController();
   final _locationController = TextEditingController();
+  final descriptionController = TextEditingController();
+
+  // formkeys
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // variables
   // bool
   bool prefferedLocationAll = true;
   bool isLocationFetchingList = false;
   bool isListEmpty = false;
+  bool isFormSubmitting = false;
+
   // String
   String selectedName = "";
   String inputValue = "";
+  String? uid = "";
   // others
   var logger = Logger();
 
@@ -52,6 +66,8 @@ class _CreateJobPostState extends State<CreateJobPost> {
     "Ionic",
     "Xamarin",
   ];
+  List<dynamic> selectedSkillList = [];
+  List prefferedLocations = ["All"];
   List<Map<String, dynamic>> resultList = [];
 
   //Date time
@@ -59,6 +75,17 @@ class _CreateJobPostState extends State<CreateJobPost> {
   TimeOfDay selectedTime = TimeOfDay.now();
 
   // Functions
+
+  // user init
+  void initUser() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData ?? '');
+    setState(() {
+      uid = initData['uid'];
+    });
+  }
 
   // date picking
   Future<void> _selectDate(BuildContext context) async {
@@ -111,22 +138,52 @@ class _CreateJobPostState extends State<CreateJobPost> {
     });
   }
 
-  //submit form
-  void broadcastPost(jobTitle, jobDescription, jobPostDate, expiryDateTime,
-      budget, jobPostedBy, applicants, skills, prefferedLocation) async {
+  void broadcastPost(
+    jobTitle,
+    jobDescription,
+    expiryDate,
+    expiryTime,
+    budget,
+    jobPostedBy,
+    skills,
+    preferredLocation,
+  ) async {
+    setState(() {
+      isFormSubmitting = true;
+    });
+
+    // Convert expiryTime to a string if not null
+    String formattedExpiryTime =
+        expiryTime != null ? expiryTime.toString() : '';
+
+    // Validate and convert budget to double
+    double parsedBudget = double.tryParse(budget) ?? 0.0;
+
     // job post model
     JobPostModel jobPostData = JobPostModel(
-        jobTitle: jobTitle,
-        jobDescription: jobDescription,
-        jobPostDate: jobPostDate,
-        expiryDateTime: expiryDateTime,
-        budget: budget,
-        jobPostedBy: jobPostedBy,
-        skills: skills,
-        prefferedLocation: prefferedLocation);
+      jobTitle: jobTitle,
+      jobDescription: jobDescription,
+      expiryDate: expiryDate,
+      expiryTime: formattedExpiryTime,
+      budget: parsedBudget,
+      jobPostedBy: jobPostedBy,
+      skills: skills,
+      preferredLocation: preferredLocation,
+    );
 
     // firebase actions
-    await _jobPostCollection.add(jobPostData.toJson() as Map<String, dynamic>);
+    await _jobPostCollection.add(jobPostData.toJson()).then((_) {
+      // Data added successfully, set isFormSubmitting to false
+      setState(() {
+        isFormSubmitting = false;
+      });
+    }).catchError((error) {
+      // Handle the error if needed
+      print("Error adding data to Firebase: $error");
+      setState(() {
+        isFormSubmitting = false;
+      });
+    });
   }
 
   @override
@@ -139,6 +196,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Form(
+              key: _formKey,
               child: Column(
                 children: [
                   // Title input field
@@ -177,17 +235,26 @@ class _CreateJobPostState extends State<CreateJobPost> {
                               .toList();
                         },
                         overlaySearchListItemBuilder: (item) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
+                          return ListTile(
+                            trailing: selectedSkillList.contains(item)
+                                ? Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : SizedBox(),
+                            title: Text(
                               item,
-                              style: const TextStyle(fontSize: 18),
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: const Color.fromARGB(255, 0, 0, 0)),
                             ),
                           );
                         },
                         onItemSelected: (item) {
                           setState(() {
-                            print('$item');
+                            selectedSkillList.contains(item)
+                                ? selectedSkillList.remove(item)
+                                : selectedSkillList.add(item);
                           });
                         },
                         searchBoxInputDecoration: InputDecoration(
@@ -237,6 +304,15 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                 onChanged: (val) {
                                   setState(() {
                                     prefferedLocationAll = val!;
+                                    if (prefferedLocationAll &&
+                                        !prefferedLocations.contains('All')) {
+                                      prefferedLocations.clear();
+                                      prefferedLocations.add("All");
+                                    } else if (prefferedLocations
+                                            .contains('All') &&
+                                        !prefferedLocationAll) {
+                                      prefferedLocations.remove('All');
+                                    }
                                   });
                                 },
                                 value: true,
@@ -260,7 +336,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
                               decoration: BoxDecoration(
                                   color: Color(0xFF1E1E1E),
                                   borderRadius: BorderRadius.circular(20)),
-                              child: TextFormField(
+                              child: TextField(
                                 controller: _locationController,
                                 keyboardType: TextInputType.name,
                                 style: GoogleFonts.poppins(
@@ -295,12 +371,6 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                   border: InputBorder.none,
                                 ),
                                 onChanged: (value) => handleInputChange(value),
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return "You left this field empty!";
-                                  }
-                                  return null;
-                                },
                               ),
                             )
                           : SizedBox(),
@@ -378,9 +448,18 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                                           resultList[index]
                                                               ["formatted"] ??
                                                           "";
-                                                      _locationController.text =
-                                                          selectedName;
+                                                      // _locationController.text =
+                                                      //     selectedName;
                                                       setState(() {
+                                                        prefferedLocations
+                                                                .contains(
+                                                                    selectedName)
+                                                            ? prefferedLocations
+                                                                .remove(
+                                                                    selectedName)
+                                                            : prefferedLocations
+                                                                .add(
+                                                                    selectedName);
                                                         resultList.clear();
                                                       });
                                                       // Handle the selection logic here
@@ -519,9 +598,10 @@ class _CreateJobPostState extends State<CreateJobPost> {
                           color: Color(0xFF1E1E1E),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: TextField(
+                        child: TextFormField(
                           maxLines: null, // Set to null for multiline input
                           keyboardType: TextInputType.multiline,
+                          controller: descriptionController,
                           style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Enter job description.',
@@ -530,6 +610,12 @@ class _CreateJobPostState extends State<CreateJobPost> {
                             contentPadding: EdgeInsets.all(16),
                             border: InputBorder.none,
                           ),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "You left this field empty!";
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       SizedBox(
@@ -553,7 +639,44 @@ class _CreateJobPostState extends State<CreateJobPost> {
                               blurRadius: 50)
                         ]),
                         child: MaterialButton(
-                          onPressed: () {},
+                          onPressed: isFormSubmitting
+                              ? null
+                              : () {
+                                  if (selectedSkillList.isEmpty ||
+                                      prefferedLocations.isEmpty) {
+                                    SnackBar snackBar = UtilityFunctions()
+                                        .snackBarOpener(
+                                            "Missing Fields",
+                                            "Some of the fields are empty!",
+                                            ContentType.failure,
+                                            Colors.red,
+                                            SnackBarBehavior.floating);
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(snackBar);
+                                  } else {
+                                    if (_formKey.currentState!.validate()) {
+                                      broadcastPost(
+                                          titleController.text,
+                                          descriptionController.text,
+                                          selectedDate,
+                                          selectedTime,
+                                          budgetController.text,
+                                          _jobPostCollection.doc(uid),
+                                          selectedSkillList,
+                                          prefferedLocations);
+                                    } else {
+                                      SnackBar snackBar = UtilityFunctions()
+                                          .snackBarOpener(
+                                              "Missing Fields",
+                                              "Some of the fields are empty!",
+                                              ContentType.failure,
+                                              Colors.red,
+                                              SnackBarBehavior.floating);
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(snackBar);
+                                    }
+                                  }
+                                },
                           splashColor: Colors.lightBlue,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(36)),
@@ -574,22 +697,33 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                       minHeight:
                                           36.0), // min sizes for Material buttons
                                   alignment: Alignment.center,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.emergency_share_rounded,
-                                        color: Colors.white,
-                                      ),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
-                                      Text('Broadcast',
-                                          style: TextStyle(
+                                  child: isFormSubmitting
+                                      ? SizedBox(
+                                          height: 25,
+                                          width: 25,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.emergency_share_rounded,
                                               color: Colors.white,
-                                              fontWeight: FontWeight.w300)),
-                                    ],
-                                  ))),
+                                            ),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text('Broadcast',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight:
+                                                        FontWeight.w300)),
+                                          ],
+                                        ))),
                         ),
                       ),
                     ),
@@ -624,15 +758,22 @@ Widget customInput(
         height: 55,
         decoration: BoxDecoration(
             color: Color(0xFF1E1E1E), borderRadius: BorderRadius.circular(20)),
-        child: TextField(
+        child: TextFormField(
           controller: controller,
           keyboardType: textInputType,
+          style: TextStyle(color: Colors.white, fontSize: 16),
           decoration: InputDecoration(
               prefixIcon: Icon(prefixIcon,
                   color: const Color.fromARGB(115, 255, 255, 255)),
               hintText: hintText,
               hintStyle: TextStyle(color: Colors.white24, fontSize: 14),
               border: InputBorder.none),
+          validator: (value) {
+            if (value!.isEmpty) {
+              return "You left this field empty!";
+            }
+            return null;
+          },
         ),
       ),
       SizedBox(
