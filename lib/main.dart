@@ -2,6 +2,7 @@ import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/misc/firebase_notifications.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
+import 'package:NearbyNexus/screens/common_screens/success_screen.dart';
 import 'package:NearbyNexus/screens/common_screens/terms_nd_conditions.dart';
 import 'package:NearbyNexus/screens/user/components/view_job_details.dart';
 import 'package:NearbyNexus/screens/user/screens/active_jobs.dart';
@@ -155,6 +156,7 @@ class MyApp extends StatelessWidget {
         "/my_favourites": (context) => const MyFavourites(),
         // main
         "/create_job_post": (context) => const CreateJobPost(),
+        "/success_screen": (context) => const SuccessScreen(),
       },
       initialRoute: "splashScreen",
     );

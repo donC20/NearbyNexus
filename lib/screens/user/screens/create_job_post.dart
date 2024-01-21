@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, avoid_print, unused_element, sized_box_for_whitespace
 
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
@@ -91,8 +90,8 @@ class _CreateJobPostState extends State<CreateJobPost> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2000),
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2101),
     );
 
@@ -176,6 +175,10 @@ class _CreateJobPostState extends State<CreateJobPost> {
       // Data added successfully, set isFormSubmitting to false
       setState(() {
         isFormSubmitting = false;
+        Navigator.pushReplacementNamed(context, "/success_screen", arguments: {
+          "content": "Congrats 🎉, \nYour post is published.",
+          "navigation": "/view_my_posts"
+        });
       });
     }).catchError((error) {
       // Handle the error if needed
