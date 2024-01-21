@@ -117,7 +117,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
     }
   }
 
-  // search places
+  // search places //
   void handleInputChange(String value) {
     setState(() {
       inputValue = value;
