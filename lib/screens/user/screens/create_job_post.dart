@@ -1,5 +1,8 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, avoid_print, unused_element, sized_box_for_whitespace
 
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/models/job_post_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,6 +11,7 @@ import 'package:getwidget/getwidget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateJobPost extends StatefulWidget {
   const CreateJobPost({super.key});
@@ -25,6 +29,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
   @override
   void initState() {
     super.initState();
+    initUser();
     _firestore = FirebaseFirestore.instance;
     _jobPostCollection = _firestore.collection('job_posts');
   }
@@ -33,6 +38,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
   final titleController = TextEditingController();
   final budgetController = TextEditingController();
   final _locationController = TextEditingController();
+  final descriptionController = TextEditingController();
 
   // variables
   // bool
@@ -42,6 +48,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
   // String
   String selectedName = "";
   String inputValue = "";
+  String? uid = "";
   // others
   var logger = Logger();
 
@@ -52,6 +59,8 @@ class _CreateJobPostState extends State<CreateJobPost> {
     "Ionic",
     "Xamarin",
   ];
+  List<dynamic> selectedSkillList = [];
+  List prefferedLocations = ["All"];
   List<Map<String, dynamic>> resultList = [];
 
   //Date time
@@ -59,6 +68,17 @@ class _CreateJobPostState extends State<CreateJobPost> {
   TimeOfDay selectedTime = TimeOfDay.now();
 
   // Functions
+
+  // user init
+  void initUser() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData ?? '');
+    setState(() {
+      uid = initData['uid'];
+    });
+  }
 
   // date picking
   Future<void> _selectDate(BuildContext context) async {
@@ -112,21 +132,20 @@ class _CreateJobPostState extends State<CreateJobPost> {
   }
 
   //submit form
-  void broadcastPost(jobTitle, jobDescription, jobPostDate, expiryDateTime,
-      budget, jobPostedBy, applicants, skills, prefferedLocation) async {
+  void broadcastPost(jobTitle, jobDescription, expiryDate, expiryTime, budget,
+      jobPostedBy, skills, preferredLocation) async {
     // job post model
     JobPostModel jobPostData = JobPostModel(
         jobTitle: jobTitle,
         jobDescription: jobDescription,
-        jobPostDate: jobPostDate,
-        expiryDateTime: expiryDateTime,
-        budget: budget,
+        expiryDate: expiryDate,
+        expiryTime: expiryTime.toString(),
+        budget: double.parse(budget),
         jobPostedBy: jobPostedBy,
         skills: skills,
-        prefferedLocation: prefferedLocation);
-
+        preferredLocation: preferredLocation);
     // firebase actions
-    await _jobPostCollection.add(jobPostData.toJson() as Map<String, dynamic>);
+    await _jobPostCollection.add(jobPostData.toJson());
   }
 
   @override
@@ -177,17 +196,26 @@ class _CreateJobPostState extends State<CreateJobPost> {
                               .toList();
                         },
                         overlaySearchListItemBuilder: (item) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
+                          return ListTile(
+                            trailing: selectedSkillList.contains(item)
+                                ? Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : SizedBox(),
+                            title: Text(
                               item,
-                              style: const TextStyle(fontSize: 18),
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: const Color.fromARGB(255, 0, 0, 0)),
                             ),
                           );
                         },
                         onItemSelected: (item) {
                           setState(() {
-                            print('$item');
+                            selectedSkillList.contains(item)
+                                ? selectedSkillList.remove(item)
+                                : selectedSkillList.add(item);
                           });
                         },
                         searchBoxInputDecoration: InputDecoration(
@@ -237,6 +265,14 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                 onChanged: (val) {
                                   setState(() {
                                     prefferedLocationAll = val!;
+                                    if (prefferedLocationAll &&
+                                        !prefferedLocations.contains('All')) {
+                                      prefferedLocations.add("All");
+                                    } else if (prefferedLocations
+                                            .contains('All') &&
+                                        !prefferedLocationAll) {
+                                      prefferedLocations.remove('All');
+                                    }
                                   });
                                 },
                                 value: true,
@@ -378,9 +414,18 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                                           resultList[index]
                                                               ["formatted"] ??
                                                           "";
-                                                      _locationController.text =
-                                                          selectedName;
+                                                      // _locationController.text =
+                                                      //     selectedName;
                                                       setState(() {
+                                                        prefferedLocations
+                                                                .contains(
+                                                                    selectedName)
+                                                            ? prefferedLocations
+                                                                .remove(
+                                                                    selectedName)
+                                                            : prefferedLocations
+                                                                .add(
+                                                                    selectedName);
                                                         resultList.clear();
                                                       });
                                                       // Handle the selection logic here
@@ -522,6 +567,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
                         child: TextField(
                           maxLines: null, // Set to null for multiline input
                           keyboardType: TextInputType.multiline,
+                          controller: descriptionController,
                           style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             hintText: 'Enter job description.',
@@ -553,7 +599,17 @@ class _CreateJobPostState extends State<CreateJobPost> {
                               blurRadius: 50)
                         ]),
                         child: MaterialButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            broadcastPost(
+                                titleController.text,
+                                descriptionController.text,
+                                selectedDate,
+                                selectedTime,
+                                budgetController.text,
+                                _jobPostCollection.doc(uid),
+                                selectedSkillList,
+                                prefferedLocations);
+                          },
                           splashColor: Colors.lightBlue,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(36)),
@@ -627,6 +683,7 @@ Widget customInput(
         child: TextField(
           controller: controller,
           keyboardType: textInputType,
+          style: TextStyle(color: Colors.white, fontSize: 16),
           decoration: InputDecoration(
               prefixIcon: Icon(prefixIcon,
                   color: const Color.fromARGB(115, 255, 255, 255)),
