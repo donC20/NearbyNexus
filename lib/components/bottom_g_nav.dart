@@ -36,15 +36,21 @@ class _BottomGNavState extends State<BottomGNav> {
               if (widget.activePage != index) {
                 switch (index) {
                   case 0:
-                    Navigator.pushReplacementNamed(context, "vendor_home");
+                    Navigator.pushReplacementNamed(context, "/broadcast_page");
                   case 1:
-                    Navigator.pushReplacementNamed(context, "vendor_dashboard");
+                    Navigator.pushReplacementNamed(context, "vendor_home");
                   case 2:
+                    Navigator.pushReplacementNamed(context, "vendor_dashboard");
+                  case 3:
                     Navigator.pushNamed(context, "search_screen_vendor");
                 }
               }
             },
             tabs: [
+              GButton(
+                icon: EvaIcons.cast,
+                text: 'Jobs',
+              ),
               GButton(
                 icon: EvaIcons.activity,
                 text: 'Users',

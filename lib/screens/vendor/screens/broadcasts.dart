@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 
 class BroadcastPage extends StatefulWidget {
@@ -10,6 +12,9 @@ class BroadcastPage extends StatefulWidget {
 class _BroadcastPageState extends State<BroadcastPage> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      backgroundColor: Color(0xFF0F1014),
+      // body: ,
+    );
   }
 }
