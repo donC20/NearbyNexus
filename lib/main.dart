@@ -158,7 +158,7 @@ class MyApp extends StatelessWidget {
         // main
         "/create_job_post": (context) => const CreateJobPost(),
         "/success_screen": (context) => const SuccessScreen(),
-        "/broadcast_page": (context) => const BroadcastPage(),
+        "/broadcast_page": (context) => BroadcastPage(),
       },
       initialRoute: "splashScreen",
     );

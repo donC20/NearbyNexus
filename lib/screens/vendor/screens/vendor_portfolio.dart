@@ -96,7 +96,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
       if (event.exists) {
         var data = event.data() as Map<String, dynamic>;
         List<String> userFavourites = List<String>.from(data['userFavourites']);
-        List<String> favList = [];
+        // List<String> favList = [];
         if (userFavourites.contains(vendorId)) {
           setState(() {
             isFavourited = true;
