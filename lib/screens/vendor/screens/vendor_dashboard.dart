@@ -186,16 +186,14 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                                   "vendor_notification");
                                             },
                                             icon: Icon(Icons.notifications)),
-                                        InkWell(
+                                        UserLoadingAvatar(
+                                          userImage: imageLink,
+                                          width: 30,
+                                          height: 30,
                                           onTap: () {
                                             Navigator.pushNamed(
                                                 context, "vendor_profile_one");
                                           },
-                                          child: UserLoadingAvatar(
-                                            userImage: imageLink,
-                                            width: 30,
-                                            height: 30,
-                                          ),
                                         )
                                       ],
                                     ),
