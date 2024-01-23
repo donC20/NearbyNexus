@@ -41,12 +41,8 @@ class _BroadcastPageState extends State<BroadcastPage> {
     return BlocConsumer<VendorBloc, VendorState>(
       listener: (context, state) {},
       bloc: vendorBloc,
-      listenWhen: (prev, current) {
-        return false;
-      },
-      buildWhen: (prev, current) {
-        return false;
-      },
+      listenWhen: (prev, current) => current is UserPostBroadcastActionState,
+      buildWhen: (prev, current) => current is! UserPostBroadcastActionState,
       builder: (context, state) => Scaffold(
         backgroundColor: Color(0xFF0F1014),
         body: CustomScrollView(
@@ -181,112 +177,7 @@ class _BroadcastPageState extends State<BroadcastPage> {
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
                   // Build your list item here
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                        top: 20, left: 10, right: 10, bottom: 10),
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          color: const Color.fromARGB(0, 100, 75, 75),
-                          border: Border.all(
-                              color: Color.fromARGB(28, 255, 255, 255)),
-                          borderRadius: BorderRadius.circular(15)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            leading: UserLoadingAvatar(
-                              userImage: currentUserData["image"],
-                              width: 45,
-                              height: 45,
-                              onTap: () {
-                                Navigator.pushNamed(
-                                    context, "vendor_profile_one");
-                              },
-                            ),
-                            title: Text(
-                              "Software developer",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            trailing: RichText(
-                              text: TextSpan(children: [
-                                TextSpan(
-                                    text: "10k ",
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white)),
-                                TextSpan(
-                                    text: "/ month",
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.normal,
-                                        color: Colors.white54))
-                              ]),
-                            ),
-                            subtitle: Row(
-                              children: [
-                                Icon(
-                                  Icons.access_time,
-                                  color:
-                                      const Color.fromARGB(144, 255, 255, 255),
-                                  size: 16,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  "6 days ago",
-                                  style: TextStyle(
-                                      color: const Color.fromARGB(
-                                          144, 255, 255, 255),
-                                      fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.location_pin),
-                            horizontalTitleGap: 5,
-                            title: Text(
-                              "Kochi, Karnataka, Mangalore...",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 12),
-                            ),
-                            trailing: Text("+ 5 more"),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.check,
-                                  color:
-                                      const Color.fromARGB(255, 115, 115, 115),
-                                  size: 18,
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text(
-                                  "21 applied",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                top: 10, left: 15.0, bottom: 10),
-                            child: Row(
-                              children: [bottomChipBuilder("Chip")],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
+                  return customCard(currentUserData, context, vendorBloc);
                 },
                 childCount: 10, // Adjust the number of items as needed
               ),
@@ -298,15 +189,122 @@ class _BroadcastPageState extends State<BroadcastPage> {
   }
 }
 
+Widget customCard(
+    currentUserData, BuildContext context, VendorBloc vendorBloc) {
+  return Padding(
+    padding: const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 10),
+    child: InkWell(
+      onTap: () {
+        vendorBloc.add(UserPostBroadcastPageNavigateEvent());
+      },
+      child: Container(
+        padding: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+            color: const Color.fromARGB(0, 100, 75, 75),
+            border: Border.all(color: Color.fromARGB(28, 255, 255, 255)),
+            borderRadius: BorderRadius.circular(15)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              leading: UserLoadingAvatar(
+                userImage: currentUserData["image"],
+                width: 45,
+                height: 45,
+                onTap: () {
+                  Navigator.pushNamed(context, "vendor_profile_one");
+                },
+              ),
+              title: Text(
+                "Software developer",
+                style: TextStyle(color: Colors.white),
+              ),
+              trailing: RichText(
+                text: TextSpan(children: [
+                  TextSpan(
+                      text: "10k ",
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
+                  TextSpan(
+                      text: "/ month",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                          color: Colors.white54))
+                ]),
+              ),
+              subtitle: Row(
+                children: [
+                  Icon(
+                    Icons.access_time,
+                    color: const Color.fromARGB(144, 255, 255, 255),
+                    size: 16,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text(
+                    "6 days ago",
+                    style: TextStyle(
+                        color: const Color.fromARGB(144, 255, 255, 255),
+                        fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.location_pin),
+              horizontalTitleGap: 5,
+              title: Text(
+                "Kochi, Karnataka, Mangalore...",
+                style: TextStyle(color: Colors.white, fontSize: 12),
+              ),
+              trailing: Text("+ 5 more"),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 15.0),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check,
+                    color: const Color.fromARGB(255, 115, 115, 115),
+                    size: 18,
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    "21 applied",
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10, left: 15.0, bottom: 10),
+              child: Row(
+                children: [bottomChipBuilder("Chip")],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 Widget bottomChipBuilder(String title) {
   return Container(
     padding: EdgeInsets.all(6),
     decoration: BoxDecoration(
-        color: const Color.fromARGB(73, 158, 158, 158),
-        border: Border.all(
-          color: Color.fromARGB(22, 255, 255, 255),
-        ),
-        borderRadius: BorderRadius.circular(50)),
+      color: const Color.fromARGB(73, 158, 158, 158),
+      border: Border.all(
+        color: Color.fromARGB(22, 255, 255, 255),
+      ),
+      borderRadius: BorderRadius.circular(50),
+    ),
     child: Text(
       title,
       style: TextStyle(color: Colors.white, fontSize: 10),

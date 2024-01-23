@@ -7,8 +7,11 @@ abstract class UserPostBroadcastActionState {}
 
 final class VendorInitial extends VendorState {}
 
+class UserPostBroadcastPageOnLoad extends VendorState {}
+
 class UserPostBroadcastPageErrorState extends VendorState {}
 
 class UserPostBroadcastPageSuccessState extends VendorState {}
 
-class UserPostBroadcastPageNavigateFullPage extends UserPostBroadcastActionState {}
+class UserPostBroadcastPageNavigateFullPage
+    extends UserPostBroadcastActionState {}
