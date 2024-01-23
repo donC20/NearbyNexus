@@ -4,6 +4,7 @@ import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/vendor/bloc/bloc/vendor_bloc.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 
@@ -18,13 +19,16 @@ class _BroadcastPageState extends State<BroadcastPage> {
 // variables
 // Map variables
   Map<String, dynamic> currentUserData = {};
+
   // other
+  final VendorBloc vendorBloc = VendorBloc();
   var logger = Logger();
 
   @override
   void initState() {
-    super.initState();
     initializeUserData();
+    vendorBloc.add(VendorBroadcastInitialEvent());
+    super.initState();
   }
 
   Future<void> initializeUserData() async {
@@ -36,161 +40,191 @@ class _BroadcastPageState extends State<BroadcastPage> {
 
   @override
   Widget build(BuildContext context) {
-    final VendorBloc vendorBloc = VendorBloc();
-
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: [SystemUiOverlay.top]);
     return BlocConsumer<VendorBloc, VendorState>(
-      listener: (context, state) {},
-      bloc: vendorBloc,
-      listenWhen: (prev, current) => current is UserPostBroadcastActionState,
-      buildWhen: (prev, current) => current is! UserPostBroadcastActionState,
-      builder: (context, state) => Scaffold(
-        backgroundColor: Color(0xFF0F1014),
-        body: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              backgroundColor: Colors.transparent,
-              expandedHeight: 250,
-              floating: false,
-              pinned: true,
-              leading: Image.asset(
-                'assets/images/nearbynexus(WL).png',
-                height: 42,
-                width: 42,
-              ),
-              title: Text(
-                "NearbyNexus",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
-              ),
-              actions: [
-                IconButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, "vendor_notification");
-                    },
-                    icon: Icon(
-                      Icons.notifications,
-                      color: Colors.white,
-                    )),
-                if (currentUserData.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: UserLoadingAvatar(
-                      userImage: currentUserData["image"],
-                      width: 35,
-                      height: 35,
-                      onTap: () {
-                        Navigator.pushNamed(context, "vendor_profile_one");
-                      },
-                    ),
-                  ),
-              ],
-              titleSpacing: 1.5,
-              flexibleSpace: Stack(children: [
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xff4338CA), Color(0xff6D28D9)],
-                    ),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(200.0),
-                      bottomRight: Radius.circular(0.0),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        offset: const Offset(12, 26),
-                        blurRadius: 50,
-                        spreadRadius: 0,
-                        color: Colors.grey.withOpacity(.1),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: MediaQuery.of(context).size.width - 100,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.black12),
-                            borderRadius: BorderRadius.circular(50),
+        listener: (context, state) {},
+        bloc: vendorBloc,
+        listenWhen: (prev, current) => current is UserPostBroadcastActionState,
+        buildWhen: (prev, current) => current is! UserPostBroadcastActionState,
+        builder: (context, state) {
+          switch (state.runtimeType) {
+            case UserPostBroadcastPageOnLoad:
+              return Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            case UserPostBroadcastPageSuccessState:
+              final broadcastScreenData =
+                  state as UserPostBroadcastPageSuccessState;
+              logger.f(broadcastScreenData.jobData);
+              return Scaffold(
+                backgroundColor: Color(0xFF0F1014),
+                body: Column(
+                  children: [
+                    Stack(children: [
+                      Container(
+                        height: 250,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xff4338CA), Color(0xff6D28D9)],
                           ),
-                          child: TextField(
-                            keyboardType: TextInputType.text,
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 0, 0, 0),
-                              fontSize: 14,
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(200.0),
+                            bottomRight: Radius.circular(0.0),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              offset: const Offset(12, 26),
+                              blurRadius: 50,
+                              spreadRadius: 0,
+                              color: Colors.grey.withOpacity(.1),
                             ),
-                            decoration: InputDecoration(
-                              hintText: "Enter keywords",
-                              hintStyle: TextStyle(
-                                color: const Color.fromARGB(106, 0, 0, 0),
-                                fontSize: 14,
+                          ],
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: MediaQuery.of(context).size.width - 100,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(color: Colors.black12),
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                                child: TextField(
+                                  keyboardType: TextInputType.text,
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 0, 0, 0),
+                                    fontSize: 14,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: "Enter keywords",
+                                    hintStyle: TextStyle(
+                                      color: const Color.fromARGB(106, 0, 0, 0),
+                                      fontSize: 14,
+                                    ),
+                                    border: InputBorder.none,
+                                    prefixIcon: Icon(
+                                      Icons.search,
+                                      color: const Color.fromARGB(106, 0, 0, 0),
+                                    ),
+                                  ),
+                                ),
                               ),
-                              border: InputBorder.none,
-                              prefixIcon: Icon(
-                                Icons.search,
-                                color: const Color.fromARGB(106, 0, 0, 0),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 35,
+                        left: 15,
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'assets/images/nearbynexus(WL).png',
+                              height: 42,
+                              width: 42,
+                            ),
+                            Text(
+                              "NearbyNexus",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        top: 35,
+                        right: 15,
+                        child: Row(
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                      context, "vendor_notification");
+                                },
+                                icon: Icon(
+                                  Icons.notifications,
+                                  color: Colors.white,
+                                )),
+                            if (currentUserData.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: UserLoadingAvatar(
+                                  userImage: currentUserData["image"],
+                                  width: 35,
+                                  height: 35,
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                        context, "vendor_profile_one");
+                                  },
+                                ),
                               ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 65,
+                        left: 110,
+                        child: Text(
+                          "Search, find your ideal job...",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 30,
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors
+                                  .white, // Change the button color as needed
+                              shape: CircleBorder()),
+                          child: Padding(
+                            padding: const EdgeInsets.all(18.0),
+                            child: Icon(
+                              Icons.filter_list,
+                              color: Colors
+                                  .black, // Change the icon color as needed
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
+                      )
+                    ]),
+                    Expanded(
+                        child: ListView.builder(
+                      itemBuilder: (BuildContext contex, index) {
+                        Map<String, dynamic> fetcheddata =
+                            broadcastScreenData.jobData[index];
+                        return customCard(fetcheddata, context, vendorBloc);
+                      },
+                      itemCount: broadcastScreenData.jobData.length,
+                    ))
+                  ],
                 ),
-                Positioned(
-                  bottom: 75,
-                  left: 110,
-                  child: Text(
-                    "Search, find your ideal job...",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold),
-                  ),
+              );
+            case UserPostBroadcastPageErrorState:
+              return Scaffold(
+                body: Center(
+                  child: Text('Error'),
                 ),
-                Positioned(
-                  bottom: 30,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Colors.white, // Change the button color as needed
-                        shape: CircleBorder()),
-                    child: Padding(
-                      padding: const EdgeInsets.all(18.0),
-                      child: Icon(
-                        Icons.filter_list,
-                        color: Colors.black, // Change the icon color as needed
-                      ),
-                    ),
-                  ),
-                )
-              ]),
-            ),
-            // Other SliverList, SliverGrid, or SliverWhatever widgets go here
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-                  // Build your list item here
-                  return customCard(currentUserData, context, vendorBloc);
-                },
-                childCount: 10, // Adjust the number of items as needed
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+              );
+            default:
+              return SizedBox();
+          }
+        });
   }
 }
 
-Widget customCard(
-    currentUserData, BuildContext context, VendorBloc vendorBloc) {
+Widget customCard(fetch, BuildContext context, VendorBloc vendorBloc) {
   return Padding(
     padding: const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 10),
     child: InkWell(
@@ -208,7 +242,8 @@ Widget customCard(
           children: [
             ListTile(
               leading: UserLoadingAvatar(
-                userImage: currentUserData["image"],
+                userImage:
+                    "https://img.freepik.com/premium-vector/avatar-icon002_750950-52.jpg",
                 width: 45,
                 height: 45,
                 onTap: () {
@@ -216,8 +251,8 @@ Widget customCard(
                 },
               ),
               title: Text(
-                "Software developer",
-                style: TextStyle(color: Colors.white),
+                fetch["jobTitle"],
+                style: TextStyle(color: Colors.white, fontSize: 14),
               ),
               trailing: RichText(
                 text: TextSpan(children: [

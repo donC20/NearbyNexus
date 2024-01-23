@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
@@ -16,8 +17,11 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
   // ////////////////////////////
   // initial event
   FutureOr<void> vendorBroadcastInitialEvent(
-      VendorBroadcastInitialEvent event, Emitter<VendorState> emit) {
+      VendorBroadcastInitialEvent event, Emitter<VendorState> emit) async {
     emit(UserPostBroadcastPageOnLoad());
+    List<Map<String, dynamic>> jobPostData =
+        await VendorCommonFn().fetchJobPostsForBroadcast();
+    emit(UserPostBroadcastPageSuccessState(jobData: jobPostData));
   }
 
   // card press event

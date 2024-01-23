@@ -31,4 +31,29 @@ class VendorCommonFn {
       return {}; // Return an empty map if an error occurs
     }
   }
+
+//Fetching job_post data from firebase storage
+  Future<List<Map<String, dynamic>>> fetchJobPostsForBroadcast() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> snapshot =
+          await FirebaseFirestore.instance.collection('job_posts').get();
+
+      if (snapshot.size > 0) {
+        List<Map<String, dynamic>> fetchedData = [];
+
+        // Iterate through documents in the snapshot and add them to the list
+        snapshot.docs
+            .forEach((QueryDocumentSnapshot<Map<String, dynamic>> doc) {
+          fetchedData.add(doc.data());
+        });
+
+        return fetchedData;
+      }
+
+      return []; // Return an empty list if no data is found
+    } catch (e) {
+      print("Error fetching job posts: $e");
+      return []; // Return an empty list if an error occurs
+    }
+  }
 }
