@@ -20,7 +20,7 @@ class VendorBloc extends Bloc<VendorEvent, VendorState> {
       VendorBroadcastInitialEvent event, Emitter<VendorState> emit) async {
     emit(UserPostBroadcastPageOnLoad());
     List<Map<String, dynamic>> jobPostData =
-        await VendorCommonFn().fetchJobPostsForBroadcast();
+        await VendorCommonFn().fetchDouments('job_posts');
     emit(UserPostBroadcastPageSuccessState(jobData: jobPostData));
   }
 

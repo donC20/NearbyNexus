@@ -3,28 +3,27 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VendorCommonFn {
-  String uid = '';
+  var logger = Logger();
 
-//Fetching user's image from firebase storage
-  Future<Map<String, dynamic>> fetchUserData() async {
+//Fetching user's data
+  Future<Map<String, dynamic>> fetchUserData(
+      {DocumentReference? uidParam}) async {
     try {
-      final SharedPreferences sharedPreferences =
-          await SharedPreferences.getInstance();
-      var userLoginData = sharedPreferences.getString("userSessionData");
-      var initData = json.decode(userLoginData ?? '');
+      String uid = uidParam?.path.isNotEmpty == true
+          ? uidParam!.id
+          : await _getUserUIDFromSharedPreferences();
 
-      uid = initData['uid'];
-      DocumentSnapshot snapshot =
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
-      if (snapshot.exists) {
-        Map<String, dynamic> fetchedData =
-            snapshot.data() as Map<String, dynamic>;
 
-        return fetchedData;
+      if (snapshot.exists) {
+        return snapshot.data() ?? {};
       }
+
       return {}; // Return an empty map if no data is found
     } catch (e) {
       print("Error fetching user data: $e");
@@ -32,11 +31,19 @@ class VendorCommonFn {
     }
   }
 
-//Fetching job_post data from firebase storage
-  Future<List<Map<String, dynamic>>> fetchJobPostsForBroadcast() async {
+  Future<String> _getUserUIDFromSharedPreferences() async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    var userLoginData = sharedPreferences.getString("userSessionData");
+    var initData = json.decode(userLoginData ?? '');
+    return initData['uid'] ?? '';
+  }
+
+//Fetching documents data from firebase storage
+  Future<List<Map<String, dynamic>>> fetchDouments(String collectionId) async {
     try {
       QuerySnapshot<Map<String, dynamic>> snapshot =
-          await FirebaseFirestore.instance.collection('job_posts').get();
+          await FirebaseFirestore.instance.collection(collectionId).get();
 
       if (snapshot.size > 0) {
         List<Map<String, dynamic>> fetchedData = [];

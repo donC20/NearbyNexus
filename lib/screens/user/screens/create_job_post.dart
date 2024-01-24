@@ -25,6 +25,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
 // Firebase
   late final FirebaseFirestore _firestore;
   late final CollectionReference<Map<String, dynamic>> _jobPostCollection;
+  late final CollectionReference<Map<String, dynamic>> _usersCollection;
 
   // init
   @override
@@ -33,6 +34,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
     initUser();
     _firestore = FirebaseFirestore.instance;
     _jobPostCollection = _firestore.collection('job_posts');
+    _usersCollection = _firestore.collection('users');
   }
 
   // controllers
@@ -664,7 +666,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                           selectedDate,
                                           selectedTime,
                                           budgetController.text,
-                                          _jobPostCollection.doc(uid),
+                                          _usersCollection.doc(uid),
                                           selectedSkillList,
                                           prefferedLocations);
                                     } else {

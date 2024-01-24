@@ -3,6 +3,7 @@
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/vendor/bloc/bloc/vendor_bloc.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -58,7 +59,7 @@ class _BroadcastPageState extends State<BroadcastPage> {
             case UserPostBroadcastPageSuccessState:
               final broadcastScreenData =
                   state as UserPostBroadcastPageSuccessState;
-              logger.f(broadcastScreenData.jobData);
+              // logger.f(broadcastScreenData.jobData);
               return Scaffold(
                 backgroundColor: Color(0xFF0F1014),
                 body: Column(
@@ -200,14 +201,40 @@ class _BroadcastPageState extends State<BroadcastPage> {
                       )
                     ]),
                     Expanded(
-                        child: ListView.builder(
-                      itemBuilder: (BuildContext contex, index) {
-                        Map<String, dynamic> fetcheddata =
-                            broadcastScreenData.jobData[index];
-                        return customCard(fetcheddata, context, vendorBloc);
-                      },
-                      itemCount: broadcastScreenData.jobData.length,
-                    ))
+                      child: ListView.builder(
+                        itemBuilder: (BuildContext context, int index) {
+                          Map<String, dynamic> fetchData =
+                              broadcastScreenData.jobData[index];
+
+                          return FutureBuilder(
+                            future: VendorCommonFn().fetchUserData(
+                                uidParam: fetchData['jobPostedBy']),
+                            builder: (BuildContext context,
+                                AsyncSnapshot<Map<String, dynamic>> snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                    child: Padding(
+                                  padding: const EdgeInsets.only(top: 100),
+                                  child: CircularProgressIndicator(),
+                                )); // Or any loading indicator
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else if (snapshot.hasData) {
+                                Map<String, dynamic> postedUserData =
+                                    snapshot.data!;
+                                return customCard(fetchData, context,
+                                    postedUserData, vendorBloc);
+                              } else {
+                                return Text(
+                                    'No data available'); // Handle case when data is not available
+                              }
+                            },
+                          );
+                        },
+                        itemCount: broadcastScreenData.jobData.length,
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -224,7 +251,8 @@ class _BroadcastPageState extends State<BroadcastPage> {
   }
 }
 
-Widget customCard(fetch, BuildContext context, VendorBloc vendorBloc) {
+Widget customCard(
+    fetch, BuildContext context, postedByData, VendorBloc vendorBloc) {
   return Padding(
     padding: const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 10),
     child: InkWell(
@@ -242,8 +270,7 @@ Widget customCard(fetch, BuildContext context, VendorBloc vendorBloc) {
           children: [
             ListTile(
               leading: UserLoadingAvatar(
-                userImage:
-                    "https://img.freepik.com/premium-vector/avatar-icon002_750950-52.jpg",
+                userImage: postedByData["image"],
                 width: 45,
                 height: 45,
                 onTap: () {
