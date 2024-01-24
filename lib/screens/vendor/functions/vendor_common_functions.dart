@@ -63,4 +63,8 @@ class VendorCommonFn {
       return []; // Return an empty list if an error occurs
     }
   }
+
+
+// -----------------------------------------------------------------------------------
+// End of class
 }

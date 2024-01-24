@@ -213,7 +213,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
                       textInputType: TextInputType.name),
                   // Budget input field
                   customInput(
-                      title: "Budget",
+                      title: "Budget (in months)",
                       hintText: "What's your job budget?",
                       prefixIcon: Icons.currency_rupee,
                       controller: budgetController,

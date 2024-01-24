@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/screens/vendor/bloc/bloc/vendor_bloc.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -284,7 +285,8 @@ Widget customCard(
               trailing: RichText(
                 text: TextSpan(children: [
                   TextSpan(
-                      text: "10k ",
+                      text:
+                          UtilityFunctions().shortScaleNumbers(fetch["budget"]),
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -308,7 +310,7 @@ Widget customCard(
                     width: 5,
                   ),
                   Text(
-                    "6 days ago",
+                    UtilityFunctions().findTimeDifference(fetch['jobPostDate']),
                     style: TextStyle(
                         color: const Color.fromARGB(144, 255, 255, 255),
                         fontSize: 12),
@@ -319,35 +321,40 @@ Widget customCard(
             ListTile(
               leading: Icon(Icons.location_pin),
               horizontalTitleGap: 5,
-              title: Text(
-                "Kochi, Karnataka, Mangalore...",
-                style: TextStyle(color: Colors.white, fontSize: 12),
-              ),
-              trailing: Text("+ 5 more"),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 15.0),
-              child: Row(
+              title: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.check,
-                    color: const Color.fromARGB(255, 115, 115, 115),
-                    size: 18,
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    "21 applied",
-                    style: TextStyle(color: Colors.white, fontSize: 12),
-                  ),
+                  for (int i = 0; i < fetch["preferredLocation"].length; i++)
+                    Container(
+                      padding: EdgeInsets.only(
+                          right: 5), // Add some spacing between locations
+                      child: Text(
+                        i < fetch["preferredLocation"].length - 1
+                            ? fetch["preferredLocation"][i] + ","
+                            : UtilityFunctions().truncateText(
+                                fetch["preferredLocation"][i],
+                                10), // Adjust the character limit
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
                 ],
               ),
+              trailing: fetch["preferredLocation"].length > 3
+                  ? Text("+ ${fetch["preferredLocation"].length - 3} more")
+                  : SizedBox(),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 10, left: 15.0, bottom: 10),
+              padding: const EdgeInsets.only(top: 5, left: 15.0, bottom: 10),
               child: Row(
-                children: [bottomChipBuilder("Chip")],
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  for (int i = 0; i < fetch["skills"].length && i < 3; i++)
+                    bottomChipBuilder(
+                        UtilityFunctions().truncateText(fetch["skills"][i], 15))
+                ],
               ),
             ),
           ],
@@ -358,18 +365,25 @@ Widget customCard(
 }
 
 Widget bottomChipBuilder(String title) {
-  return Container(
-    padding: EdgeInsets.all(6),
-    decoration: BoxDecoration(
-      color: const Color.fromARGB(73, 158, 158, 158),
-      border: Border.all(
-        color: Color.fromARGB(22, 255, 255, 255),
+  return Row(
+    children: [
+      Container(
+        padding: EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(73, 158, 158, 158),
+          border: Border.all(
+            color: Color.fromARGB(22, 255, 255, 255),
+          ),
+          borderRadius: BorderRadius.circular(50),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(color: Colors.white, fontSize: 10),
+        ),
       ),
-      borderRadius: BorderRadius.circular(50),
-    ),
-    child: Text(
-      title,
-      style: TextStyle(color: Colors.white, fontSize: 10),
-    ),
+      SizedBox(
+        width: 10,
+      )
+    ],
   );
 }
