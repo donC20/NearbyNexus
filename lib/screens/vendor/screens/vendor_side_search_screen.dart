@@ -279,7 +279,7 @@ class _VendorSideSearchScreenState extends State<VendorSideSearchScreen> {
         ),
       ),
       bottomNavigationBar: BottomGNav(
-        activePage: 2,
+        activePage: 3,
         isSelectable: true,
       ),
     );

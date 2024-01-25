@@ -503,7 +503,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
               },
             ),
       bottomNavigationBar: BottomGNav(
-        activePage: 1,
+        activePage: 2,
         isSelectable: true,
       ),
     );

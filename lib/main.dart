@@ -23,6 +23,7 @@ import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/components/global_notification.dart';
 import 'package:NearbyNexus/screens/vendor/components/search_services_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/broadcasts.dart';
+import 'package:NearbyNexus/screens/vendor/screens/job_description_preview.dart';
 import 'package:NearbyNexus/screens/vendor/screens/job_details.dart';
 import 'package:NearbyNexus/screens/vendor/screens/job_log_timeline.dart';
 import 'package:NearbyNexus/screens/vendor/screens/jobs_log.dart';
@@ -117,6 +118,8 @@ class MyApp extends StatelessWidget {
         "user_or_vendor": (context) => const UserOrVendor(),
         "registration_screen": (context) => const RegistrationScreen(),
         "terms_Conditions": (context) => const TermsAndConditionsScreen(),
+        "/success_screen": (context) => const SuccessScreen(),
+
         // vendor _screens
         "complete_registration_vendor": (context) =>
             const CompleteRegistrationByvendor(),
@@ -155,10 +158,13 @@ class MyApp extends StatelessWidget {
         "user_pending_requets": (context) => const RequestsPendingUser(),
         "/user_job_history": (context) => const UserJobHistory(),
         "/my_favourites": (context) => const MyFavourites(),
-        // main
+        //---------------------------- main--------------------------------
+
+        // user
         "/create_job_post": (context) => const CreateJobPost(),
-        "/success_screen": (context) => const SuccessScreen(),
+        // vendor
         "/broadcast_page": (context) => BroadcastPage(),
+        "/job_detail_page": (context) => JobDetailPage(),
       },
       initialRoute: "splashScreen",
     );

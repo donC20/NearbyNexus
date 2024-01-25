@@ -601,7 +601,7 @@ class _VendorHomeState extends State<VendorHome> {
               ),
             ),
       bottomNavigationBar: BottomGNav(
-        activePage: 0,
+        activePage: 1,
         isSelectable: true,
       ),
     );

@@ -21,7 +21,7 @@ class UtilityFunctions {
   }
 
 // Date time calculator
-  String findTimeDifference(dynamic timestamp) {
+  String findTimeDifference(dynamic timestamp, {String trailingText = "ago"}) {
     if (timestamp is Timestamp) {
       DateTime dateTime = timestamp.toDate();
       DateTime now = DateTime.now();
@@ -29,16 +29,16 @@ class UtilityFunctions {
 
       if (difference.inDays > 365) {
         int years = (difference.inDays / 365).floor();
-        return '$years ${years == 1 ? 'year' : 'years'} ago';
+        return '$years ${years == 1 ? 'year' : 'years'} $trailingText';
       } else if (difference.inDays > 30) {
         int months = (difference.inDays / 30).floor();
-        return '$months ${months == 1 ? 'month' : 'months'} ago';
+        return '$months ${months == 1 ? 'month' : 'months'} $trailingText';
       } else if (difference.inDays > 0) {
-        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} ago';
+        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} $trailingText';
       } else if (difference.inHours > 0) {
-        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} ago';
+        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} $trailingText';
       } else if (difference.inMinutes > 0) {
-        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} ago';
+        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} $trailingText';
       } else {
         return 'just now';
       }
@@ -57,6 +57,29 @@ class UtilityFunctions {
     } else {
       double result = count / 1000000.0;
       return '${result.toStringAsFixed(1)}M';
+    }
+  }
+
+  // Salary formater
+  String formatSalary(double salary) {
+    if (salary < 1000) {
+      return salary.toString();
+    } else {
+      String formattedSalary = salary.toString();
+      String result = '';
+      int count = 0;
+
+      for (int i = formattedSalary.length - 1; i >= 0; i--) {
+        result = formattedSalary[i] + result;
+        count++;
+
+        if (count == 3 && i > 0) {
+          result = ',$result';
+          count = 0;
+        }
+      }
+
+      return result;
     }
   }
 

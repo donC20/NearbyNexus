@@ -1,10 +1,10 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/screens/vendor/bloc/bloc/vendor_bloc.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,6 +53,7 @@ class _BroadcastPageState extends State<BroadcastPage> {
           switch (state.runtimeType) {
             case UserPostBroadcastPageOnLoad:
               return Scaffold(
+                backgroundColor: Color(0xFF0F1014),
                 body: Center(
                   child: CircularProgressIndicator(),
                 ),
@@ -238,6 +239,10 @@ class _BroadcastPageState extends State<BroadcastPage> {
                     ),
                   ],
                 ),
+                bottomNavigationBar: BottomGNav(
+                  activePage: 0,
+                  isSelectable: true,
+                ),
               );
             case UserPostBroadcastPageErrorState:
               return Scaffold(
@@ -258,7 +263,9 @@ Widget customCard(
     padding: const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 10),
     child: InkWell(
       onTap: () {
-        vendorBloc.add(UserPostBroadcastPageNavigateEvent());
+        // vendorBloc.add(UserPostBroadcastPageNavigateEvent());
+        Navigator.pushNamed(context, '/job_detail_page',
+            arguments: {'job_data': fetch, 'posted_user': postedByData});
       },
       child: Container(
         padding: EdgeInsets.all(8),
@@ -292,7 +299,7 @@ Widget customCard(
                           fontWeight: FontWeight.bold,
                           color: Colors.white)),
                   TextSpan(
-                      text: "/ month",
+                      text: " / hour",
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.normal,

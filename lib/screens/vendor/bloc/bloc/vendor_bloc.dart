@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 part 'vendor_event.dart';
