@@ -20,6 +20,7 @@ import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_payments_log.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
+import 'package:NearbyNexus/screens/vendor/components/bottom_sheet_quill.dart';
 import 'package:NearbyNexus/screens/vendor/components/global_notification.dart';
 import 'package:NearbyNexus/screens/vendor/components/search_services_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/broadcasts.dart';
@@ -163,8 +164,9 @@ class MyApp extends StatelessWidget {
         // user
         "/create_job_post": (context) => const CreateJobPost(),
         // vendor
-        "/broadcast_page": (context) => BroadcastPage(),
-        "/job_detail_page": (context) => JobDetailPage(),
+        "/broadcast_page": (context) => const BroadcastPage(),
+        "/job_detail_page": (context) => const JobDetailPage(),
+        "/quill_page": (context) =>  JobDescriptionEditor(),
       },
       initialRoute: "splashScreen",
     );

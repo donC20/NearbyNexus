@@ -5,9 +5,11 @@ import 'dart:convert';
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/models/job_post_model.dart';
+import 'package:NearbyNexus/screens/vendor/components/bottom_sheet_quill.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -587,48 +589,77 @@ class _CreateJobPostState extends State<CreateJobPost> {
                     ],
                   ),
                   // Desc input field
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Description",
-                        style: TextStyle(color: Colors.white54),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: Color(0xFF1E1E1E),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: TextFormField(
-                          maxLines: null, // Set to null for multiline input
-                          keyboardType: TextInputType.multiline,
-                          controller: descriptionController,
-                          style: TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            hintText: 'Enter job description.',
-                            hintStyle:
-                                TextStyle(color: Colors.white24, fontSize: 14),
-                            contentPadding: EdgeInsets.all(16),
-                            border: InputBorder.none,
-                          ),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "You left this field empty!";
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                    ],
-                  ),
+                  // Column(
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   children: [
+                  //     Text(
+                  //       "Description",
+                  //       style: TextStyle(color: Colors.white54),
+                  //     ),
+                  //     SizedBox(
+                  //       height: 5,
+                  //     ),
+                  //     Container(
+                  //       height: 150,
+                  //       decoration: BoxDecoration(
+                  //         color: Color(0xFF1E1E1E),
+                  //         borderRadius: BorderRadius.circular(20),
+                  //       ),
+                  //       child: TextFormField(
+                  //         maxLines: null, // Set to null for multiline input
+                  //         keyboardType: TextInputType.multiline,
+                  //         controller: descriptionController,
+                  //         style: TextStyle(color: Colors.white),
+                  //         decoration: InputDecoration(
+                  //           hintText: 'Enter job description.',
+                  //           hintStyle:
+                  //               TextStyle(color: Colors.white24, fontSize: 14),
+                  //           contentPadding: EdgeInsets.all(16),
+                  //           border: InputBorder.none,
+                  //         ),
+                  //         validator: (value) {
+                  //           if (value!.isEmpty) {
+                  //             return "You left this field empty!";
+                  //           }
+                  //           return null;
+                  //         },
+                  //       ),
+                  //     ),
+                  //     SizedBox(
+                  //       height: 10,
+                  //     ),
+                  //   ],
+                  // ),
                   // button
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 5.0, right: 5.0, bottom: 5.0, top: 10),
+                    child: GFButton(
+                      onPressed: () {
+                        // Navigator.pushNamed(context, "/quill_page");
+                        showModalBottomSheet(
+                          context: context,
+                          enableDrag: false,
+                          useSafeArea: true,
+                          isDismissible: false,
+                          isScrollControlled: true,
+                          builder: (BuildContext context) {
+                            return JobDescriptionEditor();
+                          },
+                        );
+                      },
+                      icon: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                      text: "Add description",
+                      shape: GFButtonShape.pills,
+                      fullWidthButton: true,
+                      size: GFSize.LARGE,
+                      color: Color(0xFF1E1E1E),
+                    ),
+                  ),
+
                   Container(
                     margin: EdgeInsets.all(10),
                     width: MediaQuery.sizeOf(context).width - 10,
