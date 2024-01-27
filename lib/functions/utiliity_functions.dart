@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UtilityFunctions {
-  // snackbar
+  // snackbar new
   SnackBar snackBarOpener(String title, String content, ContentType contentType,
       Color bgColor, SnackBarBehavior snackBehaviour) {
     return SnackBar(
@@ -19,6 +19,16 @@ class UtilityFunctions {
         inMaterialBanner: true,
       ),
     );
+  }
+
+// Snackbar old
+  void showSnackbar(
+      String message, Color backgroundColor, BuildContext context) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      backgroundColor: backgroundColor,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
 // Date time calculator
@@ -95,11 +105,39 @@ class UtilityFunctions {
 
 // add to shared preference
 
-  sharedPreferenceCreator(String key, dynamic value) async {
+  Future<bool> sharedPreferenceCreator(String key, dynamic value) async {
+    try {
+      final SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      await sharedPreferences.setString(key, value.toString());
+      return true; // Operation was successful
+    } catch (e) {
+      print("Error setting SharedPreferences: $e");
+      return false; // Operation failed
+    }
+  }
+
+// fetch from shared preference
+
+  Future<dynamic> fetchFromSharedPreference(String key) async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
-    sharedPreferences.setString(key, value);
+    dynamic storeData = sharedPreferences.getString(key);
+
+    if (storeData != null && storeData.isNotEmpty) {
+      return storeData;
+    } else {
+      return null;
+    }
   }
+
+
+// remove from shared preference
+// Function to delete data from SharedPreferences based on the provided key
+Future<void> deleteFromSharedPreferences(String key) async {
+  final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  sharedPreferences.remove(key);
+}
 
 // end of the class
 }

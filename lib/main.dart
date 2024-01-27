@@ -1,5 +1,6 @@
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/misc/firebase_notifications.dart';
+import 'package:NearbyNexus/providers/common_provider.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/common_screens/success_screen.dart';
@@ -88,8 +89,8 @@ void main() async {
   final userProvider = UserProvider(); // Create an instance of UserProvider
   userProvider.setUid(); // Retrieve and set the uid
   runApp(
-    ChangeNotifierProvider.value(
-      value: userProvider, // Provide the UserProvider to your app
+    ChangeNotifierProvider(
+      create: (context) => CommonProvider(),
       child: const MyApp(),
     ),
   );
@@ -166,7 +167,6 @@ class MyApp extends StatelessWidget {
         // vendor
         "/broadcast_page": (context) => const BroadcastPage(),
         "/job_detail_page": (context) => const JobDetailPage(),
-        "/quill_page": (context) =>  JobDescriptionEditor(),
       },
       initialRoute: "splashScreen",
     );

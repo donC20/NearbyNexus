@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/models/job_post_model.dart';
+import 'package:NearbyNexus/providers/common_provider.dart';
 import 'package:NearbyNexus/screens/vendor/components/bottom_sheet_quill.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,6 +15,7 @@ import 'package:getwidget/getwidget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateJobPost extends StatefulWidget {
@@ -43,7 +45,6 @@ class _CreateJobPostState extends State<CreateJobPost> {
   final titleController = TextEditingController();
   final budgetController = TextEditingController();
   final _locationController = TextEditingController();
-  final descriptionController = TextEditingController();
 
   // formkeys
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -195,6 +196,8 @@ class _CreateJobPostState extends State<CreateJobPost> {
 
   @override
   Widget build(BuildContext context) {
+    final commonProvider = Provider.of<CommonProvider>(context);
+
     return Scaffold(
       backgroundColor: Color(0xFF0F1014),
       body: ListView(
@@ -633,31 +636,60 @@ class _CreateJobPostState extends State<CreateJobPost> {
                   // button
                   Padding(
                     padding: const EdgeInsets.only(
-                        left: 5.0, right: 5.0, bottom: 5.0, top: 10),
-                    child: GFButton(
-                      onPressed: () {
-                        // Navigator.pushNamed(context, "/quill_page");
-                        showModalBottomSheet(
-                          context: context,
-                          enableDrag: false,
-                          useSafeArea: true,
-                          isDismissible: false,
-                          isScrollControlled: true,
-                          builder: (BuildContext context) {
-                            return JobDescriptionEditor();
-                          },
-                        );
-                      },
-                      icon: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                      ),
-                      text: "Add description",
-                      shape: GFButtonShape.pills,
-                      fullWidthButton: true,
-                      size: GFSize.LARGE,
-                      color: Color(0xFF1E1E1E),
-                    ),
+                        left: 10.0, right: 10.0, bottom: 5.0, top: 10),
+                    child: commonProvider.isDescriptionAdded
+                        ? GFButton(
+                            onPressed: () {
+                              // Navigator.pushNamed(context, "/quill_page");
+                              showModalBottomSheet(
+                                context: context,
+                                enableDrag: false,
+                                useSafeArea: true,
+                                isDismissible: false,
+                                isScrollControlled: true,
+                                builder: (BuildContext context) {
+                                  return JobDescriptionEditor(
+                                    isOpenforEdit: true,
+                                  );
+                                },
+                              );
+                            },
+                            icon: Icon(
+                              Icons.edit,
+                              color: Colors.white,
+                            ),
+                            text: "Edit Description",
+                            shape: GFButtonShape.pills,
+                            fullWidthButton: true,
+                            size: GFSize.LARGE,
+                            color: Colors.green,
+                          )
+                        : GFButton(
+                            onPressed: () {
+                              // Navigator.pushNamed(context, "/quill_page");
+                              showModalBottomSheet(
+                                context: context,
+                                enableDrag: false,
+                                useSafeArea: true,
+                                isDismissible: false,
+                                isScrollControlled: true,
+                                builder: (BuildContext context) {
+                                  return JobDescriptionEditor(
+                                    isOpenforEdit: false,
+                                  );
+                                },
+                              );
+                            },
+                            icon: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
+                            text: "Add description",
+                            shape: GFButtonShape.pills,
+                            fullWidthButton: true,
+                            size: GFSize.LARGE,
+                            color: Color(0xFF1E1E1E),
+                          ),
                   ),
 
                   Container(
@@ -677,7 +709,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
                         child: MaterialButton(
                           onPressed: isFormSubmitting
                               ? null
-                              : () {
+                              : () async {
                                   if (selectedSkillList.isEmpty ||
                                       prefferedLocations.isEmpty) {
                                     SnackBar snackBar = UtilityFunctions()
@@ -691,15 +723,26 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                         .showSnackBar(snackBar);
                                   } else {
                                     if (_formKey.currentState!.validate()) {
+                                      String description =
+                                          await UtilityFunctions()
+                                              .fetchFromSharedPreference(
+                                                  "descriptionController");
                                       broadcastPost(
                                           titleController.text,
-                                          descriptionController.text,
+                                          description,
                                           selectedDate,
                                           selectedTime,
                                           budgetController.text,
                                           _usersCollection.doc(uid),
                                           selectedSkillList,
                                           prefferedLocations);
+                                      // remove the data after successfull insertion
+                                      UtilityFunctions()
+                                          .deleteFromSharedPreferences(
+                                              "descriptionController");
+                                      // set the button back
+                                      commonProvider
+                                          .changeDescriptionBtnState(false);
                                     } else {
                                       SnackBar snackBar = UtilityFunctions()
                                           .snackBarOpener(
