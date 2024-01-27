@@ -1,6 +1,7 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UtilityFunctions {
   // snackbar
@@ -91,4 +92,14 @@ class UtilityFunctions {
       return "${text.substring(0, maxLength)}...";
     }
   }
+
+// add to shared preference
+
+  sharedPreferenceCreator(String key, dynamic value) async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    sharedPreferences.setString(key, value);
+  }
+
+// end of the class
 }

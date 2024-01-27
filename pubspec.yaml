@@ -92,6 +92,8 @@ dependencies:
   url_launcher: ^6.1.14
   meta: ^1.10.0
   flutter_quill: ^9.2.10
+  delta_to_html: ^0.2.2
+  vsc_quill_delta_to_html: ^1.0.3
 
 dev_dependencies:
   flutter_blurhash: ^0.7.0
