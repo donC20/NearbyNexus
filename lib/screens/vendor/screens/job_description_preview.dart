@@ -3,7 +3,10 @@
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
+import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 class JobDetailPage extends StatefulWidget {
   const JobDetailPage({Key? key}) : super(key: key);
@@ -68,23 +71,23 @@ class _JobDetailPageState extends State<JobDetailPage> {
                       trailingText: "left")),
             ],
           ),
-          SizedBox(height: 40),
-          Row(
-            children: [
-              Expanded(
-                child: Image.asset("assets/icons/document.png",
-                    height: 20, color: KColors.primary),
-              ),
-              Expanded(
-                child: Image.asset("assets/icons/user.png",
-                    height: 20, color: KColors.icon),
-              ),
-            ],
-          ),
-          Divider(
-            color: KColors.icon,
-            height: 25,
-          )
+          // SizedBox(height: 40),
+          // Row(
+          //   children: [
+          //     Expanded(
+          //       child: Image.asset("assets/icons/document.png",
+          //           height: 20, color: KColors.primary),
+          //     ),
+          //     Expanded(
+          //       child: Image.asset("assets/icons/user.png",
+          //           height: 20, color: KColors.icon),
+          //     ),
+          //   ],
+          // ),
+          // Divider(
+          //   color: KColors.icon,
+          //   height: 25,
+          // )
         ],
       ),
     );
@@ -116,124 +119,110 @@ class _JobDetailPageState extends State<JobDetailPage> {
   }
 
   Widget _jobDescription(BuildContext context, argument) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Job Description",
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 20),
-          SingleChildScrollView(
-            physics: NeverScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  argument["job_data"]["jobDescription"],
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                  maxLines: isExpanded ? null : 3, // Limit to 3 lines initially
-                  overflow:
-                      isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+    final PageController pageController = PageController(initialPage: 0);
+    int currentPage = 0;
+    double screenHeight = MediaQuery.of(context).size.height;
+    double containerHeight =
+        screenHeight > 455 ? screenHeight - 455 : screenHeight;
+    return Column(
+      children: [
+        SizedBox(
+          height:
+              50, // Set a fixed height for the CustomSlidingSegmentedControl
+          child: CustomSlidingSegmentedControl<int>(
+            padding: 35,
+            initialValue: 1,
+            children: {
+              1: Row(
+                children: [
+                  Image.asset("assets/icons/document.png",
+                      height: 20, color: KColors.primary),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text("Description")
+                ],
+              ),
+              2: Row(
+                children: [
+                  Image.asset("assets/icons/user.png",
+                      height: 20, color: KColors.primary),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text("More info")
+                ],
+              ),
+            },
+            decoration: BoxDecoration(
+              color: CupertinoColors.lightBackgroundGray,
+              borderRadius: BorderRadius.circular(50),
+            ),
+            thumbDecoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(50),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(.3),
+                  blurRadius: 4.0,
+                  spreadRadius: 1.0,
+                  offset: Offset(
+                    0.0,
+                    2.0,
+                  ),
                 ),
-                SizedBox(height: 10),
-                !isExpanded
-                    ? GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isExpanded = true;
-                          });
-                        },
-                        child: Text(
-                          "Read more",
-                          style: TextStyle(fontSize: 14, color: Colors.blue),
-                        ),
-                      )
-                    : GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            isExpanded = false;
-                          });
-                        },
-                        child: Text(
-                          "Read less",
-                          style: TextStyle(fontSize: 14, color: Colors.blue),
-                        ),
-                      ),
               ],
             ),
+            curve: Curves.easeInCubic,
+            onValueChanged: (v) {
+              setState(() {
+                currentPage = v - 1; // Subtract 1 from v
+                pageController.animateToPage(
+                  currentPage,
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              });
+            },
           ),
-        ],
-      ),
+        ),
+        Container(
+          height: containerHeight,
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: PageView(
+            controller: pageController,
+            onPageChanged: (page) {
+              setState(() {
+                currentPage = page;
+              });
+            },
+            children: [
+              SingleChildScrollView(
+                child: Html(
+                  data: argument["job_data"]["jobDescription"],
+                ),
+              ),
+              // Add your content for the "More info" tab here
+              Container(
+                padding: EdgeInsets.all(16),
+                child: Text("Additional Information"),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  // Widget _ourPeople(BuildContext context) {
+  // Widget _jobDescription(BuildContext context, argument) {
   //   return Container(
-  //     height: 92,
-  //     padding: EdgeInsets.only(left: 16),
-  //     margin: EdgeInsets.only(top: 30),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Text("Our People",
-  //             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-  //         SizedBox(height: 12),
-  //         Expanded(
-  //           child: ListView(
-  //             scrollDirection: Axis.horizontal,
-  //             children: [
-  //               _people(context,
-  //                   img:
-  //                       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8dXNlcnxlbnwwfHwwfHx8MA%3D%3D",
-  //                   name: "J. Smith"),
-  //               _people(context,
-  //                   img:
-  //                       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8dXNlcnxlbnwwfHwwfHx8MA%3D%3D",
-  //                   name: "J. Smith"),
-  //               _people(context,
-  //                   img:
-  //                       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8dXNlcnxlbnwwfHwwfHx8MA%3D%3D",
-  //                   name: "J. Smith"),
-  //               _people(context,
-  //                   img:
-  //                       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8dXNlcnxlbnwwfHwwfHx8MA%3D%3D",
-  //                   name: "J. Smith"),
-  //               _people(context,
-  //                   img:
-  //                       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8dXNlcnxlbnwwfHwwfHx8MA%3D%3D",
-  //                   name: "J. Smith"),
-  //               _people(context,
-  //                   img:
-  //                       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8dXNlcnxlbnwwfHwwfHx8MA%3D%3D",
-  //                   name: "J. Smith"),
-  //               _people(context,
-  //                   img:
-  //                       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8dXNlcnxlbnwwfHwwfHx8MA%3D%3D",
-  //                   name: "J. Smith"),
-  //             ],
-  //           ),
+  //       height: MediaQuery.sizeOf(context).height - 485,
+  //       padding: EdgeInsets.symmetric(horizontal: 16),
+  //       child: SingleChildScrollView(
+  //         child: Html(
+  //           data: argument["job_data"]["jobDescription"],
   //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _people(BuildContext context, {String? img, String? name}) {
-  //   return Container(
-  //     margin: EdgeInsets.only(right: 18),
-  //     child: Column(
-  //       children: [
-  //         CircleAvatar(
-  //           backgroundImage: AssetImage(img!),
-  //         ),
-  //         SizedBox(height: 8),
-  //         Text(name!, style: TextStyle(fontSize: 10, color: KColors.subtitle)),
-  //       ],
-  //     ),
-  //   );
+  //       ));
   // }
 
   Widget _apply(BuildContext context) {
