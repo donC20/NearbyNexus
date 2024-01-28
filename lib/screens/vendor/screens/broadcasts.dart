@@ -47,8 +47,8 @@ class _BroadcastPageState extends State<BroadcastPage> {
     return BlocConsumer<VendorBloc, VendorState>(
         listener: (context, state) {},
         bloc: vendorBloc,
-        listenWhen: (prev, current) => current is UserPostBroadcastActionState,
-        buildWhen: (prev, current) => current is! UserPostBroadcastActionState,
+        listenWhen: (prev, current) => current is VendorActionState,
+        buildWhen: (prev, current) => current is! VendorActionState,
         builder: (context, state) {
           switch (state.runtimeType) {
             case UserPostBroadcastPageOnLoad:
@@ -207,7 +207,7 @@ class _BroadcastPageState extends State<BroadcastPage> {
                         itemBuilder: (BuildContext context, int index) {
                           Map<String, dynamic> fetchData =
                               broadcastScreenData.jobData[index];
-
+                          String docId = fetchData['documentId'];
                           return FutureBuilder(
                             future: VendorCommonFn().fetchUserData(
                                 uidParam: fetchData['jobPostedBy']),
@@ -226,7 +226,7 @@ class _BroadcastPageState extends State<BroadcastPage> {
                                 Map<String, dynamic> postedUserData =
                                     snapshot.data!;
                                 return customCard(fetchData, context,
-                                    postedUserData, vendorBloc);
+                                    postedUserData, vendorBloc, docId);
                               } else {
                                 return Text(
                                     'No data available'); // Handle case when data is not available
@@ -257,15 +257,18 @@ class _BroadcastPageState extends State<BroadcastPage> {
   }
 }
 
-Widget customCard(
-    fetch, BuildContext context, postedByData, VendorBloc vendorBloc) {
+Widget customCard(fetch, BuildContext context, postedByData,
+    VendorBloc vendorBloc, String docId) {
   return Padding(
     padding: const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 10),
     child: InkWell(
       onTap: () {
         // vendorBloc.add(UserPostBroadcastPageNavigateEvent());
-        Navigator.pushNamed(context, '/job_detail_page',
-            arguments: {'job_data': fetch, 'posted_user': postedByData});
+        Navigator.pushNamed(context, '/job_detail_page', arguments: {
+          'job_data': fetch,
+          'posted_user': postedByData,
+          'post_id': docId
+        });
       },
       child: Container(
         padding: EdgeInsets.all(8),

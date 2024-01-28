@@ -24,6 +24,7 @@ import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
 import 'package:NearbyNexus/screens/vendor/components/bottom_sheet_quill.dart';
 import 'package:NearbyNexus/screens/vendor/components/global_notification.dart';
 import 'package:NearbyNexus/screens/vendor/components/search_services_screen.dart';
+import 'package:NearbyNexus/screens/vendor/screens/BidForJob.dart';
 import 'package:NearbyNexus/screens/vendor/screens/broadcasts.dart';
 import 'package:NearbyNexus/screens/vendor/screens/job_description_preview.dart';
 import 'package:NearbyNexus/screens/vendor/screens/job_details.dart';
@@ -167,6 +168,7 @@ class MyApp extends StatelessWidget {
         // vendor
         "/broadcast_page": (context) => const BroadcastPage(),
         "/job_detail_page": (context) => const JobDetailPage(),
+        "/bid_for_job": (context) => BidForJob(),
       },
       initialRoute: "splashScreen",
     );

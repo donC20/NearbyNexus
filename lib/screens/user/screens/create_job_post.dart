@@ -528,15 +528,14 @@ class _CreateJobPostState extends State<CreateJobPost> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  'Selected Date: ${selectedDate.toLocal()}'
-                                      .split(' ')[0],
-                                  style: TextStyle(color: Colors.white),
-                                ),
                                 Icon(
                                   Icons.calendar_today,
                                   color:
                                       const Color.fromARGB(115, 255, 255, 255),
+                                ),
+                                Text(
+                                  'Selected Date: ${UtilityFunctions().formatDate(selectedDate)}',
+                                  style: TextStyle(color: Colors.white),
                                 ),
                               ],
                             ),

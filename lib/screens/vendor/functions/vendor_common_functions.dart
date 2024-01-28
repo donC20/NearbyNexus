@@ -15,7 +15,7 @@ class VendorCommonFn {
     try {
       String uid = uidParam?.path.isNotEmpty == true
           ? uidParam!.id
-          : await _getUserUIDFromSharedPreferences();
+          : await getUserUIDFromSharedPreferences();
 
       DocumentSnapshot<Map<String, dynamic>> snapshot =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
@@ -31,7 +31,7 @@ class VendorCommonFn {
     }
   }
 
-  Future<String> _getUserUIDFromSharedPreferences() async {
+  Future<String> getUserUIDFromSharedPreferences() async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
@@ -48,10 +48,12 @@ class VendorCommonFn {
       if (snapshot.size > 0) {
         List<Map<String, dynamic>> fetchedData = [];
 
-        // Iterate through documents in the snapshot and add them to the list
+        // Iterate through documents in the snapshot and add both document ID and data to the list
         snapshot.docs
             .forEach((QueryDocumentSnapshot<Map<String, dynamic>> doc) {
-          fetchedData.add(doc.data());
+          Map<String, dynamic> documentData = doc.data();
+          documentData['documentId'] = doc.id;
+          fetchedData.add(documentData);
         });
 
         return fetchedData;
@@ -63,7 +65,6 @@ class VendorCommonFn {
       return []; // Return an empty list if an error occurs
     }
   }
-
 
 // -----------------------------------------------------------------------------------
 // End of class

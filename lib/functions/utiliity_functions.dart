@@ -1,6 +1,7 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UtilityFunctions {
@@ -36,20 +37,18 @@ class UtilityFunctions {
     if (timestamp is Timestamp) {
       DateTime dateTime = timestamp.toDate();
       DateTime now = DateTime.now();
-      Duration difference = now.difference(dateTime);
+      int monthsDifference = now.month - dateTime.month;
+      int daysDifference = now.day - dateTime.day;
 
-      if (difference.inDays > 365) {
-        int years = (difference.inDays / 365).floor();
-        return '$years ${years == 1 ? 'year' : 'years'} $trailingText';
-      } else if (difference.inDays > 30) {
-        int months = (difference.inDays / 30).floor();
-        return '$months ${months == 1 ? 'month' : 'months'} $trailingText';
-      } else if (difference.inDays > 0) {
-        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} $trailingText';
-      } else if (difference.inHours > 0) {
-        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} $trailingText';
-      } else if (difference.inMinutes > 0) {
-        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} $trailingText';
+      if (now.year > dateTime.year ||
+          (now.year == dateTime.year && monthsDifference >= 1)) {
+        return '$monthsDifference ${monthsDifference == 1 ? 'month' : 'months'} $trailingText';
+      } else if (now.day > dateTime.day) {
+        return '$daysDifference ${daysDifference == 1 ? 'day' : 'days'} $trailingText';
+      } else if (now.hour > dateTime.hour) {
+        return '${now.hour - dateTime.hour} ${now.hour - dateTime.hour == 1 ? 'hour' : 'hours'} $trailingText';
+      } else if (now.minute > dateTime.minute) {
+        return '${now.minute - dateTime.minute} ${now.minute - dateTime.minute == 1 ? 'minute' : 'minutes'} $trailingText';
       } else {
         return 'just now';
       }
@@ -131,13 +130,32 @@ class UtilityFunctions {
     }
   }
 
-
 // remove from shared preference
 // Function to delete data from SharedPreferences based on the provided key
-Future<void> deleteFromSharedPreferences(String key) async {
-  final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  sharedPreferences.remove(key);
-}
+  Future<void> deleteFromSharedPreferences(String key) async {
+    final SharedPreferences sharedPreferences =
+        await SharedPreferences.getInstance();
+    sharedPreferences.remove(key);
+  }
+
+// Time stamp to date
+  String? convertTimestampToDateString(Timestamp timestamp) {
+    if (timestamp != null) {
+      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
+        timestamp.seconds * 1000 + timestamp.nanoseconds ~/ 1000000,
+      );
+
+      // Format the DateTime as a string without the time part
+      return "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
+    } else {
+      return null;
+    }
+  }
+
+// format date
+  String formatDate(DateTime date) {
+    return DateFormat.yMMMd().format(date);
+  }
 
 // end of the class
 }

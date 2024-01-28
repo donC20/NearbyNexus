@@ -7,6 +7,8 @@ import 'package:custom_sliding_segmented_control/custom_sliding_segmented_contro
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:getwidget/getwidget.dart';
+import 'package:logger/logger.dart';
 
 class JobDetailPage extends StatefulWidget {
   const JobDetailPage({Key? key}) : super(key: key);
@@ -17,15 +19,23 @@ class JobDetailPage extends StatefulWidget {
 
 class _JobDetailPageState extends State<JobDetailPage> {
   bool isExpanded = false;
+  var logger = Logger();
   Widget _header(BuildContext context, argument) {
     return Container(
+      color: KColors.backgroundDark,
       padding: EdgeInsets.symmetric(horizontal: 26, vertical: 26),
       child: Column(
         children: [
           Row(
             children: [
-              UserLoadingAvatar(
-                userImage: argument["posted_user"]["image"],
+              Container(
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(100)),
+                child: UserLoadingAvatar(
+                  userImage: argument["posted_user"]["image"],
+                ),
               ),
               SizedBox(
                 width: 30,
@@ -38,7 +48,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: KColors.title,
+                      color: KColors.titleDark,
                     ),
                   ),
                   SizedBox(height: 5),
@@ -59,10 +69,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _headerStatic(
-                  "Salary",
-                  UtilityFunctions()
-                      .formatSalary(argument["job_data"]["budget"])),
+              _headerStatic("Salary",
+                  "₹ ${UtilityFunctions().formatSalary(argument["job_data"]["budget"])}"),
               _headerStatic("Applicants", "45"),
               _headerStatic(
                   "Expiry",
@@ -71,23 +79,6 @@ class _JobDetailPageState extends State<JobDetailPage> {
                       trailingText: "left")),
             ],
           ),
-          // SizedBox(height: 40),
-          // Row(
-          //   children: [
-          //     Expanded(
-          //       child: Image.asset("assets/icons/document.png",
-          //           height: 20, color: KColors.primary),
-          //     ),
-          //     Expanded(
-          //       child: Image.asset("assets/icons/user.png",
-          //           height: 20, color: KColors.icon),
-          //     ),
-          //   ],
-          // ),
-          // Divider(
-          //   color: KColors.icon,
-          //   height: 25,
-          // )
         ],
       ),
     );
@@ -111,7 +102,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: KColors.title,
+            color: KColors.subTextColors,
           ),
         )
       ],
@@ -140,7 +131,11 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   SizedBox(
                     width: 10,
                   ),
-                  Text("Description")
+                  Text(
+                    "Description",
+                    style: TextStyle(
+                        color: const Color.fromARGB(126, 255, 255, 255)),
+                  )
                 ],
               ),
               2: Row(
@@ -150,16 +145,18 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   SizedBox(
                     width: 10,
                   ),
-                  Text("More info")
+                  Text("More info",
+                      style: TextStyle(
+                          color: const Color.fromARGB(126, 255, 255, 255)))
                 ],
               ),
             },
             decoration: BoxDecoration(
-              color: CupertinoColors.lightBackgroundGray,
+              color: CupertinoColors.darkBackgroundGray,
               borderRadius: BorderRadius.circular(50),
             ),
             thumbDecoration: BoxDecoration(
-              color: Colors.white,
+              color: const Color.fromARGB(255, 43, 43, 43),
               borderRadius: BorderRadius.circular(50),
               boxShadow: [
                 BoxShadow(
@@ -200,12 +197,23 @@ class _JobDetailPageState extends State<JobDetailPage> {
               SingleChildScrollView(
                 child: Html(
                   data: argument["job_data"]["jobDescription"],
+                  style: {
+                    "body": Style(
+                      color: Colors.white, // Text color for the body
+                    ),
+                    "p": Style(
+                      fontSize: FontSize(14), // Font size for paragraphs
+                      color: Colors.white, // Text color for paragraphs
+                    ),
+                    // Add more styles as needed for different HTML elements
+                  },
                 ),
               ),
+
               // Add your content for the "More info" tab here
               Container(
                 padding: EdgeInsets.all(16),
-                child: Text("Additional Information"),
+                child: additionalInfo(argument),
               ),
             ],
           ),
@@ -214,18 +222,151 @@ class _JobDetailPageState extends State<JobDetailPage> {
     );
   }
 
-  // Widget _jobDescription(BuildContext context, argument) {
-  //   return Container(
-  //       height: MediaQuery.sizeOf(context).height - 485,
-  //       padding: EdgeInsets.symmetric(horizontal: 16),
-  //       child: SingleChildScrollView(
-  //         child: Html(
-  //           data: argument["job_data"]["jobDescription"],
-  //         ),
-  //       ));
-  // }
+  Widget additionalInfo(argument) {
+    Map<String, dynamic> employerDetails = {
+      "name": argument["posted_user"]["name"],
+      "Job posted": 0,
+      "Last active": "10 days ago"
+    };
 
-  Widget _apply(BuildContext context) {
+    Map<String, IconData> iconMapEmployer = {
+      "name": Icons.person,
+      "Job posted": Icons.work,
+      "Last active": Icons.access_time,
+    };
+    Map<String, IconData> iconMapJobInfo = {
+      "Location": Icons.location_pin,
+      "Skills": Icons.attractions,
+      "Job posted on": Icons.date_range,
+    };
+
+    Map<String, dynamic> jobInfo = {
+      "Location": argument["job_data"]["preferredLocation"],
+      "Skills": argument["job_data"]["skills"],
+      "Job posted on": UtilityFunctions()
+          .convertTimestampToDateString(argument["job_data"]["jobPostDate"]),
+    };
+    print(argument["job_data"]["expiryDate"]);
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(
+        "Employer Details",
+        style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: const Color.fromARGB(198, 255, 255, 255)),
+      ),
+      SizedBox(
+        height: 15,
+      ),
+      Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: employerDetails.entries
+            .map(
+              (entry) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          iconMapEmployer[entry.key],
+                          size: 20,
+                          color: Color.fromARGB(179, 198, 198, 198),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          entry.key,
+                          style: TextStyle(
+                            color: Color.fromARGB(179, 244, 244, 244),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      entry.value.toString(),
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            )
+            .toList(), // Convert the iterable to a list
+      ),
+      SizedBox(
+        height: 15,
+      ),
+      Text(
+        "Job Details",
+        style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: const Color.fromARGB(198, 255, 255, 255)),
+      ),
+      SizedBox(
+        height: 15,
+      ),
+      Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: jobInfo.entries
+            .map(
+              (entry) => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              iconMapJobInfo[entry.key],
+                              size: 20,
+                              color: Color.fromARGB(179, 198, 198, 198),
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              entry.key,
+                              style: TextStyle(
+                                color: Color.fromARGB(179, 244, 244, 244),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        // Check if the entry value is a List
+                        if (entry.value is List)
+                          Text(
+                            (entry.value as List).join(", "),
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          )
+                        else
+                          Text(
+                            entry.value.toString(),
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            )
+            .toList(), // Convert the iterable to a list
+      )
+    ]);
+  }
+
+  Widget _apply(BuildContext context, docId) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16),
       margin: EdgeInsets.only(top: 54),
@@ -237,7 +378,10 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   backgroundColor: MaterialStateProperty.all(KColors.primary),
                   padding: MaterialStateProperty.all(
                       EdgeInsets.symmetric(vertical: 16))),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, "/bid_for_job",
+                    arguments: {"post_id": docId});
+              },
               child: Text(
                 "I'm interested",
                 style: TextStyle(
@@ -275,10 +419,29 @@ class _JobDetailPageState extends State<JobDetailPage> {
     final Map<String, dynamic> argument =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     return Scaffold(
+      backgroundColor: KColors.backgroundDark,
       appBar: AppBar(
-        backgroundColor: KColors.background,
+        backgroundColor: KColors.backgroundDark,
         iconTheme: IconThemeData(color: KColors.primary),
         elevation: 1,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 15),
+            child: GFButton(
+              onPressed: () {},
+              shape: GFButtonShape.pills,
+              icon: Icon(
+                Icons.face,
+                color: Colors.white,
+                size: 20,
+              ),
+              text: "Bids",
+              size: GFSize.MEDIUM,
+              color: Color.fromARGB(193, 5, 5, 5),
+              borderSide: BorderSide(color: Color.fromARGB(75, 255, 255, 255)),
+            ),
+          )
+        ],
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -292,7 +455,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
           // _ourPeople(context),
           Padding(
             padding: const EdgeInsets.only(bottom: 15),
-            child: _apply(context),
+            child: _apply(context, argument['post_id']),
           )
         ],
       ),
