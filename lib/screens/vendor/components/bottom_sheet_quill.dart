@@ -1,15 +1,17 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_private_types_in_public_api, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_private_types_in_public_api, use_build_context_synchronously, unused_element, avoid_print
 
 import 'dart:convert';
 
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class JobDescriptionEditor extends StatefulWidget {
   final bool isOpenforEdit;
@@ -28,12 +30,17 @@ class _JobDescriptionEditorState extends State<JobDescriptionEditor> {
   var logger = Logger();
   bool _isDataLoading = false;
 
+  stt.SpeechToText? _speech;
+  bool _isListening = false;
+  String _text = 'Press the button and start speaking';
+
   @override
   void initState() {
     super.initState();
     if (widget.isOpenforEdit) {
       loadFromPrefs();
     }
+    _speech = stt.SpeechToText();
   }
 
   Future<void> loadFromPrefs() async {
@@ -133,6 +140,17 @@ class _JobDescriptionEditorState extends State<JobDescriptionEditor> {
             false;
       },
       child: Scaffold(
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: AvatarGlow(
+          animate: _isListening,
+          glowColor: Theme.of(context).primaryColor,
+          duration: const Duration(milliseconds: 2000),
+          repeat: true,
+          child: FloatingActionButton(
+            onPressed: _listen,
+            child: Icon(_isListening ? Icons.mic : Icons.mic_none),
+          ),
+        ),
         appBar: AppBar(
           title: Text('Add job description'),
           actions: [
@@ -223,5 +241,60 @@ class _JobDescriptionEditorState extends State<JobDescriptionEditor> {
               ),
       ),
     );
+  }
+
+  // void _listen() async {
+  //   if (!_isListening) {
+  //     bool available = await _speech?.initialize(
+  //           onStatus: (val) => print('onStatus: $val'),
+  //           onError: (val) => print('onError: $val'),
+  //         ) ??
+  //         false;
+
+  //     if (available) {
+  //       setState(() => _isListening = true);
+  //       _speech?.listen(
+  //         onResult: (val) {
+  //           setState(() {
+  //             if (_speech != null) {
+
+  //             }
+  //           });
+  //         },
+  //       );
+  //     } else {
+  //       print('Speech recognition not available');
+  //     }
+  //   } else {
+  //     setState(() => _isListening = false);
+  //     _speech?.stop();
+  //   }
+  // }
+
+  void _listen() async {
+    if (!_isListening) {
+      bool available = await _speech!.initialize(
+        onStatus: (val) => print('onStatus: $val'),
+        onError: (val) => print('onError: $val'),
+      );
+      if (available) {
+        setState(() => _isListening = true);
+        _speech?.listen(
+          onResult: (val) {
+            setState(() {
+              quillController.document.insert(
+                quillController.selection.end,
+                val.recognizedWords,
+              );
+            });
+          },
+        );
+      } else {
+        print('Speech recognition not available');
+      }
+    } else {
+      setState(() => _isListening = false);
+      _speech?.stop();
+    }
   }
 }
