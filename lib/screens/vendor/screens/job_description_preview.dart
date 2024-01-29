@@ -568,10 +568,19 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   BorderSide(color: KColors.primary),
                 ),
               ),
-              child: Icon(
-                isSaved ? Icons.bookmark : Icons.bookmark_border,
-                color: KColors.primary,
-              ),
+              child: isPressDelay
+                  ? SizedBox(
+                      height: 15,
+                      width: 30,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Icon(
+                      isSaved ? Icons.bookmark : Icons.bookmark_border,
+                      color: KColors.primary,
+                    ),
             ),
           )
         ],
