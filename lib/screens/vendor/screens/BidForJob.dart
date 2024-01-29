@@ -127,7 +127,7 @@ class _BidForJobState extends State<BidForJob> {
                         textInputType: TextInputType.multiline,
                         maxLines: null,
                         validator: (value) {
-                          if (value!.isEmpty || value.length < 100) {
+                          if (value!.isEmpty || value.length < 10) {
                             return "Please provide a detailed proposal (min 100 characters)!";
                           }
                           return null;
@@ -162,10 +162,18 @@ class _BidForJobState extends State<BidForJob> {
                                       "updated", Colors.green, context))
                                   .catchError((onError) => UtilityFunctions()
                                       .showSnackbar(
-                                          "$onError",
+                                          "Something went wrong!",
                                           const Color.fromARGB(
                                               255, 175, 76, 76),
                                           context));
+                              await FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(await VendorCommonFn()
+                                      .getUserUIDFromSharedPreferences())
+                                  .update({
+                                'jobs_applied':
+                                    FieldValue.arrayUnion([argument['post_id']])
+                              });
                             } catch (e) {
                               UtilityFunctions().showSnackbar(
                                   e.toString(),

@@ -31,6 +31,30 @@ class VendorCommonFn {
     }
   }
 
+// stream user fetchong
+  Stream<Map<String, dynamic>> streamUserData(
+      {DocumentReference? uidParam}) async* {
+    try {
+      String uid = uidParam?.path.isNotEmpty == true
+          ? uidParam!.id
+          : await getUserUIDFromSharedPreferences();
+
+      Stream<DocumentSnapshot<Map<String, dynamic>>> snapshots =
+          FirebaseFirestore.instance.collection('users').doc(uid).snapshots();
+
+      await for (DocumentSnapshot<Map<String, dynamic>> snapshot in snapshots) {
+        if (snapshot.exists) {
+          yield snapshot.data() ?? {};
+        } else {
+          yield {}; // Return an empty map if no data is found
+        }
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+      yield {}; // Return an empty map if an error occurs
+    }
+  }
+
   Future<String> getUserUIDFromSharedPreferences() async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();

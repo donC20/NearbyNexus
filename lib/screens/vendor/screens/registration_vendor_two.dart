@@ -205,6 +205,8 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
         actualRating: 0.0,
         totalRating: 0.0,
         unavailableDays: [],
+        jobs_applied: [],
+        saved_jobs: [],
       );
 
       Map<String, dynamic> userData = user.toJson();

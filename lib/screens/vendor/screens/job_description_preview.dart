@@ -1,8 +1,12 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_private_types_in_public_api
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_private_types_in_public_api, avoid_print
+
+import 'dart:async';
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
+import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,15 +15,138 @@ import 'package:getwidget/getwidget.dart';
 import 'package:logger/logger.dart';
 
 class JobDetailPage extends StatefulWidget {
-  const JobDetailPage({Key? key}) : super(key: key);
+  const JobDetailPage({super.key});
 
   @override
-  _JobDetailPageState createState() => _JobDetailPageState();
+  State<JobDetailPage> createState() => _JobDetailPageState();
 }
 
 class _JobDetailPageState extends State<JobDetailPage> {
+// controller
+  late StreamController<Map<String, dynamic>> _streamController;
+
   bool isExpanded = false;
   var logger = Logger();
+
+  // user
+  Map<String, dynamic> currentUserData = {};
+
+  // bool
+  bool isApplied = false;
+  bool isSaved = false;
+  bool isPageLoaded = false;
+  bool isPressDelay = false;
+
+  @override
+  void initState() {
+    _streamController = StreamController<Map<String, dynamic>>();
+    initializeUserData();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _streamController.close();
+    super.dispose();
+  }
+
+  Future<void> initializeUserData() async {
+    setState(() {
+      isPageLoaded = false;
+    });
+    VendorCommonFn().streamUserData().listen((userData) {
+      if (userData.isNotEmpty) {
+        setState(() {
+          currentUserData = userData;
+          isPageLoaded = true;
+        });
+      } else {
+        setState(() {
+          isPageLoaded = false;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, dynamic> argument =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    //
+    if (argument['post_id'] != null && currentUserData.isNotEmpty) {
+      List<dynamic> jobsApplied = currentUserData["jobs_applied"];
+      List<dynamic> savedJobs = currentUserData["saved_jobs"];
+      if (jobsApplied.contains(argument['post_id'])) {
+        setState(() {
+          isApplied = true;
+        });
+      } else {
+        setState(() {
+          isApplied = false;
+        });
+      }
+
+      // saved jobs
+      if (savedJobs.contains(argument['post_id'])) {
+        setState(() {
+          isSaved = true;
+        });
+      } else {
+        setState(() {
+          isSaved = false;
+        });
+      }
+    }
+    //
+    return Scaffold(
+      backgroundColor: KColors.backgroundDark,
+      appBar: AppBar(
+        backgroundColor: KColors.backgroundDark,
+        iconTheme: IconThemeData(color: KColors.primary),
+        elevation: 1,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 15),
+            child: GFButton(
+              onPressed: () {},
+              shape: GFButtonShape.pills,
+              icon: Icon(
+                Icons.face,
+                color: Colors.white,
+                size: 20,
+              ),
+              text: "Bids",
+              size: GFSize.MEDIUM,
+              color: Color.fromARGB(193, 5, 5, 5),
+              borderSide: BorderSide(color: Color.fromARGB(75, 255, 255, 255)),
+            ),
+          )
+        ],
+      ),
+      body: isPageLoaded
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    _header(context, argument),
+                    _jobDescription(context, argument),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 15),
+                  child: _apply(context, argument['post_id']),
+                )
+              ],
+            )
+          : Center(
+              child: CircularProgressIndicator(),
+            ),
+    );
+  }
+
+// functions
+
   Widget _header(BuildContext context, argument) {
     return Container(
       color: KColors.backgroundDark,
@@ -372,39 +499,77 @@ class _JobDetailPageState extends State<JobDetailPage> {
       margin: EdgeInsets.only(top: 54),
       child: Row(
         children: [
-          Expanded(
-            child: TextButton(
-              style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(KColors.primary),
-                  padding: MaterialStateProperty.all(
-                      EdgeInsets.symmetric(vertical: 16))),
-              onPressed: () {
-                Navigator.pushNamed(context, "/bid_for_job",
-                    arguments: {"post_id": docId});
-              },
-              child: Text(
-                "I'm interested",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+          isApplied
+              ? Expanded(
+                  child: TextButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(KColors.primary),
+                        padding: MaterialStateProperty.all(
+                            EdgeInsets.symmetric(vertical: 16))),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "");
+                    },
+                    child: Text(
+                      "View my application",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                )
+              : Expanded(
+                  child: TextButton(
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(KColors.primary),
+                        padding: MaterialStateProperty.all(
+                            EdgeInsets.symmetric(vertical: 16))),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/bid_for_job",
+                          arguments: {"post_id": docId});
+                    },
+                    child: Text(
+                      "I'm interested",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
           SizedBox(width: 12),
           SizedBox(
             height: 50,
             width: 60,
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: () async {
+                try {
+                  if (isSaved) {
+                    await removeFromSavedJobs(docId);
+                    print("Removed from saved jobs");
+                  } else {
+                    await addToSavedJobs(docId);
+                    print("Added to saved jobs");
+                  }
+                } catch (e) {
+                  print("Error: $e");
+                }
+
+                setState(() {
+                  isSaved = !isSaved;
+                });
+              },
               style: ButtonStyle(
                 side: MaterialStateProperty.all(
                   BorderSide(color: KColors.primary),
                 ),
               ),
               child: Icon(
-                Icons.bookmark_border,
+                isSaved ? Icons.bookmark : Icons.bookmark_border,
                 color: KColors.primary,
               ),
             ),
@@ -414,51 +579,55 @@ class _JobDetailPageState extends State<JobDetailPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final Map<String, dynamic> argument =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    return Scaffold(
-      backgroundColor: KColors.backgroundDark,
-      appBar: AppBar(
-        backgroundColor: KColors.backgroundDark,
-        iconTheme: IconThemeData(color: KColors.primary),
-        elevation: 1,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 15),
-            child: GFButton(
-              onPressed: () {},
-              shape: GFButtonShape.pills,
-              icon: Icon(
-                Icons.face,
-                color: Colors.white,
-                size: 20,
-              ),
-              text: "Bids",
-              size: GFSize.MEDIUM,
-              color: Color.fromARGB(193, 5, 5, 5),
-              borderSide: BorderSide(color: Color.fromARGB(75, 255, 255, 255)),
-            ),
-          )
-        ],
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            children: [
-              _header(context, argument),
-              _jobDescription(context, argument),
-            ],
-          ),
-          // _ourPeople(context),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 15),
-            child: _apply(context, argument['post_id']),
-          )
-        ],
-      ),
-    );
+  addToSavedJobs(jobId) async {
+    try {
+      print('Adding job: $jobId');
+      setState(() {
+        isPressDelay = true;
+      });
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(await VendorCommonFn().getUserUIDFromSharedPreferences())
+          .update({
+        'saved_jobs': FieldValue.arrayUnion([jobId])
+      });
+
+      // Optional: Add any additional logic upon successful addition.
+    } catch (error) {
+      print('Error adding job: $error');
+      // Handle the error as needed, e.g., show a snackbar or display an error message.
+    } finally {
+      setState(() {
+        isPressDelay = false;
+      });
+    }
+  }
+
+  removeFromSavedJobs(jobId) async {
+    try {
+      print('Removing job: $jobId');
+      setState(() {
+        isPressDelay = true;
+      });
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(await VendorCommonFn().getUserUIDFromSharedPreferences())
+          .update({
+        'saved_jobs': FieldValue.arrayRemove([jobId])
+      });
+
+      setState(() {
+        isPressDelay = false;
+      });
+    } catch (error) {
+      print('Error removing job: $error');
+      // Handle the error as needed, e.g., show a snackbar or display an error message.
+    } finally {
+      setState(() {
+        isPressDelay = false;
+      });
+    }
   }
 }

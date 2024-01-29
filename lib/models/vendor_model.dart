@@ -1,6 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:meta/meta.dart';
 
 class VendorModel {
   final String? id;
@@ -19,6 +20,8 @@ class VendorModel {
   final String? activityStatus;
   final double actualRating;
   final double totalRating;
+  final List? jobs_applied;
+  final List? saved_jobs;
   final List<DocumentReference> paymentLogs;
 
   final List<DocumentReference> allRatings;
@@ -42,6 +45,8 @@ class VendorModel {
       required this.allRatings,
       required this.actualRating,
       required this.totalRating,
+      required this.jobs_applied,
+      required this.saved_jobs,
       this.languages,
       required this.paymentLogs,
       required this.activityStatus,
@@ -66,6 +71,8 @@ class VendorModel {
       "allRatings": allRatings,
       "actualRating": actualRating,
       "totalRating": totalRating,
+      "jobs_applied": jobs_applied,
+      "saved_jobs": saved_jobs,
       "activityStatus": activityStatus,
       "kyc": kyc,
       "unavailableDays": unavailableDays,
