@@ -58,7 +58,8 @@ class UtilityFunctions {
   }
 
 // Format amount count to letters
-  String shortScaleNumbers(double count) {
+  String shortScaleNumbers(double amount) {
+    int count = amount.toInt();
     if (count < 1000) {
       return count.toString();
     } else if (count < 1000000) {
@@ -94,11 +95,16 @@ class UtilityFunctions {
   }
 
 // Text truncator
-  String truncateText(String text, int maxLength) {
-    if (text.length <= maxLength) {
+  String truncateText(String text, int maxLength,
+      {bool isExpandClicked = false}) {
+    if (isExpandClicked) {
       return text;
     } else {
-      return "${text.substring(0, maxLength)}...";
+      if (text.length <= maxLength) {
+        return text;
+      } else {
+        return "${text.substring(0, maxLength)}...";
+      }
     }
   }
 

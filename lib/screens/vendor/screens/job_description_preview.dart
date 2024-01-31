@@ -108,14 +108,17 @@ class _JobDetailPageState extends State<JobDetailPage> {
           Padding(
             padding: const EdgeInsets.only(right: 15),
             child: GFButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/proposal_screen',
+                    arguments: {'post_id': argument['post_id']});
+              },
               shape: GFButtonShape.pills,
               icon: Icon(
                 Icons.face,
                 color: Colors.white,
                 size: 20,
               ),
-              text: "Bids",
+              text: "Proposals",
               size: GFSize.MEDIUM,
               color: Color.fromARGB(193, 5, 5, 5),
               borderSide: BorderSide(color: Color.fromARGB(75, 255, 255, 255)),

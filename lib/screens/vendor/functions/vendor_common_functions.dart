@@ -63,6 +63,30 @@ class VendorCommonFn {
     return initData['uid'] ?? '';
   }
 
+// fetch documents using streamed data
+// stream user fetchong
+  Stream<Map<String, dynamic>> streamDocumentsData(
+      {required String colectionId, required String uidParam}) async* {
+    try {
+      Stream<DocumentSnapshot<Map<String, dynamic>>> snapshots =
+          FirebaseFirestore.instance
+              .collection(colectionId)
+              .doc(uidParam)
+              .snapshots();
+
+      await for (DocumentSnapshot<Map<String, dynamic>> snapshot in snapshots) {
+        if (snapshot.exists) {
+          yield snapshot.data() ?? {};
+        } else {
+          yield {}; // Return an empty map if no data is found
+        }
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+      yield {}; // Return an empty map if an error occurs
+    }
+  }
+
 //Fetching documents data from firebase storage
   Future<List<Map<String, dynamic>>> fetchDouments(String collectionId) async {
     try {
