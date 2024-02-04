@@ -114,6 +114,28 @@ class VendorCommonFn {
     }
   }
 
+//Fetching particulaar documents data from firebase storage
+  Future<Map<String, dynamic>?> fetchParticularDocument(
+      String collectionId, String docId) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
+          .instance
+          .collection(collectionId)
+          .doc(docId)
+          .get();
+
+      if (snapshot.exists) {
+        Map<String, dynamic> fetchedData = snapshot.data() ?? {};
+        return fetchedData;
+      }
+
+      return null; // Return null if the document doesn't exist
+    } catch (e) {
+      print("Error fetching document: $e");
+      return null; // Return null if an error occurs
+    }
+  }
+
 // -----------------------------------------------------------------------------------
 // End of class
 }

@@ -250,6 +250,15 @@ class _UserDashboardMState extends State<UserDashboardM> {
                                     "post_add",
                                     "Create new job post, and make the post public."),
                                 cardItems(
+                                    Icons.view_agenda,
+                                    "My jobs",
+                                    "/view_my_job_post",
+                                    context,
+                                    () {},
+                                    Colors.amberAccent,
+                                    "post_add",
+                                    "Manage and view the jobs you have created."),
+                                cardItems(
                                     Icons.work,
                                     "Active Jobs",
                                     "user_active_jobs",

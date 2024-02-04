@@ -28,6 +28,20 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
     return Scaffold(
       backgroundColor: KColors.backgroundDark,
       appBar: AppBar(
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 10.0),
+            child: Container(
+              padding: EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                  color: Colors.blue, borderRadius: BorderRadius.circular(50)),
+              child: Text(
+                "Under Review",
+                style: TextStyle(color: Colors.white, fontSize: 11),
+              ),
+            ),
+          ),
+        ],
         backgroundColor: KColors.backgroundDark,
         iconTheme: IconThemeData(color: Colors.white),
         title: Text(

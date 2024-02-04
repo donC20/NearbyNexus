@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_private_types_in_public_api, avoid_print
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_private_types_in_public_api, avoid_print, use_build_context_synchronously
 
 import 'dart:async';
 
@@ -104,6 +104,10 @@ class _JobDetailPageState extends State<JobDetailPage> {
         backgroundColor: KColors.backgroundDark,
         iconTheme: IconThemeData(color: KColors.primary),
         elevation: 1,
+        title: Text(
+          'Back',
+          style: TextStyle(color: Colors.white, fontSize: 16),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 15),
@@ -114,7 +118,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
               },
               shape: GFButtonShape.pills,
               icon: Icon(
-                Icons.face,
+                Icons.all_out,
                 color: Colors.white,
                 size: 20,
               ),
@@ -510,8 +514,41 @@ class _JobDetailPageState extends State<JobDetailPage> {
                             MaterialStateProperty.all(KColors.primary),
                         padding: MaterialStateProperty.all(
                             EdgeInsets.symmetric(vertical: 16))),
-                    onPressed: () {
-                      Navigator.pushNamed(context, "");
+                    onPressed: () async {
+                      try {
+                        Map<String, dynamic>? fetchMyApplication =
+                            await VendorCommonFn()
+                                .fetchParticularDocument('job_posts', docId);
+
+                        if (fetchMyApplication != null) {
+                          List<dynamic> applicantsList =
+                              fetchMyApplication['applicants'] ?? [];
+                          String userUID = await VendorCommonFn()
+                              .getUserUIDFromSharedPreferences();
+
+                          bool containsApplicantId = applicantsList.any(
+                              (applicant) =>
+                                  applicant['applicant_id'] == userUID);
+
+                          if (containsApplicantId) {
+                            // Fetch values for the matching index
+                            var matchingApplicant = applicantsList.firstWhere(
+                                (applicant) =>
+                                    applicant['applicant_id'] == userUID);
+
+                            Navigator.pushNamed(
+                                context, '/proposal_view_screen',
+                                arguments: {'proposal': matchingApplicant});
+                          } else {
+                            logger.e("Applicant_id not found");
+                          }
+                        } else {
+                          logger.e("Document not found");
+                        }
+                      } catch (e) {
+                        print(
+                            "Error: $e"); // Handle the error as needed, e.g., show a snackbar or display an error message.
+                      }
                     },
                     child: Text(
                       "View my application",

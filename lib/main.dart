@@ -11,6 +11,7 @@ import 'package:NearbyNexus/screens/user/screens/create_job_post.dart';
 import 'package:NearbyNexus/screens/user/screens/favorites.dart';
 import 'package:NearbyNexus/screens/user/screens/job_history.dart';
 import 'package:NearbyNexus/screens/user/screens/job_review_page.dart';
+import 'package:NearbyNexus/screens/user/screens/my_job_posts.dart';
 import 'package:NearbyNexus/screens/user/screens/new_request.dart';
 import 'package:NearbyNexus/screens/user/screens/rate_user_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/request_pending_user.dart';
@@ -165,6 +166,7 @@ class MyApp extends StatelessWidget {
 
         // user
         "/create_job_post": (context) => const CreateJobPost(),
+        "/view_my_job_post": (context) => MyJobPosts(),
         // vendor
         "/broadcast_page": (context) => const BroadcastPage(),
         "/job_detail_page": (context) => const JobDetailPage(),
