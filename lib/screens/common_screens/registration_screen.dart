@@ -124,26 +124,43 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         if (existingMethods.isEmpty) {
           UserCredential? userCredential =
               await FirebaseAuth.instance.signInWithCredential(credential);
-          if (userCredential != null) {
-            User googleuser = userCredential.user!;
-            Map<String, dynamic> userData = {
-              'uid': googleuser.uid,
-              'email': googleuser.email,
-              'userType': selectedRadio,
-              'name': googleuser.displayName,
-              'loginType': 'google'
-            };
-            selectedRadio == "general_user"
-                ? Navigator.popAndPushNamed(
-                    context, "complete_registration_user", arguments: userData)
-                : selectedRadio == "vendor"
-                    ? Navigator.popAndPushNamed(
-                        context, "complete_registration_vendor",
-                        arguments: userData)
-                    : print("Cant register or navigate");
-          } else {
-            print("Failed to sign in with Google");
-          }
+          // if (userCredential != null) {
+          //   User googleuser = userCredential.user!;
+          //   Map<String, dynamic> userData = {
+          //     'uid': googleuser.uid,
+          //     'email': googleuser.email,
+          //     'userType': selectedRadio,
+          //     'name': googleuser.displayName,
+          //     'loginType': 'google'
+          //   };
+          //   selectedRadio == "general_user"
+          //       ? Navigator.popAndPushNamed(
+          //           context, "complete_registration_user", arguments: userData)
+          //       : selectedRadio == "vendor"
+          //           ? Navigator.popAndPushNamed(
+          //               context, "complete_registration_vendor",
+          //               arguments: userData)
+          //           : print("Cant register or navigate");
+          // } else {
+          //   print("Failed to sign in with Google");
+          // }
+
+          User googleuser = userCredential.user!;
+          Map<String, dynamic> userData = {
+            'uid': googleuser.uid,
+            'email': googleuser.email,
+            'userType': selectedRadio,
+            'name': googleuser.displayName,
+            'loginType': 'google'
+          };
+          selectedRadio == "general_user"
+              ? Navigator.popAndPushNamed(context, "complete_registration_user",
+                  arguments: userData)
+              : selectedRadio == "vendor"
+                  ? Navigator.popAndPushNamed(
+                      context, "complete_registration_vendor",
+                      arguments: userData)
+                  : print("Cant register or navigate");
         } else {
           await _googleSignIn.signOut();
           showSnackbar("An account with this mail id already exists",

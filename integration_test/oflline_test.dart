@@ -46,7 +46,7 @@ void main() {
 
         await widgetTester.pumpAndSettle(Duration(seconds: 5));
       } catch (e) {
-        print("Error occurred on page: ${e}");
+        print("Error occurred on page: $e");
       }
     });
   });

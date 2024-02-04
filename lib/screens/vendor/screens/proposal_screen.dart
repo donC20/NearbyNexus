@@ -1,10 +1,13 @@
 // ignore_for_file: prefer_const_constructors, avoid_print, prefer_const_literals_to_create_immutables
 
+import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
 class Proposal {
@@ -36,33 +39,6 @@ class ProposalScreen extends StatefulWidget {
 }
 
 class _ProposalScreenState extends State<ProposalScreen> {
-  final List<Proposal> proposals = [
-    Proposal(
-      userImage: 'assets/images/raster/avatar-1.png',
-      userName: 'John Doe',
-      proposalDescription:
-          'Experienced developer specializing in Flutter apps. Experienced developer specializing in Flutter apps.Experienced developer specializing in Flutter apps.Experienced developer specializing in Flutter apps.',
-      userRating: 4.5,
-      totalAmountAcquired: 5000.0,
-      proposalAmount: 1000.0,
-      totalReviews: 20,
-      totalPayout: 200000,
-      isVerified: true,
-    ),
-    Proposal(
-      userImage: 'assets/images/raster/avatar-1.png',
-      userName: 'Jane Smith',
-      proposalDescription: 'Creative designer with a passion for UI/UX.',
-      userRating: 4.8,
-      totalAmountAcquired: 7500.0,
-      proposalAmount: 1200.0,
-      totalReviews: 20,
-      totalPayout: 200000,
-      isVerified: true,
-    ),
-    // Add more Proposal objects for additional proposals
-  ];
-
   bool showMore = false;
   // logger
   var logger = Logger();
@@ -80,184 +56,209 @@ class _ProposalScreenState extends State<ProposalScreen> {
         ),
       ),
       body: Container(
-        color: Colors.black, // Setting dark background color
+        color: Colors.black,
         child: StreamBuilder<Map<String, dynamic>>(
-            stream: VendorCommonFn().streamDocumentsData(
-                colectionId: 'job_posts', uidParam: argument["post_id"]),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                Map<String, dynamic>? jobData = snapshot.data;
-                List<dynamic> applicantsData = jobData!["applicants"];
-                return ListView.separated(
-                  padding: EdgeInsets.all(8.0),
-                  itemCount: applicantsData.length,
-                  itemBuilder: (context, index) {
-                    Map<String, dynamic> currentApplicant =
-                        applicantsData[index];
-                    return _buildProposalCard(currentApplicant);
-                  },
-                  separatorBuilder: (context, index) => SizedBox(
-                    height: 5,
-                  ),
-                );
-              } else if (snapshot.hasError) {
-                return Center(
-                  child: Text('Error: ${snapshot.error}'),
-                );
-              } else {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            }),
+          stream: VendorCommonFn().streamDocumentsData(
+            colectionId: 'job_posts',
+            uidParam: argument["post_id"],
+          ),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              Map<String, dynamic>? jobData = snapshot.data;
+              List<dynamic> applicantsData = jobData!["applicants"];
+              return ListView.separated(
+                padding: EdgeInsets.all(8.0),
+                itemCount: applicantsData.length,
+                itemBuilder: (context, index) {
+                  Map<String, dynamic> currentApplicant = applicantsData[index];
+                  return StreamBuilder<Map<String, dynamic>>(
+                    stream: VendorCommonFn().streamUserData(
+                      uidParam: FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(currentApplicant['applicant_id']),
+                    ),
+                    builder: (context, snapshot) {
+                      Map<String, dynamic>? userData = snapshot.data;
+                      return _buildProposalCard(currentApplicant, userData);
+                    },
+                  );
+                },
+                separatorBuilder: (context, index) => SizedBox(height: 5),
+              );
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            } else {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildProposalCard(applicant) {
-    return Card(
-      color: Colors.grey[900], // Setting dark card background color
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ListTile(
-              contentPadding: EdgeInsets.all(0),
-              horizontalTitleGap: 8,
-              leading: CircleAvatar(
-                backgroundImage:
-                    AssetImage("assets/images/raster/avatar-1.png"),
-                radius: 30,
-              ),
-              title: Row(
-                children: [
-                  Text(
-                    "Test",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
+  Widget _buildProposalCard(applicant, userData) {
+    List<dynamic> allRatings = [];
+
+    if (userData != null && userData is Map<String, dynamic>) {
+      allRatings = userData['allRatings'] ?? [];
+    }
+    return (userData != null && userData != "") &&
+            (applicant != null && applicant != "")
+        ? GestureDetector(
+            onTap: () => Navigator.pushNamed(context, '/proposal_view_screen',
+                arguments: {'proposal': applicant}),
+            child: Card(
+              color: Colors.grey[900], // Setting dark card background color
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      contentPadding: EdgeInsets.all(0),
+                      horizontalTitleGap: 10,
+                      leading: UserLoadingAvatar(
+                        userImage: userData['image'],
+                      ),
+                      title: Row(
+                        children: [
+                          Text(
+                            userData['name'],
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          userData['kyc']['verified']
+                              ? Icon(
+                                  Icons.verified,
+                                  size: 18,
+                                  color: Colors.blue,
+                                )
+                              : SizedBox(),
+                        ],
+                      ),
+                      subtitle: Row(
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 18.0,
+                              ),
+                              Text(
+                                userData['actualRating'].toString(),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                CupertinoIcons.money_dollar_circle,
+                                color: Color.fromARGB(255, 7, 160, 48),
+                                size: 18.0,
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                UtilityFunctions().shortScaleNumbers(20),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Row(
+                            children: [
+                              Icon(
+                                CupertinoIcons.chat_bubble_text_fill,
+                                color: Colors.amber,
+                                size: 18.0,
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                UtilityFunctions().shortScaleNumbers(
+                                    allRatings.length.toDouble()),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      trailing: RichText(
+                          text: TextSpan(children: [
+                        TextSpan(
+                            text: UtilityFunctions()
+                                .shortScaleNumbers(
+                                    double.parse(applicant["bid_amount"]))
+                                .toString()),
+                        TextSpan(text: " /hr")
+                      ])),
                     ),
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Icon(
-                    Icons.verified,
-                    size: 18,
-                    color: Colors.blue,
-                  )
-                ],
-              ),
-              subtitle: Row(
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                        size: 18.0,
+                    SizedBox(height: 8.0),
+                    Text(
+                      applicant["proposal_description"],
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.0,
                       ),
-                      Text(
-                        "4.2",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Row(
-                    children: [
-                      Icon(
-                        CupertinoIcons.money_dollar_circle,
-                        color: Color.fromARGB(255, 7, 160, 48),
-                        size: 18.0,
-                      ),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        UtilityFunctions().shortScaleNumbers(20),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Row(
-                    children: [
-                      Icon(
-                        CupertinoIcons.chat_bubble_text_fill,
-                        color: Colors.amber,
-                        size: 18.0,
-                      ),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        UtilityFunctions().shortScaleNumbers(50),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              trailing: RichText(
-                  text: TextSpan(children: [
-                TextSpan(
-                    text: UtilityFunctions()
-                        .shortScaleNumbers(
-                            double.parse(applicant["bid_amount"]))
-                        .toString()),
-                TextSpan(text: " /hr")
-              ])),
-            ),
-            SizedBox(height: 8.0),
-            Text(
-              applicant["proposal_description"],
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14.0,
-              ),
-              maxLines: !showMore ? null : 5,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (applicant["proposal_description"].length >= 100)
-              Align(
-                alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      showMore = !showMore;
-                    });
-                  },
-                  child: Text(
-                    showMore ? 'Less' : 'More',
-                    style: TextStyle(
-                      color: Colors
-                          .blue, // You can customize the button text color
+                      maxLines: !showMore ? null : 5,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
+                    if (applicant["proposal_description"].length >= 100)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              showMore = !showMore;
+                            });
+                          },
+                          child: Text(
+                            showMore ? 'Less' : 'More',
+                            style: TextStyle(
+                              color: Colors
+                                  .blue, // You can customize the button text color
+                            ),
+                          ),
+                        ),
+                      ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                  ],
                 ),
               ),
-            SizedBox(
-              height: 15,
             ),
-          ],
-        ),
-      ),
-    );
+          )
+        : Center(
+            child: CircularProgressIndicator(),
+          );
   }
 }

@@ -146,16 +146,21 @@ class UtilityFunctions {
 
 // Time stamp to date
   String? convertTimestampToDateString(Timestamp timestamp) {
-    if (timestamp != null) {
-      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
-        timestamp.seconds * 1000 + timestamp.nanoseconds ~/ 1000000,
-      );
+    // if (timestamp != null) {
+    //   DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
+    //     timestamp.seconds * 1000 + timestamp.nanoseconds ~/ 1000000,
+    //   );
 
-      // Format the DateTime as a string without the time part
-      return "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
-    } else {
-      return null;
-    }
+    //   // Format the DateTime as a string without the time part
+    //   return "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
+    // } else {
+    //   return null;
+    // }
+    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
+      timestamp.seconds * 1000 + timestamp.nanoseconds ~/ 1000000,
+    );
+    // Format the DateTime as a string without the time part
+    return "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
   }
 
 // format date

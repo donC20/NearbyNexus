@@ -21,7 +21,6 @@ import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_payments_log.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
-import 'package:NearbyNexus/screens/vendor/components/bottom_sheet_quill.dart';
 import 'package:NearbyNexus/screens/vendor/components/global_notification.dart';
 import 'package:NearbyNexus/screens/vendor/components/search_services_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/BidForJob.dart';
@@ -33,6 +32,7 @@ import 'package:NearbyNexus/screens/vendor/screens/jobs_log.dart';
 import 'package:NearbyNexus/screens/vendor/screens/new_jobs.dart';
 import 'package:NearbyNexus/screens/vendor/screens/payments_log.dart';
 import 'package:NearbyNexus/screens/vendor/screens/proposal_screen.dart';
+import 'package:NearbyNexus/screens/vendor/screens/proposal_view_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/update_vendor_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_dashboard.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
@@ -53,7 +53,6 @@ import 'package:provider/provider.dart';
 
 import 'config/themes/app_theme.dart';
 import 'screens/admin/screens/add_data.dart';
-import 'screens/user/screens/complete_registration_user.dart';
 import 'screens/vendor/screens/vendor_portfolio.dart';
 import 'screens/vendor/screens/registration_vendor_one.dart';
 import 'screens/common_screens/forgot_password.dart';
@@ -171,6 +170,7 @@ class MyApp extends StatelessWidget {
         "/job_detail_page": (context) => const JobDetailPage(),
         "/bid_for_job": (context) => const BidForJob(),
         "/proposal_screen": (context) => ProposalScreen(),
+        "/proposal_view_screen": (context) => const ProposalViewScreen(),
       },
       initialRoute: "splashScreen",
     );

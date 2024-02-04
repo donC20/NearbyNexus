@@ -11,8 +11,8 @@ void main() {
     testWidgets("User function test", (widgetTester) async {
       app.main();
 
-      Color green = Color.fromARGB(255, 0, 255, 0);
-      Color red = Color.fromARGB(255, 255, 0, 0);
+      // Color green = Color.fromARGB(255, 0, 255, 0);
+      // Color red = Color.fromARGB(255, 255, 0, 0);
 
       void printStep(String step) {
         print("\x1B[34m$step\x1B[0m");

@@ -3,12 +3,12 @@ import 'package:NearbyNexus/screens/admin/style/style.dart';
 import 'package:flutter/material.dart';
 
 class Header extends StatelessWidget {
-  String pageTitle;
-  String subText;
-  Color pageTitleColor;
-  Color subTextColor;
+  final String pageTitle;
+  final String subText;
+  final Color pageTitleColor;
+  final Color subTextColor;
 
-  Header(
+  const Header(
       {Key? key,
       required this.pageTitle,
       required this.subText,
