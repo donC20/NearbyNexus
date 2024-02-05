@@ -17,7 +17,7 @@ class MyJobPosts extends StatefulWidget {
 
 class _MyJobPostsState extends State<MyJobPosts> {
   String currentUser = '';
-
+  bool isAnyButtonPressed = false;
   var logger = Logger();
 
   @override
@@ -162,159 +162,209 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                   List<dynamic> totalApplicants =
                                       postData['applicants'];
                                   int applicantsCount = totalApplicants.length;
-                                  return Container(
-                                    padding: EdgeInsets.all(0),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        GFAccordion(
-                                          title: postData['jobTitle'],
-                                          contentChild: Column(
+                                  return isAnyButtonPressed
+                                      ? Center(
+                                          child:
+                                              GFLoader(type: GFLoaderType.ios),
+                                        )
+                                      : Container(
+                                          padding: EdgeInsets.all(0),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Column(
                                             children: [
-                                              // Display your data here using jobPosts list
-                                              // For example:
-                                              tableRows(
-                                                icon: Icons.calendar_month,
-                                                title: "Posted on",
-                                                value: UtilityFunctions()
-                                                    .findTimeDifference(
-                                                        postData[
-                                                            'jobPostDate']),
-                                              ),
-                                              tableRows(
-                                                  icon: Icons.timelapse,
-                                                  title: "Expires in",
-                                                  value: UtilityFunctions()
-                                                      .findTimeDifference(
-                                                          postData[
-                                                              'expiryDate'],
-                                                          trailingText: '')),
-                                              tableRows(
-                                                  icon: Icons.calendar_month,
-                                                  title: "Budget",
-                                                  value: UtilityFunctions()
-                                                      .formatSalary(
-                                                          postData['budget'])),
+                                              GFAccordion(
+                                                title: postData['jobTitle'],
+                                                contentChild: Column(
+                                                  children: [
+                                                    // Display your data here using jobPosts list
+                                                    // For example:
+                                                    tableRows(
+                                                      icon:
+                                                          Icons.calendar_month,
+                                                      title: "Posted on",
+                                                      value: UtilityFunctions()
+                                                          .findTimeDifference(
+                                                              postData[
+                                                                  'jobPostDate']),
+                                                    ),
+                                                    tableRows(
+                                                        icon: Icons.timelapse,
+                                                        title: "Expires in",
+                                                        value: UtilityFunctions()
+                                                            .findTimeDifference(
+                                                                postData[
+                                                                    'expiryDate'],
+                                                                trailingText:
+                                                                    '')),
+                                                    tableRows(
+                                                        icon: Icons
+                                                            .calendar_month,
+                                                        title: "Budget",
+                                                        value: UtilityFunctions()
+                                                            .formatSalary(
+                                                                postData[
+                                                                    'budget'])),
 
-                                              tableRows(
-                                                  icon: Icons.local_activity,
-                                                  title: "Skills",
-                                                  value: UtilityFunctions()
-                                                      .convertListToCommaSeparatedString(
-                                                          postData['skills'])),
-                                              tableRows(
-                                                  icon:
-                                                      Icons.location_city_sharp,
-                                                  title: "Location",
-                                                  value: UtilityFunctions()
-                                                      .convertListToCommaSeparatedString(
-                                                          postData[
-                                                              'preferredLocation'])),
-                                              Card(
-                                                margin: EdgeInsets.all(0),
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 15,
-                                                          top: 15,
-                                                          right: 15),
-                                                  child: tableRows(
-                                                      icon: Icons.verified_user,
-                                                      title: "Applicants",
-                                                      value: applicantsCount
-                                                          .toString()),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 300,
-                                                child: SingleChildScrollView(
-                                                  child: Html(
-                                                    data: postData[
-                                                        'jobDescription'],
-                                                    style: {
-                                                      "body": Style(
-                                                        color: const Color
-                                                            .fromARGB(255, 0, 0,
-                                                            0), // Text color for the body
+                                                    tableRows(
+                                                        icon: Icons
+                                                            .local_activity,
+                                                        title: "Skills",
+                                                        value: UtilityFunctions()
+                                                            .convertListToCommaSeparatedString(
+                                                                postData[
+                                                                    'skills'])),
+                                                    tableRows(
+                                                        icon: Icons
+                                                            .location_city_sharp,
+                                                        title: "Location",
+                                                        value: UtilityFunctions()
+                                                            .convertListToCommaSeparatedString(
+                                                                postData[
+                                                                    'preferredLocation'])),
+                                                    Card(
+                                                      margin: EdgeInsets.all(0),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(
+                                                                left: 15,
+                                                                top: 15,
+                                                                right: 15),
+                                                        child: tableRows(
+                                                            icon: Icons
+                                                                .verified_user,
+                                                            title: "Applicants",
+                                                            value:
+                                                                applicantsCount
+                                                                    .toString()),
                                                       ),
-                                                      "p": Style(
-                                                        fontSize: FontSize(
-                                                            14), // Font size for paragraphs
-                                                        color: Colors
-                                                            .black, // Text color for paragraphs
+                                                    ),
+                                                    SizedBox(
+                                                      height: 300,
+                                                      child:
+                                                          SingleChildScrollView(
+                                                        child: Html(
+                                                          data: postData[
+                                                              'jobDescription'],
+                                                          style: {
+                                                            "body": Style(
+                                                              color: const Color
+                                                                  .fromARGB(
+                                                                  255,
+                                                                  0,
+                                                                  0,
+                                                                  0), // Text color for the body
+                                                            ),
+                                                            "p": Style(
+                                                              fontSize: FontSize(
+                                                                  14), // Font size for paragraphs
+                                                              color: Colors
+                                                                  .black, // Text color for paragraphs
+                                                            ),
+                                                            // Add more styles as needed for different HTML elements
+                                                          },
+                                                        ),
                                                       ),
-                                                      // Add more styles as needed for different HTML elements
-                                                    },
-                                                  ),
+                                                    ),
+                                                    Divider(
+                                                      color: Colors.grey,
+                                                    ),
+                                                    // Add more rows based on your data
+                                                    SizedBox(
+                                                      height: 15,
+                                                    ),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceAround,
+                                                      children: [
+                                                        GFButton(
+                                                          onPressed: () async {
+                                                            try {
+                                                              setState(() {
+                                                                isAnyButtonPressed =
+                                                                    true;
+                                                              });
+                                                              await FirebaseFirestore
+                                                                  .instance
+                                                                  .collection(
+                                                                      'job_posts')
+                                                                  .doc(postData[
+                                                                      'documentId'])
+                                                                  .update({
+                                                                "isWithdrawn":
+                                                                    true
+                                                              }).then((value) {
+                                                                setState(() {
+                                                                  isAnyButtonPressed =
+                                                                      false;
+                                                                });
+                                                              });
+                                                            } catch (e) {
+                                                              logger.e(e);
+                                                            }
+                                                          },
+                                                          text: "Withdraw",
+                                                          shape: GFButtonShape
+                                                              .pills,
+                                                          color:
+                                                              Colors.redAccent,
+                                                          icon: Icon(
+                                                            Icons.block,
+                                                            size: 18,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                        GFButton(
+                                                          onPressed: () {},
+                                                          text: "Extend",
+                                                          icon: Icon(
+                                                            Icons
+                                                                .extension_rounded,
+                                                            size: 18,
+                                                            color: Colors.white,
+                                                          ),
+                                                          shape: GFButtonShape
+                                                              .pills,
+                                                          color: Colors.green,
+                                                        ),
+                                                        GFButton(
+                                                          onPressed: () {},
+                                                          shape: GFButtonShape
+                                                              .pills,
+                                                          icon: Icon(
+                                                            Icons.wysiwyg,
+                                                            size: 18,
+                                                            color: Colors.white,
+                                                          ),
+                                                          text: "Proposals",
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
                                                 ),
-                                              ),
-                                              Divider(
-                                                color: Colors.grey,
-                                              ),
-                                              // Add more rows based on your data
-                                              SizedBox(
-                                                height: 15,
-                                              ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                children: [
-                                                  GFButton(
-                                                    onPressed: () {},
-                                                    text: "Withdraw",
-                                                    shape: GFButtonShape.pills,
-                                                    color: Colors.redAccent,
-                                                    icon: Icon(
-                                                      Icons.block,
-                                                      size: 18,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  GFButton(
-                                                    onPressed: () {},
-                                                    text: "Extend",
-                                                    icon: Icon(
-                                                      Icons.extension_rounded,
-                                                      size: 18,
-                                                      color: Colors.white,
-                                                    ),
-                                                    shape: GFButtonShape.pills,
-                                                    color: Colors.green,
-                                                  ),
-                                                  GFButton(
-                                                    onPressed: () {},
-                                                    shape: GFButtonShape.pills,
-                                                    icon: Icon(
-                                                      Icons.wysiwyg,
-                                                      size: 18,
-                                                      color: Colors.white,
-                                                    ),
-                                                    text: "Proposals",
-                                                  ),
-                                                ],
+                                                collapsedIcon:
+                                                    Icon(Icons.arrow_drop_down),
+                                                expandedIcon:
+                                                    Icon(Icons.arrow_drop_up),
+                                                collapsedTitleBackgroundColor:
+                                                    Color.fromARGB(
+                                                        255, 255, 255, 255),
+                                                contentBorderRadius:
+                                                    BorderRadius.only(
+                                                  bottomLeft:
+                                                      Radius.circular(10),
+                                                  bottomRight:
+                                                      Radius.circular(10),
+                                                ),
                                               ),
                                             ],
                                           ),
-                                          collapsedIcon:
-                                              Icon(Icons.arrow_drop_down),
-                                          expandedIcon:
-                                              Icon(Icons.arrow_drop_up),
-                                          collapsedTitleBackgroundColor:
-                                              Color.fromARGB(
-                                                  255, 255, 255, 255),
-                                          contentBorderRadius:
-                                              BorderRadius.only(
-                                            bottomLeft: Radius.circular(10),
-                                            bottomRight: Radius.circular(10),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
+                                        );
                                 },
                                 separatorBuilder:
                                     (BuildContext context, int index) {
@@ -412,11 +462,8 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                               tableRows(
                                                   icon: Icons.timelapse,
                                                   title: "Expires in",
-                                                  value: UtilityFunctions()
-                                                      .findTimeDifference(
-                                                          postData[
-                                                              'expiryDate'],
-                                                          trailingText: '')),
+                                                  value:
+                                                      "Expired ${UtilityFunctions().findTimeDifference(postData['expiryDate'], trailingText: 'ago')}"),
                                               tableRows(
                                                   icon: Icons.calendar_month,
                                                   title: "Budget",
@@ -483,36 +530,27 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                               SizedBox(
                                                 height: 15,
                                               ),
-                                              Row(
+                                              Column(
                                                 mainAxisAlignment:
                                                     MainAxisAlignment
                                                         .spaceAround,
                                                 children: [
                                                   GFButton(
                                                     onPressed: () {},
-                                                    text: "Withdraw",
+                                                    text: "Repost",
                                                     shape: GFButtonShape.pills,
                                                     color: Colors.redAccent,
+                                                    fullWidthButton: true,
                                                     icon: Icon(
-                                                      Icons.block,
+                                                      Icons.redo,
                                                       size: 18,
                                                       color: Colors.white,
                                                     ),
                                                   ),
                                                   GFButton(
                                                     onPressed: () {},
-                                                    text: "Extend",
-                                                    icon: Icon(
-                                                      Icons.extension_rounded,
-                                                      size: 18,
-                                                      color: Colors.white,
-                                                    ),
                                                     shape: GFButtonShape.pills,
-                                                    color: Colors.green,
-                                                  ),
-                                                  GFButton(
-                                                    onPressed: () {},
-                                                    shape: GFButtonShape.pills,
+                                                    fullWidthButton: true,
                                                     icon: Icon(
                                                       Icons.wysiwyg,
                                                       size: 18,
@@ -562,6 +600,7 @@ class _MyJobPostsState extends State<MyJobPosts> {
             child: CircularProgressIndicator(),
           );
   }
+
 }
 
 Widget tableRows({IconData? icon, required String title, required value}) {
@@ -595,5 +634,7 @@ Widget tableRows({IconData? icon, required String title, required value}) {
         height: 15,
       ),
     ],
+    
   );
+  
 }
