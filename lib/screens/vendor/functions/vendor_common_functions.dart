@@ -114,6 +114,35 @@ class VendorCommonFn {
     }
   }
 
+  // Streamed Documents
+  Stream<List<Map<String, dynamic>>> streamDocuments(String collectionId) {
+    try {
+      return FirebaseFirestore.instance
+          .collection(collectionId)
+          .snapshots()
+          .map((QuerySnapshot<Map<String, dynamic>> snapshot) {
+        if (snapshot.size > 0) {
+          List<Map<String, dynamic>> fetchedData = [];
+
+          // Iterate through documents in the snapshot and add both document ID and data to the list
+          snapshot.docs
+              .forEach((QueryDocumentSnapshot<Map<String, dynamic>> doc) {
+            Map<String, dynamic> documentData = doc.data();
+            documentData['documentId'] = doc.id;
+            fetchedData.add(documentData);
+          });
+
+          return fetchedData;
+        }
+
+        return []; // Return an empty list if no data is found
+      });
+    } catch (e) {
+      print("Error fetching job posts: $e");
+      return Stream.value([]); // Return an empty stream if an error occurs
+    }
+  }
+
 //Fetching particulaar documents data from firebase storage
   Future<Map<String, dynamic>?> fetchParticularDocument(
       String collectionId, String docId) async {

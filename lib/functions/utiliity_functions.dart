@@ -168,5 +168,9 @@ class UtilityFunctions {
     return DateFormat.yMMMd().format(date);
   }
 
+// Covert to coma separated list
+  String convertListToCommaSeparatedString(List<dynamic> items) {
+    return items.join(', ');
+  }
 // end of the class
 }
