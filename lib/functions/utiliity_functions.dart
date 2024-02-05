@@ -37,18 +37,15 @@ class UtilityFunctions {
     if (timestamp is Timestamp) {
       DateTime dateTime = timestamp.toDate();
       DateTime now = DateTime.now();
-      int monthsDifference = now.month - dateTime.month;
-      int daysDifference = now.day - dateTime.day;
 
-      if (now.year > dateTime.year ||
-          (now.year == dateTime.year && monthsDifference >= 1)) {
-        return '$monthsDifference ${monthsDifference == 1 ? 'month' : 'months'} $trailingText';
-      } else if (now.day > dateTime.day) {
-        return '$daysDifference ${daysDifference == 1 ? 'day' : 'days'} $trailingText';
-      } else if (now.hour > dateTime.hour) {
-        return '${now.hour - dateTime.hour} ${now.hour - dateTime.hour == 1 ? 'hour' : 'hours'} $trailingText';
-      } else if (now.minute > dateTime.minute) {
-        return '${now.minute - dateTime.minute} ${now.minute - dateTime.minute == 1 ? 'minute' : 'minutes'} $trailingText';
+      Duration difference = now.difference(dateTime);
+
+      if (difference.inDays >= 0) {
+        return '${difference.inDays} ${difference.inDays == 1 ? 'day' : 'days'} $trailingText';
+      } else if (difference.inHours >= 1) {
+        return '${difference.inHours} ${difference.inHours == 1 ? 'hour' : 'hours'} $trailingText';
+      } else if (difference.inMinutes >= 1) {
+        return '${difference.inMinutes} ${difference.inMinutes == 1 ? 'minute' : 'minutes'} $trailingText';
       } else {
         return 'just now';
       }

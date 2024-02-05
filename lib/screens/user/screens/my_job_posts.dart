@@ -120,6 +120,9 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                   isEqualTo: FirebaseFirestore.instance
                                       .collection('users')
                                       .doc(currentUser))
+                              .where("expiryDate",
+                                  isGreaterThanOrEqualTo: Timestamp.now())
+                              .where("isWithdrawn", isEqualTo: false)
                               .snapshots(),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
@@ -128,7 +131,11 @@ class _MyJobPostsState extends State<MyJobPosts> {
                             }
 
                             if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
+                              logger.e(snapshot.error);
+                              return Text(
+                                'Error: ${snapshot.error}',
+                                style: TextStyle(color: Colors.red),
+                              );
                             }
 
                             // Check if there is no data
@@ -152,7 +159,9 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                 itemBuilder: (context, index) {
                                   Map<String, dynamic> postData =
                                       jobPosts[index];
-
+                                  List<dynamic> totalApplicants =
+                                      postData['applicants'];
+                                  int applicantsCount = totalApplicants.length;
                                   return Container(
                                     padding: EdgeInsets.all(0),
                                     decoration: BoxDecoration(
@@ -181,7 +190,8 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                                   value: UtilityFunctions()
                                                       .findTimeDifference(
                                                           postData[
-                                                              'expiryDate'])),
+                                                              'expiryDate'],
+                                                          trailingText: '')),
                                               tableRows(
                                                   icon: Icons.calendar_month,
                                                   title: "Budget",
@@ -214,7 +224,8 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                                   child: tableRows(
                                                       icon: Icons.verified_user,
                                                       title: "Applicants",
-                                                      value: "500"),
+                                                      value: applicantsCount
+                                                          .toString()),
                                                 ),
                                               ),
                                               SizedBox(
@@ -255,13 +266,33 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                                   GFButton(
                                                     onPressed: () {},
                                                     text: "Withdraw",
+                                                    shape: GFButtonShape.pills,
+                                                    color: Colors.redAccent,
+                                                    icon: Icon(
+                                                      Icons.block,
+                                                      size: 18,
+                                                      color: Colors.white,
+                                                    ),
                                                   ),
                                                   GFButton(
                                                     onPressed: () {},
-                                                    text: "Extend date",
+                                                    text: "Extend",
+                                                    icon: Icon(
+                                                      Icons.extension_rounded,
+                                                      size: 18,
+                                                      color: Colors.white,
+                                                    ),
+                                                    shape: GFButtonShape.pills,
+                                                    color: Colors.green,
                                                   ),
                                                   GFButton(
                                                     onPressed: () {},
+                                                    shape: GFButtonShape.pills,
+                                                    icon: Icon(
+                                                      Icons.wysiwyg,
+                                                      size: 18,
+                                                      color: Colors.white,
+                                                    ),
                                                     text: "Proposals",
                                                   ),
                                                 ],
@@ -300,8 +331,228 @@ class _MyJobPostsState extends State<MyJobPosts> {
                   ),
 
                   // Past Posts Content
-                  Center(
-                    child: Text('Past Posts Content'),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 15,
+                        ),
+                        StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                          stream: FirebaseFirestore.instance
+                              .collection('job_posts')
+                              .where("jobPostedBy",
+                                  isEqualTo: FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(currentUser))
+                              .where("expiryDate",
+                                  isLessThanOrEqualTo: Timestamp.now())
+                              .where("isWithdrawn", isEqualTo: true)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return CircularProgressIndicator(); // Display a loading indicator while data is being fetched
+                            }
+
+                            if (snapshot.hasError) {
+                              logger.e(snapshot.error);
+                              return Text(
+                                'Error: ${snapshot.error}',
+                                style: TextStyle(color: Colors.red),
+                              );
+                            }
+
+                            // Check if there is no data
+                            if (!snapshot.hasData ||
+                                snapshot.data!.docs.isEmpty) {
+                              return Text('No data available');
+                            }
+
+                            // Extract data from the snapshot
+                            List<Map<String, dynamic>> jobPosts =
+                                snapshot.data!.docs.map(
+                                    (QueryDocumentSnapshot<Map<String, dynamic>>
+                                        doc) {
+                              Map<String, dynamic> documentData = doc.data();
+                              documentData['documentId'] = doc.id;
+                              return documentData;
+                            }).toList();
+                            return Expanded(
+                              child: ListView.separated(
+                                itemCount: jobPosts.length,
+                                itemBuilder: (context, index) {
+                                  Map<String, dynamic> postData =
+                                      jobPosts[index];
+                                  List<dynamic> totalApplicants =
+                                      postData['applicants'];
+                                  int applicantsCount = totalApplicants.length;
+                                  return Container(
+                                    padding: EdgeInsets.all(0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        GFAccordion(
+                                          title: postData['jobTitle'],
+                                          contentChild: Column(
+                                            children: [
+                                              // Display your data here using jobPosts list
+                                              // For example:
+                                              tableRows(
+                                                icon: Icons.calendar_month,
+                                                title: "Posted on",
+                                                value: UtilityFunctions()
+                                                    .findTimeDifference(
+                                                        postData[
+                                                            'jobPostDate']),
+                                              ),
+                                              tableRows(
+                                                  icon: Icons.timelapse,
+                                                  title: "Expires in",
+                                                  value: UtilityFunctions()
+                                                      .findTimeDifference(
+                                                          postData[
+                                                              'expiryDate'],
+                                                          trailingText: '')),
+                                              tableRows(
+                                                  icon: Icons.calendar_month,
+                                                  title: "Budget",
+                                                  value: UtilityFunctions()
+                                                      .formatSalary(
+                                                          postData['budget'])),
+
+                                              tableRows(
+                                                  icon: Icons.local_activity,
+                                                  title: "Skills",
+                                                  value: UtilityFunctions()
+                                                      .convertListToCommaSeparatedString(
+                                                          postData['skills'])),
+                                              tableRows(
+                                                  icon:
+                                                      Icons.location_city_sharp,
+                                                  title: "Location",
+                                                  value: UtilityFunctions()
+                                                      .convertListToCommaSeparatedString(
+                                                          postData[
+                                                              'preferredLocation'])),
+                                              Card(
+                                                margin: EdgeInsets.all(0),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 15,
+                                                          top: 15,
+                                                          right: 15),
+                                                  child: tableRows(
+                                                      icon: Icons.verified_user,
+                                                      title: "Applicants",
+                                                      value: applicantsCount
+                                                          .toString()),
+                                                ),
+                                              ),
+                                              SizedBox(
+                                                height: 300,
+                                                child: SingleChildScrollView(
+                                                  child: Html(
+                                                    data: postData[
+                                                        'jobDescription'],
+                                                    style: {
+                                                      "body": Style(
+                                                        color: const Color
+                                                            .fromARGB(255, 0, 0,
+                                                            0), // Text color for the body
+                                                      ),
+                                                      "p": Style(
+                                                        fontSize: FontSize(
+                                                            14), // Font size for paragraphs
+                                                        color: Colors
+                                                            .black, // Text color for paragraphs
+                                                      ),
+                                                      // Add more styles as needed for different HTML elements
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                              Divider(
+                                                color: Colors.grey,
+                                              ),
+                                              // Add more rows based on your data
+                                              SizedBox(
+                                                height: 15,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceAround,
+                                                children: [
+                                                  GFButton(
+                                                    onPressed: () {},
+                                                    text: "Withdraw",
+                                                    shape: GFButtonShape.pills,
+                                                    color: Colors.redAccent,
+                                                    icon: Icon(
+                                                      Icons.block,
+                                                      size: 18,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  GFButton(
+                                                    onPressed: () {},
+                                                    text: "Extend",
+                                                    icon: Icon(
+                                                      Icons.extension_rounded,
+                                                      size: 18,
+                                                      color: Colors.white,
+                                                    ),
+                                                    shape: GFButtonShape.pills,
+                                                    color: Colors.green,
+                                                  ),
+                                                  GFButton(
+                                                    onPressed: () {},
+                                                    shape: GFButtonShape.pills,
+                                                    icon: Icon(
+                                                      Icons.wysiwyg,
+                                                      size: 18,
+                                                      color: Colors.white,
+                                                    ),
+                                                    text: "Proposals",
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          collapsedIcon:
+                                              Icon(Icons.arrow_drop_down),
+                                          expandedIcon:
+                                              Icon(Icons.arrow_drop_up),
+                                          collapsedTitleBackgroundColor:
+                                              Color.fromARGB(
+                                                  255, 255, 255, 255),
+                                          contentBorderRadius:
+                                              BorderRadius.only(
+                                            bottomLeft: Radius.circular(10),
+                                            bottomRight: Radius.circular(10),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                separatorBuilder:
+                                    (BuildContext context, int index) {
+                                  return SizedBox(
+                                    height: 15,
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        )
+                      ],
+                    ),
                   ),
                 ],
               ),

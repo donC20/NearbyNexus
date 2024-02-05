@@ -11,19 +11,20 @@ class JobPostModel {
   List<dynamic>? applicants = [];
   List<dynamic>? skills;
   List<dynamic>? preferredLocation;
+  bool isWithdrawn = false;
 
-  JobPostModel({
-    required this.jobTitle,
-    required this.jobDescription,
-    DateTime? jobPostDate,
-    required this.expiryDate,
-    required this.expiryTime,
-    required this.budget,
-    required this.jobPostedBy,
-    this.applicants,
-    required this.skills,
-    required this.preferredLocation,
-  });
+  JobPostModel(
+      {required this.jobTitle,
+      required this.jobDescription,
+      DateTime? jobPostDate,
+      required this.expiryDate,
+      required this.expiryTime,
+      required this.budget,
+      required this.jobPostedBy,
+      this.applicants,
+      required this.skills,
+      required this.preferredLocation,
+      isWithdrawn = false});
 
   Map<String, dynamic> toJson() {
     return {
@@ -37,6 +38,7 @@ class JobPostModel {
       'applicants': applicants,
       'skills': skills,
       'preferredLocation': preferredLocation,
+      'isWithdrawn': isWithdrawn,
     };
   }
 }

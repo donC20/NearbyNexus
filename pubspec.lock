@@ -61,10 +61,10 @@ packages:
     dependency: "direct main"
     description:
       name: azblob
-      sha256: ec009d04b9b5d6a13551a0a148c2ab9f526b380674baf5d01b293073832b467c
+      sha256: e9e8689280bd8fa19c1c21a476547de80d2a770c81d2da9da68173c7f5479c7b
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.0"
+    version: "4.0.0"
   barcode:
     dependency: transitive
     description:
@@ -165,10 +165,10 @@ packages:
     dependency: "direct main"
     description:
       name: connectivity_plus
-      sha256: "77a180d6938f78ca7d2382d2240eb626c0f6a735d0bfdce227d8ffb80f95c48b"
+      sha256: "224a77051d52a11fbad53dd57827594d3bd24f945af28bd70bab376d68d437f0"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.2"
+    version: "5.0.2"
   connectivity_plus_platform_interface:
     dependency: transitive
     description:
@@ -237,10 +237,10 @@ packages:
     dependency: transitive
     description:
       name: dart_quill_delta
-      sha256: "733eb31821ceb45f43c47bf7f8c5a8aaee39550c0985ed38ff440e8ea5353e2d"
+      sha256: "4172432f6680b1c23b69c42cf1c13ddff21582e49f98c4a32108c398769034cd"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.1"
+    version: "9.2.11"
   dbus:
     dependency: transitive
     description:
@@ -490,10 +490,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_blurhash
-      sha256: "05001537bd3fac7644fa6558b09ec8c0a3f2eba78c0765f88912882b1331a5c6"
+      sha256: "5e67678e479ac639069d7af1e133f4a4702311491188ff3e0227486430db0c06"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.0"
+    version: "0.8.2"
   flutter_colorpicker:
     dependency: transitive
     description:
@@ -567,18 +567,18 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: a25a15ebbdfc33ab1cd26c63a6ee519df92338a9c10f122adda92938253bef04
+      sha256: e2a421b7e59244faef694ba7b30562e489c2b489866e505074eb005cd7060db7
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.3"
+    version: "3.0.1"
   flutter_local_notifications:
     dependency: "direct main"
     description:
       name: flutter_local_notifications
-      sha256: "401643a6ea9d8451365f2ec11145335bf130560cfde367bdf8f0be6d60f89479"
+      sha256: c18f1de98fe0bb9dd5ba91e1330d4febc8b6a7de6aae3ffe475ef423723e72f3
       url: "https://pub.dev"
     source: hosted
-    version: "15.1.3"
+    version: "16.3.2"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -620,10 +620,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_quill
-      sha256: da24b2119d2789291c057536721252f53bb9985ed011db137561453b4452d5d3
+      sha256: "06badce9875019fe256ce75dd1cd35f02fda6be8cd90d3f96d8722e14f64b4aa"
       url: "https://pub.dev"
     source: hosted
-    version: "9.2.10"
+    version: "9.2.11"
   flutter_rating_bar:
     dependency: "direct main"
     description:
@@ -660,10 +660,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_stripe
-      sha256: "4f92660607b91310ec345948355c68843971d3f70673b529076707259b442513"
+      sha256: "3a88b6001e62d93588a8d11294027a8ad43a56ae94a65a98623edb368d5b2a06"
       url: "https://pub.dev"
     source: hosted
-    version: "9.6.0"
+    version: "10.0.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -731,10 +731,10 @@ packages:
     dependency: "direct main"
     description:
       name: geolocator
-      sha256: "5c23f3613f50586c0bbb2b8f970240ae66b3bd992088cf60dd5ee2e6f7dde3a8"
+      sha256: e946395fc608842bb2f6c914807e9183f86f3cb787f6b8f832753e5251036f02
       url: "https://pub.dev"
     source: hosted
-    version: "9.0.2"
+    version: "10.1.0"
   geolocator_android:
     dependency: transitive
     description:
@@ -771,10 +771,10 @@ packages:
     dependency: transitive
     description:
       name: geolocator_windows
-      sha256: "4f4218f122a6978d0ad655fa3541eea74c67417440b09f0657238810d5af6bdc"
+      sha256: a92fae29779d5c6dc60e8411302f5221ade464968fe80a36d330e80a71f087af
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.3"
+    version: "0.2.2"
   get:
     dependency: "direct main"
     description:
@@ -795,10 +795,10 @@ packages:
     dependency: "direct main"
     description:
       name: google_fonts
-      sha256: e20ff62b158b96f392bfc8afe29dee1503c94fbea2cbe8186fd59b756b8ae982
+      sha256: f0b8d115a13ecf827013ec9fc883390ccc0e87a96ed5347a3114cac177ef18e8
       url: "https://pub.dev"
     source: hosted
-    version: "5.1.0"
+    version: "6.1.0"
   google_identity_services_web:
     dependency: transitive
     description:
@@ -1056,10 +1056,10 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: "0a217c6c989d21039f1498c3ed9f3ed71b354e69873f13a8dfc3c9fe76f1b452"
+      sha256: cbf8d4b858bb0134ef3ef87841abdf8d63bfc255c266b7bf6b39daa1085c4290
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "3.0.0"
   list_counter:
     dependency: transitive
     description:
@@ -1565,26 +1565,26 @@ packages:
     dependency: transitive
     description:
       name: stripe_android
-      sha256: "1de36b35c50f33e538c8e4bd6173f0ab8d7d8e6b9e05388488775e439c29b7d2"
+      sha256: "5602ebef79e013dec95403abfd4a3bcb5428cce6b9b92675bd9624fafc3b197e"
       url: "https://pub.dev"
     source: hosted
-    version: "9.6.0+2"
+    version: "10.0.0"
   stripe_ios:
     dependency: transitive
     description:
       name: stripe_ios
-      sha256: "4b176f4ee7eaf229815b90c3ff78935da9e01765f4d3153b76fd0d3d64680294"
+      sha256: dbacecab6c77148835a5c9875d74f6f4f7bfb867bfbe88a3ca089b8f0abc2fd2
       url: "https://pub.dev"
     source: hosted
-    version: "9.6.0"
+    version: "10.0.0"
   stripe_platform_interface:
     dependency: transitive
     description:
       name: stripe_platform_interface
-      sha256: ac3c6ac938a26674ae8ae691d689e0b949ab1a8d270489f08d35446dd8d5bea0
+      sha256: "62b87be6e11c0bdbdb463cf491780da34e6c23b7eea4e9d458f748dc22a42ef9"
       url: "https://pub.dev"
     source: hosted
-    version: "9.6.0"
+    version: "10.0.0"
   super_clipboard:
     dependency: transitive
     description:
