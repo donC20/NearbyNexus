@@ -169,5 +169,25 @@ class UtilityFunctions {
   String convertListToCommaSeparatedString(List<dynamic> items) {
     return items.join(', ');
   }
+
+// pick date
+
+  DateTime pickDate(BuildContext context) {
+    DateTime selectedDate = DateTime.now();
+
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2030),
+    ).then((pickedDate) {
+      if (pickedDate != null) {
+        selectedDate = pickedDate;
+      }
+    });
+
+    return selectedDate;
+  }
+
 // end of the class
 }

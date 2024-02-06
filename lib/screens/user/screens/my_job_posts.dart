@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:getwidget/components/accordion/gf_accordion.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 class MyJobPosts extends StatefulWidget {
@@ -141,7 +142,23 @@ class _MyJobPostsState extends State<MyJobPosts> {
                             // Check if there is no data
                             if (!snapshot.hasData ||
                                 snapshot.data!.docs.isEmpty) {
-                              return Text('No data available');
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    "assets/images/emptyBox.png",
+                                    width: 200,
+                                    height: 200,
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  Text(
+                                    "Sorry no active jobs found.",
+                                    style: TextStyle(color: Colors.white),
+                                  )
+                                ],
+                              );
                             }
 
                             // Extract data from the snapshot
@@ -159,9 +176,18 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                 itemBuilder: (context, index) {
                                   Map<String, dynamic> postData =
                                       jobPosts[index];
-                                  List<dynamic> totalApplicants =
-                                      postData['applicants'];
-                                  int applicantsCount = totalApplicants.length;
+                                  List<dynamic> totalApplicants = [];
+                                  int applicantsCount = 0;
+
+                                  if (postData['applicants'] != null &&
+                                      postData['applicants'] is List<dynamic> &&
+                                      postData['applicants'].isNotEmpty) {
+                                    totalApplicants = postData['applicants'];
+                                    applicantsCount = totalApplicants.length;
+                                  } else {
+                                    applicantsCount = 0;
+                                  }
+
                                   return isAnyButtonPressed
                                       ? Center(
                                           child:
@@ -289,23 +315,60 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                                                 isAnyButtonPressed =
                                                                     true;
                                                               });
-                                                              await FirebaseFirestore
-                                                                  .instance
-                                                                  .collection(
-                                                                      'job_posts')
-                                                                  .doc(postData[
-                                                                      'documentId'])
-                                                                  .update({
-                                                                "isWithdrawn":
-                                                                    true
-                                                              }).then((value) {
-                                                                setState(() {
-                                                                  isAnyButtonPressed =
-                                                                      false;
-                                                                });
-                                                              });
+                                                              showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (BuildContext
+                                                                          context) {
+                                                                    return AlertDialog(
+                                                                      title: Text(
+                                                                          "Warning"),
+                                                                      content: Text(
+                                                                          "Are you sure to remove this post?"),
+                                                                      actions: [
+                                                                        ElevatedButton(
+                                                                          child: Text(
+                                                                              "OK",
+                                                                              style: TextStyle(color: Colors.white)),
+                                                                          onPressed:
+                                                                              () async {
+                                                                            await FirebaseFirestore.instance.collection('job_posts').doc(postData['documentId']).update({
+                                                                              "isWithdrawn": true,
+                                                                              "expiryDate": Timestamp.fromDate(DateTime.now()), // Replace DateTime(2000, 1, 1) with your desired DateTime
+                                                                            }).then((value) {
+                                                                              UtilityFunctions().showSnackbar("Post removed", Colors.red, context);
+                                                                              setState(() {
+                                                                                isAnyButtonPressed = false;
+                                                                              });
+                                                                              Navigator.of(context).pop();
+                                                                            });
+                                                                          },
+                                                                        ),
+                                                                        ElevatedButton(
+                                                                          child:
+                                                                              Text(
+                                                                            "Cancel",
+                                                                            style:
+                                                                                TextStyle(color: Colors.white),
+                                                                          ),
+                                                                          onPressed:
+                                                                              () {
+                                                                            setState(() {
+                                                                              isAnyButtonPressed = false;
+                                                                            });
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                        ),
+                                                                      ],
+                                                                    );
+                                                                  });
                                                             } catch (e) {
                                                               logger.e(e);
+                                                              setState(() {
+                                                                isAnyButtonPressed =
+                                                                    false;
+                                                              });
                                                             }
                                                           },
                                                           text: "Withdraw",
@@ -320,7 +383,12 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                                           ),
                                                         ),
                                                         GFButton(
-                                                          onPressed: () {},
+                                                          onPressed: () async {
+                                                            await pickDate(
+                                                                context,
+                                                                postData,
+                                                                "posts");
+                                                          },
                                                           text: "Extend",
                                                           icon: Icon(
                                                             Icons
@@ -333,7 +401,18 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                                           color: Colors.green,
                                                         ),
                                                         GFButton(
-                                                          onPressed: () {},
+                                                          onPressed: () {
+                                                            Navigator.pushNamed(
+                                                                context,
+                                                                '/proposal_screen',
+                                                                arguments: {
+                                                                  'post_id':
+                                                                      postData[
+                                                                          'documentId'],
+                                                                  'userType':
+                                                                      'normal_user'
+                                                                });
+                                                          },
                                                           shape: GFButtonShape
                                                               .pills,
                                                           icon: Icon(
@@ -416,7 +495,23 @@ class _MyJobPostsState extends State<MyJobPosts> {
                             // Check if there is no data
                             if (!snapshot.hasData ||
                                 snapshot.data!.docs.isEmpty) {
-                              return Text('No data available');
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    "assets/images/emptyBox.png",
+                                    width: 200,
+                                    height: 200,
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  Text(
+                                    "Sorry no history found.",
+                                    style: TextStyle(color: Colors.white),
+                                  )
+                                ],
+                              );
                             }
 
                             // Extract data from the snapshot
@@ -434,9 +529,18 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                 itemBuilder: (context, index) {
                                   Map<String, dynamic> postData =
                                       jobPosts[index];
-                                  List<dynamic> totalApplicants =
-                                      postData['applicants'];
-                                  int applicantsCount = totalApplicants.length;
+                                  List<dynamic> totalApplicants = [];
+                                  int applicantsCount = 0;
+
+                                  if (postData['applicants'] != null &&
+                                      postData['applicants'] is List<dynamic> &&
+                                      postData['applicants'].isNotEmpty) {
+                                    totalApplicants = postData['applicants'];
+                                    applicantsCount = totalApplicants.length;
+                                  } else {
+                                    applicantsCount = 0;
+                                  }
+
                                   return Container(
                                     padding: EdgeInsets.all(0),
                                     decoration: BoxDecoration(
@@ -536,7 +640,10 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                                         .spaceAround,
                                                 children: [
                                                   GFButton(
-                                                    onPressed: () {},
+                                                    onPressed: () {
+                                                      pickDate(context,
+                                                          postData, "history");
+                                                    },
                                                     text: "Repost",
                                                     shape: GFButtonShape.pills,
                                                     color: Colors.redAccent,
@@ -600,7 +707,37 @@ class _MyJobPostsState extends State<MyJobPosts> {
             child: CircularProgressIndicator(),
           );
   }
+}
 
+pickDate(BuildContext context, postData, from) async {
+  DateTime selectedDate = DateTime.now();
+
+  final pickedDate = await showDatePicker(
+    context: context,
+    initialDate: DateTime.now(),
+    firstDate: DateTime.now(),
+    lastDate: DateTime(2030),
+  );
+  if (pickedDate != null) {
+    selectedDate = pickedDate;
+    if (from == "posts") {
+      await FirebaseFirestore.instance
+          .collection('job_posts')
+          .doc(postData['documentId'])
+          .update({"expiryDate": selectedDate}).then((value) =>
+              UtilityFunctions()
+                  .showSnackbar("Date extended", Colors.green, context));
+    } else {
+      await FirebaseFirestore.instance
+          .collection('job_posts')
+          .doc(postData['documentId'])
+          .update({"expiryDate": selectedDate, "isWithdrawn": false}).then(
+              (value) => UtilityFunctions().showSnackbar(
+                  "Job posted successfully with extended date",
+                  Colors.green,
+                  context));
+    }
+  }
 }
 
 Widget tableRows({IconData? icon, required String title, required value}) {
@@ -634,7 +771,5 @@ Widget tableRows({IconData? icon, required String title, required value}) {
         height: 15,
       ),
     ],
-    
   );
-  
 }

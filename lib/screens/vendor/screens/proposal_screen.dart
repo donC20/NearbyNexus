@@ -10,28 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
-class Proposal {
-  final String userImage;
-  final String userName;
-  final String proposalDescription;
-  final double userRating;
-  final double totalAmountAcquired;
-  final double proposalAmount;
-  final double totalPayout;
-  final double totalReviews;
-  final bool isVerified;
 
-  Proposal(
-      {required this.userImage,
-      required this.userName,
-      required this.proposalDescription,
-      required this.userRating,
-      required this.totalAmountAcquired,
-      required this.proposalAmount,
-      required this.totalPayout,
-      required this.totalReviews,
-      required this.isVerified});
-}
 
 class ProposalScreen extends StatefulWidget {
   @override

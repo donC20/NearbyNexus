@@ -182,7 +182,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
         isFormSubmitting = false;
         Navigator.pushReplacementNamed(context, "/success_screen", arguments: {
           "content": "Congrats 🎉, \nYour post is published.",
-          "navigation": "/view_my_posts"
+          "navigation": "/view_my_job_post"
         });
       });
     }).catchError((error) {
