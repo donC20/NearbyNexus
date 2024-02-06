@@ -2,6 +2,7 @@
 
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
+import 'package:NearbyNexus/models/application_model.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class BidForJob extends StatefulWidget {
 }
 
 class _BidForJobState extends State<BidForJob> {
-  late final CollectionReference<Map<String, dynamic>> _jobPostCollection;
+  late final CollectionReference<Map<String, dynamic>> _applicationsCollection;
   final _formKey = GlobalKey<FormState>();
 
   // bool
@@ -31,6 +32,8 @@ class _BidForJobState extends State<BidForJob> {
   // controllers
   final bidAmountController = TextEditingController();
   final descriptionController = TextEditingController();
+
+// String
 
   // fn()
   // date picking
@@ -51,8 +54,19 @@ class _BidForJobState extends State<BidForJob> {
 
   @override
   void initState() {
-    _jobPostCollection = FirebaseFirestore.instance.collection('job_posts');
+    _applicationsCollection =
+        FirebaseFirestore.instance.collection('applications');
+    fetchCurrentUser();
     super.initState();
+  }
+
+  String currentUser = '';
+  Future<void> fetchCurrentUser() async {
+    final userUID = await VendorCommonFn().getUserUIDFromSharedPreferences();
+
+    setState(() {
+      currentUser = userUID;
+    });
   }
 
   @override
@@ -144,41 +158,67 @@ class _BidForJobState extends State<BidForJob> {
                           setState(() {
                             isSubmitting = true;
                           });
-                          Map<String, dynamic> updateThisData = {
-                            "applicant_id": await VendorCommonFn()
+
+                          ApplicationModel myApplication = ApplicationModel(
+                            applicantId: await VendorCommonFn()
                                 .getUserUIDFromSharedPreferences(),
-                            "bid_amount": bidAmountController.text,
-                            "proposal_description": descriptionController.text
-                          };
+                            proposalDescription: descriptionController.text,
+                            applicationPostedTime: DateTime.now(),
+                            bidAmount: bidAmountController.text,
+                            jobId: argument['post_id'],
+                          );
+
                           if (_formKey.currentState!.validate()) {
                             try {
-                              await _jobPostCollection
-                                  .doc(argument['post_id'])
+                              // Convert ApplicationModel to JSON format
+                              Map<String, dynamic> applicationData =
+                                  myApplication.toJson();
+
+                              // Add application document to _applicationsCollection
+                              DocumentReference applicationDocRef =
+                                  await _applicationsCollection
+                                      .add(applicationData);
+
+                              // Get the document ID of the newly added application
+                              String applicationId = applicationDocRef.id;
+
+                              // Show snackbar to indicate successful addition
+                              UtilityFunctions().showSnackbar(
+                                "Application added successfully",
+                                Colors.green,
+                                context,
+                              );
+
+                              // Update the job_post document with the application ID
+                              await FirebaseFirestore.instance
+                                  .collection('job_posts')
+                                  .doc(argument[
+                                      'post_id']) // Use the appropriate document ID
                                   .update({
-                                    'applicants':
-                                        FieldValue.arrayUnion([updateThisData])
-                                  })
-                                  .then((_) => UtilityFunctions().showSnackbar(
-                                      "updated", Colors.green, context))
-                                  .catchError((onError) => UtilityFunctions()
-                                      .showSnackbar(
-                                          "Something went wrong!",
-                                          const Color.fromARGB(
-                                              255, 175, 76, 76),
-                                          context));
+                                'applications':
+                                    FieldValue.arrayUnion([applicationId])
+                              });
+                              // Update the users document with the application ID
                               await FirebaseFirestore.instance
                                   .collection('users')
-                                  .doc(await VendorCommonFn()
-                                      .getUserUIDFromSharedPreferences())
+                                  .doc(currentUser)
                                   .update({
                                 'jobs_applied':
+                                    FieldValue.arrayUnion([applicationId])
+                              });
+                              await FirebaseFirestore.instance
+                                  .collection('users')
+                                  .doc(currentUser)
+                                  .update({
+                                'jobs_applied_list':
                                     FieldValue.arrayUnion([argument['post_id']])
                               });
                             } catch (e) {
                               UtilityFunctions().showSnackbar(
-                                  e.toString(),
-                                  const Color.fromARGB(255, 175, 76, 76),
-                                  context);
+                                "Error: $e",
+                                const Color.fromARGB(255, 175, 76, 76),
+                                context,
+                              );
                             } finally {
                               setState(() {
                                 isSubmitting = false;

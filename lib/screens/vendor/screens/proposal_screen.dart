@@ -8,9 +8,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:getwidget/getwidget.dart';
 import 'package:logger/logger.dart';
-
-
 
 class ProposalScreen extends StatefulWidget {
   @override
@@ -44,21 +43,51 @@ class _ProposalScreenState extends State<ProposalScreen> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               Map<String, dynamic>? jobData = snapshot.data;
-              List<dynamic> applicantsData = jobData!["applicants"];
+              List<dynamic> applicantsDataDocs = jobData!["applications"];
               return ListView.separated(
                 padding: EdgeInsets.all(8.0),
-                itemCount: applicantsData.length,
+                itemCount: applicantsDataDocs.length,
                 itemBuilder: (context, index) {
-                  Map<String, dynamic> currentApplicant = applicantsData[index];
+                  final currentApplicantId = applicantsDataDocs[index];
                   return StreamBuilder<Map<String, dynamic>>(
-                    stream: VendorCommonFn().streamUserData(
-                      uidParam: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(currentApplicant['applicant_id']),
+                    stream: VendorCommonFn().streamDocumentsData(
+                      colectionId: 'applications',
+                      uidParam: currentApplicantId,
                     ),
-                    builder: (context, snapshot) {
-                      Map<String, dynamic>? userData = snapshot.data;
-                      return _buildProposalCard(currentApplicant, userData);
+                    builder: (context, snapshots) {
+                      if (snapshots.hasData) {
+                        Map<String, dynamic> applicationDataFullVolume =
+                            snapshots.data as Map<String, dynamic>;
+                        logger.f(applicationDataFullVolume['applicant_id']);
+                        return StreamBuilder<Map<String, dynamic>>(
+                          stream: VendorCommonFn().streamUserData(
+                            uidParam: FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(applicationDataFullVolume['applicant_id']),
+                          ),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              Map<String, dynamic>? userData = snapshot.data;
+                              return _buildProposalCard(
+                                  applicationDataFullVolume, userData);
+                            } else {
+                              return Center(
+                                child: Text(
+                                  'User data not found',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              );
+                            }
+                          },
+                        );
+                      } else {
+                        return Center(
+                          child: Text(
+                            'Application data not found',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }
                     },
                   );
                 },

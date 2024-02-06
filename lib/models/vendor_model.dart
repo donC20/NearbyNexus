@@ -20,6 +20,7 @@ class VendorModel {
   final double actualRating;
   final double totalRating;
   final List? jobs_applied;
+  final List? jobs_applied_list;
   final List? saved_jobs;
   final List<DocumentReference> paymentLogs;
 
@@ -27,7 +28,7 @@ class VendorModel {
   final List<String> userFavourites;
   List<String> working_days = [];
   List<String> unavailableDays = [];
-  VendorModel(
+  VendorModel( 
       {this.id,
       required this.name,
       required this.emailId,
@@ -45,6 +46,7 @@ class VendorModel {
       required this.actualRating,
       required this.totalRating,
       required this.jobs_applied,
+      this.jobs_applied_list,
       required this.saved_jobs,
       this.languages,
       required this.paymentLogs,
@@ -71,6 +73,7 @@ class VendorModel {
       "actualRating": actualRating,
       "totalRating": totalRating,
       "jobs_applied": jobs_applied,
+      "jobs_applied_list":jobs_applied_list,
       "saved_jobs": saved_jobs,
       "activityStatus": activityStatus,
       "kyc": kyc,

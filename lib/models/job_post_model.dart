@@ -8,7 +8,7 @@ class JobPostModel {
   String? expiryTime;
   double? budget;
   DocumentReference? jobPostedBy;
-  List<dynamic>? applicants = [];
+  List<dynamic>? applications = [];
   List<dynamic>? skills;
   List<dynamic>? preferredLocation;
   bool isWithdrawn = false;
@@ -21,7 +21,7 @@ class JobPostModel {
       required this.expiryTime,
       required this.budget,
       required this.jobPostedBy,
-      this.applicants,
+      this.applications,
       required this.skills,
       required this.preferredLocation,
       isWithdrawn = false});
@@ -35,7 +35,7 @@ class JobPostModel {
       'expiryTime': expiryTime,
       'budget': budget,
       'jobPostedBy': jobPostedBy,
-      'applicants': applicants,
+      'applicants': applications,
       'skills': skills,
       'preferredLocation': preferredLocation,
       'isWithdrawn': isWithdrawn,

@@ -41,6 +41,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
   void initState() {
     _streamController = StreamController<Map<String, dynamic>>();
     initializeUserData();
+    fetchCurrentUserId();
     super.initState();
   }
 
@@ -68,13 +69,22 @@ class _JobDetailPageState extends State<JobDetailPage> {
     });
   }
 
+  String currentUser = '';
+  Future<void> fetchCurrentUserId() async {
+    final userUID = await VendorCommonFn().getUserUIDFromSharedPreferences();
+
+    setState(() {
+      currentUser = userUID;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> argument =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     //
     if (argument['post_id'] != null && currentUserData.isNotEmpty) {
-      List<dynamic> jobsApplied = currentUserData["jobs_applied"];
+      List<dynamic> jobsApplied = currentUserData["jobs_applied_list"];
       List<dynamic> savedJobs = currentUserData["saved_jobs"];
       if (jobsApplied.contains(argument['post_id'])) {
         setState(() {
@@ -104,10 +114,6 @@ class _JobDetailPageState extends State<JobDetailPage> {
         backgroundColor: KColors.backgroundDark,
         iconTheme: IconThemeData(color: KColors.primary),
         elevation: 1,
-        title: Text(
-          'Back',
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 15),
@@ -127,23 +133,37 @@ class _JobDetailPageState extends State<JobDetailPage> {
               color: Color.fromARGB(193, 5, 5, 5),
               borderSide: BorderSide(color: Color.fromARGB(75, 255, 255, 255)),
             ),
-          )
+          ),
+          _apply(context, argument['post_id']),
+          IconButton(
+              onPressed: () async {
+                try {
+                  if (isSaved) {
+                    await removeFromSavedJobs(argument['post_id']);
+                    print("Removed from saved jobs");
+                  } else {
+                    await addToSavedJobs(argument['post_id']);
+                    print("Added to saved jobs");
+                  }
+                } catch (e) {
+                  print("Error: $e");
+                }
+
+                setState(() {
+                  isSaved = !isSaved;
+                });
+              },
+              icon: Icon(
+                isSaved ? Icons.bookmark : Icons.bookmark_border,
+                color: KColors.primary,
+              )),
         ],
       ),
       body: isPageLoaded
           ? Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  children: [
-                    _header(context, argument),
-                    _jobDescription(context, argument),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 15),
-                  child: _apply(context, argument['post_id']),
-                )
+                _header(context, argument),
+                _jobDescription(context, argument),
               ],
             )
           : Center(
@@ -227,7 +247,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w400,
-            color: KColors.subtitle,
+            color: const Color.fromARGB(255, 255, 255, 255),
           ),
         ),
         SizedBox(height: 5),
@@ -236,7 +256,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: KColors.subTextColors,
+            color: KColors.primary,
           ),
         )
       ],
@@ -254,67 +274,58 @@ class _JobDetailPageState extends State<JobDetailPage> {
         SizedBox(
           height:
               50, // Set a fixed height for the CustomSlidingSegmentedControl
-          child: CustomSlidingSegmentedControl<int>(
-            padding: 35,
-            initialValue: 1,
-            children: {
-              1: Row(
-                children: [
-                  Image.asset("assets/icons/document.png",
-                      height: 20, color: KColors.primary),
-                  SizedBox(
-                    width: 10,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CustomSlidingSegmentedControl<int>(
+                padding: 35,
+                initialValue: 1,
+                children: {
+                  1: Row(
+                    children: [
+                      Image.asset("assets/icons/document.png",
+                          height: 20, color: KColors.primary),
+                    ],
                   ),
-                  Text(
-                    "Description",
-                    style: TextStyle(
-                        color: const Color.fromARGB(126, 255, 255, 255)),
-                  )
-                ],
-              ),
-              2: Row(
-                children: [
-                  Image.asset("assets/icons/user.png",
-                      height: 20, color: KColors.primary),
-                  SizedBox(
-                    width: 10,
+                  2: Icon(
+                    Icons.info,
+                    color: KColors.primary,
                   ),
-                  Text("More info",
-                      style: TextStyle(
-                          color: const Color.fromARGB(126, 255, 255, 255)))
-                ],
-              ),
-            },
-            decoration: BoxDecoration(
-              color: CupertinoColors.darkBackgroundGray,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            thumbDecoration: BoxDecoration(
-              color: const Color.fromARGB(255, 43, 43, 43),
-              borderRadius: BorderRadius.circular(50),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(.3),
-                  blurRadius: 4.0,
-                  spreadRadius: 1.0,
-                  offset: Offset(
-                    0.0,
-                    2.0,
-                  ),
+                  // 2: Image.asset("assets/images/vector/info_circle.svg",
+                  //     height: 20, color: KColors.primary),
+                },
+                decoration: BoxDecoration(
+                  color: CupertinoColors.darkBackgroundGray,
+                  borderRadius: BorderRadius.circular(50),
                 ),
-              ],
-            ),
-            curve: Curves.easeInCubic,
-            onValueChanged: (v) {
-              setState(() {
-                currentPage = v - 1; // Subtract 1 from v
-                pageController.animateToPage(
-                  currentPage,
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              });
-            },
+                thumbDecoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 43, 43, 43),
+                  borderRadius: BorderRadius.circular(50),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(.3),
+                      blurRadius: 4.0,
+                      spreadRadius: 1.0,
+                      offset: Offset(
+                        0.0,
+                        2.0,
+                      ),
+                    ),
+                  ],
+                ),
+                curve: Curves.easeInCubic,
+                onValueChanged: (v) {
+                  setState(() {
+                    currentPage = v - 1; // Subtract 1 from v
+                    pageController.animateToPage(
+                      currentPage,
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  });
+                },
+              ),
+            ],
           ),
         ),
         Container(
@@ -501,130 +512,60 @@ class _JobDetailPageState extends State<JobDetailPage> {
   }
 
   Widget _apply(BuildContext context, docId) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      margin: EdgeInsets.only(top: 54),
-      child: Row(
-        children: [
-          isApplied
-              ? Expanded(
-                  child: TextButton(
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all(KColors.primary),
-                        padding: MaterialStateProperty.all(
-                            EdgeInsets.symmetric(vertical: 16))),
-                    onPressed: () async {
-                      try {
-                        Map<String, dynamic>? fetchMyApplication =
-                            await VendorCommonFn()
-                                .fetchParticularDocument('job_posts', docId);
+    return GFButton(
+      onPressed: () async {
+        if (isApplied) {
+          try {
+            // Fetch the user document containing the list of applied jobs
+            Map<String, dynamic>? userDoc = await VendorCommonFn()
+                .fetchParticularDocument('users', currentUser);
 
-                        if (fetchMyApplication != null) {
-                          List<dynamic> applicantsList =
-                              fetchMyApplication['applicants'] ?? [];
-                          String userUID = await VendorCommonFn()
-                              .getUserUIDFromSharedPreferences();
+            logger.e('userData $userDoc');
 
-                          bool containsApplicantId = applicantsList.any(
-                              (applicant) =>
-                                  applicant['applicant_id'] == userUID);
+            if (userDoc != null) {
+              List<dynamic> appliedJobsList = userDoc['jobs_applied'] ?? [];
+              logger.e('applied job list $appliedJobsList');
 
-                          if (containsApplicantId) {
-                            // Fetch values for the matching index
-                            var matchingApplicant = applicantsList.firstWhere(
-                                (applicant) =>
-                                    applicant['applicant_id'] == userUID);
+              // Iterate through the list of applied jobs
+              for (String jobId in appliedJobsList) {
+                // Fetch the application document based on the jobId
+                DocumentSnapshot applicationSnapshot = await FirebaseFirestore
+                    .instance
+                    .collection('applications')
+                    .doc(jobId)
+                    .get();
 
-                            Navigator.pushNamed(
-                                context, '/proposal_view_screen',
-                                arguments: {'proposal': matchingApplicant});
-                          } else {
-                            logger.e("Applicant_id not found");
-                          }
-                        } else {
-                          logger.e("Document not found");
-                        }
-                      } catch (e) {
-                        print(
-                            "Error: $e"); // Handle the error as needed, e.g., show a snackbar or display an error message.
-                      }
-                    },
-                    child: Text(
-                      "View my application",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                )
-              : Expanded(
-                  child: TextButton(
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all(KColors.primary),
-                        padding: MaterialStateProperty.all(
-                            EdgeInsets.symmetric(vertical: 16))),
-                    onPressed: () {
-                      Navigator.pushNamed(context, "/bid_for_job",
-                          arguments: {"post_id": docId});
-                    },
-                    child: Text(
-                      "I'm interested",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-          SizedBox(width: 12),
-          SizedBox(
-            height: 50,
-            width: 60,
-            child: OutlinedButton(
-              onPressed: () async {
-                try {
-                  if (isSaved) {
-                    await removeFromSavedJobs(docId);
-                    print("Removed from saved jobs");
-                  } else {
-                    await addToSavedJobs(docId);
-                    print("Added to saved jobs");
+                if (applicationSnapshot.exists) {
+                  // Get the application data
+                  Map<String, dynamic> applicationData =
+                      applicationSnapshot.data() as Map<String, dynamic>;
+                  // Check if the jobId matches the argument jobId
+                  if (applicationData['jobId'] == docId) {
+                    // Navigate to proposal_view_screen with the application data
+                    Navigator.pushNamed(context, '/proposal_view_screen',
+                        arguments: {'proposal': applicationData});
+                    return; // Exit the loop if a matching application is found
                   }
-                } catch (e) {
-                  print("Error: $e");
                 }
+              }
 
-                setState(() {
-                  isSaved = !isSaved;
-                });
-              },
-              style: ButtonStyle(
-                side: MaterialStateProperty.all(
-                  BorderSide(color: KColors.primary),
-                ),
-              ),
-              child: isPressDelay
-                  ? SizedBox(
-                      height: 15,
-                      width: 30,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : Icon(
-                      isSaved ? Icons.bookmark : Icons.bookmark_border,
-                      color: KColors.primary,
-                    ),
-            ),
-          )
-        ],
-      ),
+              // If no matching application is found
+              logger.e("No matching application found for jobId: $docId");
+            } else {
+              logger.e("User document not found");
+            }
+          } catch (e) {
+            print("Error: $e"); // Handle the error as needed
+          }
+        } else {
+          Navigator.pushNamed(context, "/bid_for_job",
+              arguments: {"post_id": docId});
+        }
+      },
+      text: isApplied ? 'View application' : 'Apply',
+      color: KColors.primary,
+      shape: GFButtonShape.pills,
+      size: GFSize.MEDIUM,
     );
   }
 

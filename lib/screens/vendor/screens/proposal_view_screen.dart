@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers
+// ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
@@ -7,6 +7,7 @@ import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dar
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 class ProposalViewScreen extends StatefulWidget {
@@ -230,6 +231,30 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                     SizedBox(
                       height: 15,
                     ),
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Proposed on',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            formatTimestamp(
+                                argument['proposal']["applicationPostedTime"]),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.normal),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(15.0),
@@ -253,5 +278,11 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
         ),
       ),
     );
+  }
+
+  String formatTimestamp(Timestamp timestamp) {
+    DateTime dateTime = timestamp.toDate(); // Convert Timestamp to DateTime
+    return DateFormat('dd MMM yyyy')
+        .format(dateTime); // Format the DateTime object
   }
 }

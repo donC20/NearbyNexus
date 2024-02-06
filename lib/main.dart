@@ -30,10 +30,12 @@ import 'package:NearbyNexus/screens/vendor/screens/job_description_preview.dart'
 import 'package:NearbyNexus/screens/vendor/screens/job_details.dart';
 import 'package:NearbyNexus/screens/vendor/screens/job_log_timeline.dart';
 import 'package:NearbyNexus/screens/vendor/screens/jobs_log.dart';
+import 'package:NearbyNexus/screens/vendor/screens/my_applications.dart';
 import 'package:NearbyNexus/screens/vendor/screens/new_jobs.dart';
 import 'package:NearbyNexus/screens/vendor/screens/payments_log.dart';
 import 'package:NearbyNexus/screens/vendor/screens/proposal_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/proposal_view_screen.dart';
+import 'package:NearbyNexus/screens/vendor/screens/saved_posts.dart';
 import 'package:NearbyNexus/screens/vendor/screens/update_vendor_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_dashboard.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_home.dart';
@@ -173,6 +175,8 @@ class MyApp extends StatelessWidget {
         "/bid_for_job": (context) => const BidForJob(),
         "/proposal_screen": (context) => ProposalScreen(),
         "/proposal_view_screen": (context) => const ProposalViewScreen(),
+        "/view_saved_jobs_screen": (context) => SavedJobsScreen(),
+        "/view_my_applications_screen": (context) => MyApplications(),
       },
       initialRoute: "splashScreen",
     );
