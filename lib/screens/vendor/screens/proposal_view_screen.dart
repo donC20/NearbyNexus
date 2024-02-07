@@ -295,31 +295,8 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                         docData!["status"] == "pending"
                             ? GFButton(
                                 onPressed: () async {
-                                  logger.d(argument['application_id']);
-                                  await FirebaseFirestore.instance
-                                      .collection('applications')
-                                      .doc(argument['application_id'])
-                                      .update({
-                                    "status": "accepted"
-                                  }).then((value) => {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return Dialog(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10.0),
-                                                  ),
-                                                  elevation: 0,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  child: dialogContent(context,
-                                                      "Successfully accepted the offer"),
-                                                );
-                                              },
-                                            )
-                                          });
+                                  updateStatus(argument, context,
+                                      "Successfully accepted", "accept");
                                 },
                                 shape: GFButtonShape.pills,
                                 size: GFSize.MEDIUM,
@@ -330,54 +307,57 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                                 ),
                                 text: 'Accept offer',
                               )
-                            : GFButton(
-                                onPressed: () async {
-                                  logger.d(argument['application_id']);
-                                  await FirebaseFirestore.instance
-                                      .collection('applications')
-                                      .doc(argument['application_id'])
-                                      .update({
-                                    "status": "revoked"
-                                  }).then((value) => {
-                                            showDialog(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return Dialog(
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10.0),
-                                                  ),
-                                                  elevation: 0,
-                                                  backgroundColor:
-                                                      Colors.transparent,
-                                                  child: dialogContent(context,
-                                                      "Successfully accepted the offer"),
-                                                );
-                                              },
-                                            )
-                                          });
-                                },
-                                shape: GFButtonShape.pills,
-                                size: GFSize.MEDIUM,
-                                color: Colors.red,
-                                icon: Icon(
-                                  Icons.handshake,
-                                  color: Colors.white,
-                                ),
-                                text: 'Revoke offer',
-                              ),
-                        GFButton(
-                          onPressed: () {},
-                          shape: GFButtonShape.pills,
-                          size: GFSize.MEDIUM,
-                          color: Color.fromARGB(255, 172, 33, 23),
-                          icon: Icon(
-                            Icons.close,
-                            color: Colors.white,
-                          ),
-                          text: 'Not interested',
-                        ),
+                            : docData["status"] == "accepted"
+                                ? GFButton(
+                                    onPressed: () async {
+                                      updateStatus(argument, context,
+                                          "Successfully revoked", "revoked");
+                                    },
+                                    shape: GFButtonShape.pills,
+                                    size: GFSize.MEDIUM,
+                                    color: Colors.red,
+                                    icon: Icon(
+                                      Icons.handshake,
+                                      color: Colors.white,
+                                    ),
+                                    text: 'Revoke offer',
+                                  )
+                                : docData["status"] == "revoked"
+                                    ? GFButton(
+                                        onPressed: () async {
+                                          updateStatus(
+                                              argument,
+                                              context,
+                                              "Successfully revoked",
+                                              "accepted");
+                                        },
+                                        shape: GFButtonShape.pills,
+                                        size: GFSize.MEDIUM,
+                                        color: Colors.green,
+                                        icon: Icon(
+                                          Icons.handshake,
+                                          color: Colors.white,
+                                        ),
+                                        text: 'Reconsider',
+                                      )
+                                    : SizedBox(),
+                        // GFButton(
+                        //   onPressed: () {
+                        //     updateStatus(
+                        //                       argument,
+                        //                       context,
+                        //                       "Successfully canceled",
+                        //                       "canceled");
+                        //   },
+                        //   shape: GFButtonShape.pills,
+                        //   size: GFSize.MEDIUM,
+                        //   color: Color.fromARGB(255, 172, 33, 23),
+                        //   icon: Icon(
+                        //     Icons.close,
+                        //     color: Colors.white,
+                        //   ),
+                        //   text: 'Not interested',
+                        // ),
                         GFButton(
                           onPressed: () {},
                           shape: GFButtonShape.pills,
@@ -470,4 +450,25 @@ dialogContent(BuildContext context, message) {
       ),
     ],
   );
+}
+
+updateStatus(argument, BuildContext context, message, status) async {
+  await FirebaseFirestore.instance
+      .collection('applications')
+      .doc(argument['application_id'])
+      .update({"status": status}).then((value) => {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  elevation: 0,
+                  backgroundColor: Colors.transparent,
+                  child: dialogContent(context, message),
+                );
+              },
+            )
+          });
 }
