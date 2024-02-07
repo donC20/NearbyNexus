@@ -69,7 +69,9 @@ class _ProposalScreenState extends State<ProposalScreen> {
                             if (snapshot.hasData) {
                               Map<String, dynamic>? userData = snapshot.data;
                               return _buildProposalCard(
-                                  applicationDataFullVolume, userData);
+                                  applicationDataFullVolume,
+                                  userData,
+                                  argument,currentApplicantId);
                             } else {
                               return Center(
                                 child: Text(
@@ -108,7 +110,7 @@ class _ProposalScreenState extends State<ProposalScreen> {
     );
   }
 
-  Widget _buildProposalCard(applicant, userData) {
+  Widget _buildProposalCard(applicant, userData, argument,currentApplicationId) {
     List<dynamic> allRatings = [];
 
     if (userData != null && userData is Map<String, dynamic>) {
@@ -118,7 +120,11 @@ class _ProposalScreenState extends State<ProposalScreen> {
             (applicant != null && applicant != "")
         ? GestureDetector(
             onTap: () => Navigator.pushNamed(context, '/proposal_view_screen',
-                arguments: {'proposal': applicant}),
+                arguments: {
+                  'proposal': applicant,
+                  'userType': argument['userType'],
+                  'application_id':currentApplicationId,
+                }),
             child: Card(
               color: Colors.grey[900], // Setting dark card background color
               child: Padding(

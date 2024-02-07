@@ -4,13 +4,16 @@ class ApplicationModel {
   final String proposalDescription;
   final DateTime applicationPostedTime;
   final String bidAmount;
+  final String status;
 
-  ApplicationModel(
-      {required this.applicantId,
-      required this.jobId,
-      required this.proposalDescription,
-      required this.applicationPostedTime,
-      required this.bidAmount});
+  ApplicationModel({
+    required this.applicantId,
+    required this.jobId,
+    required this.proposalDescription,
+    required this.applicationPostedTime,
+    required this.bidAmount,
+    this.status = 'pending',
+  });
 
   toJson() {
     return {
@@ -19,6 +22,7 @@ class ApplicationModel {
       "proposal_description": proposalDescription,
       "applicationPostedTime": applicationPostedTime,
       "bid_amount": bidAmount,
+      "status": status,
     };
   }
 }

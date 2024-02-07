@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables, unnecessary_new
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
@@ -7,6 +7,7 @@ import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dar
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:getwidget/getwidget.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
@@ -277,6 +278,126 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
           },
         ),
       ),
+      bottomNavigationBar: argument['userType'] == "normal_user"
+          ? StreamBuilder<Map<String, dynamic>>(
+              stream: VendorCommonFn().streamDocumentsData(
+                  colectionId: 'applications',
+                  uidParam: argument['application_id']),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  Map<String, dynamic>? docData = snapshot.data;
+                  return Container(
+                    padding: const EdgeInsets.all(15.0),
+                    color: Colors.grey[900],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        docData!["status"] == "pending"
+                            ? GFButton(
+                                onPressed: () async {
+                                  logger.d(argument['application_id']);
+                                  await FirebaseFirestore.instance
+                                      .collection('applications')
+                                      .doc(argument['application_id'])
+                                      .update({
+                                    "status": "accepted"
+                                  }).then((value) => {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return Dialog(
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10.0),
+                                                  ),
+                                                  elevation: 0,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  child: dialogContent(context,
+                                                      "Successfully accepted the offer"),
+                                                );
+                                              },
+                                            )
+                                          });
+                                },
+                                shape: GFButtonShape.pills,
+                                size: GFSize.MEDIUM,
+                                color: Colors.green,
+                                icon: Icon(
+                                  Icons.handshake,
+                                  color: Colors.white,
+                                ),
+                                text: 'Accept offer',
+                              )
+                            : GFButton(
+                                onPressed: () async {
+                                  logger.d(argument['application_id']);
+                                  await FirebaseFirestore.instance
+                                      .collection('applications')
+                                      .doc(argument['application_id'])
+                                      .update({
+                                    "status": "revoked"
+                                  }).then((value) => {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return Dialog(
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10.0),
+                                                  ),
+                                                  elevation: 0,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  child: dialogContent(context,
+                                                      "Successfully accepted the offer"),
+                                                );
+                                              },
+                                            )
+                                          });
+                                },
+                                shape: GFButtonShape.pills,
+                                size: GFSize.MEDIUM,
+                                color: Colors.red,
+                                icon: Icon(
+                                  Icons.handshake,
+                                  color: Colors.white,
+                                ),
+                                text: 'Revoke offer',
+                              ),
+                        GFButton(
+                          onPressed: () {},
+                          shape: GFButtonShape.pills,
+                          size: GFSize.MEDIUM,
+                          color: Color.fromARGB(255, 172, 33, 23),
+                          icon: Icon(
+                            Icons.close,
+                            color: Colors.white,
+                          ),
+                          text: 'Not interested',
+                        ),
+                        GFButton(
+                          onPressed: () {},
+                          shape: GFButtonShape.pills,
+                          size: GFSize.MEDIUM,
+                          icon: Icon(
+                            Icons.message_rounded,
+                            color: Colors.white,
+                          ),
+                          text: 'Chat',
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  return Center(
+                    child: Text("Something went wrong"),
+                  );
+                }
+              })
+          : SizedBox(),
     );
   }
 
@@ -285,4 +406,68 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
     return DateFormat('dd MMM yyyy')
         .format(dateTime); // Format the DateTime object
   }
+}
+
+dialogContent(BuildContext context, message) {
+  return Stack(
+    children: <Widget>[
+      Container(
+        padding: EdgeInsets.only(
+          top: 20,
+          bottom: 20,
+          left: 20,
+          right: 20,
+        ),
+        margin: EdgeInsets.only(top: 20),
+        decoration: new BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.rectangle,
+          borderRadius: BorderRadius.circular(10.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 10.0,
+              offset: const Offset(0.0, 10.0),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // To make the card compact
+          children: <Widget>[
+            Text(
+              'Success!',
+              style: TextStyle(
+                fontSize: 24.0,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16.0,
+              ),
+            ),
+            SizedBox(height: 24.0),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // To close the dialog
+                },
+                child: Text(
+                  'OK',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 16.0,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
 }
