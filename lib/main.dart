@@ -7,6 +7,8 @@ import 'package:NearbyNexus/screens/common_screens/success_screen.dart';
 import 'package:NearbyNexus/screens/common_screens/terms_nd_conditions.dart';
 import 'package:NearbyNexus/screens/user/components/view_job_details.dart';
 import 'package:NearbyNexus/screens/user/screens/active_jobs.dart';
+import 'package:NearbyNexus/screens/user/screens/chatScreen/user_inbox.dart';
+import 'package:NearbyNexus/screens/user/screens/chatScreen/chat_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/create_job_post.dart';
 import 'package:NearbyNexus/screens/user/screens/favorites.dart';
 import 'package:NearbyNexus/screens/user/screens/job_history.dart';
@@ -67,6 +69,7 @@ import 'screens/common_screens/user_or_vendor.dart';
 import 'screens/vendor/screens/registration_vendor_two.dart';
 
 var log = Logger();
+//global object for accessing device screen size
 
 // notification local init
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -169,6 +172,7 @@ class MyApp extends StatelessWidget {
         // user
         "/create_job_post": (context) => const CreateJobPost(),
         "/view_my_job_post": (context) => MyJobPosts(),
+        "/user_inbox": (context) => const UserInbox(),
         // vendor
         "/broadcast_page": (context) => const BroadcastPage(),
         "/job_detail_page": (context) => const JobDetailPage(),

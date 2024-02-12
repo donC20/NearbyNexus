@@ -189,5 +189,13 @@ class UtilityFunctions {
     return selectedDate;
   }
 
+// string to datetime
+  static DateTime parseTimeString(String timeString) {
+    final DateFormat format =
+        DateFormat.jm(); // Create a DateFormat object for parsing time
+    final DateTime dateTime = format.parse(timeString); // Parse the time string
+    return dateTime;
+  }
+
 // end of the class
 }

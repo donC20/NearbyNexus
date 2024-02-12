@@ -23,12 +23,13 @@ class VendorModel {
   final List? jobs_applied_list;
   final List? saved_jobs;
   final List<DocumentReference> paymentLogs;
+  final bool online;
 
   final List<DocumentReference> allRatings;
   final List<String> userFavourites;
   List<String> working_days = [];
   List<String> unavailableDays = [];
-  VendorModel( 
+  VendorModel(
       {this.id,
       required this.name,
       required this.emailId,
@@ -52,7 +53,8 @@ class VendorModel {
       required this.paymentLogs,
       required this.activityStatus,
       required this.userFavourites,
-      required this.working_days});
+      required this.working_days,
+      this.online = true});
 
   toJson() {
     return {
@@ -73,11 +75,12 @@ class VendorModel {
       "actualRating": actualRating,
       "totalRating": totalRating,
       "jobs_applied": jobs_applied,
-      "jobs_applied_list":jobs_applied_list,
+      "jobs_applied_list": jobs_applied_list,
       "saved_jobs": saved_jobs,
       "activityStatus": activityStatus,
       "kyc": kyc,
       "unavailableDays": unavailableDays,
+      "online": online,
     };
   }
 }

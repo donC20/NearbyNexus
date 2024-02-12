@@ -14,6 +14,7 @@ class UserModel {
   final String? userType;
   final String? status;
   final String? about;
+  final bool online;
   final List<String>? userFavourites;
 
   const UserModel(
@@ -30,7 +31,8 @@ class UserModel {
       required this.userType,
       required this.userFavourites,
       required this.status,
-      required this.currentGeoLocation});
+      required this.currentGeoLocation,
+      this.online = true});
 
   toJson() {
     return {
@@ -47,6 +49,7 @@ class UserModel {
       "about": about,
       "userFavourites": userFavourites,
       "iamRated": iamRated,
+      "online": online,
     };
   }
 }

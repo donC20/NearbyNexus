@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
@@ -40,6 +41,8 @@ class _BottoGmNavUserState extends State<BottomGNavUser> {
                     Navigator.pushReplacementNamed(context, "user_dashboard");
                   case 2:
                     Navigator.pushNamed(context, "search_screen_vendor");
+                  case 3:
+                    Navigator.pushNamed(context, "/user_inbox");
                 }
               }
             },
@@ -55,6 +58,10 @@ class _BottoGmNavUserState extends State<BottomGNavUser> {
               GButton(
                 icon: Icons.search,
                 text: 'Search',
+              ),
+              GButton(
+                icon: CupertinoIcons.chat_bubble_2_fill,
+                text: 'chat',
               ),
             ]),
       ),

@@ -359,7 +359,9 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                         //   text: 'Not interested',
                         // ),
                         GFButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.pushNamed(context, "/chat_screen");
+                          },
                           shape: GFButtonShape.pills,
                           size: GFSize.MEDIUM,
                           icon: Icon(
