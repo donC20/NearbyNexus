@@ -1,8 +1,9 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
-import 'package:NearbyNexus/functions/utiliity_functions.dart';
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
+import 'package:NearbyNexus/models/message.dart';
 import 'package:NearbyNexus/screens/user/screens/chatScreen/chat_screen.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,6 +20,7 @@ class UserInbox extends StatefulWidget {
 
 class _UserInboxState extends State<UserInbox> {
   var logger = Logger();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,42 +81,55 @@ class _UserInboxState extends State<UserInbox> {
   }
 
   Widget _customChatTile(chatUser) {
-    return ListTile(
-      onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (_) => ChatScreen(
-                    userId: chatUser['documentId'],
-                  ))),
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(100),
-        child: CachedNetworkImage(
-          width: 50,
-          height: 50,
-          fit: BoxFit.cover,
-          progressIndicatorBuilder: (context, url, progress) => Center(
-            child: CircularProgressIndicator(
-              value: progress.progress,
+    //last message info (if null --> no message)
+    Message? _message;
+    return StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection(
+                'chats/${ApiFunctions.getConversationID('SXWjByatWxN7BI4sbOLuxeY1Cjq2_AMiTGam6EMOyB5Q8vpzn24SihQg2 ')}/messages/')
+            .orderBy('sent', descending: true)
+            .limit(1)
+            .snapshots(),
+        builder: (context, snapshot) {
+          final data = snapshot.data?.docs;
+          logger.e(data);
+          final list =
+              data?.map((e) => Message.fromJson(e.data())).toList() ?? [];
+          if (list.isNotEmpty) _message = list[0];
+          return ListTile(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => ChatScreen(
+                          userId: chatUser['documentId'],
+                        ))),
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: CachedNetworkImage(
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+                progressIndicatorBuilder: (context, url, progress) => Center(
+                  child: CircularProgressIndicator(
+                    value: progress.progress,
+                  ),
+                ),
+                imageUrl: chatUser['image'],
+              ),
             ),
-          ),
-          imageUrl: chatUser['image'],
-        ),
-      ),
-      title: Text(
-        chatUser['name'],
-        style: TextStyle(color: Colors.white),
-      ),
-      subtitle: Text(
-        UtilityFunctions().truncateText(
-            "Here, they say ehas ddfk nffndskfn nfmsdkfn dsfdsfdsfsdf fsdf sfsdf sdfsdfsdfds",
-            45),
-        style: TextStyle(
-            color: const Color.fromARGB(136, 255, 255, 255), fontSize: 14),
-      ),
-      trailing: Text(
-        "4:50 pm",
-        style: TextStyle(color: Colors.white),
-      ),
-    );
+            title: Text(
+              chatUser['name'],
+              style: TextStyle(color: Colors.white),
+            ),
+            subtitle: Text(
+              _message != null ? _message!.msg : "Hey, there!",
+              maxLines: 1,
+            ),
+            trailing: Text(
+              "4:50 pm",
+              style: TextStyle(color: Colors.white),
+            ),
+          );
+        });
   }
 }

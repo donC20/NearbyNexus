@@ -24,6 +24,8 @@ class VendorModel {
   final List? saved_jobs;
   final List<DocumentReference> paymentLogs;
   final bool online;
+  final String? pushToken;
+  final last_seen;
 
   final List<DocumentReference> allRatings;
   final List<String> userFavourites;
@@ -54,7 +56,9 @@ class VendorModel {
       required this.activityStatus,
       required this.userFavourites,
       required this.working_days,
-      this.online = true});
+      this.last_seen,
+      this.online = true,
+      this.pushToken = ''});
 
   toJson() {
     return {
@@ -81,6 +85,8 @@ class VendorModel {
       "kyc": kyc,
       "unavailableDays": unavailableDays,
       "online": online,
+      "last_seen": last_seen,
+      "pushToken": pushToken
     };
   }
 }

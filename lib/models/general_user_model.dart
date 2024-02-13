@@ -14,10 +14,12 @@ class UserModel {
   final String? userType;
   final String? status;
   final String? about;
+  final String? pushToken;
+  final last_seen;
   final bool online;
   final List<String>? userFavourites;
 
-  const UserModel(
+   UserModel(
       {this.id,
       required this.address,
       required this.paymentLogs,
@@ -32,7 +34,9 @@ class UserModel {
       required this.userFavourites,
       required this.status,
       required this.currentGeoLocation,
-      this.online = true});
+      this.last_seen,
+      this.online = true,
+      this.pushToken = ''});
 
   toJson() {
     return {
@@ -50,6 +54,8 @@ class UserModel {
       "userFavourites": userFavourites,
       "iamRated": iamRated,
       "online": online,
+      "last_seen": last_seen,
+      "pushToken": pushToken
     };
   }
 }

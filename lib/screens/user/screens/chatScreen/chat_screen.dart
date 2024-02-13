@@ -1,11 +1,15 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'dart:io';
+
 import 'package:NearbyNexus/components/message_card.dart';
+import 'package:NearbyNexus/components/my_date_util.dart';
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/models/message.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -96,7 +100,22 @@ class _ChatScreenState extends State<ChatScreen> {
                         padding:
                             EdgeInsets.symmetric(vertical: 8, horizontal: 20),
                         child: CircularProgressIndicator(strokeWidth: 2))),
-              _chatInput()
+              _chatInput(),
+              //show emojis on keyboard emoji button click & vice versa
+              if (_showEmoji)
+                SizedBox(
+                  height: mq.height * .35,
+                  child: EmojiPicker(
+                    textEditingController: _textController,
+                    config: Config(
+                      height: 256,
+                      checkPlatformCompatibility: true,
+                      emojiViewConfig: EmojiViewConfig(
+                          // Issue: https://github.com/flutter/flutter/issues/28894
+                          emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0)),
+                    ),
+                  ),
+                )
             ],
           );
         },
@@ -126,6 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
           String img =
               userData?['image'] ?? "https://via.placeholder.com/350x150";
           bool isOnline = userData?['online'] ?? false;
+          final last_seen = userData?['last_seen'];
 
           return InkWell(
             onTap: () {},
@@ -171,7 +191,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
                     // Online status
                     Text(
-                      isOnline ? 'Online' : 'Offline',
+                      isOnline
+                          ? 'Online'
+                          : MyDateUtil.getLastActiveTime(
+                              context: context, lastActive: last_seen),
                       style: TextStyle(
                           fontSize: 13,
                           color: isOnline
@@ -234,12 +257,13 @@ class _ChatScreenState extends State<ChatScreen> {
                             await picker.pickMultiImage(imageQuality: 70);
 
                         // uploading & sending image one by one
-                        // for (var i in images) {
-                        //   log('Image Path: ${i.path}');
-                        //   setState(() => _isUploading = true);
-                        //   await APIs.sendChatImage(widget.user, File(i.path));
-                        //   setState(() => _isUploading = false);
-                        // }
+                        for (var i in images) {
+                          // log('Image Path: ${i.path}');
+                          setState(() => _isUploading = true);
+                          await ApiFunctions.sendChatImage(
+                              widget.userId, File(i.path));
+                          setState(() => _isUploading = false);
+                        }
                       },
                       icon: const Icon(Icons.image,
                           color: Colors.blueAccent, size: 26)),
@@ -256,9 +280,9 @@ class _ChatScreenState extends State<ChatScreen> {
                           // log('Image Path: ${image.path}');
                           setState(() => _isUploading = true);
 
-                          // await APIs.sendChatImage(
-                          //     widget.user, File(image.path));
-                          // setState(() => _isUploading = false);
+                          await ApiFunctions.sendChatImage(
+                              widget.userId, File(image.path));
+                          setState(() => _isUploading = false);
                         }
                       },
                       icon: const Icon(Icons.camera_alt_rounded,

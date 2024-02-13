@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:NearbyNexus/models/message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 
@@ -12,6 +15,37 @@ class ApiFunctions {
   static FirebaseAuth auth = FirebaseAuth.instance;
   static FirebaseFirestore firestore = FirebaseFirestore.instance;
   static User get user => auth.currentUser!;
+
+  // for accessing firebase storage
+  static FirebaseStorage storage = FirebaseStorage.instance;
+
+  // for accessing firebase messaging (Push Notification)
+  static FirebaseMessaging fMessaging = FirebaseMessaging.instance;
+
+  // Ensure to request permission before attempting to get the token
+  static Future<String?> getFirebaseMessagingToken() async {
+    // Request permission to receive notifications (if not already granted)
+    await fMessaging.requestPermission();
+
+    // Get the FCM token
+    try {
+      String? token = await fMessaging.getToken();
+      return token ?? ''; // Return the token or an empty string if null
+    } catch (e) {
+      print('Error getting FCM token: $e');
+      return ''; // Return an empty string in case of any error
+    }
+
+    // for handling foreground messages
+    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    //   log('Got a message whilst in the foreground!');
+    //   log('Message data: ${message.data}');
+
+    //   if (message.notification != null) {
+    //     log('Message also contained a notification: ${message.notification}');
+    //   }
+    // });
+  }
 
   // Search places api
   Future<List<Map<String, dynamic>>> searchPlaces(String query) async {
@@ -49,6 +83,9 @@ class ApiFunctions {
       return []; // Return an empty list in case of an error.
     }
   }
+
+
+
 //
 ////////////////////////////////////////////////////////////////////////////////
 /*------------------------Chat form apis--------------------------------------*/
@@ -105,6 +142,45 @@ class ApiFunctions {
         .update({'read': DateTime.now().millisecondsSinceEpoch.toString()});
   }
 
+  //get only last message of a specific chat
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getLastMessage(
+      lastMessagedUser) {
+    return firestore
+        .collection('chats/${getConversationID(lastMessagedUser)}/messages/')
+        .orderBy('sent', descending: true)
+        .limit(1)
+        .snapshots();
+  }
+
+  //send chat image
+  static Future<void> sendChatImage(chatUser, File file) async {
+    //getting image file extension
+    final ext = file.path.split('.').last;
+
+    //storage file ref with path
+    final ref = storage.ref().child(
+        'chatImages/${getConversationID(chatUser)}/${DateTime.now().millisecondsSinceEpoch}.$ext');
+
+    //uploading image
+    await ref
+        .putFile(file, SettableMetadata(contentType: 'image/$ext'))
+        .then((p0) {
+      // logger.f('Data Transferred: ${p0.bytesTransferred / 1000} kb');
+    });
+
+    //updating image in firestore database
+    final imageUrl = await ref.getDownloadURL();
+    await sendMessage(chatUser, imageUrl, Type.image);
+  }
+
+  // update online or last active status of user
+  static Future<void> updateActiveStatus(bool isOnline) async {
+    firestore.collection('users').doc(user.uid).update({
+      'is_online': isOnline,
+      'last_active': DateTime.now().millisecondsSinceEpoch.toString(),
+      // 'pushToken': getFirebaseMessagingToken(),
+    });
+  }
 
 //
 ////////////////////////////////////////////////////////////////////////////////

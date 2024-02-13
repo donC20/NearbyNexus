@@ -102,6 +102,7 @@ dependencies:
   stream_chat_flutter_core: ^7.0.1
   cached_network_image: ^3.3.1
   jiffy: ^6.2.1
+  emoji_picker_flutter: ^2.0.0
 
 dev_dependencies:
   flutter_blurhash: ^0.8.2
