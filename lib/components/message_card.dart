@@ -27,12 +27,12 @@ class _MessageCardState extends State<MessageCard> {
   void initState() {
     super.initState();
     logger.f(
-        ApiFunctions.user.uid); // Initialize mq with the size from MediaQuery
+        ApiFunctions.user?.uid); // Initialize mq with the size from MediaQuery
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isMe = ApiFunctions.user.uid == widget.message.fromId;
+    bool isMe = ApiFunctions.user!.uid == widget.message.fromId;
     return InkWell(
         onLongPress: () {}, child: isMe ? _greenMessage() : _blueMessage());
   }
@@ -106,7 +106,6 @@ class _MessageCardState extends State<MessageCard> {
           padding: const EdgeInsets.only(left: 16.0),
           child: Row(
             children: [
-            
               //double tick blue icon for message read
               if (widget.message.read.isNotEmpty)
                 const Icon(Icons.done_all_rounded,
@@ -121,7 +120,6 @@ class _MessageCardState extends State<MessageCard> {
                   style: const TextStyle(fontSize: 13, color: Colors.black54),
                 ),
               ),
-         
             ],
           ),
         ),

@@ -5,11 +5,14 @@ import 'dart:convert';
 
 import 'package:NearbyNexus/components/user_bottom_nav.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/screens/admin/component/header.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDashboardM extends StatefulWidget {
@@ -26,6 +29,7 @@ class _UserDashboardMState extends State<UserDashboardM> {
   String nameLoginned = "";
   bool isimageFetched = false;
   String uid = '';
+  var logger = Logger();
 
   @override
   void initState() {

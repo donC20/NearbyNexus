@@ -1,5 +1,7 @@
+// ignore_for_file: avoid_print, unused_element
+
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
-import 'package:NearbyNexus/misc/firebase_notifications.dart';
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
@@ -8,7 +10,6 @@ import 'package:NearbyNexus/screens/common_screens/terms_nd_conditions.dart';
 import 'package:NearbyNexus/screens/user/components/view_job_details.dart';
 import 'package:NearbyNexus/screens/user/screens/active_jobs.dart';
 import 'package:NearbyNexus/screens/user/screens/chatScreen/user_inbox.dart';
-import 'package:NearbyNexus/screens/user/screens/chatScreen/chat_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/create_job_post.dart';
 import 'package:NearbyNexus/screens/user/screens/favorites.dart';
 import 'package:NearbyNexus/screens/user/screens/job_history.dart';
@@ -24,7 +25,6 @@ import 'package:NearbyNexus/screens/user/screens/user_otp_screen.dart';
 import 'package:NearbyNexus/screens/user/screens/user_payments_log.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile.dart';
 import 'package:NearbyNexus/screens/user/screens/user_profile_one.dart';
-import 'package:NearbyNexus/screens/vendor/components/global_notification.dart';
 import 'package:NearbyNexus/screens/vendor/components/search_services_screen.dart';
 import 'package:NearbyNexus/screens/vendor/screens/BidForJob.dart';
 import 'package:NearbyNexus/screens/vendor/screens/broadcasts.dart';
@@ -51,6 +51,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_notification_channel/flutter_notification_channel.dart';
+import 'package:flutter_notification_channel/notification_importance.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
@@ -82,19 +84,21 @@ const InitializationSettings initializationSettings = InitializationSettings(
   android: initializationSettingsAndroid,
 );
 void main() async {
-  GlobalNotifications allNotify = GlobalNotifications();
+  // GlobalNotifications allNotify = GlobalNotifications();
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+  _initializeFirebase();
   // FirebaseMessaging.onBackgroundMessage(
   //     allNotify.firebaseMessagingBackgroundHandler);
-  allNotify.requestMonitor();
-  final firebaseNotifications = FirebaseNotifications(); // Create an instance
-  await firebaseNotifications.initNotifications();
+  // allNotify.requestMonitor();
+  // final firebaseNotifications = FirebaseNotifications(); // Create an instance
+  // await firebaseNotifications.initNotifications();
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   Stripe.publishableKey =
       "pk_test_51NpN8rSJaMBnAdU7brX75geJWwHJ7OQnD9Aq9fZFaZFehX8ERy1w1yskGN1O0EOACM2am8XUjsAOkIr26U35YDSe00DbSFVmLl";
   final userProvider = UserProvider(); // Create an instance of UserProvider
   userProvider.setUid(); // Retrieve and set the uid
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => CommonProvider(),
@@ -106,13 +110,51 @@ void main() async {
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    if (ApiFunctions.auth.currentUser != null) {
+      ApiFunctions.getFirebaseMessagingToken();
+      ApiFunctions.updateActiveStatus(true);
+    } else {
+      print('no users found');
+    }
+
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (ApiFunctions.auth.currentUser != null) {
+      if (state == AppLifecycleState.resumed) {
+        ApiFunctions.updateActiveStatus(true);
+      } else if (state == AppLifecycleState.paused) {
+        ApiFunctions.updateActiveStatus(false);
+      } else if (state == AppLifecycleState.inactive) {
+        ApiFunctions.updateActiveStatus(false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: []);
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
@@ -185,4 +227,21 @@ class MyApp extends StatelessWidget {
       initialRoute: "splashScreen",
     );
   }
+}
+
+_initializeFirebase() async {
+  // await Firebase.initializeApp(
+  //     options: const FirebaseOptions(
+  //         apiKey: "AIzaSyBM3y-Vn2IQIey16BSzKh1kE_K_dt6O4_M ",
+  //         appId: "1:554929642418:android:cfd421f72b2acb9ccc22ab",
+  //         messagingSenderId: "554929642418",
+  //         projectId: "nearbynexus1"));
+  await Firebase.initializeApp();
+
+  var result = await FlutterNotificationChannel.registerNotificationChannel(
+      description: 'For Showing Message Notification',
+      id: 'chats',
+      importance: NotificationImportance.IMPORTANCE_HIGH,
+      name: 'Chats');
+  print('\nNotification Channel Result: $result');
 }

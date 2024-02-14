@@ -199,7 +199,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           fontSize: 13,
                           color: isOnline
                               ? Colors.green
-                              : Color.fromARGB(255, 255, 24, 24)),
+                              : Color.fromARGB(255, 51, 51, 51)),
                     ),
                   ],
                 )
@@ -260,8 +260,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         for (var i in images) {
                           // log('Image Path: ${i.path}');
                           setState(() => _isUploading = true);
+                          Map<String, dynamic>? recepientData =
+                              await VendorCommonFn().fetchParticularDocument(
+                                  'users', widget.userId);
                           await ApiFunctions.sendChatImage(
-                              widget.userId, File(i.path));
+                              recepientData, widget.userId, File(i.path));
                           setState(() => _isUploading = false);
                         }
                       },
@@ -279,9 +282,12 @@ class _ChatScreenState extends State<ChatScreen> {
                         if (image != null) {
                           // log('Image Path: ${image.path}');
                           setState(() => _isUploading = true);
-
+                          // recipent data
+                          Map<String, dynamic>? recepientData =
+                              await VendorCommonFn().fetchParticularDocument(
+                                  'users', widget.userId);
                           await ApiFunctions.sendChatImage(
-                              widget.userId, File(image.path));
+                              recepientData, widget.userId, File(image.path));
                           setState(() => _isUploading = false);
                         }
                       },
@@ -297,10 +303,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
           //send message button
           MaterialButton(
-            onPressed: () {
+            onPressed: () async {
               if (_textController.text.isNotEmpty) {
-                ApiFunctions.sendMessage(
-                    widget.userId, _textController.text, Type.text);
+                Map<String, dynamic>? recepientData = await VendorCommonFn()
+                    .fetchParticularDocument('users', widget.userId);
+                ApiFunctions.sendMessage(recepientData, widget.userId,
+                    _textController.text, Type.text);
                 _textController.text = '';
               }
             },

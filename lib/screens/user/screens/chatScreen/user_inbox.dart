@@ -18,8 +18,9 @@ class UserInbox extends StatefulWidget {
   State<UserInbox> createState() => _UserInboxState();
 }
 
-class _UserInboxState extends State<UserInbox> {
+class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
   var logger = Logger();
+
 
   @override
   Widget build(BuildContext context) {
@@ -86,13 +87,12 @@ class _UserInboxState extends State<UserInbox> {
     return StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection(
-                'chats/${ApiFunctions.getConversationID('SXWjByatWxN7BI4sbOLuxeY1Cjq2_AMiTGam6EMOyB5Q8vpzn24SihQg2 ')}/messages/')
+                'chats/${ApiFunctions.getConversationID(ApiFunctions.user!.uid)}/messages/')
             .orderBy('sent', descending: true)
             .limit(1)
             .snapshots(),
         builder: (context, snapshot) {
           final data = snapshot.data?.docs;
-          logger.e(data);
           final list =
               data?.map((e) => Message.fromJson(e.data())).toList() ?? [];
           if (list.isNotEmpty) _message = list[0];
