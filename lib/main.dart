@@ -86,8 +86,14 @@ const InitializationSettings initializationSettings = InitializationSettings(
 void main() async {
   // GlobalNotifications allNotify = GlobalNotifications();
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
 
-  _initializeFirebase();
+  var result = await FlutterNotificationChannel.registerNotificationChannel(
+      description: 'For Showing Message Notification',
+      id: 'chats',
+      importance: NotificationImportance.IMPORTANCE_HIGH,
+      name: 'Chats');
+  print('\nNotification Channel Result: $result');
   // FirebaseMessaging.onBackgroundMessage(
   //     allNotify.firebaseMessagingBackgroundHandler);
   // allNotify.requestMonitor();
@@ -229,19 +235,3 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 }
 
-_initializeFirebase() async {
-  // await Firebase.initializeApp(
-  //     options: const FirebaseOptions(
-  //         apiKey: "AIzaSyBM3y-Vn2IQIey16BSzKh1kE_K_dt6O4_M ",
-  //         appId: "1:554929642418:android:cfd421f72b2acb9ccc22ab",
-  //         messagingSenderId: "554929642418",
-  //         projectId: "nearbynexus1"));
-  await Firebase.initializeApp();
-
-  var result = await FlutterNotificationChannel.registerNotificationChannel(
-      description: 'For Showing Message Notification',
-      id: 'chats',
-      importance: NotificationImportance.IMPORTANCE_HIGH,
-      name: 'Chats');
-  print('\nNotification Channel Result: $result');
-}

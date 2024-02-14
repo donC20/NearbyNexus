@@ -38,6 +38,7 @@ class ApiFunctions {
   static FirebaseMessaging fMessaging = FirebaseMessaging.instance;
 
   static Future<void> getFirebaseMessagingToken() async {
+    var log = Logger();
     await fMessaging.requestPermission();
 
     await fMessaging.getToken().then((t) {
@@ -49,11 +50,13 @@ class ApiFunctions {
 
     // for handling foreground messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      // log('Got a message whilst in the foreground!');
-      // log('Message data: ${message.data}');
+      log.f('Got a message whilst in the foreground!');
+      log.f('Message data: ${message.data}');
 
       if (message.notification != null) {
-        // log('Message also contained a notification: ${message.notification}');
+        log.f('Message also contained a notification: ${message.notification}');
+        UtilityFunctions.showNotification(
+            'NearbyNexus', message.data['msg'], 'chats');
       }
     });
   }
@@ -102,19 +105,21 @@ class ApiFunctions {
 //
 
   // for sending push notification
-  static Future<void> sendPushNotification(chatUserData,sendToUser, String msg) async {
+  static Future<void> sendPushNotification(
+      chatUserData, sendToUser, String msg) async {
     var logger = Logger();
+
     try {
       final body = {
-        "to":
-            "eCl9tnVUSQ6L3iGD3yPjuA:APA91bHA8aCgw3IBfpbNlvqkWD0rBL-8LTrIt7bdKnK1vsHXReOyoZpeMeesZeJoK5egm-5XJiMVEkZvfPIpCNRBg40z_L-3VjOUX9q51h3tYZEOD8c68Hqnq1WPrSTMh9rIEOMqWnSh",
+        "to": chatUserData['pushToken'],
         "notification": {
-          "title": 'ds', //our name should be send
-          "body": 'dasd ',
+          "title": chatUserData['name'], //our name should be send
+          "body": msg,
           "android_channel_id": "chats"
         },
         "data": {
           "userId": "User ID: $sendToUser",
+          "msg": msg,
         },
       };
 
@@ -171,7 +176,7 @@ class ApiFunctions {
           .collection('chats/${getConversationID(sendToUser)}/messages/');
       await ref.doc(time).set(message.toJson()).then((value) =>
           sendPushNotification(
-              recepientData,sendToUser, type == Type.text ? msg : 'image'));
+              recepientData, sendToUser, type == Type.text ? msg : 'image'));
     } catch (error, stackTrace) {
       // Log the error using a custom logger
       _logger.e('Error sending message: $error, $stackTrace');

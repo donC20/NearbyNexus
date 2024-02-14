@@ -1,6 +1,10 @@
+// ignore_for_file: unused_element, prefer_const_constructors
+
+import 'package:NearbyNexus/main.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -195,6 +199,27 @@ class UtilityFunctions {
         DateFormat.jm(); // Create a DateFormat object for parsing time
     final DateTime dateTime = format.parse(timeString); // Parse the time string
     return dateTime;
+  }
+
+  // Notification Handler
+  static Future<void> showNotification(
+      String title, String body, notificationClass) async {
+    AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      notificationClass,
+      notificationClass,
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+    NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0, // Notification ID
+      title,
+      body,
+      platformChannelSpecifics,
+      payload: 'Default_Sound',
+    );
   }
 
 // end of the class
