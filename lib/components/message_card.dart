@@ -1,21 +1,21 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'dart:developer';
-
 import 'package:NearbyNexus/components/my_date_util.dart';
 import 'package:NearbyNexus/functions/api_functions.dart';
+import 'package:NearbyNexus/misc/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
-import '../main.dart';
 import '../models/message.dart';
 
 // for showing single message details
 class MessageCard extends StatefulWidget {
-  const MessageCard({super.key, required this.message});
+  const MessageCard({super.key, required this.message, required this.isSent});
 
   final Message message;
+  final bool isSent;
 
   @override
   State<MessageCard> createState() => _MessageCardState();
@@ -34,11 +34,11 @@ class _MessageCardState extends State<MessageCard> {
   Widget build(BuildContext context) {
     bool isMe = ApiFunctions.user!.uid == widget.message.fromId;
     return InkWell(
-        onLongPress: () {}, child: isMe ? _greenMessage() : _blueMessage());
+        onLongPress: () {}, child: isMe ? _blueMessage() : _whiteMessage());
   }
 
   // sender or another user message
-  Widget _blueMessage() {
+  Widget _whiteMessage() {
     //update last read message if sender and receiver are different
     if (widget.message.read.isEmpty) {
       ApiFunctions.updateMessageReadStatus(widget.message);
@@ -52,13 +52,9 @@ class _MessageCardState extends State<MessageCard> {
             padding: EdgeInsets.all(10),
             margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 221, 245, 255),
-                border: Border.all(color: Colors.lightBlue),
+                color: Color.fromARGB(255, 255, 255, 255),
                 //making borders curved
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                    bottomRight: Radius.circular(30))),
+                borderRadius: BorderRadius.circular(10)),
             child: widget.message.type == Type.text
                 ?
                 //show text
@@ -82,22 +78,32 @@ class _MessageCardState extends State<MessageCard> {
                   ),
           ),
         ),
-
-        //message time
         Padding(
-          padding: const EdgeInsets.only(right: 16.0),
+          padding: const EdgeInsets.only(right: 8.0),
           child: Text(
             MyDateUtil.getFormattedTime(
                 context: context, time: widget.message.sent),
-            style: const TextStyle(fontSize: 13, color: Colors.black54),
+            style: const TextStyle(
+                fontSize: 13, color: Color.fromARGB(198, 255, 255, 255)),
           ),
         ),
+        //message time
+        // !widget.isSent
+        //     ? SizedBox()
+        //     : Padding(
+        //         padding: const EdgeInsets.only(right: 16.0),
+        //         child: Text(
+        //           MyDateUtil.getFormattedTime(
+        //               context: context, time: widget.message.sent),
+        //           style: const TextStyle(fontSize: 13, color: Colors.black54),
+        //         ),
+        //       ),
       ],
     );
   }
 
   // our or user message
-  Widget _greenMessage() {
+  Widget _blueMessage() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -107,9 +113,16 @@ class _MessageCardState extends State<MessageCard> {
           child: Row(
             children: [
               //double tick blue icon for message read
-              if (widget.message.read.isNotEmpty)
-                const Icon(Icons.done_all_rounded,
-                    color: Colors.blue, size: 20),
+              widget.isSent
+                  ? Icon(
+                      CupertinoIcons.time_solid,
+                      size: 14,
+                    )
+                  : widget.message.read.isNotEmpty
+                      ? const Icon(Icons.done_all_rounded,
+                          color: Colors.blue, size: 20)
+                      : const Icon(Icons.done_rounded,
+                          color: Color.fromARGB(255, 242, 242, 242), size: 20),
 
               // //sent time
               Padding(
@@ -117,7 +130,8 @@ class _MessageCardState extends State<MessageCard> {
                 child: Text(
                   MyDateUtil.getFormattedTime(
                       context: context, time: widget.message.sent),
-                  style: const TextStyle(fontSize: 13, color: Colors.black54),
+                  style: const TextStyle(
+                      fontSize: 13, color: Color.fromARGB(198, 255, 255, 255)),
                 ),
               ),
             ],
@@ -130,19 +144,18 @@ class _MessageCardState extends State<MessageCard> {
             padding: EdgeInsets.all(10),
             margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 218, 255, 176),
-                border: Border.all(color: Colors.lightGreen),
+                color: KColors.primary,
+
                 //making borders curved
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                    bottomLeft: Radius.circular(30))),
+                borderRadius: BorderRadius.circular(10)),
             child: widget.message.type == Type.text
                 ?
                 //show text
                 Text(
                     widget.message.msg,
-                    style: const TextStyle(fontSize: 15, color: Colors.black87),
+                    style: const TextStyle(
+                        fontSize: 15,
+                        color: Color.fromARGB(221, 255, 255, 255)),
                   )
                 :
                 //show image

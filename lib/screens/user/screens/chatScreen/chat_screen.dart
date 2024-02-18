@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:NearbyNexus/components/message_card.dart';
 import 'package:NearbyNexus/components/my_date_util.dart';
 import 'package:NearbyNexus/functions/api_functions.dart';
+import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/models/message.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -36,12 +37,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   //showEmoji -- for storing value of showing or hiding emoji
   //isUploading -- for checking if image is uploading or not?
-  bool _showEmoji = false, _isUploading = false;
+  bool _showEmoji = false, _isUploading = false, _isSending = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: KColors.backgroundDark,
       appBar: AppBar(
+        backgroundColor: KColors.backgroundDark,
         elevation: 0.5,
         automaticallyImplyLeading: false,
         flexibleSpace: SafeArea(child: _appBar()),
@@ -58,9 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   builder: (context, snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.waiting:
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
+                        return SizedBox(); // Return an empty widget while waiting for data
                       case ConnectionState.none:
                         return Center(
                           child: CircularProgressIndicator(),
@@ -75,18 +76,26 @@ class _ChatScreenState extends State<ChatScreen> {
                             [];
                         if (_list.isNotEmpty) {
                           return ListView.builder(
-                              reverse: true,
-                              itemCount: _list.length,
-                              padding: EdgeInsets.only(top: 10),
-                              physics: const BouncingScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                return MessageCard(message: _list[index]);
-                              });
+                            reverse: true,
+                            itemCount: _list.length,
+                            padding: EdgeInsets.only(top: 10),
+                            physics: const BouncingScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              return MessageCard(
+                                message: _list[index],
+                                isSent: _isSending,
+                              );
+                            },
+                          );
                         } else {
                           return const Center(
-                            child: Text('Say Hii! 👋',
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 20)),
+                            child: Text(
+                              'Say Hii! 👋',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20,
+                              ),
+                            ),
                           );
                         }
                     }
@@ -132,9 +141,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
+          return SizedBox();
         } else if (snapshot.hasError) {
           return Center(
             child: Text('Error: ${snapshot.error}'),
@@ -154,7 +161,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 // Back button
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back, color: Colors.black54),
+                  icon: const Icon(CupertinoIcons.back,
+                      color: Color.fromARGB(212, 255, 255, 255)),
                 ),
                 // User profile picture
                 ClipRRect(
@@ -182,7 +190,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       userName,
                       style: const TextStyle(
                         fontSize: 16,
-                        color: Colors.black87,
+                        color: Color.fromARGB(221, 255, 255, 255),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -199,7 +207,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           fontSize: 13,
                           color: isOnline
                               ? Colors.green
-                              : Color.fromARGB(255, 51, 51, 51)),
+                              : Color.fromRGBO(220, 220, 220, 1)),
                     ),
                   ],
                 )
@@ -305,11 +313,13 @@ class _ChatScreenState extends State<ChatScreen> {
           MaterialButton(
             onPressed: () async {
               if (_textController.text.isNotEmpty) {
+                setState(() => _isSending = true);
                 Map<String, dynamic>? recepientData = await VendorCommonFn()
                     .fetchParticularDocument('users', widget.userId);
                 ApiFunctions.sendMessage(recepientData, widget.userId,
                     _textController.text, Type.text);
                 _textController.text = '';
+                setState(() => _isSending = false);
               }
             },
             minWidth: 0,

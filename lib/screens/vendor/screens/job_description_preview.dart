@@ -39,7 +39,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
 
   @override
   void initState() {
-    _streamController = StreamController<Map<String, dynamic>>();
+    // _streamController = StreamController<Map<String, dynamic>>();
     initializeUserData();
     fetchCurrentUserId();
     super.initState();

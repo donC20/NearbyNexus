@@ -174,9 +174,60 @@ class ApiFunctions {
 
       final ref = firestore
           .collection('chats/${getConversationID(sendToUser)}/messages/');
-      await ref.doc(time).set(message.toJson()).then((value) =>
-          sendPushNotification(
-              recepientData, sendToUser, type == Type.text ? msg : 'image'));
+      await ref.doc(time).set(message.toJson()).then((value) {
+        // Check if sendToUser is already in the chats array
+        return firestore
+            .collection('users')
+            .doc(user!.uid)
+            .get()
+            .then((userData) {
+          List<dynamic>? userChats = userData.data()?['chats'];
+          if (userChats == null || !userChats.contains(sendToUser)) {
+            // If sendToUser is not already in the chats array, add it
+            if (userChats == null) {
+              userChats = [sendToUser];
+            } else {
+              userChats.add(sendToUser);
+            }
+            // Update the chats field in the current user's document
+            return firestore
+                .collection('users')
+                .doc(user!.uid)
+                .update({"chats": userChats}).then((value) {
+              // Update the chats field in the recipient's document
+              return firestore
+                  .collection('users')
+                  .doc(sendToUser)
+                  .get()
+                  .then((recipientData) {
+                List<dynamic>? recipientChats = recipientData.data()?['chats'];
+                if (recipientChats == null ||
+                    !recipientChats.contains(user!.uid)) {
+                  if (recipientChats == null) {
+                    recipientChats = [user!.uid];
+                  } else {
+                    recipientChats.add(user!.uid);
+                  }
+                  // Update the chats field in the recipient's document
+                  return firestore
+                      .collection('users')
+                      .doc(sendToUser)
+                      .update({"chats": recipientChats});
+                } else {
+                  return null;
+                }
+              });
+            });
+          } else {
+            // If sendToUser already exists in the chats array, do nothing
+            return null;
+          }
+        });
+      }).then((_) {
+        // After updating the chats field or if it didn't need to be updated, send the push notification
+        return sendPushNotification(
+            recepientData, sendToUser, type == Type.text ? msg : 'image');
+      });
     } catch (error, stackTrace) {
       // Log the error using a custom logger
       _logger.e('Error sending message: $error, $stackTrace');
