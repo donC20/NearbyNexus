@@ -274,6 +274,26 @@ class ApiFunctions {
     await sendMessage(recepientData, chatUser, imageUrl, Type.image);
   }
 
+  //delete message
+  static Future<void> deleteMessage(Message message) async {
+    await firestore
+        .collection('chats/${getConversationID(message.toId)}/messages/')
+        .doc(message.sent)
+        .delete();
+
+    if (message.type == Type.image) {
+      await storage.refFromURL(message.msg).delete();
+    }
+  }
+
+  //update message
+  static Future<void> updateMessage(Message message, String updatedMsg) async {
+    await firestore
+        .collection('chats/${getConversationID(message.toId)}/messages/')
+        .doc(message.sent)
+        .update({'msg': updatedMsg});
+  }
+
   // update online or last active status of user
   static Future<void> updateActiveStatus(bool isOnline) async {
     firestore.collection('users').doc(user?.uid).update({
