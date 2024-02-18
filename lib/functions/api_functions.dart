@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -284,13 +285,25 @@ class ApiFunctions {
     print(await UtilityFunctions().fetchFromSharedPreference("pushToken"));
   }
 
-  // static initpushNotifications() async {
-  //   final firebaseNotifications = FirebaseNotifications(); // Create an instance
-  //   final pushToken = await firebaseNotifications.initNotifications();
-  //   print('the tocken $pushToken');
-  //   return pushToken;
-  // }
+// Get unread messages count
+  static Stream<int> getUnreadMessagesCount(chatUser) {
+    return FirebaseFirestore.instance
+        .collection(
+            'chats/${ApiFunctions.getConversationID(chatUser)}/messages/')
+        .where('toId', isEqualTo: user?.uid)
+        .orderBy('sent', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      // Convert snapshot data to a list of Message objects
+      final List<Message> list =
+          snapshot.docs.map((doc) => Message.fromJson(doc.data())).toList();
 
+      // Filter unread messages and count them
+      int unreadCount = list.where((message) => message.read.isEmpty).length;
+
+      return unreadCount;
+    });
+  }
 //
 ////////////////////////////////////////////////////////////////////////////////
 /*------------------------End of Chat forms-----------------------------------*/

@@ -13,6 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 
@@ -228,7 +229,10 @@ class _ChatScreenState extends State<ChatScreen> {
           //input field & buttons
           Expanded(
             child: Card(
+              color: KColors.backgroundDark,
               shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                      color: const Color.fromARGB(46, 255, 255, 255)),
                   borderRadius: BorderRadius.circular(100)),
               child: Row(
                 children: [
@@ -239,7 +243,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         setState(() => _showEmoji = !_showEmoji);
                       },
                       icon: const Icon(Icons.emoji_emotions,
-                          color: Colors.blueAccent, size: 25)),
+                          color: Color.fromARGB(255, 255, 255, 255), size: 25)),
 
                   Expanded(
                       child: TextField(
@@ -251,7 +255,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     },
                     decoration: const InputDecoration(
                         hintText: 'Type Something...',
-                        hintStyle: TextStyle(color: Colors.blueAccent),
+                        hintStyle: TextStyle(
+                            color: Color.fromARGB(255, 205, 205, 205),
+                            fontSize: 14),
                         border: InputBorder.none),
                   )),
 
@@ -277,7 +283,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         }
                       },
                       icon: const Icon(Icons.image,
-                          color: Colors.blueAccent, size: 26)),
+                          color: Color.fromARGB(255, 255, 255, 255), size: 26)),
 
                   //take image from camera button
                   IconButton(
@@ -300,7 +306,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         }
                       },
                       icon: const Icon(Icons.camera_alt_rounded,
-                          color: Colors.blueAccent, size: 26)),
+                          color: Color.fromARGB(255, 255, 255, 255), size: 26)),
 
                   //adding some space
                   SizedBox(width: 10),
@@ -323,11 +329,15 @@ class _ChatScreenState extends State<ChatScreen> {
               }
             },
             minWidth: 0,
-            padding:
-                const EdgeInsets.only(top: 10, bottom: 10, right: 5, left: 10),
+            padding: const EdgeInsets.all(10),
             shape: const CircleBorder(),
-            color: Colors.green,
-            child: const Icon(Icons.send, color: Colors.white, size: 28),
+            color: KColors.primary,
+            child: SvgPicture.asset(
+              'assets/images/vector/send_icon.svg',
+              color: Colors.white,
+              height: 25,
+              width: 25,
+            ),
           )
         ],
       ),
