@@ -44,8 +44,8 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       backgroundColor: KColors.backgroundDark,
       appBar: AppBar(
-        backgroundColor: KColors.backgroundDark,
-        elevation: 0.5,
+        backgroundColor: Color.fromARGB(255, 23, 24, 28),
+        elevation: 1,
         automaticallyImplyLeading: false,
         flexibleSpace: SafeArea(child: _appBar()),
       ),
@@ -229,7 +229,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: Card(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)),
+                  borderRadius: BorderRadius.circular(100)),
               child: Row(
                 children: [
                   //emoji button

@@ -87,17 +87,6 @@ class _MessageCardState extends State<MessageCard> {
                 fontSize: 13, color: Color.fromARGB(198, 255, 255, 255)),
           ),
         ),
-        //message time
-        // !widget.isSent
-        //     ? SizedBox()
-        //     : Padding(
-        //         padding: const EdgeInsets.only(right: 16.0),
-        //         child: Text(
-        //           MyDateUtil.getFormattedTime(
-        //               context: context, time: widget.message.sent),
-        //           style: const TextStyle(fontSize: 13, color: Colors.black54),
-        //         ),
-        //       ),
       ],
     );
   }
