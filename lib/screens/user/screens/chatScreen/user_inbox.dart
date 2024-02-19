@@ -25,103 +25,125 @@ class UserInbox extends StatefulWidget {
 class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
   var logger = Logger();
   final searchController = TextEditingController();
+  List<dynamic> userChatData = [];
+  @override
+  void initState() {
+    initializeUserData();
+    super.initState();
+  }
+
+  Future<void> initializeUserData() async {
+    VendorCommonFn()
+        .streamDocumentsData(
+      colectionId: 'users',
+      uidParam: ApiFunctions.user!.uid,
+    )
+        .listen((data) {
+      if (data.isNotEmpty) {
+        setState(() {
+          userChatData = data['chats'];
+        });
+      }
+    });
+  }
+
+  void searchUserFromChat() {
+    for (int i = 0; i < userChatData.length; i++) {
+      VendorCommonFn()
+          .streamDocumentsData(colectionId: 'users', uidParam: userChatData[i])
+          .listen((event) {
+        Map<String, dynamic> chatUsers = event;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    searchUserFromChat();
+
     return Scaffold(
-      backgroundColor: KColors.backgroundDark,
-      appBar: AppBar(
         backgroundColor: KColors.backgroundDark,
-        leading: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Icon(
-            CupertinoIcons.back,
-            color: Colors.white,
+        appBar: AppBar(
+          backgroundColor: KColors.backgroundDark,
+          leading: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Icon(
+              CupertinoIcons.back,
+              color: Colors.white,
+            ),
           ),
+          title: Text(
+            "Inbox",
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+          titleSpacing: 125,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 10.0),
+              child: UserAvatarLoader(),
+            )
+          ],
         ),
-        title: Text(
-          "Inbox",
-          style: TextStyle(color: Colors.white, fontSize: 20),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10.0),
-            child: UserAvatarLoader(),
-          )
-        ],
-      ),
-      body: StreamBuilder<Map<String, dynamic>>(
-        stream: VendorCommonFn().streamDocumentsData(
-          colectionId: 'users',
-          uidParam: ApiFunctions.user!.uid,
-        ),
-        builder: (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
-          if (snapshot.hasData) {
-            List<dynamic> listOfUsers = snapshot.data?['chats'] ?? [];
-            if (listOfUsers.isNotEmpty) {
-              return ListView.builder(
-                itemCount: listOfUsers.length,
-                itemBuilder: (context, index) {
-                  logger.e(listOfUsers[index]);
-                  return Column(
-                    children: [
-                      Container(
-                        height: 50,
-                        margin: EdgeInsets.only(left: 10, right: 10),
-                        decoration: BoxDecoration(
-                            color: Color(0xFF1E1E1E),
-                            borderRadius: BorderRadius.circular(100)),
-                        child: TextFormField(
-                          controller: searchController,
-                          keyboardType: TextInputType.text,
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                          decoration: InputDecoration(
-                              prefixIcon: Icon(CupertinoIcons.search,
-                                  color:
-                                      const Color.fromARGB(115, 255, 255, 255)),
-                              hintText: 'Search name',
-                              hintStyle: TextStyle(
-                                  color: Colors.white24, fontSize: 14),
-                              border: InputBorder.none),
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return "You left this field empty!";
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      _customChatTile(listOfUsers[index]),
-                    ],
-                  );
+        body: Column(
+          children: [
+            Container(
+              height: 50,
+              margin: EdgeInsets.only(left: 10, right: 10, bottom: 15, top: 10),
+              decoration: BoxDecoration(
+                  color: Color(0xFF1E1E1E),
+                  borderRadius: BorderRadius.circular(100)),
+              child: TextFormField(
+                controller: searchController,
+                keyboardType: TextInputType.text,
+                style: TextStyle(color: Colors.white, fontSize: 16),
+                decoration: InputDecoration(
+                    prefixIcon: Icon(CupertinoIcons.search,
+                        color: const Color.fromARGB(115, 255, 255, 255)),
+                    hintText: 'Search name',
+                    hintStyle: TextStyle(color: Colors.white24, fontSize: 14),
+                    border: InputBorder.none),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return "You left this field empty!";
+                  }
+                  return null;
                 },
-              );
-            } else {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      'assets/images/no-messages.png',
-                      height: 250,
-                      width: 250,
-                    ),
-                    SizedBox(height: 15),
-                    Text(
-                      "No messages till now!",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                  ],
-                ),
-              );
-            }
-          } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
-      ),
-    );
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: userChatData.length,
+                itemBuilder: (context, index) {
+                  if (userChatData.isNotEmpty) {
+                    return Column(
+                      children: [
+                        _customChatTile(userChatData[index]),
+                      ],
+                    );
+                  } else {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Image.asset(
+                          //   'assets/images/no-messages.png',
+                          //   height: 250,
+                          //   width: 250,
+                          // ),
+                          SizedBox(height: 15),
+                          Text(
+                            "No messages till now!",
+                            style: TextStyle(color: Colors.white, fontSize: 18),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ));
   }
 
   Widget _customChatTile(chatUser) {
