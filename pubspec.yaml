@@ -103,6 +103,7 @@ dependencies:
   jiffy: ^6.2.1
   emoji_picker_flutter: ^2.0.0
   flutter_notification_channel: ^2.0.0
+  searchbar_animation: ^0.0.4
 
 dev_dependencies:
   flutter_blurhash: ^0.8.2

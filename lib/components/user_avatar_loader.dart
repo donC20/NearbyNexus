@@ -37,8 +37,8 @@ class _UserAvatarLoaderState extends State<UserAvatarLoader> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(100),
         child: CachedNetworkImage(
-          width: 40,
-          height: 40,
+          width: 35,
+          height: 35,
           fit: BoxFit.cover,
           progressIndicatorBuilder: (context, url, progress) => Center(
             child: CircularProgressIndicator(value: progress.progress),

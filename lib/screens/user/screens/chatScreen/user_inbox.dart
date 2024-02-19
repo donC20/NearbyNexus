@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, unnecessary_null_comparison, no_leading_underscores_for_local_identifiers, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_cast
 
 import 'package:NearbyNexus/components/my_date_util.dart';
 import 'package:NearbyNexus/components/user_avatar_loader.dart';
@@ -16,7 +16,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:logger/logger.dart';
 
 class UserInbox extends StatefulWidget {
-  const UserInbox({super.key});
+  const UserInbox({Key? key}) : super(key: key);
 
   @override
   State<UserInbox> createState() => _UserInboxState();
@@ -24,7 +24,7 @@ class UserInbox extends StatefulWidget {
 
 class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
   var logger = Logger();
-
+  final searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,21 +32,16 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
       appBar: AppBar(
         backgroundColor: KColors.backgroundDark,
         leading: Padding(
-          padding: const EdgeInsets.all(3.0),
-          child: Card(
-            color: const Color.fromARGB(255, 49, 49, 49),
-            child: Icon(
-              Icons.search,
-              color: Colors.white,
-            ),
+          padding: const EdgeInsets.all(12.0),
+          child: Icon(
+            CupertinoIcons.back,
+            color: Colors.white,
           ),
         ),
         title: Text(
           "Inbox",
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white, fontSize: 16),
+          style: TextStyle(color: Colors.white, fontSize: 20),
         ),
-        titleSpacing: 125,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 10.0),
@@ -55,64 +50,77 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
         ],
       ),
       body: StreamBuilder<Map<String, dynamic>>(
-          stream: VendorCommonFn().streamDocumentsData(
-              colectionId: 'users', uidParam: ApiFunctions.user!.uid),
-          builder: (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
-            if (snapshot.hasData) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.waiting:
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                case ConnectionState.none:
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                case ConnectionState.active:
-                case ConnectionState.done:
-                  List<dynamic> listOfUsers = snapshot.data?['chats'] ?? [];
-                  if (listOfUsers.isNotEmpty) {
-                    return ListView.separated(
-                        itemBuilder: (context, index) {
-                          logger.e(listOfUsers[index]);
-
-                          return _customChatTile(listOfUsers[index]);
-                        },
-                        separatorBuilder: (context, index) => SizedBox(
-                              height: 15,
-                            ),
-                        itemCount: listOfUsers.length);
-                  } else {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/images/no-messages.png',
-                            height: 250,
-                            width: 250,
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Text(
-                            "No messages till now!.",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                            ),
-                          )
-                        ],
+        stream: VendorCommonFn().streamDocumentsData(
+          colectionId: 'users',
+          uidParam: ApiFunctions.user!.uid,
+        ),
+        builder: (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+          if (snapshot.hasData) {
+            List<dynamic> listOfUsers = snapshot.data?['chats'] ?? [];
+            if (listOfUsers.isNotEmpty) {
+              return ListView.builder(
+                itemCount: listOfUsers.length,
+                itemBuilder: (context, index) {
+                  logger.e(listOfUsers[index]);
+                  return Column(
+                    children: [
+                      Container(
+                        height: 50,
+                        margin: EdgeInsets.only(left: 10, right: 10),
+                        decoration: BoxDecoration(
+                            color: Color(0xFF1E1E1E),
+                            borderRadius: BorderRadius.circular(100)),
+                        child: TextFormField(
+                          controller: searchController,
+                          keyboardType: TextInputType.text,
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          decoration: InputDecoration(
+                              prefixIcon: Icon(CupertinoIcons.search,
+                                  color:
+                                      const Color.fromARGB(115, 255, 255, 255)),
+                              hintText: 'Search name',
+                              hintStyle: TextStyle(
+                                  color: Colors.white24, fontSize: 14),
+                              border: InputBorder.none),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "You left this field empty!";
+                            }
+                            return null;
+                          },
+                        ),
                       ),
-                    );
-                  }
-              }
+                      _customChatTile(listOfUsers[index]),
+                    ],
+                  );
+                },
+              );
             } else {
               return Center(
-                child: Image.asset('assets/images/no-messages.png'),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/no-messages.png',
+                      height: 250,
+                      width: 250,
+                    ),
+                    SizedBox(height: 15),
+                    Text(
+                      "No messages till now!",
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ],
+                ),
               );
             }
-          }),
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      ),
     );
   }
 
@@ -140,7 +148,6 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
         }
 
         final data = snapshot.data as Map<String, dynamic>?;
-
         if (data == null || !snapshot.hasData) {
           return Center(
             child: Text(
@@ -189,39 +196,10 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
                   ),
                 ),
               ),
-              leading: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(100),
-                    child: CachedNetworkImage(
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                      progressIndicatorBuilder: (context, url, progress) =>
-                          Center(
-                        child:
-                            CircularProgressIndicator(value: progress.progress),
-                      ),
-                      imageUrl: data['image'] ?? '',
-                    ),
-                  ),
-                  if (data['online'] == true)
-                    Positioned(
-                      bottom: 0,
-                      right: 1,
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        width: 12,
-                        height: 12,
-                        decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(100)),
-                        child: Badge(
-                          backgroundColor: Colors.green,
-                        ),
-                      ),
-                    ),
-                ],
+              leading: UserCircleAvatar(
+                imageUrl: data['image'] ?? '',
+                online: data['online'] == true,
+                size: 40,
               ),
               title: Text(
                 data['name'] ?? '',
@@ -239,7 +217,7 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
                         Text(
                           "Image",
                           style: TextStyle(color: Colors.white, fontSize: 12),
-                        )
+                        ),
                       ],
                     )
                   : RichText(
@@ -248,9 +226,10 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
                         if (_message?.fromId == ApiFunctions.user?.uid)
                           TextSpan(text: 'You ~ '),
                         TextSpan(
-                            text: UtilityFunctions()
-                                    .truncateText(_message!.msg, 30) ??
-                                "Hey, there!"),
+                          text: UtilityFunctions()
+                                  .truncateText(_message!.msg, 30) ??
+                              "Hey, there!",
+                        ),
                       ]),
                     ),
               trailing: Column(
@@ -262,9 +241,8 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
                             context: context, time: _message.sent)
                         : '',
                     style: TextStyle(
-                      fontSize: 13,
-                      color: Color.fromARGB(137, 255, 255, 255),
-                    ),
+                        fontSize: 13,
+                        color: Color.fromARGB(137, 255, 255, 255)),
                   ),
                   StreamBuilder<int>(
                     stream: ApiFunctions.getUnreadMessagesCount(chatUser),
@@ -293,6 +271,46 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
           },
         );
       },
+    );
+  }
+}
+
+class UserCircleAvatar extends StatelessWidget {
+  final String imageUrl;
+  final bool online;
+  final double size;
+
+  const UserCircleAvatar({
+    required this.imageUrl,
+    required this.online,
+    required this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        CircleAvatar(
+          radius: size / 2,
+          backgroundColor: Colors.grey,
+          backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+        ),
+        online
+            ? Positioned(
+                bottom: 0,
+                right: 1,
+                child: Container(
+                  padding: EdgeInsets.all(2),
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                ),
+              )
+            : SizedBox(),
+      ],
     );
   }
 }
