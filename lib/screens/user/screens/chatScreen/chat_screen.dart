@@ -249,6 +249,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: TextField(
                     controller: _textController,
                     keyboardType: TextInputType.multiline,
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 205, 205, 205),
+                        fontSize: 14),
                     maxLines: null,
                     onTap: () {
                       if (_showEmoji) setState(() => _showEmoji = !_showEmoji);

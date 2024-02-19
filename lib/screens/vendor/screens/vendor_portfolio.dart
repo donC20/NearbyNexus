@@ -4,8 +4,10 @@ import 'dart:convert';
 
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/user/components/vendor_review_container.dart';
+import 'package:NearbyNexus/screens/user/screens/chatScreen/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:getwidget/getwidget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
@@ -262,44 +264,6 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                       right: 15,
                       child: Row(
                         children: [
-                          activityStatus == "available"
-                              ? ElevatedButton.icon(
-                                  onPressed: () {
-                                    Navigator.pushNamed(context, "new_request",
-                                        arguments: vendorId);
-                                  },
-                                  icon: Icon(
-                                    Icons
-                                        .work, // Change this to the desired icon
-                                    color: Colors
-                                        .black, // Change the icon color as needed
-                                  ),
-                                  label: Text(
-                                    "Contact",
-                                    style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight
-                                            .bold), // Change the label color as needed
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors
-                                        .white, // Set the background color to white
-                                  ),
-                                )
-                              : Container(
-                                  width: 110,
-                                  height: 40,
-                                  padding: EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Text(
-                                    "Unavailable",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
                           IconButton(
                               onPressed: () async {
                                 var data = await _firestore
@@ -382,6 +346,76 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                                 Colors.blue), // Adjusted to out of 5
                           ],
                         ),
+                        SizedBox(
+                          height: 15,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            GFButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => ChatScreen(
+                                              userId: vendorId,
+                                            )));
+                              },
+                              shape: GFButtonShape.pills,
+                              size: GFSize.LARGE,
+                              fullWidthButton: false,
+                              icon: Icon(
+                                Icons.message_rounded,
+                                color: Colors.white,
+                              ),
+                              text: 'Chat',
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            activityStatus == "available"
+                                ? ElevatedButton.icon(
+                                    onPressed: () {
+                                      Navigator.pushNamed(
+                                          context, "new_request",
+                                          arguments: vendorId);
+                                    },
+                                    icon: Icon(
+                                      Icons
+                                          .work, // Change this to the desired icon
+                                      color: Colors
+                                          .black, // Change the icon color as needed
+                                    ),
+                                    label: Text(
+                                      "Request",
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight
+                                              .bold), // Change the label color as needed
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors
+                                          .white, // Set the background color to white
+                                    ),
+                                  )
+                                : Container(
+                                    width: 110,
+                                    height: 40,
+                                    padding: EdgeInsets.all(5),
+                                    decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Text(
+                                      "Unavailable",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                          ],
+                        ),
+
                         SizedBox(
                           height: 15,
                         ),

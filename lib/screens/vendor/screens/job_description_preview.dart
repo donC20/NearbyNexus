@@ -83,8 +83,9 @@ class _JobDetailPageState extends State<JobDetailPage> {
     final Map<String, dynamic> argument =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     //
+    logger.e(currentUserData);
     if (argument['post_id'] != null && currentUserData.isNotEmpty) {
-      List<dynamic> jobsApplied = currentUserData["jobs_applied_list"];
+      List<dynamic> jobsApplied = currentUserData["jobs_applied_list"] ?? [];
       List<dynamic> savedJobs = currentUserData["saved_jobs"];
       if (jobsApplied.contains(argument['post_id'])) {
         setState(() {
