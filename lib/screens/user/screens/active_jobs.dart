@@ -338,10 +338,10 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
           )
         ],
       ),
-      bottomNavigationBar: BottomGNavUser(
-        activePage: 5,
-        isSelectable: true,
-      ),
+      // bottomNavigationBar: BottomGNavUser(
+      //   activePage: 5,
+      //   isSelectable: true,
+      // ),
     );
   }
 }

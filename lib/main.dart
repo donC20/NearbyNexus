@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, unused_element
 
+import 'package:NearbyNexus/components/global_bottom_navigation.dart';
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
@@ -170,6 +171,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         "admin_screen": (context) => const Dashboard(),
         "splashScreen": (context) => const SplashScreen(),
         "initial_page": (context) => const InitialPage(),
+        // "/global_bottom_navigation": (context) => const GlobalBottomNavigation(),
         "login_screen": (context) => const LoginScreen(),
         "forgot_password_screen": (context) => const ForgotPasswordScreen(),
         "user_or_vendor": (context) => const UserOrVendor(),

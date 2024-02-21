@@ -104,6 +104,8 @@ dependencies:
   emoji_picker_flutter: ^2.0.0
   flutter_notification_channel: ^2.0.0
   searchbar_animation: ^0.0.4
+  motion_tab_bar: ^2.0.4
+  motion_tab_bar_v2: ^0.3.0
 
 dev_dependencies:
   flutter_blurhash: ^0.8.2

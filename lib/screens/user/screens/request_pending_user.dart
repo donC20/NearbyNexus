@@ -234,10 +234,10 @@ class _RequestsPendingUserState extends State<RequestsPendingUser> {
                 style: TextStyle(color: Colors.white),
               )),
       ),
-      bottomNavigationBar: BottomGNavUser(
-        activePage: 5,
-        isSelectable: true,
-      ),
+      // bottomNavigationBar: BottomGNavUser(
+      //   activePage: 5,
+      //   isSelectable: true,
+      // ),
     );
   }
 }

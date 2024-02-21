@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:NearbyNexus/components/global_bottom_navigation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -87,10 +88,13 @@ class _LoginScreenState extends State<LoginScreen> {
             // ?End of SharedPreferences
             if (userType == "admin") {
               Navigator.popAndPushNamed(context, "admin_screen");
-            } else if (userType == "vendor") {
-              Navigator.popAndPushNamed(context, "vendor_dashboard");
-            } else if (userType == "general_user") {
-              Navigator.popAndPushNamed(context, "user_dashboard");
+            } else if (userType == "vendor" || userType == "general_user") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => GlobalBottomNavigation(userType: userType),
+                ),
+              );
             } else {
               setState(() {
                 isLoading = false;
@@ -205,10 +209,13 @@ class _LoginScreenState extends State<LoginScreen> {
             // ?End of SharedPreferences
             if (userType == "admin") {
               Navigator.popAndPushNamed(context, "admin_screen");
-            } else if (userType == "vendor") {
-              Navigator.popAndPushNamed(context, "vendor_dashboard");
-            } else if (userType == "general_user") {
-              Navigator.popAndPushNamed(context, "user_dashboard");
+            } else if (userType == "vendor" || userType == "general_user") {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => GlobalBottomNavigation(userType: userType),
+                ),
+              );
             } else {
               setState(() {
                 isGoogleSignRespond = true;

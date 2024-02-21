@@ -512,10 +512,10 @@ class _VendorDashboardState extends State<VendorDashboard> {
                 },
               ),
             ),
-      bottomNavigationBar: BottomGNav(
-        activePage: 2,
-        isSelectable: true,
-      ),
+      // bottomNavigationBar: BottomGNav(
+      //   activePage: 2,
+      //   isSelectable: true,
+      // ),
     );
   }
 }

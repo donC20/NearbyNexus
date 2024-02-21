@@ -279,10 +279,10 @@ class _BroadcastPageState extends State<BroadcastPage> {
           )),
         ],
       ),
-      bottomNavigationBar: BottomGNav(
-        activePage: 0,
-        isSelectable: true,
-      ),
+      // bottomNavigationBar: BottomGNav(
+      //   activePage: 0,
+      //   isSelectable: true,
+      // ),
     );
   }
 }

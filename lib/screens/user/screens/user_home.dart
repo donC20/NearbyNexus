@@ -330,10 +330,6 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                 ),
               ),
             ),
-      bottomNavigationBar: BottomGNavUser(
-        activePage: 0,
-        isSelectable: true,
-      ),
     );
   }
 }

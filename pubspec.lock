@@ -1268,6 +1268,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  motion_tab_bar:
+    dependency: "direct main"
+    description:
+      name: motion_tab_bar
+      sha256: "71bcb42a91253479896a2767f18424cac0ed967d73763e0f8ae467b97661a588"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.4"
+  motion_tab_bar_v2:
+    dependency: "direct main"
+    description:
+      name: motion_tab_bar_v2
+      sha256: "738dbbf3f2397c16d9a58f53d1090ea7501d697030aad92e06a6dec3237f39ae"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   nested:
     dependency: transitive
     description:

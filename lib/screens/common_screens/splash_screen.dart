@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 // ignore: unused_import
+import 'package:NearbyNexus/components/global_bottom_navigation.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:flutter/material.dart';
 
@@ -64,12 +65,13 @@ class _SplashScreenState extends State<SplashScreen> {
     if (userType == "admin") {
       Navigator.popAndPushNamed(context,
           "admin_screen"); // Navigate using Get package (replace with your navigation code)
-    } else if (userType == "vendor") {
-      Navigator.popAndPushNamed(context,
-          "vendor_dashboard"); // Navigate using Get package (replace with your navigation code)
-    } else if (userType == "general_user") {
-      Navigator.popAndPushNamed(context,
-          "user_dashboard"); // Navigate using Get package (replace with your navigation code)
+    } else if (userType == "vendor" || userType == "general_user") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => GlobalBottomNavigation(userType: userType),
+        ),
+      );
     } else {
       print("Unknown user type");
       // Handle unknown user type if necessary

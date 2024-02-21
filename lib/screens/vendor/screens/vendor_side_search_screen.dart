@@ -278,10 +278,6 @@ class _VendorSideSearchScreenState extends State<VendorSideSearchScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomGNav(
-        activePage: 3,
-        isSelectable: true,
-      ),
     );
   }
 }
