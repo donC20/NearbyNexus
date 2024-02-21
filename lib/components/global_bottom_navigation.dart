@@ -9,7 +9,6 @@ import 'package:NearbyNexus/screens/vendor/screens/vendor_dashboard.dart';
 import 'package:NearbyNexus/screens/vendor/screens/vendor_side_search_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:motion_tab_bar/MotionBadgeWidget.dart';
 import 'package:motion_tab_bar/MotionTabBar.dart';
 import 'package:motion_tab_bar/MotionTabBarController.dart';
 
@@ -62,7 +61,7 @@ class _GlobalBottomNavigationState extends State<GlobalBottomNavigation>
     } else if (widget.userType == "vendor") {
       bottomIcons = [
         Icons.dashboard,
-        Icons.feed,
+        CupertinoIcons.compass_fill,
         CupertinoIcons.chat_bubble_2_fill,
         Icons.search
       ];

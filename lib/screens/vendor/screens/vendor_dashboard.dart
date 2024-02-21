@@ -219,7 +219,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
                         child: ListView(
                           children: [
                             SizedBox(
-                              height: 85,
+                              height: 90,
                               child: ListView.separated(
                                 scrollDirection: Axis.horizontal,
                                 itemBuilder: (BuildContext context, int index) {

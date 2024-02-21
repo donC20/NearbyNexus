@@ -27,6 +27,10 @@ class _BroadcastPageState extends State<BroadcastPage> {
   // other
   final VendorBloc vendorBloc = VendorBloc();
   var logger = Logger();
+  List<dynamic> searchGlobalResults = [];
+  bool isSearchingStarted = false;
+  bool isSomeResultFound = false;
+  bool isSomeResultNotFound = false;
 
   @override
   void initState() {
@@ -40,6 +44,37 @@ class _BroadcastPageState extends State<BroadcastPage> {
     setState(() {
       currentUserData = userData;
     });
+  }
+
+  Future searchFunction(String searchKeyWords) async {
+    final snapshot =
+        await FirebaseFirestore.instance.collection('job_posts').get();
+
+    final searchResults = snapshot.docs.where((doc) {
+      final jobTitle = (doc['jobTitle'] as String).toLowerCase();
+      final budget = (doc['budget'].toString()).toLowerCase();
+      final skills = (doc['skills'] as List)
+          .map((skill) => skill.toString().toLowerCase())
+          .toList();
+
+      final lowercaseSearchKeyWords = searchKeyWords.toLowerCase();
+
+      return jobTitle.contains(lowercaseSearchKeyWords) ||
+          budget.contains(lowercaseSearchKeyWords) ||
+          skills.any((skill) => skill.contains(lowercaseSearchKeyWords));
+    }).toList();
+
+    if (searchResults.isNotEmpty) {
+      logger.f(searchResults[0].id);
+      setState(() {
+        searchGlobalResults.clear();
+        searchGlobalResults = searchResults;
+      });
+    } else {
+      searchGlobalResults.clear();
+      logger.f('No data');
+      return [];
+    }
   }
 
   @override
@@ -100,6 +135,18 @@ class _BroadcastPageState extends State<BroadcastPage> {
                             color: const Color.fromARGB(106, 0, 0, 0),
                           ),
                         ),
+                        onChanged: (value) {
+                          if (value.isNotEmpty) {
+                            setState(() {
+                              isSearchingStarted = true;
+                            });
+                          } else {
+                            setState(() {
+                              isSearchingStarted = false;
+                            });
+                          }
+                          searchFunction(value);
+                        },
                       ),
                     ),
                   ],
@@ -183,100 +230,151 @@ class _BroadcastPageState extends State<BroadcastPage> {
               ),
             )
           ]),
-          Expanded(
-              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-            stream: FirebaseFirestore.instance
-                .collection('job_posts')
-                .where("expiryDate", isGreaterThanOrEqualTo: Timestamp.now())
-                .where("isWithdrawn", isEqualTo: false)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else if (snapshot.hasError) {
-                return Center(
-                  child: Text('Error: ${snapshot.error}'),
-                );
-              } else if (snapshot.hasData) {
-                QuerySnapshot<Map<String, dynamic>>? jobData = snapshot.data;
-                if (jobData == null || jobData.docs.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          "assets/images/emptyBox.png",
-                          width: 200,
-                          height: 200,
-                        ),
-                        SizedBox(height: 15),
-                        Text(
-                          "There are no saved jobs, please add some..",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        SizedBox(height: 15),
-                        GFButton(
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(
-                                context, "/broadcast_page");
+          isSearchingStarted
+              ? Expanded(
+                  child: searchGlobalResults.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: searchGlobalResults.length,
+                          itemBuilder: (BuildContext context, index) {
+                            String docId = searchGlobalResults[index].id;
+                            return FutureBuilder<Map<String, dynamic>>(
+                              future: VendorCommonFn().fetchUserData(
+                                uidParam: searchGlobalResults[index]
+                                    ['jobPostedBy'],
+                              ),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<Map<String, dynamic>>
+                                      snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}');
+                                } else if (snapshot.hasData) {
+                                  Map<String, dynamic> postedUserData =
+                                      snapshot.data!;
+                                  return customCard(
+                                    searchGlobalResults[index],
+                                    context,
+                                    postedUserData,
+                                    vendorBloc,
+                                    docId,
+                                  );
+                                } else {
+                                  return Text('No data available');
+                                }
+                              },
+                            );
                           },
-                          text: 'View Jobs',
-                          shape: GFButtonShape.pills,
-                          icon: Icon(
-                            Icons.open_in_browser_rounded,
-                            color: Colors.white,
-                          ),
-                          size: GFSize.MEDIUM,
-                          color: const Color.fromARGB(255, 84, 84, 84),
                         )
-                      ],
-                    ),
-                  );
-                } else {
-                  return ListView.builder(
-                    itemCount: jobData.docs.length,
-                    itemBuilder: (BuildContext context, index) {
-                      Map<String, dynamic> fetchData =
-                          jobData.docs[index].data();
-                      String docId = jobData.docs[index].id;
-                      return FutureBuilder<Map<String, dynamic>>(
-                        future: VendorCommonFn().fetchUserData(
-                          uidParam: fetchData['jobPostedBy'],
+                      : Align(
+                          child: Center(
+                            child: Text(
+                              'No jobs found',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
                         ),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<Map<String, dynamic>> snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          } else if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          } else if (snapshot.hasData) {
-                            Map<String, dynamic> postedUserData =
-                                snapshot.data!;
-                            return customCard(
-                              fetchData,
-                              context,
-                              postedUserData,
-                              vendorBloc,
-                              docId,
-                            );
-                          } else {
-                            return Text('No data available');
-                          }
-                        },
+                )
+              : Expanded(
+                  child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('job_posts')
+                      .where("expiryDate",
+                          isGreaterThanOrEqualTo: Timestamp.now())
+                      .where("isWithdrawn", isEqualTo: false)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: CircularProgressIndicator(),
                       );
-                    },
-                  );
-                }
-              } else {
-                return Container(); // Placeholder for no data scenario
-              }
-            },
-          )),
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    } else if (snapshot.hasData) {
+                      QuerySnapshot<Map<String, dynamic>>? jobData =
+                          snapshot.data;
+                      if (jobData == null || jobData.docs.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                "assets/images/emptyBox.png",
+                                width: 200,
+                                height: 200,
+                              ),
+                              SizedBox(height: 15),
+                              Text(
+                                "There are no saved jobs, please add some..",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              SizedBox(height: 15),
+                              GFButton(
+                                onPressed: () {
+                                  Navigator.pushReplacementNamed(
+                                      context, "/broadcast_page");
+                                },
+                                text: 'View Jobs',
+                                shape: GFButtonShape.pills,
+                                icon: Icon(
+                                  Icons.open_in_browser_rounded,
+                                  color: Colors.white,
+                                ),
+                                size: GFSize.MEDIUM,
+                                color: const Color.fromARGB(255, 84, 84, 84),
+                              )
+                            ],
+                          ),
+                        );
+                      } else {
+                        return ListView.builder(
+                          itemCount: jobData.docs.length,
+                          itemBuilder: (BuildContext context, index) {
+                            Map<String, dynamic> fetchData =
+                                jobData.docs[index].data();
+                            String docId = jobData.docs[index].id;
+                            return FutureBuilder<Map<String, dynamic>>(
+                              future: VendorCommonFn().fetchUserData(
+                                uidParam: fetchData['jobPostedBy'],
+                              ),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<Map<String, dynamic>>
+                                      snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}');
+                                } else if (snapshot.hasData) {
+                                  Map<String, dynamic> postedUserData =
+                                      snapshot.data!;
+                                  return customCard(
+                                    fetchData,
+                                    context,
+                                    postedUserData,
+                                    vendorBloc,
+                                    docId,
+                                  );
+                                } else {
+                                  return Text('No data available');
+                                }
+                              },
+                            );
+                          },
+                        );
+                      }
+                    } else {
+                      return Container(); // Placeholder for no data scenario
+                    }
+                  },
+                )),
         ],
       ),
       // bottomNavigationBar: BottomGNav(
