@@ -2,6 +2,7 @@
 
 import 'package:NearbyNexus/components/global_bottom_navigation.dart';
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
+import 'package:NearbyNexus/config/themes/theme.dart';
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
@@ -166,7 +167,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       title: 'NearbyNexus',
-      theme: AppTheme.basic,
+      theme: lightMode,
+      darkTheme: darkMode,
       routes: {
         "admin_screen": (context) => const Dashboard(),
         "splashScreen": (context) => const SplashScreen(),
@@ -236,4 +238,3 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
   }
 }
-

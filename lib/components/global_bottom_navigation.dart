@@ -75,7 +75,7 @@ class _GlobalBottomNavigationState extends State<GlobalBottomNavigation>
     }
 
     return Scaffold(
-        backgroundColor: KColors.backgroundDark,
+        backgroundColor: Theme.of(context).colorScheme.background,
         bottomNavigationBar: MotionTabBar(
           controller:
               _tabController, // ADD THIS if you need to change your tab programmatically

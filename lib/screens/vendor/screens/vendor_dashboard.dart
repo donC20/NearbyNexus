@@ -1,18 +1,16 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, sort_child_properties_last
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, sort_child_properties_last, avoid_print
 
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/screens/vendor/screens/initial_kyc_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_radar_chart/flutter_radar_chart.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
@@ -138,16 +136,11 @@ class _VendorDashboardState extends State<VendorDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: KColors.backgroundDark,
         automaticallyImplyLeading: false,
         title: Text(
           "Dashboard",
-          style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              fontFamily: GoogleFonts.play().fontFamily),
         ),
         actions: [
           IconButton(
@@ -156,7 +149,6 @@ class _VendorDashboardState extends State<VendorDashboard> {
               },
               icon: Icon(
                 Icons.notifications,
-                color: Colors.white,
               )),
           UserLoadingAvatar(
             userImage: imageLink,
@@ -171,7 +163,6 @@ class _VendorDashboardState extends State<VendorDashboard> {
           )
         ],
       ),
-      backgroundColor: KColors.backgroundDark,
       body: isimageFetched == true
           ? Container(
               margin: EdgeInsets.only(right: 10),
@@ -218,6 +209,9 @@ class _VendorDashboardState extends State<VendorDashboard> {
                         padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                         child: ListView(
                           children: [
+                            SizedBox(
+                              height: 15,
+                            ),
                             SizedBox(
                               height: 90,
                               child: ListView.separated(
@@ -309,7 +303,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
                               "Explore more",
                               style: TextStyle(
                                   color:
-                                      const Color.fromARGB(255, 255, 255, 255),
+                                      Theme.of(context).colorScheme.onSecondary,
                                   fontWeight: FontWeight.normal,
                                   fontSize: 12,
                                   fontFamily: GoogleFonts.play().fontFamily),
@@ -321,11 +315,16 @@ class _VendorDashboardState extends State<VendorDashboard> {
                             Container(
                               padding: EdgeInsets.all(15),
                               decoration: BoxDecoration(
-                                  color: Color.fromARGB(43, 158, 158, 158),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSecondaryContainer,
+                                  border: Border.all(
+                                      color:
+                                          Color.fromARGB(255, 186, 186, 186)),
                                   borderRadius: BorderRadius.circular(15)),
                               child: Wrap(
                                 alignment: WrapAlignment.start,
-                                spacing: 40,
+                                spacing: 38,
                                 runSpacing: 40,
                                 children: [
                                   InkWell(
@@ -361,7 +360,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                       "add_services_screen",
                                       context,
                                       () {},
-                                      Colors.white,
+                                      Theme.of(context).colorScheme.onSecondary,
                                     ),
                                   ),
                                   activityStatusTapped == true
@@ -417,7 +416,9 @@ class _VendorDashboardState extends State<VendorDashboard> {
                                         "",
                                         context,
                                         () {},
-                                        Colors.white),
+                                        Theme.of(context)
+                                            .colorScheme
+                                            .onSecondary),
                                   ),
                                   InkWell(
                                     onTap: () {
@@ -442,7 +443,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
                               "Recent peoples",
                               style: TextStyle(
                                   color:
-                                      const Color.fromARGB(255, 255, 255, 255),
+                                      Theme.of(context).colorScheme.onSecondary,
                                   fontWeight: FontWeight.normal,
                                   fontSize: 12,
                                   fontFamily: GoogleFonts.play().fontFamily),
@@ -498,10 +499,6 @@ class _VendorDashboardState extends State<VendorDashboard> {
                 },
               ),
             ),
-      // bottomNavigationBar: BottomGNav(
-      //   activePage: 2,
-      //   isSelectable: true,
-      // ),
     );
   }
 
@@ -512,6 +509,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
       padding: EdgeInsets.all(15),
       decoration: BoxDecoration(
           color: Color.fromARGB(255, 255, 255, 255),
+          border: Border.all(color: Color.fromARGB(142, 158, 158, 158)),
           borderRadius: BorderRadius.circular(10)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -600,102 +598,6 @@ class _VendorDashboardState extends State<VendorDashboard> {
     );
   }
 
-  Widget summaryContainer(
-      int all, int active, int rejected, BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        SizedBox(),
-        InkWell(
-          onTap: () {
-            Navigator.pushNamed(context, "job_logs");
-          },
-          child: RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: "${all.toString()}\n",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                TextSpan(
-                  text: "All",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Container(
-          height: 40,
-          width: 1,
-          color: Colors.grey, // Vertical line color
-          margin: const EdgeInsets.symmetric(horizontal: 10),
-        ),
-        RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: "${active.toString()}\n",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-              TextSpan(
-                text: "Active",
-                style: TextStyle(
-                  color: Colors.green, // Change color to match your theme
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          height: 40,
-          width: 1,
-          color: Colors.grey, // Vertical line color
-          margin: const EdgeInsets.symmetric(horizontal: 10),
-        ),
-        RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: "${rejected.toString()}\n",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-              TextSpan(
-                text: "Rejected",
-                style: TextStyle(
-                  color: Colors.red, // Change color to match your theme
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget cardItems(IconData icon, String title, String ontapRoute,
       BuildContext context, Function onTap, Color iconColor) {
     return Column(
@@ -705,6 +607,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
           icon,
           color: iconColor,
         ),
+        // SvgPicture.asset('assets/icons/svg/cards.svg'),
         SizedBox(
           height: 10,
         ),
@@ -712,7 +615,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
           title,
           textAlign: TextAlign.center,
           style: TextStyle(
-            color: const Color.fromARGB(255, 255, 255, 255),
+            color: Theme.of(context).colorScheme.onSecondary,
             fontWeight: FontWeight.bold,
             fontSize: 12,
             fontFamily: GoogleFonts.play().fontFamily,
@@ -733,7 +636,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
           userName,
           textAlign: TextAlign.center,
           style: TextStyle(
-              color: const Color.fromARGB(255, 255, 255, 255),
+              color: Theme.of(context).colorScheme.onSecondary,
               fontWeight: FontWeight.normal,
               fontSize: 12,
               fontFamily: GoogleFonts.play().fontFamily),

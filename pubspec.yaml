@@ -134,6 +134,7 @@ flutter:
     - assets/images/vector/
     - assets/fonts/
     - assets/icons/
+    - assets/icons/svg/
     - assets/modal/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
