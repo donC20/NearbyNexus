@@ -30,7 +30,10 @@ class UtilityFunctions {
   void showSnackbar(
       String message, Color backgroundColor, BuildContext context) {
     final snackBar = SnackBar(
-      content: Text(message),
+      content: Text(
+        message,
+        style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+      ),
       backgroundColor: backgroundColor,
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);

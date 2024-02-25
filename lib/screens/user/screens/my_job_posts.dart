@@ -1,9 +1,10 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, library_private_types_in_public_api, use_key_in_widget_constructors
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, library_private_types_in_public_api, use_key_in_widget_constructors, no_leading_underscores_for_local_identifiers
 
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:getwidget/components/accordion/gf_accordion.dart';
@@ -42,13 +43,11 @@ class _MyJobPostsState extends State<MyJobPosts> {
         ? DefaultTabController(
             length: 2,
             child: Scaffold(
-              backgroundColor: KColors.backgroundDark,
+              backgroundColor: Theme.of(context).colorScheme.background,
               appBar: AppBar(
-                backgroundColor: KColors.backgroundDark,
-                iconTheme: IconThemeData(color: KColors.primary),
                 title: Text(
-                  'Back',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  'Manage Posts',
+                  style: TextStyle(fontSize: 16),
                 ),
                 bottom: TabBar(
                   dividerHeight: 0.3,
@@ -68,7 +67,6 @@ class _MyJobPostsState extends State<MyJobPosts> {
                         children: [
                           Icon(
                             Icons.access_alarm,
-                            color: Colors.white,
                             size: 18,
                           ),
                           SizedBox(
@@ -76,7 +74,6 @@ class _MyJobPostsState extends State<MyJobPosts> {
                           ),
                           Text(
                             'My posts',
-                            style: TextStyle(color: Colors.white),
                           ),
                         ],
                       ),
@@ -88,7 +85,6 @@ class _MyJobPostsState extends State<MyJobPosts> {
                         children: [
                           Icon(
                             Icons.history,
-                            color: Colors.white,
                             size: 18,
                           ),
                           SizedBox(
@@ -96,7 +92,6 @@ class _MyJobPostsState extends State<MyJobPosts> {
                           ),
                           Text(
                             'History',
-                            style: TextStyle(color: Colors.white),
                           ),
                         ],
                       ),
@@ -108,7 +103,7 @@ class _MyJobPostsState extends State<MyJobPosts> {
                 children: [
                   // Active Posts Content
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(5.0),
                     child: Column(
                       children: [
                         SizedBox(
@@ -155,7 +150,6 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                   ),
                                   Text(
                                     "Sorry no active jobs found.",
-                                    style: TextStyle(color: Colors.white),
                                   )
                                 ],
                               );
@@ -171,286 +165,43 @@ class _MyJobPostsState extends State<MyJobPosts> {
                               return documentData;
                             }).toList();
                             return Expanded(
-                              child: ListView.separated(
-                                itemCount: jobPosts.length,
-                                itemBuilder: (context, index) {
-                                  Map<String, dynamic> postData =
-                                      jobPosts[index];
-                                  List<dynamic> totalApplicants = [];
-                                  int applicantsCount = 0;
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: ListView.separated(
+                                  itemCount: jobPosts.length,
+                                  itemBuilder: (context, index) {
+                                    Map<String, dynamic> postData =
+                                        jobPosts[index];
+                                    List<dynamic> totalApplicants = [];
+                                    int applicantsCount = 0;
 
-                                  if (postData['applicants'] != null &&
-                                      postData['applicants'] is List<dynamic> &&
-                                      postData['applicants'].isNotEmpty) {
-                                    totalApplicants = postData['applicants'];
-                                    applicantsCount = totalApplicants.length;
-                                  } else {
-                                    applicantsCount = 0;
-                                  }
-
-                                  return isAnyButtonPressed
-                                      ? Center(
-                                          child:
-                                              GFLoader(type: GFLoaderType.ios),
-                                        )
-                                      : Container(
-                                          padding: EdgeInsets.all(0),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: Column(
-                                            children: [
-                                              GFAccordion(
-                                                title: postData['jobTitle'],
-                                                contentChild: Column(
-                                                  children: [
-                                                    // Display your data here using jobPosts list
-                                                    // For example:
-                                                    tableRows(
-                                                      icon:
-                                                          Icons.calendar_month,
-                                                      title: "Posted on",
-                                                      value: UtilityFunctions()
-                                                          .findTimeDifference(
-                                                              postData[
-                                                                  'jobPostDate']),
-                                                    ),
-                                                    tableRows(
-                                                        icon: Icons.timelapse,
-                                                        title: "Expires in",
-                                                        value: UtilityFunctions()
-                                                            .findTimeDifference(
-                                                                postData[
-                                                                    'expiryDate'],
-                                                                trailingText:
-                                                                    '')),
-                                                    tableRows(
-                                                        icon: Icons
-                                                            .calendar_month,
-                                                        title: "Budget",
-                                                        value: UtilityFunctions()
-                                                            .formatSalary(
-                                                                postData[
-                                                                    'budget'])),
-
-                                                    tableRows(
-                                                        icon: Icons
-                                                            .local_activity,
-                                                        title: "Skills",
-                                                        value: UtilityFunctions()
-                                                            .convertListToCommaSeparatedString(
-                                                                postData[
-                                                                    'skills'])),
-                                                    tableRows(
-                                                        icon: Icons
-                                                            .location_city_sharp,
-                                                        title: "Location",
-                                                        value: UtilityFunctions()
-                                                            .convertListToCommaSeparatedString(
-                                                                postData[
-                                                                    'preferredLocation'])),
-                                                    Card(
-                                                      margin: EdgeInsets.all(0),
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .only(
-                                                                left: 15,
-                                                                top: 15,
-                                                                right: 15),
-                                                        child: tableRows(
-                                                            icon: Icons
-                                                                .verified_user,
-                                                            title: "Applicants",
-                                                            value:
-                                                                applicantsCount
-                                                                    .toString()),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 300,
-                                                      child:
-                                                          SingleChildScrollView(
-                                                        child: Html(
-                                                          data: postData[
-                                                              'jobDescription'],
-                                                          style: {
-                                                            "body": Style(
-                                                              color: const Color
-                                                                  .fromARGB(
-                                                                  255,
-                                                                  0,
-                                                                  0,
-                                                                  0), // Text color for the body
-                                                            ),
-                                                            "p": Style(
-                                                              fontSize: FontSize(
-                                                                  14), // Font size for paragraphs
-                                                              color: Colors
-                                                                  .black, // Text color for paragraphs
-                                                            ),
-                                                            // Add more styles as needed for different HTML elements
-                                                          },
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Divider(
-                                                      color: Colors.grey,
-                                                    ),
-                                                    // Add more rows based on your data
-                                                    SizedBox(
-                                                      height: 15,
-                                                    ),
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceAround,
-                                                      children: [
-                                                        GFButton(
-                                                          onPressed: () async {
-                                                            try {
-                                                              setState(() {
-                                                                isAnyButtonPressed =
-                                                                    true;
-                                                              });
-                                                              showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (BuildContext
-                                                                          context) {
-                                                                    return AlertDialog(
-                                                                      title: Text(
-                                                                          "Warning"),
-                                                                      content: Text(
-                                                                          "Are you sure to remove this post?"),
-                                                                      actions: [
-                                                                        ElevatedButton(
-                                                                          child: Text(
-                                                                              "OK",
-                                                                              style: TextStyle(color: Colors.white)),
-                                                                          onPressed:
-                                                                              () async {
-                                                                            await FirebaseFirestore.instance.collection('job_posts').doc(postData['documentId']).update({
-                                                                              "isWithdrawn": true,
-                                                                              "expiryDate": Timestamp.fromDate(DateTime.now()), // Replace DateTime(2000, 1, 1) with your desired DateTime
-                                                                            }).then((value) {
-                                                                              UtilityFunctions().showSnackbar("Post removed", Colors.red, context);
-                                                                              setState(() {
-                                                                                isAnyButtonPressed = false;
-                                                                              });
-                                                                              Navigator.of(context).pop();
-                                                                            });
-                                                                          },
-                                                                        ),
-                                                                        ElevatedButton(
-                                                                          child:
-                                                                              Text(
-                                                                            "Cancel",
-                                                                            style:
-                                                                                TextStyle(color: Colors.white),
-                                                                          ),
-                                                                          onPressed:
-                                                                              () {
-                                                                            setState(() {
-                                                                              isAnyButtonPressed = false;
-                                                                            });
-                                                                            Navigator.of(context).pop();
-                                                                          },
-                                                                        ),
-                                                                      ],
-                                                                    );
-                                                                  });
-                                                            } catch (e) {
-                                                              logger.e(e);
-                                                              setState(() {
-                                                                isAnyButtonPressed =
-                                                                    false;
-                                                              });
-                                                            }
-                                                          },
-                                                          text: "Withdraw",
-                                                          shape: GFButtonShape
-                                                              .pills,
-                                                          color:
-                                                              Colors.redAccent,
-                                                          icon: Icon(
-                                                            Icons.block,
-                                                            size: 18,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                        GFButton(
-                                                          onPressed: () async {
-                                                            await pickDate(
-                                                                context,
-                                                                postData,
-                                                                "posts");
-                                                          },
-                                                          text: "Extend",
-                                                          icon: Icon(
-                                                            Icons
-                                                                .extension_rounded,
-                                                            size: 18,
-                                                            color: Colors.white,
-                                                          ),
-                                                          shape: GFButtonShape
-                                                              .pills,
-                                                          color: Colors.green,
-                                                        ),
-                                                        GFButton(
-                                                          onPressed: () {
-                                                            Navigator.pushNamed(
-                                                                context,
-                                                                '/proposal_screen',
-                                                                arguments: {
-                                                                  'post_id':
-                                                                      postData[
-                                                                          'documentId'],
-                                                                  'userType':
-                                                                      'normal_user'
-                                                                });
-                                                          },
-                                                          shape: GFButtonShape
-                                                              .pills,
-                                                          icon: Icon(
-                                                            Icons.wysiwyg,
-                                                            size: 18,
-                                                            color: Colors.white,
-                                                          ),
-                                                          text: "Proposals",
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                                collapsedIcon:
-                                                    Icon(Icons.arrow_drop_down),
-                                                expandedIcon:
-                                                    Icon(Icons.arrow_drop_up),
-                                                collapsedTitleBackgroundColor:
-                                                    Color.fromARGB(
-                                                        255, 255, 255, 255),
-                                                contentBorderRadius:
-                                                    BorderRadius.only(
-                                                  bottomLeft:
-                                                      Radius.circular(10),
-                                                  bottomRight:
-                                                      Radius.circular(10),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                },
-                                separatorBuilder:
-                                    (BuildContext context, int index) {
-                                  return SizedBox(
-                                    height: 15,
-                                  );
-                                },
+                                    if (postData['applicants'] != null &&
+                                        postData['applicants']
+                                            is List<dynamic> &&
+                                        postData['applicants'].isNotEmpty) {
+                                      totalApplicants = postData['applicants'];
+                                      applicantsCount = totalApplicants.length;
+                                    } else {
+                                      applicantsCount = 0;
+                                    }
+                                    final gap_10 = SizedBox(
+                                      height: 8,
+                                    );
+                                    return isAnyButtonPressed
+                                        ? Center(
+                                            child: GFLoader(
+                                                type: GFLoaderType.ios),
+                                          )
+                                        : tileForPostData(postData, gap_10,
+                                            applicantsCount, 'active');
+                                  },
+                                  separatorBuilder:
+                                      (BuildContext context, int index) {
+                                    return SizedBox(
+                                      height: 20,
+                                    );
+                                  },
+                                ),
                               ),
                             );
                           },
@@ -508,7 +259,6 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                   ),
                                   Text(
                                     "Sorry no history found.",
-                                    style: TextStyle(color: Colors.white),
                                   )
                                 ],
                               );
@@ -540,151 +290,11 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                   } else {
                                     applicantsCount = 0;
                                   }
-
-                                  return Container(
-                                    padding: EdgeInsets.all(0),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        GFAccordion(
-                                          title: postData['jobTitle'],
-                                          contentChild: Column(
-                                            children: [
-                                              // Display your data here using jobPosts list
-                                              // For example:
-                                              tableRows(
-                                                icon: Icons.calendar_month,
-                                                title: "Posted on",
-                                                value: UtilityFunctions()
-                                                    .findTimeDifference(
-                                                        postData[
-                                                            'jobPostDate']),
-                                              ),
-                                              tableRows(
-                                                  icon: Icons.timelapse,
-                                                  title: "Expires in",
-                                                  value:
-                                                      "Expired ${UtilityFunctions().findTimeDifference(postData['expiryDate'], trailingText: 'ago')}"),
-                                              tableRows(
-                                                  icon: Icons.calendar_month,
-                                                  title: "Budget",
-                                                  value: UtilityFunctions()
-                                                      .formatSalary(
-                                                          postData['budget'])),
-
-                                              tableRows(
-                                                  icon: Icons.local_activity,
-                                                  title: "Skills",
-                                                  value: UtilityFunctions()
-                                                      .convertListToCommaSeparatedString(
-                                                          postData['skills'])),
-                                              tableRows(
-                                                  icon:
-                                                      Icons.location_city_sharp,
-                                                  title: "Location",
-                                                  value: UtilityFunctions()
-                                                      .convertListToCommaSeparatedString(
-                                                          postData[
-                                                              'preferredLocation'])),
-                                              Card(
-                                                margin: EdgeInsets.all(0),
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          left: 15,
-                                                          top: 15,
-                                                          right: 15),
-                                                  child: tableRows(
-                                                      icon: Icons.verified_user,
-                                                      title: "Applicants",
-                                                      value: applicantsCount
-                                                          .toString()),
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 300,
-                                                child: SingleChildScrollView(
-                                                  child: Html(
-                                                    data: postData[
-                                                        'jobDescription'],
-                                                    style: {
-                                                      "body": Style(
-                                                        color: const Color
-                                                            .fromARGB(255, 0, 0,
-                                                            0), // Text color for the body
-                                                      ),
-                                                      "p": Style(
-                                                        fontSize: FontSize(
-                                                            14), // Font size for paragraphs
-                                                        color: Colors
-                                                            .black, // Text color for paragraphs
-                                                      ),
-                                                      // Add more styles as needed for different HTML elements
-                                                    },
-                                                  ),
-                                                ),
-                                              ),
-                                              Divider(
-                                                color: Colors.grey,
-                                              ),
-                                              // Add more rows based on your data
-                                              SizedBox(
-                                                height: 15,
-                                              ),
-                                              Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceAround,
-                                                children: [
-                                                  GFButton(
-                                                    onPressed: () {
-                                                      pickDate(context,
-                                                          postData, "history");
-                                                    },
-                                                    text: "Repost",
-                                                    shape: GFButtonShape.pills,
-                                                    color: Colors.redAccent,
-                                                    fullWidthButton: true,
-                                                    icon: Icon(
-                                                      Icons.redo,
-                                                      size: 18,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  GFButton(
-                                                    onPressed: () {},
-                                                    shape: GFButtonShape.pills,
-                                                    fullWidthButton: true,
-                                                    icon: Icon(
-                                                      Icons.wysiwyg,
-                                                      size: 18,
-                                                      color: Colors.white,
-                                                    ),
-                                                    text: "Proposals",
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          collapsedIcon:
-                                              Icon(Icons.arrow_drop_down),
-                                          expandedIcon:
-                                              Icon(Icons.arrow_drop_up),
-                                          collapsedTitleBackgroundColor:
-                                              Color.fromARGB(
-                                                  255, 255, 255, 255),
-                                          contentBorderRadius:
-                                              BorderRadius.only(
-                                            bottomLeft: Radius.circular(10),
-                                            bottomRight: Radius.circular(10),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                  final gap_10 = SizedBox(
+                                    height: 8,
                                   );
+                                  return tileForPostData(postData, gap_10,
+                                      applicantsCount, 'expired');
                                 },
                                 separatorBuilder:
                                     (BuildContext context, int index) {
@@ -707,69 +317,296 @@ class _MyJobPostsState extends State<MyJobPosts> {
             child: CircularProgressIndicator(),
           );
   }
-}
 
-pickDate(BuildContext context, postData, from) async {
-  DateTime selectedDate = DateTime.now();
+  Widget tileForPostData(
+    postData,
+    gap_10,
+    applicantsCount,
+    status,
+  ) {
+    final ThemeData theme = Theme.of(context);
 
-  final pickedDate = await showDatePicker(
-    context: context,
-    initialDate: DateTime.now(),
-    firstDate: DateTime.now(),
-    lastDate: DateTime(2030),
-  );
-  if (pickedDate != null) {
-    selectedDate = pickedDate;
-    if (from == "posts") {
-      await FirebaseFirestore.instance
-          .collection('job_posts')
-          .doc(postData['documentId'])
-          .update({"expiryDate": selectedDate}).then((value) =>
-              UtilityFunctions()
-                  .showSnackbar("Date extended", Colors.green, context));
-    } else {
-      await FirebaseFirestore.instance
-          .collection('job_posts')
-          .doc(postData['documentId'])
-          .update({"expiryDate": selectedDate, "isWithdrawn": false}).then(
-              (value) => UtilityFunctions().showSnackbar(
-                  "Job posted successfully with extended date",
-                  Colors.green,
-                  context));
-    }
-  }
-}
-
-Widget tableRows({IconData? icon, required String title, required value}) {
-  return Column(
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    Widget _buildExpansionTile() {
+      return ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        leading: Icon(CupertinoIcons.book_circle),
+        title: Text("Read description"),
         children: [
-          Row(
-            children: [
-              Icon(
-                icon,
-                size: 18,
+          Container(
+            constraints: BoxConstraints(minHeight: 50, maxHeight: 300),
+            child: SingleChildScrollView(
+              child: Html(
+                data: postData['jobDescription'],
+                style: {
+                  "body": Style(
+                    color: theme
+                        .colorScheme.onSecondary, // Text color for the body
+                  ),
+                  "p": Style(
+                    fontSize: FontSize(14), // Font size for paragraphs
+                    color:
+                        theme.colorScheme.tertiary, // Text color for paragraphs
+                  ),
+                  // Add more styles as needed for different HTML elements
+                },
               ),
-              SizedBox(
-                width: 5,
-              ),
-              Text(
-                title,
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          Text(
-            value,
-            style: TextStyle(fontSize: 12),
+            ),
           ),
         ],
+      );
+    }
+
+    Widget _buildActionButtonRow() {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          GFButton(
+            onPressed: () async {
+              try {
+                setState(() {
+                  isAnyButtonPressed = true;
+                });
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text("Warning"),
+                      content: Text("Are you sure to remove this post?"),
+                      actions: [
+                        ElevatedButton(
+                          child:
+                              Text("OK", style: TextStyle(color: Colors.white)),
+                          onPressed: () async {
+                            await FirebaseFirestore.instance
+                                .collection('job_posts')
+                                .doc(postData['documentId'])
+                                .update({
+                              "isWithdrawn": true,
+                              "expiryDate": Timestamp.fromDate(DateTime.now()),
+                            }).then((value) {
+                              UtilityFunctions().showSnackbar(
+                                "Post removed",
+                                Colors.red,
+                                context,
+                              );
+                              setState(() {
+                                isAnyButtonPressed = false;
+                              });
+                              Navigator.of(context).pop();
+                            });
+                          },
+                        ),
+                        ElevatedButton(
+                          child: Text("Cancel",
+                              style: TextStyle(color: Colors.white)),
+                          onPressed: () {
+                            setState(() {
+                              isAnyButtonPressed = false;
+                            });
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              } catch (e) {
+                logger.e(e);
+                setState(() {
+                  isAnyButtonPressed = false;
+                });
+              }
+            },
+            text: "Withdraw",
+            shape: GFButtonShape.pills,
+            color: Colors.redAccent,
+            icon: Icon(
+              Icons.block,
+              size: 18,
+              color: Colors.white,
+            ),
+          ),
+          GFButton(
+            onPressed: () async {
+              await pickDate(context, postData, "posts");
+            },
+            text: "Extend",
+            icon: Icon(
+              Icons.extension_rounded,
+              size: 18,
+              color: Colors.white,
+            ),
+            shape: GFButtonShape.pills,
+            color: Colors.green,
+          ),
+          GFButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/proposal_screen', arguments: {
+                'post_id': postData['documentId'],
+                'userType': 'normal_user'
+              });
+            },
+            shape: GFButtonShape.pills,
+            icon: Icon(
+              Icons.wysiwyg,
+              size: 18,
+              color: Colors.white,
+            ),
+            text: "Proposals",
+          ),
+        ],
+      );
+    }
+
+    Widget _buildInactiveActionButtonColumn() {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          GFButton(
+            onPressed: () {
+              pickDate(context, postData, "history");
+            },
+            text: "Repost",
+            shape: GFButtonShape.pills,
+            color: Colors.redAccent,
+            fullWidthButton: true,
+            icon: Icon(
+              Icons.redo,
+              size: 18,
+              color: Colors.white,
+            ),
+          ),
+          GFButton(
+            onPressed: () {},
+            shape: GFButtonShape.pills,
+            fullWidthButton: true,
+            icon: Icon(
+              Icons.wysiwyg,
+              size: 18,
+              color: Colors.white,
+            ),
+            text: "Proposals",
+          ),
+        ],
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.all(20.0),
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.colorScheme.outline),
+        borderRadius: BorderRadius.circular(10),
+        color: theme.colorScheme.onSecondaryContainer,
       ),
-      SizedBox(
-        height: 15,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text(
+            postData['jobTitle'],
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          gap_10,
+          Divider(color: theme.colorScheme.outline),
+          gap_10,
+          tableRows(
+            icon: Icons.local_activity,
+            title: "Skills",
+            value: UtilityFunctions()
+                .convertListToCommaSeparatedString(postData['skills']),
+          ),
+          gap_10,
+          tableRows(
+            icon: CupertinoIcons.money_dollar_circle_fill,
+            title: "Budget",
+            value: UtilityFunctions().formatSalary(postData['budget']),
+          ),
+          gap_10,
+          tableRows(
+            icon: Icons.location_city_sharp,
+            title: "Location",
+            value: UtilityFunctions().convertListToCommaSeparatedString(
+                postData['preferredLocation']),
+          ),
+          gap_10,
+          tableRows(
+            icon: Icons.verified_user,
+            title: "Applicants",
+            value: applicantsCount.toString(),
+          ),
+          gap_10,
+          tableRows(
+            icon: Icons.calendar_month,
+            title: "Posted on",
+            value:
+                UtilityFunctions().findTimeDifference(postData['jobPostDate']),
+          ),
+          gap_10,
+          _buildExpansionTile(),
+          gap_10,
+          status == 'active'
+              ? _buildActionButtonRow()
+              : _buildInactiveActionButtonColumn(),
+        ],
       ),
-    ],
-  );
+    );
+  }
+
+  Widget tableRows({IconData? icon, required String title, required value}) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 18),
+                SizedBox(width: 5),
+                Text(
+                  title,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            Text(
+              UtilityFunctions().truncateText(value, 25),
+              style: TextStyle(fontSize: 12),
+            ),
+          ],
+        ),
+        SizedBox(height: 15),
+      ],
+    );
+  }
+
+  pickDate(BuildContext context, postData, from) async {
+    DateTime selectedDate = DateTime.now();
+
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2030),
+    );
+    if (pickedDate != null) {
+      selectedDate = pickedDate;
+      if (from == "posts") {
+        await FirebaseFirestore.instance
+            .collection('job_posts')
+            .doc(postData['documentId'])
+            .update({"expiryDate": selectedDate}).then((value) =>
+                UtilityFunctions()
+                    .showSnackbar("Date extended", Colors.green, context));
+      } else {
+        await FirebaseFirestore.instance
+            .collection('job_posts')
+            .doc(postData['documentId'])
+            .update({"expiryDate": selectedDate, "isWithdrawn": false}).then(
+                (value) => UtilityFunctions().showSnackbar(
+                    "Job posted successfully with extended date",
+                    Colors.green,
+                    context));
+      }
+    }
+  }
 }
