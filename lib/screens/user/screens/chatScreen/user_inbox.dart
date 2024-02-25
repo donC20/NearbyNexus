@@ -62,19 +62,17 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
     searchUserFromChat();
 
     return Scaffold(
-        backgroundColor: KColors.backgroundDark,
+        backgroundColor: Theme.of(context).colorScheme.background,
         appBar: AppBar(
-          backgroundColor: KColors.backgroundDark,
           leading: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Icon(
               CupertinoIcons.back,
-              color: Colors.white,
             ),
           ),
           title: Text(
             "Inbox",
-            style: TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(fontSize: 16),
           ),
           titleSpacing: 125,
           actions: [
@@ -133,7 +131,10 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
                           SizedBox(height: 15),
                           Text(
                             "No messages till now!",
-                            style: TextStyle(color: Colors.white, fontSize: 18),
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onSecondary,
+                                fontSize: 18),
                           ),
                         ],
                       ),
@@ -157,14 +158,13 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
           return Center(
             child: Text(
               'Please wait...',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
             ),
           );
         } else if (snapshot.hasError) {
           return Center(
             child: Text(
               'Error: ${snapshot.error}',
-              style: TextStyle(color: Colors.white),
             ),
           );
         }
@@ -174,7 +174,6 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
           return Center(
             child: Text(
               'No data available',
-              style: TextStyle(color: Colors.white),
             ),
           );
         }
@@ -225,7 +224,8 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
               ),
               title: Text(
                 data['name'] ?? '',
-                style: TextStyle(color: Colors.white),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
               subtitle: _message?.type == Type.image
                   ? Row(
@@ -233,12 +233,14 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
                         Icon(
                           CupertinoIcons.photo,
                           size: 16,
-                          color: Colors.white,
+                          color: Theme.of(context).colorScheme.onTertiary,
                         ),
                         SizedBox(width: 5),
                         Text(
                           "Image",
-                          style: TextStyle(color: Colors.white, fontSize: 12),
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onTertiary,
+                              fontSize: 12),
                         ),
                       ],
                     )
@@ -246,11 +248,19 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
                       maxLines: 1,
                       text: TextSpan(children: [
                         if (_message?.fromId == ApiFunctions.user?.uid)
-                          TextSpan(text: 'You ~ '),
+                          TextSpan(
+                            text: 'You ~ ',
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onTertiary,
+                                fontSize: 12),
+                          ),
                         TextSpan(
                           text: UtilityFunctions()
                                   .truncateText(_message!.msg, 30) ??
                               "Hey, there!",
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onTertiary,
+                              fontSize: 12),
                         ),
                       ]),
                     ),
@@ -264,7 +274,7 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
                         : '',
                     style: TextStyle(
                         fontSize: 13,
-                        color: Color.fromARGB(137, 255, 255, 255)),
+                        color: Theme.of(context).colorScheme.onSecondary),
                   ),
                   StreamBuilder<int>(
                     stream: ApiFunctions.getUnreadMessagesCount(chatUser),

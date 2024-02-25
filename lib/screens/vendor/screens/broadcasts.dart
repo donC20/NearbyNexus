@@ -136,7 +136,7 @@ class _BroadcastPageState extends State<BroadcastPage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: [SystemUiOverlay.top]);
     return Scaffold(
-      backgroundColor: Color(0xFF0F1014),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: Column(
         children: [
           Stack(children: [
@@ -477,8 +477,16 @@ class _BroadcastPageState extends State<BroadcastPage> {
         child: Container(
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
-              color: const Color.fromARGB(0, 100, 75, 75),
-              border: Border.all(color: Color.fromARGB(28, 255, 255, 255)),
+              color: Theme.of(context).colorScheme.onSecondaryContainer,
+              border: Border.all(color: Theme.of(context).colorScheme.outline),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.shadow.withOpacity(0.24),
+                  offset: Offset(-1, 3),
+                  blurRadius: 12,
+                  spreadRadius: 3,
+                )
+              ],
               borderRadius: BorderRadius.circular(15)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -494,7 +502,9 @@ class _BroadcastPageState extends State<BroadcastPage> {
                 ),
                 title: Text(
                   fetch["jobTitle"],
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: 14),
                 ),
                 trailing: RichText(
                   text: TextSpan(children: [
@@ -504,20 +514,20 @@ class _BroadcastPageState extends State<BroadcastPage> {
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white)),
+                            color: Theme.of(context).colorScheme.onSecondary)),
                     TextSpan(
                         text: " / hour",
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
-                            color: Colors.white54))
+                            color: Theme.of(context).colorScheme.tertiary))
                   ]),
                 ),
                 subtitle: Row(
                   children: [
                     Icon(
                       Icons.access_time,
-                      color: const Color.fromARGB(144, 255, 255, 255),
+                      color: Theme.of(context).colorScheme.onTertiary,
                       size: 16,
                     ),
                     SizedBox(
@@ -527,7 +537,7 @@ class _BroadcastPageState extends State<BroadcastPage> {
                       UtilityFunctions()
                           .findTimeDifference(fetch['jobPostDate']),
                       style: TextStyle(
-                          color: const Color.fromARGB(144, 255, 255, 255),
+                          color: Theme.of(context).colorScheme.onTertiary,
                           fontSize: 12),
                     ),
                   ],
@@ -550,7 +560,7 @@ class _BroadcastPageState extends State<BroadcastPage> {
                                   fetch["preferredLocation"][i],
                                   5), // Adjust the character limit
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.tertiary,
                             fontSize: 12,
                           ),
                         ),
@@ -558,7 +568,11 @@ class _BroadcastPageState extends State<BroadcastPage> {
                   ],
                 ),
                 trailing: fetch["preferredLocation"].length > 3
-                    ? Text("+ ${fetch["preferredLocation"].length - 3} more")
+                    ? Text(
+                        "+ ${fetch["preferredLocation"].length - 3} more",
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.tertiary),
+                      )
                     : SizedBox(),
               ),
               Padding(
@@ -587,13 +601,14 @@ class _BroadcastPageState extends State<BroadcastPage> {
           decoration: BoxDecoration(
             color: const Color.fromARGB(73, 158, 158, 158),
             border: Border.all(
-              color: Color.fromARGB(22, 255, 255, 255),
+              color: Theme.of(context).colorScheme.outline,
             ),
             borderRadius: BorderRadius.circular(50),
           ),
           child: Text(
             title,
-            style: TextStyle(color: Colors.white, fontSize: 10),
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.onSecondary, fontSize: 10),
           ),
         ),
         SizedBox(

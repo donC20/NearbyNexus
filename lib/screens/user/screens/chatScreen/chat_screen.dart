@@ -43,9 +43,8 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: KColors.backgroundDark,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 23, 24, 28),
         elevation: 1,
         automaticallyImplyLeading: false,
         flexibleSpace: SafeArea(child: _appBar()),
@@ -162,8 +161,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 // Back button
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(CupertinoIcons.back,
-                      color: Color.fromARGB(212, 255, 255, 255)),
+                  icon: const Icon(
+                    CupertinoIcons.back,
+                  ),
                 ),
                 // User profile picture
                 ClipRRect(
@@ -189,9 +189,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     // User name
                     Text(
                       userName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
-                        color: Color.fromARGB(221, 255, 255, 255),
+                        color: Theme.of(context).colorScheme.onSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),

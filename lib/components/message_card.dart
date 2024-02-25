@@ -57,7 +57,7 @@ class _MessageCardState extends State<MessageCard> {
             padding: EdgeInsets.all(10),
             margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             decoration: BoxDecoration(
-                color: Color.fromARGB(255, 255, 255, 255),
+                color: Theme.of(context).colorScheme.onPrimary,
                 //making borders curved
                 borderRadius: BorderRadius.circular(10)),
             child: widget.message.type == Type.text
@@ -138,7 +138,7 @@ class _MessageCardState extends State<MessageCard> {
             padding: EdgeInsets.all(10),
             margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
             decoration: BoxDecoration(
-                color: KColors.primary,
+                color: Theme.of(context).colorScheme.primary,
 
                 //making borders curved
                 borderRadius: BorderRadius.circular(10)),
