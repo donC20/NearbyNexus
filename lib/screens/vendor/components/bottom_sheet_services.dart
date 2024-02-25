@@ -34,7 +34,7 @@ class _BottomSheetVendorState extends State<BottomSheetVendor> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ??'');
+    var initData = json.decode(userLoginData ?? '');
     setState(() {
       uid = initData['uid'];
     });
@@ -107,15 +107,14 @@ class _BottomSheetVendorState extends State<BottomSheetVendor> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.fieldName,
+                  widget.fieldName.toUpperCase(),
                   style: TextStyle(
-                    color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Divider(
-                  color: const Color.fromARGB(169, 255, 255, 255),
+                  color: Theme.of(context).colorScheme.surface,
                 ),
                 SizedBox(height: 10),
                 Column(
@@ -123,6 +122,7 @@ class _BottomSheetVendorState extends State<BottomSheetVendor> {
                     return Wrap(
                       spacing: 5,
                       runSpacing: 2,
+                      alignment: WrapAlignment.spaceAround,
                       children: [
                         GestureDetector(
                           onTap: () {

@@ -74,10 +74,12 @@ class UtilityFunctions {
 
   // Salary formater
   String formatSalary(double salary) {
+    String formattedSalary =
+        salary.toStringAsFixed(0); // Convert to string with no decimal places
+
     if (salary < 1000) {
-      return salary.toString();
+      return formattedSalary; // Return the salary as is if it's less than 1000
     } else {
-      String formattedSalary = salary.toString();
       String result = '';
       int count = 0;
 

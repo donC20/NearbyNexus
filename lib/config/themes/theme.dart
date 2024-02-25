@@ -23,6 +23,8 @@ ThemeData lightMode = ThemeData(
     outline: Color.fromARGB(98, 127, 127, 127),
     // boxshadow
     shadow: Color(0x007c7b7b),
+    // Divider
+    surface: Color.fromARGB(115, 86, 86, 86),
   ),
   appBarTheme: AppBarTheme(
     backgroundColor: Color.fromARGB(243, 255, 255, 255),
@@ -58,5 +60,6 @@ ThemeData darkMode = ThemeData(
     tertiary: Colors.white,
     onTertiary: Color.fromARGB(255, 255, 255, 255),
     outline: Color.fromARGB(28, 255, 255, 255),
+    surface: Color.fromARGB(89, 255, 255, 255),
   ),
 );

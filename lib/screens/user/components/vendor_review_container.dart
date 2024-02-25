@@ -25,16 +25,9 @@ class UserReviewContainer extends StatelessWidget {
       padding: EdgeInsets.all(16.0),
       margin: EdgeInsets.symmetric(vertical: 10.0),
       decoration: BoxDecoration(
-        border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
         borderRadius: BorderRadius.circular(10),
-        color: Color.fromARGB(186, 42, 40, 40),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.9),
-            blurRadius: 10,
-            spreadRadius: 2,
-          ),
-        ],
+        color: Theme.of(context).colorScheme.onSecondaryContainer,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,14 +47,13 @@ class UserReviewContainer extends StatelessWidget {
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16.0,
-                            color: Color.fromARGB(255, 255, 255, 255)),
+                            color: Theme.of(context).colorScheme.onSecondary),
                       ),
                       SizedBox(height: 2),
                       Text(
                         timeStampConverter(timePosted), // Example review date
                         style: TextStyle(
                           fontSize: 10.0,
-                          color: Colors.grey,
                         ),
                       ),
                     ],
@@ -79,9 +71,9 @@ class UserReviewContainer extends StatelessWidget {
                   Text(
                     rating.toStringAsFixed(1),
                     style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14.0,
-                        color: Colors.white),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.0,
+                    ),
                   ),
                 ],
               ),
@@ -95,7 +87,7 @@ class UserReviewContainer extends StatelessWidget {
             reviewText,
             style: TextStyle(
               fontSize: 14.0,
-              color: const Color.fromARGB(221, 150, 150, 150),
+              color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
         ],

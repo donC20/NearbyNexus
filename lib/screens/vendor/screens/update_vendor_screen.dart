@@ -90,9 +90,8 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.black,
         leadingWidth: MediaQuery.sizeOf(context).width,
         leading: Padding(
           padding: const EdgeInsets.only(left: 20, top: 10),
@@ -131,12 +130,12 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
                   controller: _aboutController,
                   maxLength: maxLetters,
                   maxLines: null,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                  ),
+                  style: GoogleFonts.poppins(),
                   decoration: InputDecoration(
                     labelText: 'Tell us more about you',
-                    labelStyle: TextStyle(color: Colors.white, fontSize: 12),
+                    labelStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.onTertiary,
+                        fontSize: 12),
                     counterText: "${_aboutController.text.length}/$maxLetters",
                     counterStyle: TextStyle(
                       color: Colors.white,
@@ -176,13 +175,10 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
                   shape: Border.all(color: Color.fromARGB(74, 158, 158, 158)),
                   title: Text(
                     "Manage services",
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 14),
+                    style: TextStyle(fontSize: 14),
                   ),
                   trailing: Icon(
                     Icons.settings,
-                    color: Colors.white,
                   ),
                 ),
               ),
@@ -192,7 +188,8 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
               InkWell(
                 onTap: () {
                   showModalBottomSheet<void>(
-                    backgroundColor: Colors.black,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.onSecondaryContainer,
                     context: context,
                     isScrollControlled: true,
                     showDragHandle: true,
@@ -205,13 +202,10 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
                   shape: Border.all(color: Color.fromARGB(74, 158, 158, 158)),
                   title: Text(
                     "Add more services",
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 14),
+                    style: TextStyle(fontSize: 14),
                   ),
                   trailing: Icon(
                     Icons.add,
-                    color: Colors.white,
                   ),
                 ),
               ),
@@ -234,22 +228,20 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
                 headerStyle: HeaderStyle(
                   leftChevronIcon: Icon(
                     Icons.chevron_left,
-                    color: Colors.grey,
                   ),
                   rightChevronIcon: Icon(
                     Icons.chevron_right,
-                    color: Colors.grey,
                   ),
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: const Color.fromARGB(87, 255, 255, 255),
+                      color: Theme.of(context).colorScheme.outline,
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   titleCentered: true,
                   titleTextStyle: TextStyle(
                     fontSize: 20,
-                    color: const Color.fromARGB(255, 255, 255, 255),
+                    color: Theme.of(context).colorScheme.onSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -269,8 +261,9 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
                         255, 235, 34, 8), // Adjust this color for visibility
                   ),
                   defaultTextStyle: TextStyle(
-                    color: const Color.fromARGB(
-                        255, 255, 255, 255), // Adjust this color for visibility
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onTertiary, // Adjust this color for visibility
                   ),
                   weekendTextStyle: TextStyle(
                     color: Colors.red, // Adjust this color for visibility
@@ -305,7 +298,6 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
                                     child: Center(
                                       child: Text(
                                         "You have't selected any dates.",
-                                        style: TextStyle(color: Colors.black),
                                       ),
                                     ),
                                   ),
@@ -384,11 +376,12 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
                                         ScaffoldMessenger.of(context)
                                             .showSnackBar(
                                           SnackBar(
-                                            backgroundColor: Colors.white,
+                                            backgroundColor:
+                                                Color.fromARGB(255, 50, 221, 3),
                                             content: Text(
                                               'Dates Saved',
                                               style: TextStyle(
-                                                  color: Colors.black),
+                                                  color: Colors.white),
                                             ),
                                           ),
                                         );
@@ -430,7 +423,11 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
                     },
                   );
                 },
-                child: Text('View Selected Dates'),
+                child: Text(
+                  'View Selected Dates',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary),
+                ),
               ),
               headings("Choose your working days.",
                   "This helps users to contact you on the days you specified. Provide the days you are available for services."),
@@ -443,7 +440,8 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
               InkWell(
                 onTap: () {
                   showModalBottomSheet<void>(
-                    backgroundColor: Colors.black,
+                    backgroundColor:
+                        Theme.of(context).colorScheme.onSecondaryContainer,
                     context: context,
                     isScrollControlled: true,
                     showDragHandle: true,
@@ -456,13 +454,10 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
                   shape: Border.all(color: Color.fromARGB(74, 158, 158, 158)),
                   title: Text(
                     "Add more languages",
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 14),
+                    style: TextStyle(fontSize: 14),
                   ),
                   trailing: Icon(
                     Icons.add,
-                    color: Colors.white,
                   ),
                 ),
               ),
@@ -472,7 +467,8 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
               InkWell(
                 onTap: () {
                   showModalBottomSheet<void>(
-                    backgroundColor: Color.fromARGB(255, 32, 26, 47),
+                    backgroundColor:
+                        Theme.of(context).colorScheme.onSecondaryContainer,
                     context: context,
                     showDragHandle: true,
                     builder: (BuildContext context) {
@@ -486,13 +482,10 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
                   shape: Border.all(color: Color.fromARGB(74, 158, 158, 158)),
                   title: Text(
                     "Manage languages",
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 14),
+                    style: TextStyle(fontSize: 14),
                   ),
                   trailing: Icon(
                     Icons.settings,
-                    color: Colors.white,
                   ),
                 ),
               ),
@@ -509,7 +502,11 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
               onPressed: () {
                 updateAbout(_aboutController.text);
               },
-              child: Text("Update"),
+              child: Text(
+                "Update",
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+              ),
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all<Color>(
                     Colors.blue), // Change the background color
@@ -537,59 +534,59 @@ class _UpdateVendorScreenState extends State<UpdateVendorScreen> {
       ),
     );
   }
-}
 
 // bottom bar
-void _openBottomSheet(BuildContext context) {
-  showModalBottomSheet<void>(
-    backgroundColor: Color.fromARGB(255, 32, 26, 47),
-    context: context,
-    showDragHandle: true,
-    builder: (BuildContext context) {
-      return BottomSheetVendor(
-        fieldName: "services",
-      );
-    },
-  );
-}
+  void _openBottomSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      backgroundColor: Theme.of(context).colorScheme.onSecondaryContainer,
+      context: context,
+      showDragHandle: true,
+      builder: (BuildContext context) {
+        return BottomSheetVendor(
+          fieldName: "services",
+        );
+      },
+    );
+  }
 
-Widget headings(String heading, String subheading) {
-  return Column(
-    children: [
-      SizedBox(
-        height: 15,
-      ),
-      RichText(
-        textAlign: TextAlign.start,
-        text: TextSpan(children: [
-          TextSpan(
-            text: "$heading\n",
-            style: TextStyle(
-              fontSize: 25,
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
+  Widget headings(String heading, String subheading) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 15,
+        ),
+        RichText(
+          textAlign: TextAlign.start,
+          text: TextSpan(children: [
+            TextSpan(
+              text: "$heading\n",
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.w900,
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
             ),
-          ),
-          WidgetSpan(
-              child: Divider(
-            color: const Color.fromARGB(134, 158, 158, 158),
-          )),
-          TextSpan(
-            text: subheading,
-            style: TextStyle(
-              fontSize: 14,
-              color: Color.fromARGB(151, 255, 255, 255),
+            WidgetSpan(
+                child: Divider(
+              color: const Color.fromARGB(134, 158, 158, 158),
+            )),
+            TextSpan(
+              text: subheading,
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
             ),
-          ),
-        ]),
-      ),
-      SizedBox(
-        height: 15,
-      ),
-    ],
-  );
-}
+          ]),
+        ),
+        SizedBox(
+          height: 15,
+        ),
+      ],
+    );
+  }
 
 // Widget bottomNav(Function updateAbout) {
 //   return ;
 // }
+}

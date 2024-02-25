@@ -45,7 +45,7 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
 
       // Assing admin data to the UI
       setState(() {
-        imageLink =
+        imageLink = fetchedData['image'] ??
             "https://firebasestorage.googleapis.com/v0/b/nearbynexus1.appspot.com/o/profile_images%2Ficons8-user-default-96.png?alt=media&token=0ffd4c8b-fc40-4f19-a457-1ef1e0ba6ae5";
         nameLoginned = fetchedData['name'];
         email = fetchedData['emailId']['id'];
@@ -58,15 +58,13 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        elevation: 1,
         shadowColor: Color.fromARGB(92, 255, 255, 255),
-        backgroundColor: Colors.black,
         title: Text(
           "Manage Account",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
       body: isFetching == true
@@ -126,13 +124,12 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                     ),
                     title: Text(
                       nameLoginned,
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
                       email,
                       style: TextStyle(
-                          color: Color.fromARGB(108, 255, 255, 255),
+                          color: Theme.of(context).colorScheme.tertiary,
                           fontWeight: FontWeight.normal,
                           fontSize: 12),
                     ),
@@ -154,18 +151,15 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                   ListTile(
                     leading: Icon(
                       Icons.settings,
-                      color: Colors.white,
                     ),
                     title: Text(
                       "Settings",
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    horizontalTitleGap: -5,
                     trailing: IconButton(
                         onPressed: () {},
                         icon: Icon(
                           Icons.arrow_right_alt,
-                          color: Colors.white,
                         )),
                   ),
                   Divider(
@@ -177,13 +171,11 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                   ListTile(
                     leading: Icon(
                       Icons.support,
-                      color: Colors.white,
                     ),
                     title: Text(
                       "Support",
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    horizontalTitleGap: -5,
                     trailing: IconButton(
                         onPressed: () async {
                           final Uri _emailLaunchUri = Uri(
@@ -204,40 +196,33 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                         },
                         icon: Icon(
                           Icons.arrow_right_alt,
-                          color: Colors.white,
                         )),
                   ),
                   ListTile(
                     leading: Icon(
                       Icons.edit_document,
-                      color: Colors.white,
                     ),
                     title: Text(
                       "Terms and conditions",
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    horizontalTitleGap: -5,
                     trailing: IconButton(
                         onPressed: () {
                           Navigator.pushNamed(context, "terms_Conditions");
                         },
                         icon: Icon(
                           Icons.arrow_right_alt,
-                          color: Colors.white,
                         )),
                   ),
                   ListTile(
                     leading: Icon(
                       Icons.language,
-                      color: Colors.white,
                     ),
                     title: Text(
                       "Language",
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    horizontalTitleGap: -5,
-                    trailing: Text("English",
-                        style: TextStyle(color: Colors.white, fontSize: 14)),
+                    trailing: Text("English", style: TextStyle(fontSize: 14)),
                   ),
                   InkWell(
                     onTap: () async {
@@ -261,37 +246,32 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                             fontSize: 14,
                             fontWeight: FontWeight.bold),
                       ),
-                      horizontalTitleGap: -5,
                     ),
                   ),
-                  SizedBox(
-                    child: Center(
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            width: 100,
-                            height: 100,
-                            'assets/images/nearbynexus(WL).png',
-                          ),
-                          Text(
-                            "NearbyNexus",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.normal,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  // SizedBox(
+                  //   child: Center(
+                  //     child: Column(
+                  //       children: [
+                  //         Image.asset(
+                  //           width: 100,
+                  //           height: 100,
+                  //           'assets/images/nearbynexus(WL).png',
+                  //         ),
+                  //         Text(
+                  //           "NearbyNexus",
+                  //           style: TextStyle(
+                  //             color: Colors.white,
+                  //             fontWeight: FontWeight.normal,
+                  //             fontSize: 16,
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
-      bottomNavigationBar: BottomGNav(
-        activePage: 5,
-        isSelectable: true,
-      ),
     );
   }
 }

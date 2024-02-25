@@ -24,7 +24,7 @@ class _VendorSideSearchScreenState extends State<VendorSideSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(15.0),
@@ -36,7 +36,7 @@ class _VendorSideSearchScreenState extends State<VendorSideSearchScreen> {
                   "Search for the desired services you need.",
                   textAlign: TextAlign.start,
                   style: TextStyle(
-                    color: Colors.white60,
+                    color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
               ),
@@ -50,13 +50,13 @@ class _VendorSideSearchScreenState extends State<VendorSideSearchScreen> {
                     searchResults.clear();
                   },
                   style: GoogleFonts.poppins(
-                      color: Color.fromARGB(255, 255, 255, 255)),
+                      color: Theme.of(context).colorScheme.onSecondary),
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Color.fromARGB(112, 158, 158, 158),
-                    labelText: 'What service you need?',
-                    hintStyle: const TextStyle(
-                      color: Color.fromARGB(255, 240, 237, 237),
+                    labelText: 'Search name, services, email etc.',
+                    hintStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.tertiary,
                       fontSize: 14,
                     ),
                     labelStyle: const TextStyle(
@@ -164,7 +164,10 @@ class _VendorSideSearchScreenState extends State<VendorSideSearchScreen> {
                               Text(
                                 'Enter any keyword to search.',
                                 style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondary,
+                                    fontSize: 16),
                               ),
                             ],
                           ),
@@ -250,20 +253,23 @@ class _VendorSideSearchScreenState extends State<VendorSideSearchScreen> {
                               title: Text(
                                 userData['name'],
                                 style: TextStyle(
-                                    color: const Color.fromARGB(
-                                        255, 255, 255, 255)),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSecondary),
                               ),
                               subtitle: Text(
                                 userData['geoLocation'],
                                 style: TextStyle(
-                                    color: Color.fromARGB(141, 255, 255, 255)),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onTertiary),
                               ),
                             ),
                           );
                         },
                         separatorBuilder: (BuildContext context, int index) {
                           return Divider(
-                            color: Color.fromARGB(50, 207, 216, 220),
+                            color: const Color.fromARGB(118, 158, 158, 158),
                             thickness: 1.0,
                             indent: 0,
                             endIndent: 0,

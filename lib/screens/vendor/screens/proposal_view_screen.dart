@@ -29,32 +29,38 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     logger.e(argument['proposal']);
     return Scaffold(
-      backgroundColor: KColors.backgroundDark,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10.0),
-            child: Container(
-              padding: EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                  color: Colors.blue, borderRadius: BorderRadius.circular(50)),
-              child: Text(
-                "Under Review",
-                style: TextStyle(color: Colors.white, fontSize: 11),
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(right: 10.0),
+          //   child: Container(
+          //     padding: EdgeInsets.all(6),
+          //     decoration: BoxDecoration(
+          //         color: Colors.blue, borderRadius: BorderRadius.circular(50)),
+          //     child: Text(
+          //       "Under Review",
+          //       style: TextStyle(color: Colors.white, fontSize: 11),
+          //     ),
+          //   ),
+          // ),
         ],
-        backgroundColor: KColors.backgroundDark,
-        iconTheme: IconThemeData(color: Colors.white),
         title: Text(
-          'Back',
-          style: TextStyle(color: Colors.white, fontSize: 16),
+          'Proposal',
         ),
       ),
       body: Container(
         decoration: BoxDecoration(
-            color: Colors.grey[900],
+            color: Theme.of(context).colorScheme.onSecondaryContainer,
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
+            boxShadow: [
+              BoxShadow(
+                offset: const Offset(12, 26),
+                blurRadius: 50,
+                spreadRadius: 0,
+                color: Colors.grey.withOpacity(.1),
+              ),
+            ],
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(150.0),
             )),
@@ -89,7 +95,6 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                             Text(
                               userData['name'],
                               style: TextStyle(
-                                color: Colors.white,
                                 fontSize: 18.0,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -118,7 +123,6 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                                 Text(
                                   userData['actualRating'].toString(),
                                   style: TextStyle(
-                                    color: Colors.white,
                                     fontSize: 12.0,
                                   ),
                                 ),
@@ -140,7 +144,6 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                                 Text(
                                   UtilityFunctions().shortScaleNumbers(20),
                                   style: TextStyle(
-                                    color: Colors.white,
                                     fontSize: 12.0,
                                   ),
                                 ),
@@ -163,7 +166,6 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                                   UtilityFunctions().shortScaleNumbers(
                                       allRatings.length.toDouble()),
                                   style: TextStyle(
-                                    color: Colors.white,
                                     fontSize: 12.0,
                                   ),
                                 ),
@@ -176,7 +178,7 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left: 12),
                       child: Divider(
-                        color: Color.fromARGB(41, 255, 255, 255),
+                        color: Theme.of(context).colorScheme.surface,
                       ),
                     ),
                     SizedBox(
@@ -186,7 +188,7 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                       padding: EdgeInsets.all(10),
                       width: MediaQuery.sizeOf(context).width - 50,
                       decoration: BoxDecoration(
-                          color: const Color.fromARGB(54, 255, 255, 255),
+                          color: Color.fromARGB(54, 8, 247, 255),
                           borderRadius: BorderRadius.circular(10)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -207,7 +209,6 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                               Icon(
                                 Icons.currency_rupee_sharp,
                                 size: 15,
-                                color: Colors.white,
                               ),
                               RichText(
                                 text: TextSpan(
@@ -222,6 +223,9 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                                   ],
                                   style: TextStyle(
                                       fontSize: 16,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onTertiary,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -240,16 +244,12 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                         children: [
                           Text(
                             'Proposed on',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Text(
                             formatTimestamp(
                                 argument['proposal']["applicationPostedTime"]),
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.normal),
+                            style: TextStyle(fontWeight: FontWeight.normal),
                           ),
                         ],
                       ),
@@ -263,7 +263,6 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                         child: SingleChildScrollView(
                           child: Text(
                             argument['proposal']['proposal_description'],
-                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ),

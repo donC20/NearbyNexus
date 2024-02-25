@@ -43,7 +43,7 @@ class _DaysMapperState extends State<DaysMapper> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ??'');
+    var initData = json.decode(userLoginData ?? '');
     setState(() {
       uid = initData['uid'];
     });
@@ -129,7 +129,6 @@ class _DaysMapperState extends State<DaysMapper> {
                             Text(
                               day,
                               style: TextStyle(
-                                color: const Color.fromARGB(255, 255, 255, 255),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                               ),
@@ -167,7 +166,6 @@ class _DaysMapperState extends State<DaysMapper> {
                             Text(
                               day,
                               style: TextStyle(
-                                color: const Color.fromARGB(255, 255, 255, 255),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                               ),

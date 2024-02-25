@@ -54,29 +54,20 @@ class _ContentBoxState extends State<ContentBox> {
       decoration: BoxDecoration(
         border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
         borderRadius: BorderRadius.circular(10), // Add border radius
-        color: Color.fromARGB(186, 42, 40, 40),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.9),
-            blurRadius: 10,
-            spreadRadius: 2,
-          ),
-        ],
+        color: Theme.of(context).colorScheme.background,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           ListTile(
-            horizontalTitleGap: -9,
             leading: Icon(
               Icons.image,
-              color: Colors.white,
               size: 22,
             ),
             title: Text(
               "Change photo",
-              style: TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(fontSize: 14),
             ),
             onTap: () async {
               final pickedFile =
@@ -122,18 +113,16 @@ class _ContentBoxState extends State<ContentBox> {
             },
           ),
           Divider(
-            color: Color.fromARGB(89, 255, 255, 255),
+            color: Theme.of(context).colorScheme.surface,
           ),
           ListTile(
-            horizontalTitleGap: -9,
             leading: Icon(
               Icons.edit_outlined,
-              color: Colors.white,
               size: 22,
             ),
             title: Text(
               "Change details",
-              style: TextStyle(color: Colors.white, fontSize: 14),
+              style: TextStyle(fontSize: 14),
             ),
             onTap: () {
               Navigator.pop(context);

@@ -80,12 +80,10 @@ class _PaymentVendorLogScreenState extends State<PaymentVendorLogScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.black,
         title: Text(
           "Payment logs",
-          style: TextStyle(color: Colors.white),
         ),
       ),
       body: Padding(
@@ -134,13 +132,32 @@ class _PaymentVendorLogScreenState extends State<PaymentVendorLogScreen> {
 
                                     return Container(
                                       decoration: BoxDecoration(
-                                          color: Colors.white,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSecondaryContainer,
+                                          boxShadow: Theme.of(context)
+                                                      .brightness ==
+                                                  Brightness.dark
+                                              ? []
+                                              : [
+                                                  BoxShadow(
+                                                    offset:
+                                                        const Offset(12, 26),
+                                                    blurRadius: 50,
+                                                    spreadRadius: 0,
+                                                    color: Colors.grey
+                                                        .withOpacity(.1),
+                                                  ),
+                                                ],
+                                          border: Border.all(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .outline),
                                           borderRadius:
                                               BorderRadius.circular(5)),
                                       child: ExpansionTile(
                                         childrenPadding:
                                             const EdgeInsets.all(15.0),
-                                        iconColor: Colors.black,
                                         leading: UserLoadingAvatar(
                                             userImage: data['userImage']),
                                         title: Text(
@@ -161,8 +178,9 @@ class _PaymentVendorLogScreenState extends State<PaymentVendorLogScreen> {
                                           Column(
                                             children: [
                                               Divider(
-                                                color: const Color.fromARGB(
-                                                    255, 40, 37, 37),
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .surface,
                                               ),
                                               detailsOfJob("Payed for",
                                                   data['serviceName']),
@@ -189,7 +207,10 @@ class _PaymentVendorLogScreenState extends State<PaymentVendorLogScreen> {
                                                     MainAxisAlignment.center,
                                                 children: [
                                                   ElevatedButton.icon(
-                                                    icon: Icon(Icons.print),
+                                                    icon: Icon(
+                                                      Icons.print,
+                                                      color: Colors.white,
+                                                    ),
                                                     onPressed: () async {
                                                       try {
                                                         final invoice = Invoice(
@@ -271,10 +292,6 @@ class _PaymentVendorLogScreenState extends State<PaymentVendorLogScreen> {
           },
         ),
       ),
-      bottomNavigationBar: BottomGNav(
-        activePage: 3,
-        isSelectable: false,
-      ),
     );
   }
 }
@@ -285,8 +302,7 @@ Widget detailsOfJob(String title, String value) {
     children: [
       Text(
         title,
-        style:
-            TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontSize: 14),
+        style: TextStyle(fontSize: 14),
       ),
       Text(
         value,

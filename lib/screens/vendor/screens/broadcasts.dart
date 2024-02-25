@@ -53,7 +53,7 @@ class _BroadcastPageState extends State<BroadcastPage> {
         await UtilityFunctions().fetchFromSharedPreference('filterList');
 
     Map<String, dynamic>? filterData;
-    filterData = json.decode(data);
+    filterData = json.decode(data) ?? {};
 
     logger.f('frommshare pref $filterData');
 
@@ -280,6 +280,9 @@ class _BroadcastPageState extends State<BroadcastPage> {
                       });
                 },
                 style: ElevatedButton.styleFrom(
+                    side: BorderSide(
+                        color: Theme.of(context).colorScheme.outline),
+                    elevation: 1,
                     backgroundColor:
                         Colors.white, // Change the button color as needed
                     shape: CircleBorder()),
@@ -350,7 +353,6 @@ class _BroadcastPageState extends State<BroadcastPage> {
                           child: Center(
                             child: Text(
                               'No jobs found',
-                              style: TextStyle(color: Colors.white),
                             ),
                           ),
                         ),

@@ -51,9 +51,8 @@ class _JobLogsState extends State<JobLogs> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.black,
         title: Text('Job logs'),
       ),
       body: SafeArea(
@@ -99,10 +98,6 @@ class _JobLogsState extends State<JobLogs> {
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: BottomGNav(
-        activePage: 5,
-        isSelectable: true,
       ),
     );
   }
@@ -163,20 +158,21 @@ Widget tabCompleted(uid, firestore, tab) {
                       document.data() as Map<String, dynamic>;
                   return Container(
                     width: MediaQuery.sizeOf(context).width,
-                    height: 170,
                     decoration: BoxDecoration(
                       border:
                           Border.all(color: Color.fromARGB(43, 158, 158, 158)),
                       borderRadius: BorderRadius.circular(10),
-                      color: Color.fromARGB(186, 42, 40, 40),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color.fromARGB(255, 15, 14, 14)
-                              .withOpacity(0.9),
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        ),
-                      ],
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      boxShadow: Theme.of(context).brightness == Brightness.dark
+                          ? [] // Empty list for no shadow in dark theme
+                          : [
+                              BoxShadow(
+                                color: Color.fromARGB(38, 67, 65, 65)
+                                    .withOpacity(0.5),
+                                blurRadius: 20,
+                                spreadRadius: 1,
+                              ),
+                            ],
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(15.0),
@@ -193,7 +189,6 @@ Widget tabCompleted(uid, firestore, tab) {
                                   Text(
                                     documentData['service_name'],
                                     style: TextStyle(
-                                        color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 20,
                                         fontFamily:
@@ -246,7 +241,6 @@ Widget tabCompleted(uid, firestore, tab) {
                                   Icon(
                                     Icons.history,
                                     size: 18,
-                                    color: Color.fromARGB(147, 255, 255, 255),
                                   ),
                                   SizedBox(
                                     width: 5,
@@ -255,7 +249,6 @@ Widget tabCompleted(uid, firestore, tab) {
                                     timeStampConverter(
                                         documentData['dateRequested']),
                                     style: TextStyle(
-                                        color: Colors.white30,
                                         fontWeight: FontWeight.normal,
                                         fontSize: 12,
                                         fontFamily:
@@ -271,7 +264,6 @@ Widget tabCompleted(uid, firestore, tab) {
                                   Icon(
                                     Icons.location_on,
                                     size: 18,
-                                    color: Color.fromARGB(147, 255, 255, 255),
                                   ),
                                   SizedBox(
                                     width: 5,
@@ -279,7 +271,6 @@ Widget tabCompleted(uid, firestore, tab) {
                                   Text(
                                     documentData['location'],
                                     style: TextStyle(
-                                        color: Colors.white30,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14,
                                         fontFamily:
@@ -295,7 +286,6 @@ Widget tabCompleted(uid, firestore, tab) {
                                   Icon(
                                     Icons.currency_rupee,
                                     size: 18,
-                                    color: Color.fromARGB(147, 255, 255, 255),
                                   ),
                                   SizedBox(
                                     width: 5,
@@ -407,8 +397,8 @@ Widget tabCompleted(uid, firestore, tab) {
                   );
                 },
                 separatorBuilder: (context, index) {
-                  return Divider(
-                    color: Colors.grey,
+                  return SizedBox(
+                    height: 15,
                   );
                 },
                 itemCount: documentList.length,
@@ -418,7 +408,6 @@ Widget tabCompleted(uid, firestore, tab) {
           return Center(
             child: Text(
               "Sorry, No new jobs are added or completed.",
-              style: TextStyle(color: Colors.white),
             ),
           );
         },

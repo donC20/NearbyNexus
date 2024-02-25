@@ -110,9 +110,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
     }
     //
     return Scaffold(
-      backgroundColor: KColors.backgroundDark,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: KColors.backgroundDark,
         iconTheme: IconThemeData(color: KColors.primary),
         elevation: 1,
         actions: [
@@ -126,13 +125,15 @@ class _JobDetailPageState extends State<JobDetailPage> {
               shape: GFButtonShape.pills,
               icon: Icon(
                 Icons.all_out,
-                color: Colors.white,
                 size: 20,
               ),
               text: "Proposals",
               size: GFSize.MEDIUM,
-              color: Color.fromARGB(193, 5, 5, 5),
-              borderSide: BorderSide(color: Color.fromARGB(75, 255, 255, 255)),
+              textColor: Theme.of(context).colorScheme.onSecondary,
+              color: Theme.of(context).colorScheme.onSecondaryContainer,
+              borderSide: BorderSide(
+                color: Theme.of(context).colorScheme.outline,
+              ),
             ),
           ),
           _apply(context, argument['post_id']),
@@ -177,7 +178,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
 
   Widget _header(BuildContext context, argument) {
     return Container(
-      color: KColors.backgroundDark,
+      color: Theme.of(context).colorScheme.background,
       padding: EdgeInsets.symmetric(horizontal: 26, vertical: 26),
       child: Column(
         children: [
@@ -186,7 +187,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
               Container(
                 padding: EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
+                    border: Border.all(
+                        color: Theme.of(context).colorScheme.outline),
                     borderRadius: BorderRadius.circular(100)),
                 child: UserLoadingAvatar(
                   userImage: argument["posted_user"]["image"],
@@ -203,7 +205,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: KColors.titleDark,
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
                   ),
                   SizedBox(height: 5),
@@ -222,16 +224,14 @@ class _JobDetailPageState extends State<JobDetailPage> {
           ),
           SizedBox(height: 32),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               _headerStatic("Salary",
                   "₹ ${UtilityFunctions().formatSalary(argument["job_data"]["budget"])}"),
+              SizedBox(
+                width: 30,
+              ),
               _headerStatic("Applicants", "45"),
-              _headerStatic(
-                  "Expiry",
-                  UtilityFunctions().findTimeDifference(
-                      argument["job_data"]["expiryDate"],
-                      trailingText: "left")),
             ],
           ),
         ],
@@ -248,7 +248,6 @@ class _JobDetailPageState extends State<JobDetailPage> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w400,
-            color: const Color.fromARGB(255, 255, 255, 255),
           ),
         ),
         SizedBox(height: 5),
@@ -296,11 +295,13 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   //     height: 20, color: KColors.primary),
                 },
                 decoration: BoxDecoration(
-                  color: CupertinoColors.darkBackgroundGray,
+                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  border:
+                      Border.all(color: Theme.of(context).colorScheme.outline),
                   borderRadius: BorderRadius.circular(50),
                 ),
                 thumbDecoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 43, 43, 43),
+                  color: Color.fromARGB(111, 79, 79, 79),
                   borderRadius: BorderRadius.circular(50),
                   boxShadow: [
                     BoxShadow(
@@ -345,11 +346,15 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   data: argument["job_data"]["jobDescription"],
                   style: {
                     "body": Style(
-                      color: Colors.white, // Text color for the body
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSecondary, // Text color for the body
                     ),
                     "p": Style(
                       fontSize: FontSize(14), // Font size for paragraphs
-                      color: Colors.white, // Text color for paragraphs
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onTertiary, // Text color for paragraphs
                     ),
                     // Add more styles as needed for different HTML elements
                   },
@@ -398,9 +403,9 @@ class _JobDetailPageState extends State<JobDetailPage> {
       Text(
         "Employer Details",
         style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: const Color.fromARGB(198, 255, 255, 255)),
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       SizedBox(
         height: 15,
@@ -420,13 +425,13 @@ class _JobDetailPageState extends State<JobDetailPage> {
                         Icon(
                           iconMapEmployer[entry.key],
                           size: 20,
-                          color: Color.fromARGB(179, 198, 198, 198),
+                          color: Theme.of(context).colorScheme.onTertiary,
                         ),
                         SizedBox(width: 8),
                         Text(
                           entry.key,
                           style: TextStyle(
-                            color: Color.fromARGB(179, 244, 244, 244),
+                            color: Theme.of(context).colorScheme.onTertiary,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
                           ),
@@ -449,9 +454,9 @@ class _JobDetailPageState extends State<JobDetailPage> {
       Text(
         "Job Details",
         style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: const Color.fromARGB(198, 255, 255, 255)),
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       SizedBox(
         height: 15,
@@ -474,13 +479,13 @@ class _JobDetailPageState extends State<JobDetailPage> {
                             Icon(
                               iconMapJobInfo[entry.key],
                               size: 20,
-                              color: Color.fromARGB(179, 198, 198, 198),
+                              color: Theme.of(context).colorScheme.onTertiary,
                             ),
                             SizedBox(width: 8),
                             Text(
                               entry.key,
                               style: TextStyle(
-                                color: Color.fromARGB(179, 244, 244, 244),
+                                color: Theme.of(context).colorScheme.onTertiary,
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -494,12 +499,16 @@ class _JobDetailPageState extends State<JobDetailPage> {
                         if (entry.value is List)
                           Text(
                             (entry.value as List).join(", "),
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onTertiary,
+                                fontSize: 12),
                           )
                         else
                           Text(
                             entry.value.toString(),
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.onTertiary,
+                                fontSize: 12),
                           ),
                       ],
                     ),

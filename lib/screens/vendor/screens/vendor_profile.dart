@@ -175,7 +175,7 @@ class _VendorProfileState extends State<VendorProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: isFetching == true
           ? Container(
               decoration: BoxDecoration(color: Colors.black),
@@ -236,7 +236,7 @@ class _VendorProfileState extends State<VendorProfile> {
                         right: 10,
                         top: 30,
                         child: Container(
-                          width: 50,
+                          width: 60,
                           height: 40,
                           decoration: BoxDecoration(
                               borderRadius:
@@ -322,7 +322,6 @@ class _VendorProfileState extends State<VendorProfile> {
                         },
                         icon: Icon(
                           Icons.edit,
-                          color: Colors.white,
                         )),
                   ),
                 ),
@@ -357,9 +356,7 @@ class _VendorProfileState extends State<VendorProfile> {
                         // About me container
                         Text("About me",
                             style: TextStyle(
-                                color: Color.fromARGB(255, 208, 208, 208),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 0,
                         ),
@@ -368,8 +365,6 @@ class _VendorProfileState extends State<VendorProfile> {
                             ? Center(
                                 child: Text("Please add your about.",
                                     style: TextStyle(
-                                        color:
-                                            Color.fromARGB(255, 208, 208, 208),
                                         fontSize: 14,
                                         fontWeight: FontWeight.normal)),
                               )
@@ -377,8 +372,8 @@ class _VendorProfileState extends State<VendorProfile> {
                                 about,
                                 textAlign: TextAlign.justify,
                                 style: TextStyle(
-                                  color: Color.fromARGB(191, 208, 208, 208),
-                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.tertiary,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.normal,
                                 ),
                               ),
@@ -396,9 +391,7 @@ class _VendorProfileState extends State<VendorProfile> {
                         ),
                         Text("What I do",
                             style: TextStyle(
-                                color: Color.fromARGB(255, 208, 208, 208),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 5,
                         ),
@@ -420,9 +413,7 @@ class _VendorProfileState extends State<VendorProfile> {
                                 }).toList())
                             : Text("Services not available.",
                                 style: TextStyle(
-                                    color: Color.fromARGB(255, 208, 208, 208),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold)),
+                                    fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 15,
                         ),
@@ -437,9 +428,7 @@ class _VendorProfileState extends State<VendorProfile> {
                         ),
                         Text("My working days",
                             style: TextStyle(
-                                color: Color.fromARGB(255, 208, 208, 208),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 5,
                         ),
@@ -470,9 +459,7 @@ class _VendorProfileState extends State<VendorProfile> {
                               )
                             : Text("Working days not available.",
                                 style: TextStyle(
-                                    color: Color.fromARGB(255, 208, 208, 208),
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold)),
+                                    fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 15,
                         ),
@@ -484,15 +471,11 @@ class _VendorProfileState extends State<VendorProfile> {
                         ),
                         Text("Languages",
                             style: TextStyle(
-                                color: Color.fromARGB(255, 208, 208, 208),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         languages!.isEmpty
                             ? Center(
                                 child: Text("Please add your.",
                                     style: TextStyle(
-                                        color:
-                                            Color.fromARGB(255, 208, 208, 208),
                                         fontSize: 14,
                                         fontWeight: FontWeight.normal)),
                               )
@@ -517,9 +500,7 @@ class _VendorProfileState extends State<VendorProfile> {
                         ),
                         Text("What others say.",
                             style: TextStyle(
-                                color: Color.fromARGB(255, 208, 208, 208),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 5,
                         ),
@@ -642,68 +623,68 @@ class _VendorProfileState extends State<VendorProfile> {
             ),
     );
   }
-}
 
 // widgets
-Widget modernCircularProgressBar(double value, String tagline, int maxValue,
-    bool isProgressable, Color progressColor) {
-  double percentage = (value / maxValue) * 100;
+  Widget modernCircularProgressBar(double value, String tagline, int maxValue,
+      bool isProgressable, Color progressColor) {
+    double percentage = (value / maxValue) * 100;
 
-  return Column(
-    children: [
-      Stack(
-        alignment: Alignment.center,
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(30)),
-              color: Color.fromARGB(0, 255, 255, 255), // Add a background color
-            ),
-            child: Center(
-              child: isProgressable
-                  ? Text(
-                      '$value/$maxValue',
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 239, 255, 9),
-                        fontSize: 12, // Adjusted font size
-                        fontWeight: FontWeight.bold,
+    return Column(
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(30)),
+                color:
+                    Color.fromARGB(0, 255, 255, 255), // Add a background color
+              ),
+              child: Center(
+                child: isProgressable
+                    ? Text(
+                        '$value/$maxValue',
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 205, 137, 0),
+                          fontSize: 12, // Adjusted font size
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
+                    : Text(
+                        '${value.toInt()}',
+                        style: TextStyle(
+                          fontSize: 12, // Adjusted font size
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    )
-                  : Text(
-                      '${value.toInt()}',
-                      style: TextStyle(
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 12, // Adjusted font size
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+              ),
             ),
-          ),
-          SizedBox(
-            width: 75,
-            height: 75,
-            child: CircularProgressIndicator(
-              value: percentage / 100,
-              strokeWidth: 6,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                  progressColor), // Change color to indicate progress
-              backgroundColor: Colors.grey.withOpacity(0.5),
+            SizedBox(
+              width: 75,
+              height: 75,
+              child: CircularProgressIndicator(
+                value: percentage / 100,
+                strokeWidth: 6,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    progressColor), // Change color to indicate progress
+                backgroundColor: Colors.grey.withOpacity(0.5),
+              ),
             ),
-          ),
-        ],
-      ),
-      SizedBox(
-        height: 10,
-      ),
-      Text(
-        tagline,
-        style: TextStyle(
-          color: Colors.grey,
-          fontSize: 14,
+          ],
         ),
-      ),
-    ],
-  );
+        SizedBox(
+          height: 10,
+        ),
+        Text(
+          tagline,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSecondary,
+            fontSize: 14,
+          ),
+        ),
+      ],
+    );
+  }
 }

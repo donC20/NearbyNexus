@@ -7,8 +7,6 @@ import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dar
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:getwidget/getwidget.dart';
 import 'package:logger/logger.dart';
 
 class ProposalScreen extends StatefulWidget {
@@ -25,25 +23,25 @@ class _ProposalScreenState extends State<ProposalScreen> {
     final Map<String, dynamic> argument =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: KColors.backgroundDark,
-        iconTheme: IconThemeData(color: Colors.white),
         title: Text(
           'Job Proposals',
-          style: TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
-      body: Container(
-        color: Colors.black,
-        child: StreamBuilder<Map<String, dynamic>>(
-          stream: VendorCommonFn().streamDocumentsData(
-            colectionId: 'job_posts',
-            uidParam: argument["post_id"],
-          ),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              Map<String, dynamic>? jobData = snapshot.data;
-              List<dynamic> applicantsDataDocs = jobData!["applications"];
+      body: StreamBuilder<Map<String, dynamic>>(
+        stream: VendorCommonFn().streamDocumentsData(
+          colectionId: 'job_posts',
+          uidParam: argument["post_id"],
+        ),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            Map<String, dynamic>? jobData = snapshot.data;
+            List<dynamic> applicantsDataDocs = [];
+            if (jobData!["applications"] != null) {
+              applicantsDataDocs = jobData["applications"];
+            }
+            if (applicantsDataDocs.isNotEmpty) {
               return ListView.separated(
                 padding: EdgeInsets.all(8.0),
                 itemCount: applicantsDataDocs.length,
@@ -71,7 +69,8 @@ class _ProposalScreenState extends State<ProposalScreen> {
                               return _buildProposalCard(
                                   applicationDataFullVolume,
                                   userData,
-                                  argument,currentApplicantId);
+                                  argument,
+                                  currentApplicantId);
                             } else {
                               return Center(
                                 child: Text(
@@ -95,22 +94,29 @@ class _ProposalScreenState extends State<ProposalScreen> {
                 },
                 separatorBuilder: (context, index) => SizedBox(height: 5),
               );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('Error: ${snapshot.error}'),
-              );
             } else {
               return Center(
-                child: CircularProgressIndicator(),
+                child: Text(
+                  'No proposals found!',
+                ),
               );
             }
-          },
-        ),
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
       ),
     );
   }
 
-  Widget _buildProposalCard(applicant, userData, argument,currentApplicationId) {
+  Widget _buildProposalCard(
+      applicant, userData, argument, currentApplicationId) {
     List<dynamic> allRatings = [];
 
     if (userData != null && userData is Map<String, dynamic>) {
@@ -123,10 +129,24 @@ class _ProposalScreenState extends State<ProposalScreen> {
                 arguments: {
                   'proposal': applicant,
                   'userType': argument['userType'],
-                  'application_id':currentApplicationId,
+                  'application_id': currentApplicationId,
                 }),
-            child: Card(
-              color: Colors.grey[900], // Setting dark card background color
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.onSecondaryContainer,
+                border:
+                    Border.all(color: Theme.of(context).colorScheme.outline),
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color:
+                        Theme.of(context).colorScheme.shadow.withOpacity(0.24),
+                    offset: Offset(-1, 3),
+                    blurRadius: 12,
+                    spreadRadius: 3,
+                  )
+                ],
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -143,7 +163,6 @@ class _ProposalScreenState extends State<ProposalScreen> {
                           Text(
                             userData['name'],
                             style: TextStyle(
-                              color: Colors.white,
                               fontSize: 18.0,
                               fontWeight: FontWeight.bold,
                             ),
@@ -172,7 +191,6 @@ class _ProposalScreenState extends State<ProposalScreen> {
                               Text(
                                 userData['actualRating'].toString(),
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 12.0,
                                 ),
                               ),
@@ -194,7 +212,6 @@ class _ProposalScreenState extends State<ProposalScreen> {
                               Text(
                                 UtilityFunctions().shortScaleNumbers(20),
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 12.0,
                                 ),
                               ),
@@ -217,7 +234,6 @@ class _ProposalScreenState extends State<ProposalScreen> {
                                 UtilityFunctions().shortScaleNumbers(
                                     allRatings.length.toDouble()),
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 12.0,
                                 ),
                               ),
@@ -239,7 +255,7 @@ class _ProposalScreenState extends State<ProposalScreen> {
                     Text(
                       applicant["proposal_description"],
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.tertiary,
                         fontSize: 14.0,
                       ),
                       maxLines: !showMore ? null : 5,

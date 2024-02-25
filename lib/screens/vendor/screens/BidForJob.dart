@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, use_build_context_synchronously
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, use_build_context_synchronously, unused_element
 
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
@@ -75,7 +75,7 @@ class _BidForJobState extends State<BidForJob> {
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     logger.d(argument);
     return Scaffold(
-        backgroundColor: KColors.backgroundDark,
+        backgroundColor: Theme.of(context).colorScheme.background,
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(15.0),
@@ -98,19 +98,11 @@ class _BidForJobState extends State<BidForJob> {
                           fontSize: 35,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              blurRadius: 5.0,
-                              color: Colors.black,
-                              offset: Offset(2.0, 2.0),
-                            ),
-                          ],
                         ),
                       ),
                     ),
                     Text(
                       "Show your interest for the job post.",
-                      style: TextStyle(color: Colors.white54),
                     ),
                   ],
                 ),
@@ -256,7 +248,6 @@ class _BidForJobState extends State<BidForJob> {
       children: [
         Text(
           title,
-          style: TextStyle(color: Colors.white),
         ),
         SizedBox(height: 5),
         Container(
