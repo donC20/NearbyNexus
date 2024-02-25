@@ -1,15 +1,13 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, library_private_types_in_public_api, use_key_in_widget_constructors, no_leading_underscores_for_local_identifiers
 
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
-import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:getwidget/components/accordion/gf_accordion.dart';
 import 'package:getwidget/getwidget.dart';
-import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 class MyJobPosts extends StatefulWidget {
@@ -30,10 +28,8 @@ class _MyJobPostsState extends State<MyJobPosts> {
 
   // fetch user function
   Future<void> fetchCurrentUser() async {
-    final userUID = await VendorCommonFn().getUserUIDFromSharedPreferences();
-
     setState(() {
-      currentUser = userUID;
+      currentUser = ApiFunctions.user!.uid;
     });
   }
 

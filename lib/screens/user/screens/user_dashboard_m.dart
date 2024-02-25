@@ -1,16 +1,14 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sort_child_properties_last
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
-import 'package:NearbyNexus/screens/admin/component/header.dart';
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class UserDashboardM extends StatefulWidget {
   const UserDashboardM({super.key});
@@ -27,7 +25,7 @@ class _UserDashboardMState extends State<UserDashboardM> {
   bool isimageFetched = false;
   String uid = '';
   var logger = Logger();
-
+  Map<String, dynamic> userSummary = {};
   @override
   void initState() {
     super.initState();
@@ -36,13 +34,8 @@ class _UserDashboardMState extends State<UserDashboardM> {
 
   // ignore: non_constant_identifier_names
   Future<void> FetchUserData() async {
-    final SharedPreferences sharedPreferences =
-        await SharedPreferences.getInstance();
-    var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ?? '');
-
     setState(() {
-      uid = initData['uid'];
+      uid = ApiFunctions.user!.uid;
     });
     DocumentSnapshot snapshot =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();
@@ -56,11 +49,12 @@ class _UserDashboardMState extends State<UserDashboardM> {
         nameLoginned = fetchedData['name'];
         isimageFetched = false;
       });
+      summaryContainerStream();
     }
   }
 
-  Stream<dynamic> summaryContainerStream() {
-    StreamController<dynamic> controller = StreamController<dynamic>();
+  summaryContainerStream() {
+    // StreamController<dynamic> controller = StreamController<dynamic>();
 
     // Ensure uid is not null or empty
     if (uid.isNotEmpty) {
@@ -109,18 +103,22 @@ class _UserDashboardMState extends State<UserDashboardM> {
           "totalWage": totalWage, // Add total wage to summaryData
         };
 
-        print(summaryData);
-        controller.add(summaryData);
+        // print(summaryData);
+        setState(() {
+          userSummary = summaryData;
+        });
       });
     } else {
       print("Error: uid is null or empty");
     }
 
-    return controller.stream;
+    // return controller.stream;
   }
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
@@ -192,151 +190,160 @@ class _UserDashboardMState extends State<UserDashboardM> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: StreamBuilder<dynamic>(
-                  stream: summaryContainerStream(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.active) {
-                      if (snapshot.hasData) {
-                        Map<String, dynamic> summaryData = snapshot.data;
-                        List<dynamic> userReferences =
-                            summaryData['userReferences'];
-                        return ListView(
-                          children: [
-                            jobandPaymentsSummary(
-                                context, summaryData['totalWage']),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "More actions",
-                                ),
-                                cardItems(
-                                    Icons.post_add_outlined,
-                                    "Post new job",
-                                    "/create_job_post",
-                                    context,
-                                    () {},
-                                    Colors.blueAccent,
-                                    "post_add",
-                                    "Create new job post, and make the post public."),
-                                cardItems(
-                                    Icons.view_agenda,
-                                    "My jobs",
-                                    "/view_my_job_post",
-                                    context,
-                                    () {},
-                                    Colors.amberAccent,
-                                    "post_add",
-                                    "Manage and view the jobs you have created."),
-                                cardItems(
-                                    Icons.work,
-                                    "Active Jobs",
-                                    "user_active_jobs",
-                                    context,
-                                    () {},
-                                    Colors.green,
-                                    "active_jobs",
-                                    "See all the jobs that are currently active."),
-                                cardItems(
-                                    Icons.work_history,
-                                    "Pending Jobs",
-                                    "user_pending_requets",
-                                    context,
-                                    () {},
-                                    Colors.red,
-                                    "pending_jobs",
-                                    "View all jobs that need your attention."),
-                                cardItems(
-                                    Icons.favorite,
-                                    "Favourite connections",
-                                    "/my_favourites",
-                                    context,
-                                    () {},
-                                    Theme.of(context).colorScheme.onTertiary,
-                                    "fd",
-                                    "View all the favourite connections of yours."),
-                                cardItems(
-                                    Icons.history,
-                                    "Job history",
-                                    "/user_job_history",
-                                    context,
-                                    () {},
-                                    Colors.amber,
-                                    "fsd",
-                                    "All the transactions are listed here."),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 25,
-                            ),
-                            Text(
-                              "Recent workers",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 12,
-                                  fontFamily: GoogleFonts.play().fontFamily),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: userReferences.isNotEmpty
-                                  ? Wrap(
-                                      alignment: WrapAlignment.start,
-                                      spacing: 20,
-                                      runSpacing: 20,
-                                      children: userReferences
-                                          .toSet()
-                                          .map<Widget>((userReference) {
-                                        String userId = userReference.id;
-                                        return StreamBuilder<DocumentSnapshot>(
-                                          stream: _firestore
-                                              .collection('users')
-                                              .doc(userId)
-                                              .snapshots(),
-                                          builder: (BuildContext context,
-                                              AsyncSnapshot<DocumentSnapshot>
-                                                  userSnapshot) {
-                                            if (userSnapshot.connectionState ==
-                                                ConnectionState.active) {
-                                              if (userSnapshot.hasData) {
-                                                String imageUrl =
-                                                    userSnapshot.data?['image'];
-                                                String userName =
-                                                    userSnapshot.data?['name'];
+      body: userSummary.isNotEmpty
+          ? Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                      child: ListView(
+                    children: [
+                      jobandPaymentsSummary(context, userSummary['totalWage']),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "More actions",
+                          ),
+                          cardItems(
+                              Icons.post_add_outlined,
+                              "Post new job",
+                              "/create_job_post",
+                              context,
+                              () {},
+                              Colors.blueAccent,
+                              "post_add",
+                              "Create new job post, and make the post public."),
+                          cardItems(
+                              Icons.view_agenda,
+                              "My jobs",
+                              "/view_my_job_post",
+                              context,
+                              () {},
+                              Colors.amberAccent,
+                              "post_add",
+                              "Manage and view the jobs you have created."),
+                          cardItems(
+                              Icons.work,
+                              "Active Jobs",
+                              "user_active_jobs",
+                              context,
+                              () {},
+                              Colors.green,
+                              "active_jobs",
+                              "See all the jobs that are currently active."),
+                          cardItems(
+                              Icons.work_history,
+                              "Pending Jobs",
+                              "user_pending_requets",
+                              context,
+                              () {},
+                              Colors.red,
+                              "pending_jobs",
+                              "View all jobs that need your attention."),
+                          cardItems(
+                              Icons.favorite,
+                              "Favourite connections",
+                              "/my_favourites",
+                              context,
+                              () {},
+                              Theme.of(context).colorScheme.onTertiary,
+                              "fd",
+                              "View all the favourite connections of yours."),
+                          cardItems(
+                              Icons.history,
+                              "Job history",
+                              "/user_job_history",
+                              context,
+                              () {},
+                              Colors.amber,
+                              "fsd",
+                              "All the transactions are listed here."),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      userSummary.isNotEmpty
+                          ? Container(
+                              padding: EdgeInsets.all(20.0),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: theme.colorScheme.outline),
+                                borderRadius: BorderRadius.circular(10),
+                                color: theme.colorScheme.onSecondaryContainer,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Recent users",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 12,
+                                        fontFamily:
+                                            GoogleFonts.play().fontFamily),
+                                  ),
+                                  SizedBox(
+                                    height: 8,
+                                  ),
+                                  Divider(color: theme.colorScheme.outline),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Wrap(
+                                    alignment: WrapAlignment.start,
+                                    spacing: 20,
+                                    runSpacing: 20,
+                                    children: userSummary['userReferences']
+                                        .toSet()
+                                        .map<Widget>((userReference) {
+                                      String userId = userReference.id;
+                                      return StreamBuilder<DocumentSnapshot>(
+                                        stream: _firestore
+                                            .collection('users')
+                                            .doc(userId)
+                                            .snapshots(),
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<DocumentSnapshot>
+                                                userSnapshot) {
+                                          if (userSnapshot.connectionState ==
+                                              ConnectionState.active) {
+                                            if (userSnapshot.hasData) {
+                                              String imageUrl =
+                                                  userSnapshot.data?['image'];
+                                              String userName =
+                                                  userSnapshot.data?['name'];
 
-                                                return recentUsers(imageUrl,
-                                                    userName, userId, context);
-                                              }
+                                              return recentUsers(imageUrl,
+                                                  userName, userId, context);
                                             }
-                                            return SizedBox();
-                                          },
-                                        );
-                                      }).toList(),
-                                    )
-                                  : Center(
-                                      child: Text(
-                                        "No past workers found ):",
-                                      ),
-                                    ),
+                                          }
+                                          return SizedBox();
+                                        },
+                                      );
+                                    }).toList(),
+                                  ),
+                                ],
+                              ),
                             )
-                          ],
-                        );
-                      }
-                    }
-                    return SizedBox();
-                  }),
+                          : Center(
+                              child: Text(
+                                "No past workers found ):",
+                              ),
+                            )
+                    ],
+                  )),
+                ],
+              ),
+            )
+          : Center(
+              child: CircularProgressIndicator(),
             ),
-          ],
-        ),
-      ),
     );
   }
 }
