@@ -48,14 +48,10 @@ class _MyApplicationsState extends State<MyApplications> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: KColors.backgroundDark,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: KColors.backgroundDark,
-        iconTheme: IconThemeData(color: Colors.white),
         title: Text(
           "Applications",
-          style: TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
       body: RefreshIndicator(
@@ -103,7 +99,6 @@ class _MyApplicationsState extends State<MyApplications> {
                 ),
                 Text(
                   "There are no saved jobs please add some..",
-                  style: TextStyle(color: Colors.white),
                 ),
                 SizedBox(
                   height: 15,
@@ -125,226 +120,250 @@ class _MyApplicationsState extends State<MyApplications> {
             ),
           );
         } else {
-          return ListView.builder(
-            itemCount: jobsApplied.length,
-            itemBuilder: (context, index) {
-              return StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('applications')
-                    .doc(jobsApplied[index])
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  }
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView.builder(
+              itemCount: jobsApplied.length,
+              itemBuilder: (context, index) {
+                return StreamBuilder<DocumentSnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('applications')
+                      .doc(jobsApplied[index])
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
 
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
 
-                  final applicationData = snapshot.data?.data();
-                  if (applicationData == null) {
-                    return Text('No application data found');
-                  }
+                    final applicationData = snapshot.data?.data();
+                    if (applicationData == null) {
+                      return Text('No application data found');
+                    }
 
-                  // Cast applicationData to Map<String, dynamic>
-                  final Map<String, dynamic> applicationDataMap =
-                      applicationData as Map<String, dynamic>;
+                    // Cast applicationData to Map<String, dynamic>
+                    final Map<String, dynamic> applicationDataMap =
+                        applicationData as Map<String, dynamic>;
 
-                  // Access the jobId from the applicationData
-                  final jobId = applicationDataMap['jobId'];
-                  // Now fetch the document from the job_posts collection using the jobId
-                  return StreamBuilder<DocumentSnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('job_posts')
-                        .doc(jobId)
-                        .snapshots(),
-                    builder: (context, jobSnapshot) {
-                      if (jobSnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
-                      }
+                    // Access the jobId from the applicationData
+                    final jobId = applicationDataMap['jobId'];
+                    // Now fetch the document from the job_posts collection using the jobId
+                    return StreamBuilder<DocumentSnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('job_posts')
+                          .doc(jobId)
+                          .snapshots(),
+                      builder: (context, jobSnapshot) {
+                        if (jobSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        }
 
-                      if (jobSnapshot.hasError) {
-                        return Text('Error: ${jobSnapshot.error}');
-                      }
+                        if (jobSnapshot.hasError) {
+                          return Text('Error: ${jobSnapshot.error}');
+                        }
 
-                      final jobData = jobSnapshot.data?.data();
-                      if (jobData == null) {
-                        return Text('No job data found for jobId: $jobId');
-                      }
-                      final Map<String, dynamic> jobDataMap =
-                          jobData as Map<String, dynamic>;
-                      return StreamBuilder<Map<String, dynamic>>(
-                        stream: VendorCommonFn().streamUserData(
-                            uidParam: jobDataMap['jobPostedBy']),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
-                          }
-                          if (snapshot.hasError) {
-                            return Text('Error: ${snapshot.error}');
-                          }
+                        final jobData = jobSnapshot.data?.data();
+                        if (jobData == null) {
+                          return Text('No job data found for jobId: $jobId');
+                        }
+                        final Map<String, dynamic> jobDataMap =
+                            jobData as Map<String, dynamic>;
+                        return StreamBuilder<Map<String, dynamic>>(
+                          stream: VendorCommonFn().streamUserData(
+                              uidParam: jobDataMap['jobPostedBy']),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            }
+                            if (snapshot.hasError) {
+                              return Text('Error: ${snapshot.error}');
+                            }
 
-                          final jobPostedByData = snapshot.data;
-                          if (jobPostedByData == null) {
-                            return Text('No user data found');
-                          }
+                            final jobPostedByData = snapshot.data;
+                            if (jobPostedByData == null) {
+                              return Text('No user data found');
+                            }
 
-                          // Filter the applicants list to get data for the current user
+                            // Filter the applicants list to get data for the current user
 
-                          return InkWell(
-                            onTap: () {
-                              Navigator.pushNamed(context, '/job_detail_page',
-                                  arguments: {
-                                    'job_data': jobData,
-                                    'posted_user': jobPostedByData,
-                                    'post_id': jobId
-                                  });
-                            },
-                            child: Card(
-                              margin: EdgeInsets.all(8),
-                              child: AnimatedContainer(
-                                duration: Duration(milliseconds: 300),
-                                padding: EdgeInsets.all(8),
-                                constraints: BoxConstraints(
-                                  minHeight: 250,
-                                  maxHeight:
-                                      300, // Set a minimum height for the card
-                                ),
-                                child: Stack(
-                                  children: [
-                                    ListTile(
-                                      title: Text(
-                                        UtilityFunctions().truncateText(
-                                            jobData['jobTitle'], 20),
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      // Display the name of the user who posted the job
-                                      subtitle: RichText(
-                                        text: TextSpan(
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 16,
+                            return InkWell(
+                              onTap: () {
+                                Navigator.pushNamed(context, '/job_detail_page',
+                                    arguments: {
+                                      'job_data': jobData,
+                                      'posted_user': jobPostedByData,
+                                      'post_id': jobId
+                                    });
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Color.fromARGB(43, 158, 158, 158)),
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSecondaryContainer,
+                                  boxShadow: Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? [] // Empty list for no shadow in dark theme
+                                      : [
+                                          BoxShadow(
+                                            color:
+                                                Color.fromARGB(38, 67, 65, 65)
+                                                    .withOpacity(0.5),
+                                            blurRadius: 20,
+                                            spreadRadius: 1,
                                           ),
+                                        ],
+                                ),
+                                child: AnimatedContainer(
+                                  duration: Duration(milliseconds: 300),
+                                  padding: EdgeInsets.all(8),
+                                  constraints: BoxConstraints(
+                                    minHeight: 250,
+                                    maxHeight:
+                                        300, // Set a minimum height for the card
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      ListTile(
+                                        title: Text(
+                                          UtilityFunctions().truncateText(
+                                              jobData['jobTitle'], 20),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        // Display the name of the user who posted the job
+                                        subtitle: RichText(
+                                          text: TextSpan(
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onTertiary,
+                                              fontSize: 16,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                                text: jobPostedByData['name'],
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              TextSpan(
+                                                text:
+                                                    ", ${UtilityFunctions().findTimeDifference(jobData["jobPostDate"])}",
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        // Display the image of the user who posted the job
+                                        leading: UserLoadingAvatar(
+                                          userImage: jobPostedByData['image'],
+                                        ),
+                                        trailing: PopupMenuButton<String>(
+                                          position: PopupMenuPosition.under,
+                                          itemBuilder: (BuildContext context) =>
+                                              <PopupMenuEntry<String>>[
+                                            PopupMenuItem<String>(
+                                              value: 'revoke',
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.close,
+                                                    color: Colors.red,
+                                                    size: 18,
+                                                  ),
+                                                  SizedBox(width: 15),
+                                                  Text(
+                                                    'Revoke application',
+                                                    style: TextStyle(
+                                                      color: Colors.red,
+                                                      fontSize: 14,
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                          onSelected: (String value) {
+                                            // Handle the selected option
+                                            switch (value) {
+                                              case 'revoke':
+                                                removeFromSavedJobs(
+                                                    jobsApplied[index],
+                                                    jobId,
+                                                    context);
+                                                break;
+                                            }
+                                          },
+                                        ),
+                                        // Add a custom connecting line
+                                      ),
+                                      Positioned(
+                                        left: 30,
+                                        top: 56,
+                                        child: SvgPicture.asset(
+                                          "assets/images/line_one.svg",
+                                          height: 45,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        left: 60.5,
+                                        top: 88.5,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            TextSpan(
-                                              text: jobPostedByData['name'],
+                                            Text(
+                                              "You ,",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold),
                                             ),
-                                            TextSpan(
-                                              text:
-                                                  ", ${UtilityFunctions().findTimeDifference(jobData["jobPostDate"])}",
-                                              style: TextStyle(
-                                                color: const Color.fromARGB(
-                                                    255, 79, 79, 79),
-                                                fontSize: 14,
+                                            SizedBox(
+                                              width: MediaQuery.sizeOf(context)
+                                                      .width -
+                                                  110,
+                                              child: Text(
+                                                UtilityFunctions().truncateText(
+                                                    applicationDataMap[
+                                                        'proposal_description'],
+                                                    190),
+                                                textAlign: TextAlign.justify,
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.normal,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .tertiary,
+                                                    fontSize: 12),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                      // Display the image of the user who posted the job
-                                      leading: UserLoadingAvatar(
-                                        userImage: jobPostedByData['image'],
-                                      ),
-                                      trailing: PopupMenuButton<String>(
-                                        position: PopupMenuPosition.under,
-                                        itemBuilder: (BuildContext context) =>
-                                            <PopupMenuEntry<String>>[
-                                          PopupMenuItem<String>(
-                                            value: 'revoke',
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.close,
-                                                  color: Colors.red,
-                                                  size: 18,
-                                                ),
-                                                SizedBox(width: 15),
-                                                Text(
-                                                  'Revoke application',
-                                                  style: TextStyle(
-                                                    color: Colors.red,
-                                                    fontSize: 14,
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                        onSelected: (String value) {
-                                          // Handle the selected option
-                                          switch (value) {
-                                            case 'revoke':
-                                              removeFromSavedJobs(
-                                                  jobsApplied[index],
-                                                  jobId,
-                                                  context);
-                                              break;
-                                          }
-                                        },
-                                      ),
-                                      // Add a custom connecting line
-                                    ),
-                                    Positioned(
-                                      left: 30,
-                                      top: 56,
-                                      child: SvgPicture.asset(
-                                        "assets/images/line_one.svg",
-                                        height: 45,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      left: 60.5,
-                                      top: 88.5,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "You ,",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.black54),
-                                          ),
-                                          SizedBox(
-                                            width: MediaQuery.sizeOf(context)
-                                                    .width -
-                                                110,
-                                            child: Text(
-                                              UtilityFunctions().truncateText(
-                                                  applicationDataMap[
-                                                      'proposal_description'],
-                                                  190),
-                                              textAlign: TextAlign.justify,
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.normal,
-                                                  color: const Color.fromARGB(
-                                                      255, 126, 126, 126),
-                                                  fontSize: 12),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                },
-              );
-            },
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
           );
         }
       },

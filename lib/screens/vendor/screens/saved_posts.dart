@@ -44,14 +44,10 @@ class _SavedJobsScreenState extends State<SavedJobsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: KColors.backgroundDark,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: KColors.backgroundDark,
-        iconTheme: IconThemeData(color: Colors.white),
         title: Text(
           "Saved Jobs",
-          style: TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
       body: RefreshIndicator(
@@ -103,7 +99,6 @@ class _SavedJobsScreenState extends State<SavedJobsScreen> {
                 ),
                 Text(
                   "There are no saved jobs please add some..",
-                  style: TextStyle(color: Colors.white),
                 ),
                 SizedBox(
                   height: 15,
@@ -125,155 +120,180 @@ class _SavedJobsScreenState extends State<SavedJobsScreen> {
             ),
           ); // Return a message if no user data is found
         } else {
-          return ListView.separated(
-            itemCount: jobsAppliedIds.length,
-            itemBuilder: (context, index) {
-              final jobId = jobsAppliedIds[index];
-              return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance
-                    .collection('job_posts')
-                    .doc(jobId)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                        child:
-                            CircularProgressIndicator()); // Return a loading indicator while waiting for data
-                  }
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView.separated(
+              itemCount: jobsAppliedIds.length,
+              itemBuilder: (context, index) {
+                final jobId = jobsAppliedIds[index];
+                return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('job_posts')
+                      .doc(jobId)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                          child:
+                              CircularProgressIndicator()); // Return a loading indicator while waiting for data
+                    }
 
-                  if (snapshot.hasError) {
-                    return Text(
-                        'Error: ${snapshot.error}'); // Return an error message if there's an error
-                  }
+                    if (snapshot.hasError) {
+                      return Text(
+                          'Error: ${snapshot.error}'); // Return an error message if there's an error
+                    }
 
-                  final jobData = snapshot.data
-                      ?.data(); // Extract the job data from the snapshot
+                    final jobData = snapshot.data
+                        ?.data(); // Extract the job data from the snapshot
 
-                  if (jobData == null) {
-                    return Text(
-                        'No job data found'); // Return a message if no job data is found
-                  }
+                    if (jobData == null) {
+                      return Text(
+                          'No job data found'); // Return a message if no job data is found
+                    }
 
-                  final DocumentReference jobPostBy = jobData[
-                      'jobPostedBy']; // Extract the user ID who posted the job
-                  return StreamBuilder<Map<String, dynamic>>(
-                    stream:
-                        VendorCommonFn().streamUserData(uidParam: jobPostBy),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                            child:
-                                CircularProgressIndicator()); // Return a loading indicator while waiting for data
-                      }
+                    final DocumentReference jobPostBy = jobData[
+                        'jobPostedBy']; // Extract the user ID who posted the job
+                    return StreamBuilder<Map<String, dynamic>>(
+                      stream:
+                          VendorCommonFn().streamUserData(uidParam: jobPostBy),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                              child:
+                                  CircularProgressIndicator()); // Return a loading indicator while waiting for data
+                        }
 
-                      if (snapshot.hasError) {
-                        return Text(
-                            'Error: ${snapshot.error}'); // Return an error message if there's an error
-                      }
+                        if (snapshot.hasError) {
+                          return Text(
+                              'Error: ${snapshot.error}'); // Return an error message if there's an error
+                        }
 
-                      final jobPostByData = snapshot
-                          .data; // Extract the user data who posted the job
+                        final jobPostByData = snapshot
+                            .data; // Extract the user data who posted the job
 
-                      if (jobPostByData == null) {
-                        return Text(
-                            'No user data found'); // Return a message if no user data is found
-                      }
+                        if (jobPostByData == null) {
+                          return Text(
+                              'No user data found'); // Return a message if no user data is found
+                        }
 
-                      return InkWell(
-                        onTap: () {
-                          Navigator.pushNamed(context, '/job_detail_page',
-                              arguments: {
-                                'job_data': jobData,
-                                'posted_user': jobPostByData,
-                                'post_id': jobId
-                              });
-                        },
-                        child: Card(
-                          margin: EdgeInsets.all(8),
-                          child: ListTile(
-                            title: Text(
-                              UtilityFunctions()
-                                  .truncateText(jobData['jobTitle'], 20),
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                        return InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/job_detail_page',
+                                arguments: {
+                                  'job_data': jobData,
+                                  'posted_user': jobPostByData,
+                                  'post_id': jobId
+                                });
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: Color.fromARGB(43, 158, 158, 158)),
+                              borderRadius: BorderRadius.circular(10),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer,
+                              boxShadow: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? [] // Empty list for no shadow in dark theme
+                                  : [
+                                      BoxShadow(
+                                        color: Color.fromARGB(38, 67, 65, 65)
+                                            .withOpacity(0.5),
+                                        blurRadius: 20,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
                             ),
-                            // Display the name of the user who posted the job
-                            subtitle: RichText(
-                              text: TextSpan(
-                                style: TextStyle(
-                                  color: Colors.black, // Default text color
-                                  fontSize: 16, // Default font size
-                                ),
-                                children: [
-                                  TextSpan(
-                                    text: jobPostByData['name'],
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                            child: ListTile(
+                              title: Text(
+                                UtilityFunctions()
+                                    .truncateText(jobData['jobTitle'], 20),
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              // Display the name of the user who posted the job
+                              subtitle: RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .tertiary, // Default text color
+                                    fontSize: 16, // Default font size
                                   ),
-                                  TextSpan(
-                                    text:
-                                        ", ${UtilityFunctions().findTimeDifference(jobData["jobPostDate"])}",
-                                    style: TextStyle(
-                                      color:
-                                          const Color.fromARGB(255, 79, 79, 79),
-                                      fontSize: 14,
+                                  children: [
+                                    TextSpan(
+                                      text: jobPostByData['name'],
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          ", ${UtilityFunctions().findTimeDifference(jobData["jobPostDate"])}",
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onTertiary,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              // Display the image of the user who posted the job
+                              leading: UserLoadingAvatar(
+                                  userImage: jobPostByData['image']),
+
+                              trailing: PopupMenuButton<String>(
+                                position: PopupMenuPosition.under,
+                                itemBuilder: (BuildContext context) =>
+                                    <PopupMenuEntry<String>>[
+                                  PopupMenuItem<String>(
+                                    value: 'remove',
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.remove_circle,
+                                          color: Colors.red,
+                                          size: 18,
+                                        ),
+                                        SizedBox(width: 15),
+                                        Text(
+                                          'Remove',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 14,
+                                          ),
+                                        )
+                                      ],
                                     ),
                                   ),
                                 ],
+                                onSelected: (String value) {
+                                  // Handle the selected option
+                                  switch (value) {
+                                    case 'remove':
+                                      removeFromSavedJobs(jobId, context);
+                                      break;
+                                  }
+                                },
                               ),
+                              // Add more fields as needed
                             ),
-
-                            // Display the image of the user who posted the job
-                            leading: UserLoadingAvatar(
-                                userImage: jobPostByData['image']),
-
-                            trailing: PopupMenuButton<String>(
-                              position: PopupMenuPosition.under,
-                              itemBuilder: (BuildContext context) =>
-                                  <PopupMenuEntry<String>>[
-                                PopupMenuItem<String>(
-                                  value: 'remove',
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.remove_circle,
-                                        color: Colors.red,
-                                        size: 18,
-                                      ),
-                                      SizedBox(width: 15),
-                                      Text(
-                                        'Remove',
-                                        style: TextStyle(
-                                          color: Colors.red,
-                                          fontSize: 14,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ],
-                              onSelected: (String value) {
-                                // Handle the selected option
-                                switch (value) {
-                                  case 'remove':
-                                    removeFromSavedJobs(jobId, context);
-                                    break;
-                                }
-                              },
-                            ),
-                            // Add more fields as needed
                           ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              );
-            },
-            separatorBuilder: (BuildContext context, int index) {
-              return SizedBox(
-                height: 15,
-              );
-            },
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return SizedBox(
+                  height: 15,
+                );
+              },
+            ),
           );
         }
       },

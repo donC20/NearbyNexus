@@ -131,7 +131,7 @@ class _ViewRequestsState extends State<ViewRequests> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: isloadingPage == true
           ? Container(
               decoration: BoxDecoration(color: Colors.black),
@@ -153,16 +153,22 @@ class _ViewRequestsState extends State<ViewRequests> {
                           width: MediaQuery.of(context).size.width - 30,
                           decoration: BoxDecoration(
                             border: Border.all(
-                                color: Color.fromARGB(43, 158, 158, 158)),
+                                color: Theme.of(context).colorScheme.outline),
                             borderRadius: BorderRadius.circular(10),
-                            color: Color.fromARGB(186, 42, 40, 40),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.9),
-                                blurRadius: 10,
-                                spreadRadius: 2,
-                              ),
-                            ],
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer,
+                            boxShadow: Theme.of(context).brightness ==
+                                    Brightness.dark
+                                ? [] // Empty list for no shadow in dark theme
+                                : [
+                                    BoxShadow(
+                                      color: Color.fromARGB(38, 67, 65, 65)
+                                          .withOpacity(0.5),
+                                      blurRadius: 20,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(15.0),
@@ -175,8 +181,6 @@ class _ViewRequestsState extends State<ViewRequests> {
                                   children: [
                                     Text("From,",
                                         style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                56, 255, 255, 255),
                                             fontWeight: FontWeight.bold)),
                                     Chip(
                                       backgroundColor:
@@ -203,37 +207,36 @@ class _ViewRequestsState extends State<ViewRequests> {
                                       userImage: imageLinkUser),
                                   title: Text(
                                     nameUser,
-                                    style: TextStyle(color: Colors.white54),
                                   ),
                                   subtitle: Text(
                                       rawData['dateRequested'] != null
                                           ? timeStampConverter(
                                               rawData['dateRequested'])
                                           : "loading..",
-                                      style: TextStyle(
-                                          color: Colors.white54, fontSize: 10)),
+                                      style: TextStyle(fontSize: 10)),
                                 ),
                                 Divider(
                                   color: Color.fromARGB(137, 158, 158, 158),
                                 ),
                                 Text("Service required",
-                                    style: TextStyle(
-                                        color: const Color.fromARGB(
-                                            56, 255, 255, 255),
-                                        fontWeight: FontWeight.bold)),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
                                 Text(
                                   rawData['service_name'] != null
                                       ? convertToSentenceCase(
                                           rawData['service_name'])
                                       : "loading...",
-                                  style: TextStyle(color: Colors.white54),
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onTertiary),
                                 ),
                                 Container(
                                   width: MediaQuery.sizeOf(context).width,
                                   margin: EdgeInsets.only(top: 15),
                                   padding: EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: Color.fromARGB(110, 122, 244, 168),
                                       borderRadius: BorderRadius.circular(10)),
                                   child: rawData['service_name'] == 'new'
                                       ? RichText(
@@ -471,16 +474,22 @@ class _ViewRequestsState extends State<ViewRequests> {
                           width: MediaQuery.of(context).size.width - 30,
                           decoration: BoxDecoration(
                             border: Border.all(
-                                color: Color.fromARGB(43, 158, 158, 158)),
+                                color: Theme.of(context).colorScheme.outline),
                             borderRadius: BorderRadius.circular(10),
-                            color: Color.fromARGB(186, 42, 40, 40),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.9),
-                                blurRadius: 10,
-                                spreadRadius: 2,
-                              ),
-                            ],
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSecondaryContainer,
+                            boxShadow: Theme.of(context).brightness ==
+                                    Brightness.dark
+                                ? [] // Empty list for no shadow in dark theme
+                                : [
+                                    BoxShadow(
+                                      color: Color.fromARGB(38, 67, 65, 65)
+                                          .withOpacity(0.5),
+                                      blurRadius: 20,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(15.0),
@@ -493,15 +502,12 @@ class _ViewRequestsState extends State<ViewRequests> {
                                   children: [
                                     Text("Needed on",
                                         style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                56, 255, 255, 255),
                                             fontWeight: FontWeight.bold)),
                                     Text(
                                       rawData['day'] != null
                                           ? timeStampConverter(rawData['day'])
                                           : "loading..",
-                                      style: TextStyle(
-                                          color: Colors.white54, fontSize: 12),
+                                      style: TextStyle(fontSize: 12),
                                     ),
                                   ],
                                 ),
@@ -514,15 +520,12 @@ class _ViewRequestsState extends State<ViewRequests> {
                                   children: [
                                     Text("Location",
                                         style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                56, 255, 255, 255),
                                             fontWeight: FontWeight.bold)),
                                     Text(
                                       rawData['location'] != null
                                           ? convertToSentenceCase(
                                               rawData['location'])
                                           : "loading..",
-                                      style: TextStyle(color: Colors.white54),
                                     ),
                                   ],
                                 ),
@@ -539,20 +542,18 @@ class _ViewRequestsState extends State<ViewRequests> {
                                       children: [
                                         Text("Budget",
                                             style: TextStyle(
-                                                color: const Color.fromARGB(
-                                                    56, 255, 255, 255),
                                                 fontWeight: FontWeight.bold)),
                                         Row(
                                           children: [
-                                            Icon(Icons.currency_rupee_sharp,
-                                                size: 16,
-                                                color: Colors.white54),
+                                            Icon(
+                                              Icons.currency_rupee_sharp,
+                                              size: 16,
+                                            ),
                                             Text(
                                               rawData['wage'] != null
                                                   ? rawData['wage'].toString()
                                                   : "loading...",
-                                              style: TextStyle(
-                                                  color: Colors.white54),
+                                              style: TextStyle(),
                                             ),
                                           ],
                                         ),
@@ -794,17 +795,18 @@ class _ViewRequestsState extends State<ViewRequests> {
                                   color: Color.fromARGB(137, 158, 158, 158),
                                 ),
                                 Text("Description",
-                                    style: TextStyle(
-                                        color: const Color.fromARGB(
-                                            56, 255, 255, 255),
-                                        fontWeight: FontWeight.bold)),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
                                 SizedBox(
                                   height: 5,
                                 ),
                                 Text(
                                   rawData['description'] ?? "loadng..",
                                   textAlign: TextAlign.justify,
-                                  style: TextStyle(color: Colors.white54),
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .tertiary),
                                 ),
                                 SizedBox(
                                   height: 15,
@@ -971,10 +973,6 @@ class _ViewRequestsState extends State<ViewRequests> {
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
-      bottomNavigationBar: BottomGNav(
-        activePage: 5,
-        isSelectable: true,
-      ),
     );
   }
 }
