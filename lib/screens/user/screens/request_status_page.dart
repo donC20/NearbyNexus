@@ -76,15 +76,9 @@ class _RequestStatusPageState extends State<RequestStatusPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        leadingWidth: MediaQuery.sizeOf(context).width,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 15, top: 8.0),
-          child: Text("Request status",
-              style: TextStyle(color: Colors.white, fontSize: 18)),
-        ),
+        title: Text("Request status"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -137,19 +131,26 @@ class _RequestStatusPageState extends State<RequestStatusPage> {
                           formattedTimeAgo =
                               formatTimestamp(documentData['dateRequested']);
                           return Container(
+                              padding: EdgeInsets.all(15),
                               width: MediaQuery.of(context).size.width - 30,
                               decoration: BoxDecoration(
                                 border: Border.all(
                                     color: Color.fromARGB(43, 158, 158, 158)),
                                 borderRadius: BorderRadius.circular(10),
-                                color: Color.fromARGB(186, 42, 40, 40),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.9),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSecondaryContainer,
+                                boxShadow: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? [] // Empty list for no shadow in dark theme
+                                    : [
+                                        BoxShadow(
+                                          color: Color.fromARGB(38, 67, 65, 65)
+                                              .withOpacity(0.5),
+                                          blurRadius: 20,
+                                          spreadRadius: 1,
+                                        ),
+                                      ],
                               ),
                               child: Column(
                                 children: [
@@ -185,8 +186,8 @@ class _RequestStatusPageState extends State<RequestStatusPage> {
                   }
                 },
                 separatorBuilder: (context, index) {
-                  return Divider(
-                    color: Colors.grey,
+                  return SizedBox(
+                    height: 15,
                   );
                 },
                 itemCount: documentList.length,
@@ -224,228 +225,229 @@ class NotificationItem extends StatelessWidget {
     required this.jobLogs,
   });
 
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Color.fromARGB(50, 158, 158, 158)),
-        borderRadius: BorderRadius.circular(10.0),
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            convertToSentenceCase(serviceName),
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            formattedTimeAgo ?? "",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onTertiary,
+              fontSize: 12.0,
+            ),
+          ),
+        ],
       ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              convertToSentenceCase(serviceName),
-              style: TextStyle(
-                fontSize: 18.0,
-                color: Colors.white54,
-                fontWeight: FontWeight.bold,
+      SizedBox(height: 8.0),
+      status == 'new'
+          ? Text.rich(
+              TextSpan(
+                text: "Waiting for ",
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onTertiary),
+                children: [
+                  TextSpan(
+                    text: vendorName ?? "",
+                    style: TextStyle(
+                      color: Colors.blueAccent,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextSpan(text: " to accept the request."),
+                ],
               ),
-            ),
-            Text(
-              formattedTimeAgo ?? "",
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 12.0,
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 8.0),
-        status == 'new'
-            ? Text.rich(
-                TextSpan(
-                  text: "Waiting for ",
-                  style: TextStyle(color: Colors.white54),
-                  children: [
-                    TextSpan(
-                      text: vendorName ?? "",
-                      style: TextStyle(
-                        color: Colors.blueAccent,
-                        fontWeight: FontWeight.bold,
+            )
+          : status == 'accepted'
+              ? Text.rich(
+                  TextSpan(
+                    text: "Your request has been accepted by ",
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onTertiary),
+                    children: [
+                      TextSpan(
+                        text: vendorName ?? "",
+                        style: TextStyle(
+                          color: Colors.blueAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    TextSpan(text: " to accept the request."),
-                  ],
-                ),
-              )
-            : status == 'accepted'
-                ? Text.rich(
-                    TextSpan(
-                      text: "Your request has been accepted by ",
-                      style: TextStyle(color: Colors.white54),
-                      children: [
-                        TextSpan(
-                          text: vendorName ?? "",
-                          style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      TextSpan(
+                        text:
+                            ". They will contact you as soon as possible. Please be available.",
+                        style: TextStyle(
+                          color: Colors.blueAccent,
+                          fontWeight: FontWeight.bold,
                         ),
-                        TextSpan(
-                          text:
-                              ". They will contact you as soon as possible. Please be available.",
-                          style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : status == 'user negotiated'
-                    ? Text.rich(
-                        TextSpan(
-                          text: "You have negotiated the price for ",
-                          style: TextStyle(color: Colors.white54),
-                          children: [
-                            TextSpan(
-                              text: vendorName ?? "",
-                              style: TextStyle(
-                                color: Colors.blueAccent,
-                                fontWeight: FontWeight.bold,
-                              ),
+                      ),
+                    ],
+                  ),
+                )
+              : status == 'user negotiated'
+                  ? Text.rich(
+                      TextSpan(
+                        text: "You have negotiated the price for ",
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onTertiary),
+                        children: [
+                          TextSpan(
+                            text: vendorName ?? "",
+                            style: TextStyle(
+                              color: Colors.blueAccent,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
-                      )
-                    : status == 'user accepted'
-                        ? Text.rich(
-                            TextSpan(
-                              text:
-                                  "You have accepted the negotiated price for ",
-                              style: TextStyle(color: Colors.white54),
+                          ),
+                        ],
+                      ),
+                    )
+                  : status == 'user accepted'
+                      ? Text.rich(
+                          TextSpan(
+                            text: "You have accepted the negotiated price for ",
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onTertiary),
+                            children: [
+                              TextSpan(
+                                text: vendorName ?? "",
+                                style: TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : status == 'negotiate'
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                TextSpan(
-                                  text: vendorName ?? "",
-                                  style: TextStyle(
-                                    color: Colors.blueAccent,
-                                    fontWeight: FontWeight.bold,
+                                Text.rich(
+                                  TextSpan(
+                                    text: vendorName ?? "",
+                                    style: TextStyle(
+                                      color: Colors.blueAccent,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                        text: " wants to negotiate price",
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onTertiary,
+                                            fontWeight: FontWeight.normal),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          )
-                        : status == 'negotiate'
-                            ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text.rich(
-                                    TextSpan(
-                                      text: vendorName ?? "",
+                                Divider(
+                                  color:
+                                      const Color.fromARGB(116, 158, 158, 158),
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Negotiated price",
                                       style: TextStyle(
-                                        color: Colors.blueAccent,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onTertiary,
+                                          fontWeight: FontWeight.normal),
+                                    ),
+                                    Row(
                                       children: [
-                                        TextSpan(
-                                          text: " wants to negotiate price",
+                                        Icon(
+                                          Icons.currency_rupee,
+                                          color:
+                                              Color.fromARGB(137, 136, 225, 2),
+                                          size: 16,
+                                        ),
+                                        Text(
+                                          newPrice.toString(),
                                           style: TextStyle(
-                                              color: Colors.white54,
+                                              color: Color.fromARGB(
+                                                  137, 136, 225, 2),
                                               fontWeight: FontWeight.normal),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  Divider(
-                                    color: const Color.fromARGB(
-                                        116, 158, 158, 158),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "Negotiated price",
+                                  ],
+                                ),
+                              ],
+                            )
+                          : status == 'completed'
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text.rich(
+                                      TextSpan(
+                                        text: vendorName ?? "",
                                         style: TextStyle(
-                                            color: Colors.white54,
-                                            fontWeight: FontWeight.normal),
-                                      ),
-                                      Row(
+                                          color: Colors.blueAccent,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                         children: [
-                                          Icon(
-                                            Icons.currency_rupee,
-                                            color: Color.fromARGB(
-                                                137, 136, 225, 2),
-                                            size: 16,
-                                          ),
-                                          Text(
-                                            newPrice.toString(),
+                                          TextSpan(
+                                            text: " has completed the job",
                                             style: TextStyle(
-                                                color: Color.fromARGB(
-                                                    137, 136, 225, 2),
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onTertiary,
                                                 fontWeight: FontWeight.normal),
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              )
-                            : status == 'completed'
-                                ? Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text.rich(
-                                        TextSpan(
-                                          text: vendorName ?? "",
+                                    ),
+                                    Divider(
+                                      color: const Color.fromARGB(
+                                          116, 158, 158, 158),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "Negotiated price",
                                           style: TextStyle(
-                                            color: Colors.blueAccent,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onTertiary,
+                                              fontWeight: FontWeight.normal),
+                                        ),
+                                        Row(
                                           children: [
-                                            TextSpan(
-                                              text: " has completed the job",
+                                            Icon(
+                                              Icons.currency_rupee,
+                                              color: Color.fromARGB(
+                                                  137, 136, 225, 2),
+                                              size: 16,
+                                            ),
+                                            Text(
+                                              newPrice.toString(),
                                               style: TextStyle(
-                                                  color: Colors.white54,
+                                                  color: Color.fromARGB(
+                                                      137, 136, 225, 2),
                                                   fontWeight:
                                                       FontWeight.normal),
                                             ),
                                           ],
                                         ),
-                                      ),
-                                      Divider(
-                                        color: const Color.fromARGB(
-                                            116, 158, 158, 158),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "Negotiated price",
-                                            style: TextStyle(
-                                                color: Colors.white54,
-                                                fontWeight: FontWeight.normal),
-                                          ),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.currency_rupee,
-                                                color: Color.fromARGB(
-                                                    137, 136, 225, 2),
-                                                size: 16,
-                                              ),
-                                              Text(
-                                                newPrice.toString(),
-                                                style: TextStyle(
-                                                    color: Color.fromARGB(
-                                                        137, 136, 225, 2),
-                                                    fontWeight:
-                                                        FontWeight.normal),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  )
-                                : SizedBox(),
-      ]),
-    );
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              : SizedBox(),
+    ]);
   }
 }

@@ -91,9 +91,8 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
     final Map<String, dynamic> arguments =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.black,
         title: Text('Review job'),
       ),
       body: Padding(
@@ -148,14 +147,20 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                 border: Border.all(
                                     color: Color.fromARGB(43, 158, 158, 158)),
                                 borderRadius: BorderRadius.circular(10),
-                                color: Color.fromARGB(186, 42, 40, 40),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.9),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSecondaryContainer,
+                                boxShadow: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? [] // Empty list for no shadow in dark theme
+                                    : [
+                                        BoxShadow(
+                                          color: Color.fromARGB(38, 67, 65, 65)
+                                              .withOpacity(0.5),
+                                          blurRadius: 20,
+                                          spreadRadius: 1,
+                                        ),
+                                      ],
                               ),
                               child: Column(
                                 children: [
@@ -165,7 +170,6 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                     convertToSentenceCase(userData['name']),
                                     style: TextStyle(
                                       fontSize: 18.0,
-                                      color: Colors.white54,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -180,7 +184,7 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                         onPressed: () async {
                                           final Uri _emailLaunchUri = Uri(
                                             scheme: 'mailto',
-                                            path: 'donbenny916@gmail.com',
+                                            path: userData['emailId']['id'],
                                             // queryParameters: {
                                             //   'subject':
                                             //       Uri.encodeComponent(subject),
@@ -204,8 +208,14 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                                 20.0), // Adjust the radius as needed
                                           ),
                                         ),
-                                        icon: Icon(Icons.mail),
-                                        label: Text("Mail"),
+                                        icon: Icon(
+                                          Icons.mail,
+                                          color: Colors.white,
+                                        ),
+                                        label: Text(
+                                          "Mail",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
                                       ),
                                       ElevatedButton.icon(
                                         onPressed: () async {
@@ -238,8 +248,12 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                                 20.0), // Adjust the radius as needed
                                           ),
                                         ),
-                                        icon: Icon(Icons.sms),
-                                        label: Text("SMS"),
+                                        icon: Icon(Icons.sms,
+                                            color: Colors.white),
+                                        label: Text(
+                                          "SMS",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
                                       ),
                                       ElevatedButton.icon(
                                         onPressed: () {
@@ -254,8 +268,12 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                                 20.0), // Adjust the radius as needed
                                           ),
                                         ),
-                                        icon: Icon(Icons.call),
-                                        label: Text("Call"),
+                                        icon: Icon(Icons.call,
+                                            color: Colors.white),
+                                        label: Text(
+                                          "Call",
+                                          style: TextStyle(color: Colors.white),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -274,13 +292,14 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                       children: [
                                         Icon(
                                           Icons.email,
-                                          color: Colors.white,
                                         ),
                                         Text(
                                           userData['emailId']['id'],
                                           style: TextStyle(
                                             fontSize: 12.0,
-                                            color: Colors.white54,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onTertiary,
                                             fontWeight: FontWeight.normal,
                                           ),
                                         ),
@@ -299,13 +318,14 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                       children: [
                                         Icon(
                                           Icons.phone,
-                                          color: Colors.white,
                                         ),
                                         Text(
                                           "+91 ${userData['phone']['number'].toString()}",
                                           style: TextStyle(
                                             fontSize: 12.0,
-                                            color: Colors.white54,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSecondary,
                                             fontWeight: FontWeight.normal,
                                           ),
                                         ),
@@ -324,13 +344,14 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                       children: [
                                         Icon(
                                           Icons.location_on_rounded,
-                                          color: Colors.white,
                                         ),
                                         Text(
                                           documentData['location'].toString(),
                                           style: TextStyle(
                                             fontSize: 12.0,
-                                            color: Colors.white54,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onSecondary,
                                             fontWeight: FontWeight.normal,
                                           ),
                                         ),
@@ -349,14 +370,20 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                               border: Border.all(
                                   color: Color.fromARGB(43, 158, 158, 158)),
                               borderRadius: BorderRadius.circular(10),
-                              color: Color.fromARGB(186, 42, 40, 40),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.9),
-                                  blurRadius: 10,
-                                  spreadRadius: 2,
-                                ),
-                              ],
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSecondaryContainer,
+                              boxShadow: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? [] // Empty list for no shadow in dark theme
+                                  : [
+                                      BoxShadow(
+                                        color: Color.fromARGB(38, 67, 65, 65)
+                                            .withOpacity(0.5),
+                                        blurRadius: 20,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
                             ),
                             child: Column(
                               children: [
@@ -366,7 +393,6 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                     "Service details",
                                     style: TextStyle(
                                       fontSize: 18.0,
-                                      color: Colors.white54,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -390,7 +416,6 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                         "Budjet",
                                         style: TextStyle(
                                           fontSize: 12.0,
-                                          color: Colors.white54,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -398,7 +423,6 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                         documentData['wage'],
                                         style: TextStyle(
                                           fontSize: 12.0,
-                                          color: Colors.white54,
                                           fontWeight: FontWeight.normal,
                                         ),
                                       ),
@@ -409,7 +433,6 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                   "Description",
                                   style: TextStyle(
                                     fontSize: 12.0,
-                                    color: Colors.white54,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -469,10 +492,15 @@ class _ViewJobDetailsState extends State<ViewJobDetails> {
                                     }
 
                                     functionInvoker.showCancelDialog(
-                                        context, declineFunction,"Do you want to cancel this service request?");
+                                        context,
+                                        declineFunction,
+                                        "Do you want to cancel this service request?");
                                   },
-                                  icon: Icon(Icons.close),
-                                  label: Text("Revoke"))
+                                  icon: Icon(Icons.close, color: Colors.white),
+                                  label: Text(
+                                    "Revoke",
+                                    style: TextStyle(color: Colors.white),
+                                  ))
                               : SizedBox(),
                         ],
                       );
@@ -513,7 +541,6 @@ Widget serviceDetaisl(serviceTitle, serviceName) {
           serviceTitle,
           style: TextStyle(
             fontSize: 12.0,
-            color: Colors.white54,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -521,7 +548,6 @@ Widget serviceDetaisl(serviceTitle, serviceName) {
           convertToSentenceCase(serviceName),
           style: TextStyle(
             fontSize: 12.0,
-            color: Colors.white54,
             fontWeight: FontWeight.normal,
           ),
         ),

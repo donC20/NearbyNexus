@@ -153,7 +153,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: isFetching == true
           ? Container(
               decoration: BoxDecoration(color: Colors.black),
@@ -423,9 +423,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         // About me container
                         Text("About me",
                             style: TextStyle(
-                                color: Color.fromARGB(255, 208, 208, 208),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 0,
                         ),
@@ -434,8 +432,6 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                             ? Center(
                                 child: Text("About unavailable.",
                                     style: TextStyle(
-                                        color:
-                                            Color.fromARGB(255, 208, 208, 208),
                                         fontSize: 14,
                                         fontWeight: FontWeight.normal)),
                               )
@@ -443,7 +439,8 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                                 about,
                                 textAlign: TextAlign.justify,
                                 style: TextStyle(
-                                  color: Color.fromARGB(191, 208, 208, 208),
+                                  color:
+                                      Theme.of(context).colorScheme.onTertiary,
                                   fontSize: 12,
                                   fontWeight: FontWeight.normal,
                                 ),
@@ -462,9 +459,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
                         Text("What I do",
                             style: TextStyle(
-                                color: Color.fromARGB(255, 208, 208, 208),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 5,
                         ),
@@ -503,9 +498,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
                         Text("My working days",
                             style: TextStyle(
-                                color: Color.fromARGB(255, 208, 208, 208),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 5,
                         ),
@@ -537,8 +530,6 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                             : Center(
                                 child: Text("Working days not available.",
                                     style: TextStyle(
-                                        color:
-                                            Color.fromARGB(255, 208, 208, 208),
                                         fontSize: 14,
                                         fontWeight: FontWeight.normal)),
                               ),
@@ -553,15 +544,11 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
                         Text("Languages",
                             style: TextStyle(
-                                color: Color.fromARGB(255, 208, 208, 208),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         languages!.isEmpty
                             ? Center(
                                 child: Text("Languages unavailable.",
                                     style: TextStyle(
-                                        color:
-                                            Color.fromARGB(255, 208, 208, 208),
                                         fontSize: 14,
                                         fontWeight: FontWeight.normal)),
                               )
@@ -586,9 +573,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
                         Text("What others say.",
                             style: TextStyle(
-                                color: Color.fromARGB(255, 208, 208, 208),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 5,
                         ),
@@ -713,9 +698,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                         ),
                         Text("Others with relavent job.",
                             style: TextStyle(
-                                color: Color.fromARGB(255, 208, 208, 208),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold)),
+                                fontSize: 16, fontWeight: FontWeight.bold)),
                         SizedBox(
                           height: 5,
                         ),
@@ -763,68 +746,101 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                                         as Map<String, dynamic>;
                                     final docId = vendors[item].id;
 
-                                    return ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundColor: Colors
-                                            .transparent, // Set a transparent background for the avatar
-                                        child: SizedBox(
-                                          width: 50,
-                                          child: ClipOval(
-                                            // Clip the image to an oval (circle) shape
-                                            child: Image.network(
-                                              vendor['image'],
-                                              fit: BoxFit.cover,
-                                              loadingBuilder:
-                                                  (BuildContext context,
-                                                      Widget child,
-                                                      ImageChunkEvent?
-                                                          loadingProgress) {
-                                                if (loadingProgress == null) {
-                                                  return child;
-                                                } else if (loadingProgress
-                                                            .expectedTotalBytes !=
-                                                        null &&
-                                                    loadingProgress
-                                                            .cumulativeBytesLoaded <
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: Color.fromARGB(
+                                                  43, 158, 158, 158)),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSecondaryContainer,
+                                          boxShadow: Theme.of(context)
+                                                      .brightness ==
+                                                  Brightness.dark
+                                              ? [] // Empty list for no shadow in dark theme
+                                              : [
+                                                  BoxShadow(
+                                                    color: Color.fromARGB(
+                                                            38, 67, 65, 65)
+                                                        .withOpacity(0.5),
+                                                    blurRadius: 20,
+                                                    spreadRadius: 1,
+                                                  ),
+                                                ],
+                                        ),
+                                        child: ListTile(
+                                          leading: CircleAvatar(
+                                            backgroundColor: Colors
+                                                .transparent, // Set a transparent background for the avatar
+                                            child: SizedBox(
+                                              width: 50,
+                                              child: ClipOval(
+                                                // Clip the image to an oval (circle) shape
+                                                child: Image.network(
+                                                  vendor['image'],
+                                                  fit: BoxFit.cover,
+                                                  loadingBuilder:
+                                                      (BuildContext context,
+                                                          Widget child,
+                                                          ImageChunkEvent?
+                                                              loadingProgress) {
+                                                    if (loadingProgress ==
+                                                        null) {
+                                                      return child;
+                                                    } else if (loadingProgress
+                                                                .expectedTotalBytes !=
+                                                            null &&
                                                         loadingProgress
-                                                            .expectedTotalBytes!) {
-                                                  return Center(
-                                                    child:
-                                                        LoadingAnimationWidget
-                                                            .discreteCircle(
-                                                      color: Colors.grey,
-                                                      size: 15,
-                                                    ),
-                                                  );
-                                                } else {
-                                                  return SizedBox();
-                                                }
-                                              },
+                                                                .cumulativeBytesLoaded <
+                                                            loadingProgress
+                                                                .expectedTotalBytes!) {
+                                                      return Center(
+                                                        child:
+                                                            LoadingAnimationWidget
+                                                                .discreteCircle(
+                                                          color: Colors.grey,
+                                                          size: 15,
+                                                        ),
+                                                      );
+                                                    } else {
+                                                      return SizedBox();
+                                                    }
+                                                  },
+                                                ),
+                                              ),
                                             ),
                                           ),
+                                          title: Text(
+                                            vendor['name'],
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          subtitle: Text(
+                                            vendor['geoLocation'],
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onTertiary,
+                                                fontWeight: FontWeight.normal),
+                                          ),
+                                          trailing: OutlinedButton(
+                                              onPressed: () {
+                                                Navigator.pushReplacementNamed(
+                                                    context,
+                                                    "vendor_profile_opposite",
+                                                    arguments: docId);
+                                              },
+                                              child: Text(
+                                                "View",
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              )),
                                         ),
                                       ),
-                                      title: Text(
-                                        vendor['name'],
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: Text(
-                                        vendor['geoLocation'],
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                114, 255, 255, 255),
-                                            fontWeight: FontWeight.normal),
-                                      ),
-                                      trailing: OutlinedButton(
-                                          onPressed: () {
-                                            Navigator.pushReplacementNamed(
-                                                context,
-                                                "vendor_profile_opposite",
-                                                arguments: docId);
-                                          },
-                                          child: Text("View")),
                                     );
                                   },
                                   separatorBuilder:
@@ -884,7 +900,6 @@ Widget modernCircularProgressBar(double value, String tagline, int maxValue,
                   : Text(
                       '${value.toInt()}',
                       style: TextStyle(
-                        color: const Color.fromARGB(255, 255, 255, 255),
                         fontSize: 12, // Adjusted font size
                         fontWeight: FontWeight.bold,
                       ),

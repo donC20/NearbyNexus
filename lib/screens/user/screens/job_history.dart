@@ -50,8 +50,8 @@ class _UserJobHistoryState extends State<UserJobHistory> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(backgroundColor: Colors.black, title: Text("Job history")),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(title: Text("Job history")),
       body: SafeArea(
         child: DefaultTabController(
           length: 3,
@@ -147,19 +147,22 @@ Widget tabCompleted(uid, firestore, tab) {
                   Map<String, dynamic> documentData =
                       document.data() as Map<String, dynamic>;
                   return Container(
-                    width: 100,
-                    height: 170,
+                    width: MediaQuery.sizeOf(context).width,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      border:
+                          Border.all(color: Color.fromARGB(43, 158, 158, 158)),
                       borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2), // Shadow color
-                          spreadRadius: 2, // Spread radius
-                          blurRadius: 5, // Blur radius
-                          offset: Offset(0, 3), // Offset
-                        ),
-                      ],
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                      boxShadow: Theme.of(context).brightness == Brightness.dark
+                          ? [] // Empty list for no shadow in dark theme
+                          : [
+                              BoxShadow(
+                                color: Color.fromARGB(38, 67, 65, 65)
+                                    .withOpacity(0.5),
+                                blurRadius: 20,
+                                spreadRadius: 1,
+                              ),
+                            ],
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(15.0),
@@ -176,7 +179,6 @@ Widget tabCompleted(uid, firestore, tab) {
                                   Text(
                                     documentData['service_name'],
                                     style: TextStyle(
-                                        color: Colors.black,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
                                         fontFamily:
@@ -221,8 +223,6 @@ Widget tabCompleted(uid, firestore, tab) {
                                     timeStampConverter(
                                         documentData['dateRequested']),
                                     style: TextStyle(
-                                        color:
-                                            const Color.fromARGB(148, 0, 0, 0),
                                         fontWeight: FontWeight.normal,
                                         fontSize: 12,
                                         fontFamily:
@@ -245,8 +245,6 @@ Widget tabCompleted(uid, firestore, tab) {
                                   Text(
                                     documentData['location'],
                                     style: TextStyle(
-                                        color:
-                                            const Color.fromARGB(148, 0, 0, 0),
                                         fontWeight: FontWeight.bold,
                                         fontSize: 14,
                                         fontFamily:
@@ -283,6 +281,7 @@ Widget tabCompleted(uid, firestore, tab) {
                               bottom: 20,
                               right: 0,
                               child: OutlinedButton(
+                                  key: Key("${index.toString()}_button_user"),
                                   onPressed: () {
                                     Map<String, dynamic> docInfo = {
                                       "dataReference": docId,
@@ -294,7 +293,10 @@ Widget tabCompleted(uid, firestore, tab) {
                                   },
                                   child: Text(
                                     'Details',
-                                    style: TextStyle(color: Colors.black),
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .tertiary),
                                   )))
                         ],
                       ),
@@ -302,8 +304,8 @@ Widget tabCompleted(uid, firestore, tab) {
                   );
                 },
                 separatorBuilder: (context, index) {
-                  return Divider(
-                    color: Colors.grey,
+                  return SizedBox(
+                    height: 15,
                   );
                 },
                 itemCount: documentList.length,
@@ -313,7 +315,6 @@ Widget tabCompleted(uid, firestore, tab) {
           return Center(
             child: Text(
               "Sorry, No new jobs are added or completed.",
-              style: TextStyle(color: Colors.white),
             ),
           );
         },

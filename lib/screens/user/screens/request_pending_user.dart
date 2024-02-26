@@ -80,14 +80,10 @@ class _RequestsPendingUserState extends State<RequestsPendingUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        leadingWidth: MediaQuery.sizeOf(context).width,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 15, top: 8.0),
-          child: Text("Your pending requests",
-              style: TextStyle(color: Colors.white, fontSize: 18)),
+        title: Text(
+          "Your pending requests",
         ),
       ),
       body: Padding(
@@ -151,7 +147,25 @@ class _RequestsPendingUserState extends State<RequestsPendingUser> {
                                   child: Container(
                                     padding: EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Color.fromARGB(81, 42, 40, 40),
+                                      border: Border.all(
+                                          color: Color.fromARGB(
+                                              43, 158, 158, 158)),
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                      boxShadow: Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? [] // Empty list for no shadow in dark theme
+                                          : [
+                                              BoxShadow(
+                                                color: Color.fromARGB(
+                                                        38, 67, 65, 65)
+                                                    .withOpacity(0.5),
+                                                blurRadius: 20,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
                                     ),
                                     child: GestureDetector(
                                       onTap: () {
@@ -175,17 +189,17 @@ class _RequestsPendingUserState extends State<RequestsPendingUser> {
                                             convertToSentenceCase(
                                                 documentData['service_name']),
                                             style: TextStyle(
-                                                color: Colors.white,
                                                 fontWeight: FontWeight.bold)),
                                         subtitle: Text(
                                             timeStampConverter(
                                                 documentData['dateRequested']),
                                             style: TextStyle(
-                                                color: Colors.white,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .tertiary,
                                                 fontSize: 12)),
                                         trailing: Icon(
                                           Icons.arrow_forward_ios,
-                                          color: Colors.white54,
                                         ),
                                       ),
                                     ),

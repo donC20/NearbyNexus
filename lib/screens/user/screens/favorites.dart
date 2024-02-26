@@ -57,13 +57,11 @@ class _MyFavouritesState extends State<MyFavourites> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: Theme.of(context).colorScheme.background,
         appBar: AppBar(
           title: Text(
             "My favorites",
-            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          backgroundColor: Colors.black,
         ),
         body: StreamBuilder<DocumentSnapshot>(
           stream: _firestore.collection('users').doc(uid).snapshots(),
@@ -127,7 +125,9 @@ class _MyFavouritesState extends State<MyFavourites> {
                   );
                 },
                 separatorBuilder: (BuildContext context, int index) {
-                  return Divider(color: Colors.grey);
+                  return SizedBox(
+                    height: 15,
+                  );
                 },
               );
             } else {
@@ -139,28 +139,32 @@ class _MyFavouritesState extends State<MyFavourites> {
 }
 
 Widget userTileModel(name, image, location, BuildContext context, docId) {
-  return Container(
-    padding: EdgeInsets.all(10),
-    width: MediaQuery.sizeOf(context).width,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(10),
-    ),
-    child: Column(
-      children: [
-        ListTile(
+  return Column(
+    children: [
+      Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
+          borderRadius: BorderRadius.circular(10),
+          color: Theme.of(context).colorScheme.onSecondaryContainer,
+          boxShadow: Theme.of(context).brightness == Brightness.dark
+              ? [] // Empty list for no shadow in dark theme
+              : [
+                  BoxShadow(
+                    color: Color.fromARGB(38, 67, 65, 65).withOpacity(0.5),
+                    blurRadius: 20,
+                    spreadRadius: 1,
+                  ),
+                ],
+        ),
+        child: ListTile(
           leading: UserLoadingAvatar(userImage: image),
           title: Text(
             name,
-            style: TextStyle(
-                color: const Color.fromARGB(174, 0, 0, 0),
-                fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
           subtitle: Text(
             location,
-            style: TextStyle(
-                color: const Color.fromARGB(174, 0, 0, 0),
-                fontWeight: FontWeight.normal),
+            style: TextStyle(fontWeight: FontWeight.normal),
           ),
           trailing: Container(
             decoration: BoxDecoration(
@@ -194,7 +198,7 @@ Widget userTileModel(name, image, location, BuildContext context, docId) {
             ),
           ),
         ),
-      ],
-    ),
+      ),
+    ],
   );
 }

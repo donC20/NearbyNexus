@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:NearbyNexus/components/user_bottom_nav.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:buttons_tabbar/buttons_tabbar.dart';
@@ -182,14 +181,12 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      resizeToAvoidBottomInset: true,
-      extendBody: true,
-      backgroundColor: Color.fromARGB(255, 0, 0, 0),
+      // extendBodyBehindAppBar: true,
+      // resizeToAvoidBottomInset: true,
+      // extendBody: true,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.black,
         elevation: 2,
-        shadowColor: Colors.grey,
         leadingWidth: MediaQuery.sizeOf(context).width,
         leading: Padding(
           padding: const EdgeInsets.all(15.0),
@@ -216,7 +213,6 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                 Text(
                   yrCurrentLocation,
                   style: TextStyle(
-                    color: Color.fromARGB(255, 178, 176, 176),
                     fontWeight: FontWeight.normal,
                     fontFamily: GoogleFonts.poppins().fontFamily,
                     fontSize: 16.0,
@@ -224,7 +220,6 @@ class _GeneralUserHomeState extends State<GeneralUserHome> {
                 ),
                 Icon(
                   Icons.arrow_drop_down,
-                  color: Color(0xFF838383),
                 ),
               ],
             ),
@@ -370,7 +365,7 @@ Widget onLocationServices(yrCurrentLocation) {
                 SizedBox(height: 15),
                 Text(
                   "Sorry, Something went wrong",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(fontSize: 16),
                 ),
               ],
             ),
@@ -418,7 +413,7 @@ Widget onLocationServices(yrCurrentLocation) {
                 SizedBox(height: 15),
                 Text(
                   "Sorry, no users found!",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(fontSize: 16),
                 ),
               ],
             ),
@@ -475,8 +470,18 @@ Widget vendorDisplayTile(BuildContext context, userData, docId) {
     padding: EdgeInsets.all(15),
     width: MediaQuery.of(context).size.width,
     decoration: BoxDecoration(
-      color: Colors.white,
+      border: Border.all(color: Color.fromARGB(43, 158, 158, 158)),
       borderRadius: BorderRadius.circular(10),
+      color: Theme.of(context).colorScheme.onSecondaryContainer,
+      boxShadow: Theme.of(context).brightness == Brightness.dark
+          ? [] // Empty list for no shadow in dark theme
+          : [
+              BoxShadow(
+                color: Color.fromARGB(38, 67, 65, 65).withOpacity(0.5),
+                blurRadius: 20,
+                spreadRadius: 1,
+              ),
+            ],
     ),
     child: Column(
       children: [
@@ -489,7 +494,7 @@ Widget vendorDisplayTile(BuildContext context, userData, docId) {
                   TextSpan(
                     text: convertToSentenceCase(userData['services'][0]),
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.onSecondary,
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
                     ),
@@ -554,7 +559,6 @@ Widget vendorDisplayTile(BuildContext context, userData, docId) {
               Text(
                 userData['name'],
                 style: TextStyle(
-                  color: Colors.black,
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
                 ),
@@ -565,7 +569,7 @@ Widget vendorDisplayTile(BuildContext context, userData, docId) {
           subtitle: Text(
             userData['geoLocation'],
             style: TextStyle(
-              color: const Color.fromARGB(121, 0, 0, 0),
+              color: Theme.of(context).colorScheme.onTertiary,
               fontSize: 10,
               fontWeight: FontWeight.w900,
             ),

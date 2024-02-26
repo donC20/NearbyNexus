@@ -57,15 +57,13 @@ class _UserProfileOneState extends State<UserProfileOne> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         elevation: 1,
         shadowColor: Color.fromARGB(92, 255, 255, 255),
-        backgroundColor: Colors.black,
         title: Text(
           "Manage Account",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
       body: isFetching == true
@@ -125,13 +123,12 @@ class _UserProfileOneState extends State<UserProfileOne> {
                     ),
                     title: Text(
                       nameLoginned,
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     subtitle: Text(
                       email,
                       style: TextStyle(
-                          color: Color.fromARGB(108, 255, 255, 255),
+                          color: Theme.of(context).colorScheme.onTertiary,
                           fontWeight: FontWeight.normal,
                           fontSize: 12),
                     ),
@@ -153,18 +150,15 @@ class _UserProfileOneState extends State<UserProfileOne> {
                   ListTile(
                     leading: Icon(
                       Icons.settings,
-                      color: Colors.white,
                     ),
                     title: Text(
                       "Settings",
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    horizontalTitleGap: -5,
                     trailing: IconButton(
                         onPressed: () {},
                         icon: Icon(
                           Icons.arrow_right_alt,
-                          color: Colors.white,
                         )),
                   ),
                   Divider(
@@ -176,13 +170,11 @@ class _UserProfileOneState extends State<UserProfileOne> {
                   ListTile(
                     leading: Icon(
                       Icons.support,
-                      color: Colors.white,
                     ),
                     title: Text(
                       "Support",
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    horizontalTitleGap: -5,
                     trailing: IconButton(
                         onPressed: () async {
                           final Uri _emailLaunchUri = Uri(
@@ -203,40 +195,33 @@ class _UserProfileOneState extends State<UserProfileOne> {
                         },
                         icon: Icon(
                           Icons.arrow_right_alt,
-                          color: Colors.white,
                         )),
                   ),
                   ListTile(
                     leading: Icon(
                       Icons.edit_document,
-                      color: Colors.white,
                     ),
                     title: Text(
                       "Terms and conditions",
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    horizontalTitleGap: -5,
                     trailing: IconButton(
                         onPressed: () {
                           Navigator.pushNamed(context, "terms_Conditions");
                         },
                         icon: Icon(
                           Icons.arrow_right_alt,
-                          color: Colors.white,
                         )),
                   ),
                   ListTile(
                     leading: Icon(
                       Icons.language,
-                      color: Colors.white,
                     ),
                     title: Text(
                       "Language",
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    horizontalTitleGap: -5,
-                    trailing: Text("English",
-                        style: TextStyle(color: Colors.white, fontSize: 14)),
+                    trailing: Text("English", style: TextStyle(fontSize: 14)),
                   ),
                   InkWell(
                     onTap: () async {
@@ -260,7 +245,6 @@ class _UserProfileOneState extends State<UserProfileOne> {
                             fontSize: 14,
                             fontWeight: FontWeight.bold),
                       ),
-                      horizontalTitleGap: -5,
                     ),
                   ),
                   SizedBox(
