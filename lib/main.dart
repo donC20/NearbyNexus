@@ -167,8 +167,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       title: 'NearbyNexus',
-      theme: lightMode,
-      darkTheme: darkMode,
+      theme: Provider.of<CommonProvider>(context).themeData,
       routes: {
         "admin_screen": (context) => const Dashboard(),
         "splashScreen": (context) => const SplashScreen(),

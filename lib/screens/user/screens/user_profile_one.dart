@@ -2,10 +2,14 @@
 
 import 'dart:convert';
 
+import 'package:NearbyNexus/providers/common_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -148,18 +152,36 @@ class _UserProfileOneState extends State<UserProfileOne> {
                     height: 15,
                   ),
                   ListTile(
-                    leading: Icon(
-                      Icons.settings,
+                    leading: SvgPicture.asset(
+                      'assets/icons/svg/hanger.svg',
+                      height: 20,
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
                     title: Text(
-                      "Settings",
+                      "Theme",
                       style: TextStyle(fontSize: 14),
                     ),
-                    trailing: IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.arrow_right_alt,
-                        )),
+                    trailing: OutlinedButton.icon(
+                      onPressed: () {
+                        Provider.of<CommonProvider>(context, listen: false)
+                            .toggleTheme();
+                      },
+                      label: Text(
+                        Theme.of(context).brightness == Brightness.dark
+                            ? "Dark Mode"
+                            : "Light Mode",
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSecondary),
+                      ),
+                      icon: Icon(
+                        Theme.of(context).brightness != Brightness.dark
+                            ? Icons.light_mode
+                            : Icons.dark_mode_sharp,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.amber[400],
+                      ),
+                    ),
                   ),
                   Divider(
                     color: const Color.fromARGB(87, 158, 158, 158),
