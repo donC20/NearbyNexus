@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
+import 'package:NearbyNexus/screens/common_screens/gmaps.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -177,6 +178,32 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                         Theme.of(context).brightness != Brightness.dark
                             ? Icons.light_mode
                             : Icons.dark_mode_sharp,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.amber[400],
+                      ),
+                    ),
+                  ),
+                  ListTile(
+                    leading: SvgPicture.asset(
+                      'assets/icons/svg/hanger.svg',
+                      height: 20,
+                      color: Theme.of(context).colorScheme.onSecondary,
+                    ),
+                    title: Text(
+                      "Maps",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    trailing: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => Gmaps()));
+                      },
+                      label: Text(
+                        "Maps openn",
+                      ),
+                      icon: Icon(
+                        Icons.dark_mode_sharp,
                         color: Theme.of(context).brightness == Brightness.dark
                             ? Colors.white
                             : Colors.amber[400],

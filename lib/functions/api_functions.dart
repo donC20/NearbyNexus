@@ -12,6 +12,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:logger/logger.dart';
@@ -88,6 +89,7 @@ class ApiFunctions {
       final features = data["features"] as List<dynamic>;
       resultList = features.map((feature) {
         final properties = feature["properties"] as Map<String, dynamic>;
+
         return properties;
       }).toList();
 
@@ -96,6 +98,20 @@ class ApiFunctions {
       // Handle errors here.
       logger.d('Error: ${response.statusCode}');
       return []; // Return an empty list in case of an error.
+    }
+  }
+
+  // get current location
+  static Future<Map<String, double>> getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      double lat = position.latitude;
+      double lon = position.longitude;
+      return {'lat': lat, 'lon': lon};
+    } catch (e) {
+      print('Error getting current location: $e');
+      return {'lat': 0.0, 'lon': 0.0}; // Default to 0,0 if there's an error
     }
   }
 

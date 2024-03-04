@@ -6,11 +6,13 @@ import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/models/job_post_model.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
+import 'package:NearbyNexus/screens/common_screens/gmaps.dart';
 import 'package:NearbyNexus/screens/vendor/components/bottom_sheet_quill.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -71,7 +73,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
     "Xamarin",
   ];
   List<dynamic> selectedSkillList = [];
-  List prefferedLocations = ["All"];
+  List prefferedLocations = ["Remote/Work from Home"];
   List<Map<String, dynamic>> resultList = [];
 
   //Date time
@@ -303,8 +305,9 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                       fontSize: 16, color: Colors.white54),
                                   children: [
                                 TextSpan(
-                                    text:
-                                        prefferedLocationAll ? "All" : "Custom",
+                                    text: prefferedLocationAll
+                                        ? "Remote / WFH"
+                                        : "Custom",
                                     style: TextStyle(color: Colors.red))
                               ])),
                           Row(
@@ -341,23 +344,53 @@ class _CreateJobPostState extends State<CreateJobPost> {
                         height: 10,
                       ),
                       !prefferedLocationAll
-                          ? Container(
-                              height: 55,
-                              decoration: BoxDecoration(
-                                  color: Color(0xFF1E1E1E),
-                                  borderRadius: BorderRadius.circular(20)),
-                              child: TextField(
-                                controller: _locationController,
-                                keyboardType: TextInputType.name,
-                                style: GoogleFonts.poppins(
-                                  color:
-                                      const Color.fromARGB(255, 226, 223, 223),
+                          ? Column(
+                              children: [
+                                SizedBox(
+                                  height: 50,
+                                  child: GFButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => Gmaps()));
+                                    },
+                                    icon: SvgPicture.asset(
+                                      'assets/icons/svg/mapsIcon.svg',
+                                      height: 30,
+                                    ),
+                                    text: "Choose from maps",
+                                    textStyle: TextStyle(fontSize: 12),
+                                    size: GFSize.LARGE,
+                                    fullWidthButton: true,
+                                    shape: GFButtonShape.pills,
+                                    color: Color(0xFF1E1E1E),
+                                  ),
                                 ),
-                                decoration: InputDecoration(
-                                  prefixIcon: Icon(Icons.location_pin,
-                                      color: Colors.white54),
-                                  suffixIcon:
-                                      _locationController.text.isNotEmpty
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Text("OR"),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Container(
+                                  height: 55,
+                                  decoration: BoxDecoration(
+                                      color: Color(0xFF1E1E1E),
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: TextField(
+                                    controller: _locationController,
+                                    keyboardType: TextInputType.name,
+                                    style: GoogleFonts.poppins(
+                                      color: const Color.fromARGB(
+                                          255, 226, 223, 223),
+                                    ),
+                                    decoration: InputDecoration(
+                                      prefixIcon: Icon(Icons.location_pin,
+                                          color: Colors.white54),
+                                      suffixIcon: _locationController
+                                              .text.isNotEmpty
                                           ? IconButton(
                                               icon: Icon(
                                                 Icons.clear,
@@ -376,12 +409,16 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                               Icons.my_location_sharp,
                                               color: Colors.white54,
                                             ),
-                                  hintStyle: TextStyle(color: Colors.white38),
-                                  hintText: 'Eg : California',
-                                  border: InputBorder.none,
+                                      hintStyle:
+                                          TextStyle(color: Colors.white38),
+                                      hintText: 'Eg : California',
+                                      border: InputBorder.none,
+                                    ),
+                                    onChanged: (value) =>
+                                        handleInputChange(value),
+                                  ),
                                 ),
-                                onChanged: (value) => handleInputChange(value),
-                              ),
+                              ],
                             )
                           : SizedBox(),
                       !prefferedLocationAll

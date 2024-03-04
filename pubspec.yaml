@@ -107,6 +107,8 @@ dependencies:
   motion_tab_bar: ^2.0.4
   motion_tab_bar_v2: ^0.3.0
   flutter_radar_chart: ^0.2.1
+  google_maps_flutter: ^2.5.3
+  flutter_polyline_points: ^2.0.0
 
 dev_dependencies:
   flutter_blurhash: ^0.8.2

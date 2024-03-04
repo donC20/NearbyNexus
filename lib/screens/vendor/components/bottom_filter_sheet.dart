@@ -72,6 +72,7 @@ class _FilterContainerState extends State<FilterContainer> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: Colors.white,
       padding: EdgeInsets.all(16.0),
       child: ListView(
         children: [
