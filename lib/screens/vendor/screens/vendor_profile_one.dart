@@ -196,8 +196,8 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                     ),
                     trailing: OutlinedButton.icon(
                       onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => Gmaps()));
+                        // Navigator.push(context,
+                        //     MaterialPageRoute(builder: (context) => Gmaps()));
                       },
                       label: Text(
                         "Maps openn",

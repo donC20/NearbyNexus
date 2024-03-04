@@ -11,10 +11,10 @@ import 'package:NearbyNexus/screens/vendor/components/bottom_sheet_quill.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -46,7 +46,6 @@ class _CreateJobPostState extends State<CreateJobPost> {
   // controllers
   final titleController = TextEditingController();
   final budgetController = TextEditingController();
-  final _locationController = TextEditingController();
 
   // formkeys
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -73,7 +72,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
     "Xamarin",
   ];
   List<dynamic> selectedSkillList = [];
-  List prefferedLocations = ["Remote/Work from Home"];
+  List prefferedLocations = ["Remote/WFH"];
   List<Map<String, dynamic>> resultList = [];
 
   //Date time
@@ -194,6 +193,18 @@ class _CreateJobPostState extends State<CreateJobPost> {
         isFormSubmitting = false;
       });
     });
+  }
+
+  // Define a callback function to update the state
+
+  LatLng locationFromMap = LatLng(0.0, 0.0);
+  void updateLocation(locationSelected) {
+    setState(() {
+      locationFromMap = locationSelected;
+      logger.f("This is the location $locationFromMap");
+      UtilityFunctions()
+          .showSnackbar("Location selected", Colors.green, context);
+    }); // Trigger UI update
   }
 
   @override
@@ -318,13 +329,14 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                   setState(() {
                                     prefferedLocationAll = val!;
                                     if (prefferedLocationAll &&
-                                        !prefferedLocations.contains('All')) {
+                                        !prefferedLocations
+                                            .contains('Remote/WFH')) {
                                       prefferedLocations.clear();
-                                      prefferedLocations.add("All");
+                                      prefferedLocations.add("Remote/WFH");
                                     } else if (prefferedLocations
-                                            .contains('All') &&
+                                            .contains('Remote/WFH') &&
                                         !prefferedLocationAll) {
-                                      prefferedLocations.remove('All');
+                                      prefferedLocations.remove('Remote/WFH');
                                     }
                                   });
                                 },
@@ -348,191 +360,58 @@ class _CreateJobPostState extends State<CreateJobPost> {
                               children: [
                                 SizedBox(
                                   height: 50,
-                                  child: GFButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) => Gmaps()));
-                                    },
-                                    icon: SvgPicture.asset(
-                                      'assets/icons/svg/mapsIcon.svg',
-                                      height: 30,
-                                    ),
-                                    text: "Choose from maps",
-                                    textStyle: TextStyle(fontSize: 12),
-                                    size: GFSize.LARGE,
-                                    fullWidthButton: true,
-                                    shape: GFButtonShape.pills,
-                                    color: Color(0xFF1E1E1E),
-                                  ),
+                                  child: locationFromMap.latitude
+                                              .isGreaterThan(0) &&
+                                          locationFromMap.longitude
+                                              .isGreaterThan(0)
+                                      ? GFButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) => Gmaps(
+                                                          updateLocation:
+                                                              updateLocation,
+                                                        )));
+                                          },
+                                          icon: SvgPicture.asset(
+                                            'assets/icons/svg/mapsIcon.svg',
+                                            height: 30,
+                                          ),
+                                          text: "Change location",
+                                          textStyle: TextStyle(fontSize: 12),
+                                          size: GFSize.LARGE,
+                                          fullWidthButton: true,
+                                          shape: GFButtonShape.pills,
+                                          color:
+                                              Color.fromARGB(255, 0, 94, 157),
+                                        )
+                                      : GFButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) => Gmaps(
+                                                          updateLocation:
+                                                              updateLocation,
+                                                        )));
+                                          },
+                                          icon: SvgPicture.asset(
+                                            'assets/icons/svg/mapsIcon.svg',
+                                            height: 30,
+                                          ),
+                                          text: "Choose from maps",
+                                          textStyle: TextStyle(fontSize: 12),
+                                          size: GFSize.LARGE,
+                                          fullWidthButton: true,
+                                          shape: GFButtonShape.pills,
+                                          color: Color(0xFF1E1E1E),
+                                        ),
                                 ),
                                 SizedBox(
                                   height: 5,
-                                ),
-                                Text("OR"),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Container(
-                                  height: 55,
-                                  decoration: BoxDecoration(
-                                      color: Color(0xFF1E1E1E),
-                                      borderRadius: BorderRadius.circular(20)),
-                                  child: TextField(
-                                    controller: _locationController,
-                                    keyboardType: TextInputType.name,
-                                    style: GoogleFonts.poppins(
-                                      color: const Color.fromARGB(
-                                          255, 226, 223, 223),
-                                    ),
-                                    decoration: InputDecoration(
-                                      prefixIcon: Icon(Icons.location_pin,
-                                          color: Colors.white54),
-                                      suffixIcon: _locationController
-                                              .text.isNotEmpty
-                                          ? IconButton(
-                                              icon: Icon(
-                                                Icons.clear,
-                                                color: Colors.white54,
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
-                                                  _locationController.clear();
-                                                  resultList.clear();
-                                                  isListEmpty = false;
-                                                  selectedName = "";
-                                                });
-                                              },
-                                            )
-                                          : Icon(
-                                              Icons.my_location_sharp,
-                                              color: Colors.white54,
-                                            ),
-                                      hintStyle:
-                                          TextStyle(color: Colors.white38),
-                                      hintText: 'Eg : California',
-                                      border: InputBorder.none,
-                                    ),
-                                    onChanged: (value) =>
-                                        handleInputChange(value),
-                                  ),
                                 ),
                               ],
-                            )
-                          : SizedBox(),
-                      !prefferedLocationAll
-                          ? Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: isLocationFetchingList == false
-                                  ? isListEmpty
-                                      ? Center(
-                                          child: Text(
-                                            "Sorry, Location not found",
-                                            style: TextStyle(
-                                                color: Color.fromARGB(
-                                                    255, 227, 8, 8)),
-                                          ),
-                                        )
-                                      : LayoutBuilder(
-                                          builder: (BuildContext context,
-                                              BoxConstraints constraints) {
-                                            double containerHeight =
-                                                resultList.length * 90.0;
-                                            containerHeight =
-                                                containerHeight.clamp(0, 170);
-                                            return Container(
-                                              height: containerHeight,
-                                              decoration: BoxDecoration(
-                                                color: Color.fromARGB(
-                                                    138, 53, 52, 52),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: ListView.separated(
-                                                itemCount: resultList.length,
-                                                itemBuilder: (context, index) {
-                                                  String name =
-                                                      resultList[index]
-                                                              ["name"] ??
-                                                          resultList[index]
-                                                              ["formatted"] ??
-                                                          "";
-                                                  String country =
-                                                      resultList[index]
-                                                              ["country"] ??
-                                                          "";
-                                                  String state =
-                                                      resultList[index]
-                                                              ["state"] ??
-                                                          resultList[index]
-                                                              ["suburb"] ??
-                                                          "";
-                                                  String county =
-                                                      resultList[index]
-                                                              ["county"] ??
-                                                          resultList[index]
-                                                              ["postcode"] ??
-                                                          resultList[index]
-                                                              ["state_code"] ??
-                                                          "";
-                                                  return ListTile(
-                                                    title: Text(
-                                                      name,
-                                                      style: TextStyle(
-                                                          color:
-                                                              Colors.white60),
-                                                    ),
-                                                    subtitle: Text(
-                                                        "$state, $county, $country",
-                                                        style: TextStyle(
-                                                            color: Colors
-                                                                .white60)),
-                                                    onTap: () {
-                                                      setState(() {});
-                                                      selectedName = resultList[
-                                                              index]["name"] ??
-                                                          resultList[index]
-                                                              ["formatted"] ??
-                                                          "";
-                                                      // _locationController.text =
-                                                      //     selectedName;
-                                                      setState(() {
-                                                        prefferedLocations
-                                                                .contains(
-                                                                    selectedName)
-                                                            ? prefferedLocations
-                                                                .remove(
-                                                                    selectedName)
-                                                            : prefferedLocations
-                                                                .add(
-                                                                    selectedName);
-                                                        resultList.clear();
-                                                      });
-                                                      // Handle the selection logic here
-                                                    },
-                                                  );
-                                                },
-                                                separatorBuilder:
-                                                    (BuildContext context,
-                                                        int index) {
-                                                  return Divider(
-                                                    color: Color.fromARGB(
-                                                        48, 189, 189, 189),
-                                                    thickness: 1.0,
-                                                    indent: 0,
-                                                    endIndent: 0,
-                                                  );
-                                                },
-                                              ),
-                                            );
-                                          },
-                                        )
-                                  : Center(
-                                      child: LoadingAnimationWidget
-                                          .horizontalRotatingDots(
-                                              color: Colors.white, size: 20),
-                                    ),
                             )
                           : SizedBox(),
                       SizedBox(
@@ -627,49 +506,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
                       ),
                     ],
                   ),
-                  // Desc input field
-                  // Column(
-                  //   crossAxisAlignment: CrossAxisAlignment.start,
-                  //   children: [
-                  //     Text(
-                  //       "Description",
-                  //       style: TextStyle(color: Colors.white54),
-                  //     ),
-                  //     SizedBox(
-                  //       height: 5,
-                  //     ),
-                  //     Container(
-                  //       height: 150,
-                  //       decoration: BoxDecoration(
-                  //         color: Color(0xFF1E1E1E),
-                  //         borderRadius: BorderRadius.circular(20),
-                  //       ),
-                  //       child: TextFormField(
-                  //         maxLines: null, // Set to null for multiline input
-                  //         keyboardType: TextInputType.multiline,
-                  //         controller: descriptionController,
-                  //         style: TextStyle(color: Colors.white),
-                  //         decoration: InputDecoration(
-                  //           hintText: 'Enter job description.',
-                  //           hintStyle:
-                  //               TextStyle(color: Colors.white24, fontSize: 14),
-                  //           contentPadding: EdgeInsets.all(16),
-                  //           border: InputBorder.none,
-                  //         ),
-                  //         validator: (value) {
-                  //           if (value!.isEmpty) {
-                  //             return "You left this field empty!";
-                  //           }
-                  //           return null;
-                  //         },
-                  //       ),
-                  //     ),
-                  //     SizedBox(
-                  //       height: 10,
-                  //     ),
-                  //   ],
-                  // ),
-                  // button
+
                   Padding(
                     padding: const EdgeInsets.only(
                         left: 10.0, right: 10.0, bottom: 5.0, top: 10),
@@ -771,7 +608,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                           budgetController.text,
                                           _usersCollection.doc(uid),
                                           selectedSkillList,
-                                          prefferedLocations);
+                                          locationFromMap);
                                       // remove the data after successfull insertion
                                       UtilityFunctions()
                                           .deleteFromSharedPreferences(

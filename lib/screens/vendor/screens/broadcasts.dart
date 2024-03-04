@@ -389,24 +389,9 @@ class _BroadcastPageState extends State<BroadcastPage> {
                               ),
                               SizedBox(height: 15),
                               Text(
-                                "There are no saved jobs, please add some..",
+                                "No Jobs found!",
                                 style: TextStyle(color: Colors.white),
                               ),
-                              SizedBox(height: 15),
-                              GFButton(
-                                onPressed: () {
-                                  Navigator.pushReplacementNamed(
-                                      context, "/broadcast_page");
-                                },
-                                text: 'View Jobs',
-                                shape: GFButtonShape.pills,
-                                icon: Icon(
-                                  Icons.open_in_browser_rounded,
-                                  color: Colors.white,
-                                ),
-                                size: GFSize.MEDIUM,
-                                color: const Color.fromARGB(255, 84, 84, 84),
-                              )
                             ],
                           ),
                         );

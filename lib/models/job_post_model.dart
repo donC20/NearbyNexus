@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+
 class JobPostModel {
   String? jobTitle;
   String? jobDescription;
@@ -10,7 +11,7 @@ class JobPostModel {
   DocumentReference? jobPostedBy;
   List<dynamic>? applications = [];
   List<dynamic>? skills;
-  List<dynamic>? preferredLocation;
+  dynamic preferredLocation;
   bool isWithdrawn = false;
 
   JobPostModel(

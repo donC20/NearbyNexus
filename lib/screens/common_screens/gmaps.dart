@@ -1,11 +1,16 @@
+// ignore_for_file: prefer_const_constructors, library_private_types_in_public_api, use_super_parameters, prefer_final_fields
+
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_connect/sockets/src/socket_notifier.dart';
+import 'package:getwidget/getwidget.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:location/location.dart';
 import 'package:logger/logger.dart';
 
 class Gmaps extends StatefulWidget {
-  const Gmaps({Key? key}) : super(key: key);
+  final void Function(LatLng location) updateLocation;
+  const Gmaps({Key? key, required this.updateLocation}) : super(key: key);
 
   @override
   _GmapsState createState() => _GmapsState();
@@ -13,21 +18,55 @@ class Gmaps extends StatefulWidget {
 
 class _GmapsState extends State<Gmaps> {
   late GoogleMapController _mapController;
-  static final CameraPosition _kGooglePlex = CameraPosition(
+
+  CameraPosition _kGooglePlex = CameraPosition(
     target: LatLng(37.4279613388664, -122.085749655962),
     zoom: 14.4746,
   );
 
   late LatLng _selectedLocation;
-  bool _locationSelected = false;
 
   Set<Marker> _markers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  // Function to get the current location and set the initial camera position
+  Future<void> _getCurrentLocation() async {
+    try {
+      // Get the current location
+      LocationData locationData =
+          (await ApiFunctions.getCurrentLocation()) as LocationData;
+      double lat = locationData.latitude!;
+      double lon = locationData.longitude!;
+
+      // Set the initial camera position to the current location
+      setState(() {
+        _kGooglePlex = CameraPosition(target: LatLng(lat, lon), zoom: 14.4746);
+      });
+
+      print('Current Location: $lat, $lon');
+    } catch (e) {
+      print('Error getting current location: $e');
+    }
+  }
+
+  // Define a callback function to update the state
+  void updateState(locationSelected) {
+    setState(() {
+      _selectedLocation = locationSelected;
+    }); // Trigger UI update
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Google Maps'),
+        backgroundColor: Colors.transparent,
+        title: const Text('Choose your location'),
         actions: [
           IconButton(
             onPressed: () {
@@ -36,6 +75,7 @@ class _GmapsState extends State<Gmaps> {
                 delegate: PlaceSearch(
                   mapController: _mapController,
                   markers: _markers,
+                  updateParentState: updateState, // Pass the callback function
                 ),
               );
             },
@@ -48,14 +88,14 @@ class _GmapsState extends State<Gmaps> {
           GoogleMap(
             initialCameraPosition: _kGooglePlex,
             myLocationEnabled: true,
-            mapType: MapType.satellite,
+            mapType: MapType.hybrid,
+            trafficEnabled: true,
             onMapCreated: (GoogleMapController controller) {
               _mapController = controller;
             },
             onTap: (LatLng location) {
               setState(() {
                 _selectedLocation = location;
-                _locationSelected = true;
                 _markers.clear();
                 _markers.add(
                   Marker(
@@ -68,18 +108,23 @@ class _GmapsState extends State<Gmaps> {
             markers: _markers,
           ),
           Positioned(
-            bottom: 16.0,
-            left: 16.0,
-            child: ElevatedButton(
-              onPressed: _locationSelected
-                  ? () {
-                      // Save the selected location
-                      print('Selected Location: $_selectedLocation');
-                    }
-                  : null,
-              child: Text('Save this location as text'),
-            ),
-          ),
+              bottom: 16.0,
+              left: 16.0,
+              child: GFButton(
+                onPressed: _markers.isNotEmpty
+                    ? () {
+                        // Save the selected location
+                        // print('Selected Location: $_selectedLocation');
+                        widget.updateLocation(_selectedLocation);
+                        Navigator.pop(context);
+                      }
+                    : null,
+                text: "Save this location",
+                icon: Icon(Icons.check_circle_rounded),
+                textStyle: TextStyle(color: Colors.black),
+                shape: GFButtonShape.pills,
+                color: Colors.white,
+              )),
         ],
       ),
     );
@@ -89,8 +134,14 @@ class _GmapsState extends State<Gmaps> {
 class PlaceSearch extends SearchDelegate<Map<String, dynamic>> {
   final GoogleMapController mapController;
   final Set<Marker> markers;
+  final void Function(LatLng selectedLocation)
+      updateParentState; // Callback function
 
-  PlaceSearch({required this.mapController, required this.markers});
+  PlaceSearch({
+    required this.mapController,
+    required this.markers,
+    required this.updateParentState,
+  });
 
   @override
   String get searchFieldLabel => 'Search for a location';
@@ -152,6 +203,8 @@ class PlaceSearch extends SearchDelegate<Map<String, dynamic>> {
                       position: selectedLocation,
                     ),
                   );
+                  updateParentState(
+                      selectedLocation); // Trigger parent widget's state update
                   close(context, location);
                 },
               );
