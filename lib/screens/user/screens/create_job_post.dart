@@ -72,7 +72,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
     "Xamarin",
   ];
   List<dynamic> selectedSkillList = [];
-  List prefferedLocations = ["Remote/WFH"];
+  dynamic prefferedLocations;
   List<Map<String, dynamic>> resultList = [];
 
   //Date time
@@ -201,7 +201,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
   void updateLocation(locationSelected) {
     setState(() {
       locationFromMap = locationSelected;
-      logger.f("This is the location $locationFromMap");
+      prefferedLocations = locationSelected.toString();
       UtilityFunctions()
           .showSnackbar("Location selected", Colors.green, context);
     }); // Trigger UI update
@@ -210,6 +210,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
   @override
   Widget build(BuildContext context) {
     final commonProvider = Provider.of<CommonProvider>(context);
+    logger.f("This is the location $prefferedLocations");
 
     return Scaffold(
       backgroundColor: Color(0xFF0F1014),
@@ -329,14 +330,12 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                   setState(() {
                                     prefferedLocationAll = val!;
                                     if (prefferedLocationAll &&
-                                        !prefferedLocations
-                                            .contains('Remote/WFH')) {
-                                      prefferedLocations.clear();
-                                      prefferedLocations.add("Remote/WFH");
-                                    } else if (prefferedLocations
-                                            .contains('Remote/WFH') &&
+                                        prefferedLocations != 'Remote/WFH') {
+                                      prefferedLocations = "Remote/WFH";
+                                    } else if (prefferedLocations ==
+                                            'Remote/WFH' &&
                                         !prefferedLocationAll) {
-                                      prefferedLocations.remove('Remote/WFH');
+                                      prefferedLocations = '';
                                     }
                                   });
                                 },
@@ -584,7 +583,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
                               ? null
                               : () async {
                                   if (selectedSkillList.isEmpty ||
-                                      prefferedLocations.isEmpty) {
+                                      prefferedLocations == "") {
                                     SnackBar snackBar = UtilityFunctions()
                                         .snackBarOpener(
                                             "Missing Fields",
@@ -608,7 +607,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                           budgetController.text,
                                           _usersCollection.doc(uid),
                                           selectedSkillList,
-                                          locationFromMap);
+                                          prefferedLocations);
                                       // remove the data after successfull insertion
                                       UtilityFunctions()
                                           .deleteFromSharedPreferences(

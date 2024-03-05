@@ -517,13 +517,13 @@ class _MyJobPostsState extends State<MyJobPosts> {
             title: "Budget",
             value: UtilityFunctions().formatSalary(postData['budget']),
           ),
-          gap_10,
-          tableRows(
-            icon: Icons.location_city_sharp,
-            title: "Location",
-            value: UtilityFunctions().convertListToCommaSeparatedString(
-                postData['preferredLocation']),
-          ),
+          // gap_10,
+          // tableRows(
+          //   icon: Icons.location_city_sharp,
+          //   title: "Location",
+          //   value: UtilityFunctions().convertListToCommaSeparatedString(
+          //       postData['preferredLocation']),
+          // ),
           gap_10,
           tableRows(
             icon: Icons.verified_user,

@@ -2,10 +2,13 @@
 
 import 'dart:async';
 
+import 'package:NearbyNexus/components/my_date_util.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
+import 'package:NearbyNexus/screens/vendor/screens/gmap_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
@@ -82,6 +85,23 @@ class _JobDetailPageState extends State<JobDetailPage> {
   Widget build(BuildContext context) {
     final Map<String, dynamic> argument =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    //
+    // int documentCount = 0;
+    // print(argument);
+    // FirebaseFirestore.instance
+    //     .collection('job_posts')
+    //     .where("jobPostedBy",
+    //         isEqualTo: FirebaseFirestore.instance
+    //             .collection('users')
+    //             .doc(ApiFunctions.user?.uid))
+    //     .get()
+    //     .then((querySnapshot) {
+    //   // Get the count of documents
+    //   setState(() {
+    //     documentCount = querySnapshot.size;
+    //   });
+    //   print('Document count: $documentCount');
+    // });
     //
     logger.e(currentUserData);
     if (argument['post_id'] != null && currentUserData.isNotEmpty) {
@@ -210,7 +230,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    UtilityFunctions().findTimeDifference(
+                    UtilityFunctions().convertTimestampToDateString(
                         argument["job_data"]["jobPostDate"]),
                     style: TextStyle(
                       fontSize: 12,
@@ -376,8 +396,13 @@ class _JobDetailPageState extends State<JobDetailPage> {
   Widget additionalInfo(argument) {
     Map<String, dynamic> employerDetails = {
       "name": argument["posted_user"]["name"],
-      "Job posted": 0,
-      "Last active": "10 days ago"
+      // "Job posted": FirebaseFirestore.instance.collection('job_posts').where(
+      //     "jobPostedBy",
+      //     isEqualTo: FirebaseFirestore.instance
+      //         .collection('users')
+      //         .doc(ApiFunctions.user?.uid)),
+      "Last active": MyDateUtil.getLastActiveTime(
+          context: context, lastActive: argument["posted_user"]["last_seen"])
     };
 
     Map<String, IconData> iconMapEmployer = {
@@ -392,7 +417,6 @@ class _JobDetailPageState extends State<JobDetailPage> {
     };
 
     Map<String, dynamic> jobInfo = {
-      "Location": argument["job_data"]["preferredLocation"],
       "Skills": argument["job_data"]["skills"],
       "Job posted on": UtilityFunctions()
           .convertTimestampToDateString(argument["job_data"]["jobPostDate"]),
@@ -460,6 +484,41 @@ class _JobDetailPageState extends State<JobDetailPage> {
       ),
       SizedBox(
         height: 15,
+      ),
+      // ListTile(trailing: ,),
+      SizedBox(
+        height: 15,
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.location_pin),
+              SizedBox(
+                width: 8,
+              ),
+              Text("Location")
+            ],
+          ),
+          GFButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => GmapView(
+                          userLocation: argument["job_data"]
+                              ["preferredLocation"])));
+            },
+            icon: Icon(CupertinoIcons.map),
+            text: "Open in map",
+            shape: GFButtonShape.pills,
+            color: Theme.of(context).colorScheme.onTertiary,
+            textStyle:
+                TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+            type: GFButtonType.outline,
+          )
+        ],
       ),
       Column(
         mainAxisAlignment: MainAxisAlignment.start,

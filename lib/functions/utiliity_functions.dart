@@ -151,7 +151,7 @@ class UtilityFunctions {
   }
 
 // Time stamp to date
-  String? convertTimestampToDateString(Timestamp timestamp) {
+  String convertTimestampToDateString(Timestamp timestamp) {
     // if (timestamp != null) {
     //   DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
     //     timestamp.seconds * 1000 + timestamp.nanoseconds ~/ 1000000,

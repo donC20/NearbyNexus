@@ -53,12 +53,12 @@ class _BroadcastPageState extends State<BroadcastPage> {
         await UtilityFunctions().fetchFromSharedPreference('filterList');
 
     Map<String, dynamic>? filterData;
-    filterData = json.decode(data) ?? {};
+    logger.f('frommshare pref $data');
 
-    logger.f('frommshare pref $filterData');
+    if (data != null) {
+      filterData = json.decode(data) ?? {};
 
-    if (filterData!.isNotEmpty) {
-      logger.f(filterData['maxValue']);
+      logger.f(filterData!['maxValue']);
       final snapshot = await FirebaseFirestore.instance
           .collection('job_posts')
           .where('budget',
@@ -530,38 +530,38 @@ class _BroadcastPageState extends State<BroadcastPage> {
                   ],
                 ),
               ),
-              ListTile(
-                leading: Icon(Icons.location_pin),
-                horizontalTitleGap: 5,
-                title: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (int i = 0; i < fetch["preferredLocation"].length; i++)
-                      Container(
-                        padding: EdgeInsets.only(
-                            right: 5), // Add some spacing between locations
-                        child: Text(
-                          i < fetch["preferredLocation"].length - 1
-                              ? fetch["preferredLocation"][i] + ","
-                              : UtilityFunctions().truncateText(
-                                  fetch["preferredLocation"][i],
-                                  5), // Adjust the character limit
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.tertiary,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                trailing: fetch["preferredLocation"].length > 3
-                    ? Text(
-                        "+ ${fetch["preferredLocation"].length - 3} more",
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.tertiary),
-                      )
-                    : SizedBox(),
-              ),
+              // ListTile(
+              //   leading: Icon(Icons.location_pin),
+              //   horizontalTitleGap: 5,
+              //   title: Row(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //       for (int i = 0; i < fetch["preferredLocation"].length; i++)
+              //         Container(
+              //           padding: EdgeInsets.only(
+              //               right: 5), // Add some spacing between locations
+              //           child: Text(
+              //             i < fetch["preferredLocation"].length - 1
+              //                 ? fetch["preferredLocation"][i] + ","
+              //                 : UtilityFunctions().truncateText(
+              //                     fetch["preferredLocation"][i],
+              //                     5), // Adjust the character limit
+              //             style: TextStyle(
+              //               color: Theme.of(context).colorScheme.tertiary,
+              //               fontSize: 12,
+              //             ),
+              //           ),
+              //         ),
+              //     ],
+              //   ),
+              //   trailing: fetch["preferredLocation"].length > 3
+              //       ? Text(
+              //           "+ ${fetch["preferredLocation"].length - 3} more",
+              //           style: TextStyle(
+              //               color: Theme.of(context).colorScheme.tertiary),
+              //         )
+              //       : SizedBox(),
+              // ),
               Padding(
                 padding: const EdgeInsets.only(top: 5, left: 15.0, bottom: 10),
                 child: Row(
