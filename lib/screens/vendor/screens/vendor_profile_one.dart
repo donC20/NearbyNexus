@@ -1,10 +1,11 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, use_build_context_synchronously, no_leading_underscores_for_local_identifiers
 
 import 'dart:convert';
 
 import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
 import 'package:NearbyNexus/screens/common_screens/gmaps.dart';
+import 'package:NearbyNexus/screens/vendor/screens/subscription_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -184,29 +185,24 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                       ),
                     ),
                   ),
-                  ListTile(
-                    leading: SvgPicture.asset(
-                      'assets/icons/svg/hanger.svg',
-                      height: 20,
-                      color: Theme.of(context).colorScheme.onSecondary,
-                    ),
-                    title: Text(
-                      "Maps",
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    trailing: OutlinedButton.icon(
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    width: 300,
+                    height: 70,
+                    child: OutlinedButton.icon(
                       onPressed: () {
-                        // Navigator.push(context,
-                        //     MaterialPageRoute(builder: (context) => Gmaps()));
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => SubscriptionScreen()));
                       },
                       label: Text(
-                        "Maps openn",
+                        "Upgrade to premium",
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSecondary),
                       ),
-                      icon: Icon(
-                        Icons.dark_mode_sharp,
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white
-                            : Colors.amber[400],
+                      icon: SvgPicture.asset(
+                        'assets/icons/svg/crown-svgrepo-com.svg',
+                        height: 30,
+                        width: 30,
                       ),
                     ),
                   ),
