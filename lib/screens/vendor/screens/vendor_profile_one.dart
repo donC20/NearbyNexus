@@ -191,8 +191,10 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                     height: 70,
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => SubscriptionScreen()));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SubscriptionScreen()));
                       },
                       label: Text(
                         "Upgrade to premium",
@@ -286,33 +288,12 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                       title: Text(
                         "Logout",
                         style: TextStyle(
-                            color: Color.fromARGB(212, 156, 40, 40),
+                            color: Theme.of(context).colorScheme.onSecondary,
                             fontSize: 14,
                             fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
-                  // SizedBox(
-                  //   child: Center(
-                  //     child: Column(
-                  //       children: [
-                  //         Image.asset(
-                  //           width: 100,
-                  //           height: 100,
-                  //           'assets/images/nearbynexus(WL).png',
-                  //         ),
-                  //         Text(
-                  //           "NearbyNexus",
-                  //           style: TextStyle(
-                  //             color: Colors.white,
-                  //             fontWeight: FontWeight.normal,
-                  //             fontSize: 16,
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               ),
             ),

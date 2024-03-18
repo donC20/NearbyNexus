@@ -86,7 +86,8 @@ class VendorModel {
       "unavailableDays": unavailableDays,
       "online": online,
       "last_seen": last_seen,
-      "pushToken": pushToken
+      "pushToken": pushToken,
+      "subscription": {'type': 'free', 'last_payment': DateTime.now()}
     };
   }
 }

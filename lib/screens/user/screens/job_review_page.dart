@@ -134,7 +134,8 @@ class _JobReviewPageState extends State<JobReviewPage> {
               jobId: jobId,
               payedBy: payedBy,
               payedTo: payedTo,
-              paymentTime: DateTime.now());
+              paymentTime: DateTime.now(),
+              payedFor: 'Direct service');
           setState(() {
             jobLogs.add("paid");
           });
@@ -902,8 +903,11 @@ class _JobReviewPageState extends State<JobReviewPage> {
               functionInvoker.showCancelDialog(context, declineFunction,
                   "Do you want to accept this service request?");
             },
-            icon: Icon(Icons.check,color: Colors.white),
-            label: Text("Accept",style: TextStyle(color: Colors.white),)),
+            icon: Icon(Icons.check, color: Colors.white),
+            label: Text(
+              "Accept",
+              style: TextStyle(color: Colors.white),
+            )),
       ],
     );
   }
