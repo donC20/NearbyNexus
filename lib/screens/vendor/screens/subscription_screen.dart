@@ -402,7 +402,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                         child: Column(
                           children: [
                             Text(
-                              'CHOOSE THIS PLAN',
+                              'CHOOSE THIS PLAN',      
                               style: TextStyle(
                                   fontSize: 12,
                                   color: baseColor,

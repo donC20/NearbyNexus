@@ -97,13 +97,14 @@ void main() async {
       name: 'Chats');
   print('\nNotification Channel Result: $result');
   // FirebaseMessaging.onBackgroundMessage(
-  //     allNotify.firebaseMessagingBackgroundHandler);
+  //     allNotify.firebaseMessagingBackgroundHandler); 
   // allNotify.requestMonitor();
   // final firebaseNotifications = FirebaseNotifications(); // Create an instance
   // await firebaseNotifications.initNotifications();
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   Stripe.publishableKey =
       "pk_test_51NpN8rSJaMBnAdU7brX75geJWwHJ7OQnD9Aq9fZFaZFehX8ERy1w1yskGN1O0EOACM2am8XUjsAOkIr26U35YDSe00DbSFVmLl";
+      await Stripe.instance.applySettings();
   final userProvider = UserProvider(); // Create an instance of UserProvider
   userProvider.setUid(); // Retrieve and set the uid
 
@@ -115,7 +116,7 @@ void main() async {
   );
   // DependencyInjection.init();
 }
-
+     
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatefulWidget {
