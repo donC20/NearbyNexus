@@ -129,13 +129,15 @@ class _JobReviewPageState extends State<JobReviewPage> {
       await Stripe.instance.presentPaymentSheet().then((value) {
 // successful payment then update database
         try {
+          // _firestore.collection('app_config').doc('service_charges').get();
           PaymentModal payModal = PaymentModal(
               amountPaid: amount,
               jobId: jobId,
               payedBy: payedBy,
               payedTo: payedTo,
               paymentTime: DateTime.now(),
-              payedFor: 'Direct service');
+              payedFor: 'Direct service',
+              applicationRevenue: '89');
           setState(() {
             jobLogs.add("paid");
           });

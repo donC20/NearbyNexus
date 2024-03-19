@@ -7,6 +7,7 @@ class PaymentModal {
   final DocumentReference payedTo;
   final DateTime paymentTime;
   final String payedFor;
+  final String applicationRevenue;
 
   PaymentModal(
       {required this.amountPaid,
@@ -14,7 +15,8 @@ class PaymentModal {
       required this.payedBy,
       required this.payedTo,
       required this.paymentTime,
-      required this.payedFor});
+      required this.payedFor,
+      required this.applicationRevenue});
 
   toJson() {
     return {
@@ -24,6 +26,7 @@ class PaymentModal {
       "payedTo": payedTo,
       "paymentTime": paymentTime,
       "payedFor": payedFor,
+      "applicationRevenue": applicationRevenue
     };
   }
 }

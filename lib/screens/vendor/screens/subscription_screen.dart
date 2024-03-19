@@ -29,6 +29,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   var logger = Logger();
   Map<String, dynamic>? paymentIntent;
   final List<String> paymentLogs = [];
+
   List<Map<String, dynamic>> infoOnFreeSub = [
     {
       'icon': Icons.check_circle,
@@ -84,222 +85,104 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       'text': 'Contact info enabled',
     },
   ];
+  bool isLoading = true;
 
-// payments
-  Future<void> makePayment(
-      String recipientName,
-      String amount,
-      DocumentReference jobId,
-      DocumentReference payedBy,
-      DocumentReference payedTo) async {
-    try {
-      paymentIntent = await createPaymentIntent(amount, 'INR');
-      //Payment Sheet
-      await Stripe.instance
-          .initPaymentSheet(
-              paymentSheetParameters: SetupPaymentSheetParameters(
-                  paymentIntentClientSecret: paymentIntent!['client_secret'],
-                  // applePay: const PaymentSheetApplePay(merchantCountryCode: '+92',),
-                  googlePay: const PaymentSheetGooglePay(
-                      testEnv: true,
-                      currencyCode: "INR",
-                      merchantCountryCode: "IN"),
-                  style: ThemeMode.dark,
-                  merchantDisplayName: recipientName))
-          .then((value) {});
-
-      ///now finally display payment sheeet
-      displayPaymentSheet(amount, jobId, payedBy, payedTo);
-    } catch (e, s) {
-      print('exception:$e$s');
-    }
+  Map<String, dynamic> fetchedData = {};
+  @override
+  void initState() {
+    super.initState();
+    FetchUserData();
   }
 
-  displayPaymentSheet(String amount, DocumentReference jobId,
-      DocumentReference payedBy, DocumentReference payedTo) async {
-    try {
-      await Stripe.instance.presentPaymentSheet().then((value) {
-// successful payment then update database
-        try {
-          PaymentModal payModal = PaymentModal(
-              amountPaid: amount,
-              jobId: jobId,
-              payedBy: payedBy,
-              payedTo: payedTo,
-              paymentTime: DateTime.now(),
-              payedFor: 'Premium service');
-
-          Map<String, dynamic> paymentData = payModal.toJson();
-          _firestore.collection('payments').add(paymentData).then((value) {
-            DocumentReference paymentId =
-                _firestore.collection('payments').doc(value.id);
-// update user
-            payedBy.get().then((userDoc) {
-              if (userDoc.exists) {
-                Map<String, dynamic> paymentLogs =
-                    userDoc.data() as Map<String, dynamic>;
-                List<dynamic> payLogs = paymentLogs['paymentLogs'];
-                payLogs.add(paymentId);
-
-                payedBy.update({'paymentLogs': payLogs}).then((_) {
-                  print('Payment ID added to paymentLogs: $paymentId');
-                }).catchError((error) {
-                  print('Error updating user document: $error');
-                });
-              } else {
-                // Handle the case where the user document doesn't exist
-                print('User document does not exist');
-              }
-            }).catchError((error) {
-              // Handle any errors that occur when retrieving the user document
-              print('Error retrieving user document: $error');
-            });
-          }).catchError((error) {
-            // Handle any errors that occur when adding a document to the "payments" collection
-            print('Error adding document to payments collection: $error');
-          });
-        } catch (e) {
-          logger.e(e);
-        }
-
-        showDialog(
-            context: context,
-            builder: (_) => const AlertDialog(
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Column(
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            size: 30,
-                            color: Colors.green,
-                          ),
-                          Text("Payment Successfull"),
-                        ],
-                      ),
-                    ],
-                  ),
-                ));
-        paymentIntent = null;
-        setState(() {
-          isPaymentClicked = false;
-        });
-      }).onError((error, stackTrace) {
-        print('Error is:--->$error $stackTrace');
+  Future<void> FetchUserData() async {
+    String uid = ApiFunctions.user!.uid;
+    DocumentSnapshot snapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    if (snapshot.exists) {
+      // Assign admin data to the UI
+      setState(() {
+        fetchedData = snapshot.data() as Map<String, dynamic>;
+        isLoading = false;
+        currentPlan = fetchedData['subscription']['type'];
       });
-    } on StripeException catch (e) {
-      print('Error is:---> $e');
-      showDialog(
-          context: context,
-          builder: (_) => const AlertDialog(
-                content: Text("Cancelled "),
-              ));
-    } catch (e) {
-      print('$e');
     }
-  }
-
-  //  Future<Map<String, dynamic>>
-  createPaymentIntent(String amount, String currency) async {
-    try {
-      String SECRET_KEY =
-          "sk_test_51NpN8rSJaMBnAdU7Rwr9dgYxVZ4yk3J8lQNazKj0hBv3Vn98yphDtEZ1rNY9hR6I6D4mDpcJKjoO2XbZE0Y5u5Se00Fey7EJwx";
-      Map<String, dynamic> body = {
-        'amount': calculateAmount(amount),
-        'currency': currency,
-        'payment_method_types[]': 'card'
-      };
-
-      var response = await http.post(
-        Uri.parse('https://api.stripe.com/v1/payment_intents'),
-        headers: {
-          'Authorization': 'Bearer $SECRET_KEY',
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: body,
-      );
-      print('Payment Intent Body->>> ${response.body.toString()}');
-      return jsonDecode(response.body);
-    } catch (err) {
-      print('err charging user: ${err.toString()}');
-    }
-  }
-
-  calculateAmount(String amount) {
-    final calculatedAmout = (int.parse(amount)) * 100;
-    return calculatedAmout.toString();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(1),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 50.0),
-                  child: Text(
-                    "Upgrade to Premium",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(
-                  height: 25,
-                ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
+      body: !isLoading
+          ? SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(1),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      priceContainer(
-                          '0',
-                          'Free',
-                          '',
-                          'Free of cost',
-                          Colors.white,
-                          Colors.transparent,
-                          'free',
-                          Colors.black),
-                      SizedBox(
-                        width: 15,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 50.0),
+                        child: Text(
+                          "Upgrade to Premium",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
-                      priceContainer(
-                          '499.0',
-                          'Premium',
-                          'Platinum',
-                          'Billed monthly',
-                          Color(0xFF2E71DA),
-                          Colors.transparent,
-                          'premium_platinum',
-                          Colors.white),
                       SizedBox(
-                        width: 15,
+                        height: 25,
                       ),
-                      priceContainer(
-                          '1999.0',
-                          'Premium',
-                          'Gold',
-                          'Billed Yearly',
-                          Color(0xFFD2AF26),
-                          Colors.transparent,
-                          'premium_gold',
-                          Colors.black),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            priceContainer(
+                                '0',
+                                'Free',
+                                '',
+                                'Free of cost',
+                                Colors.white,
+                                Colors.transparent,
+                                'free',
+                                Colors.black),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            priceContainer(
+                                '499.0',
+                                'Premium',
+                                'Platinum',
+                                'Billed monthly',
+                                Color(0xFF2E71DA),
+                                Colors.transparent,
+                                'premium_platinum',
+                                Colors.white),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            priceContainer(
+                                '1999.0',
+                                'Premium',
+                                'Gold',
+                                'Billed Yearly',
+                                Color(0xFFD2AF26),
+                                Colors.transparent,
+                                'premium_gold',
+                                Colors.black),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
+              ),
+            )
+          : Center(
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -379,18 +262,40 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   ? InkWell(
                       splashColor: const Color.fromARGB(143, 255, 255, 255),
                       onTap: () async {
-                        await makePayment(
-                            'Robert',
-                            '499',
-                            _firestore
-                                .collection('users')
-                                .doc(ApiFunctions.user!.uid),
-                            _firestore
-                                .collection('users')
-                                .doc(ApiFunctions.user!.uid),
-                            _firestore
-                                .collection('users')
-                                .doc(ApiFunctions.user!.uid));
+                        String formattedPrice = '0';
+
+                        // logger.e(fetchedData['subscription']['type']);
+                        formattedPrice = price == '499.0' ? '499' : '1999';
+                        if (selected != 'free') {
+                          await makePayment(
+                              'Robert',
+                              formattedPrice,
+                              _firestore.collection('app_config').doc('info'),
+                              _firestore
+                                  .collection('users')
+                                  .doc(ApiFunctions.user!.uid),
+                              _firestore.collection('app_config').doc('info'),
+                              selected);
+                          isPaymentClicked ? dialogInit() : SizedBox();
+                        } else {
+                          setState(() {
+                            isPaymentClicked = true;
+                          });
+                          // isPaymentClicked ? dialogInit() : SizedBox();
+                          await _firestore
+                              .collection('users')
+                              .doc(ApiFunctions.user!.uid)
+                              .update({
+                            'subscription': {
+                              'last_payment': DateTime.now(),
+                              'type': 'free'
+                            }
+                          }).then((value) => {
+                                    setState(() {
+                                      isPaymentClicked = false;
+                                    })
+                                  });
+                        }
                       },
                       child: Container(
                         padding: EdgeInsets.all(5),
@@ -402,7 +307,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                         child: Column(
                           children: [
                             Text(
-                              'CHOOSE THIS PLAN',      
+                              'CHOOSE THIS PLAN',
                               style: TextStyle(
                                   fontSize: 12,
                                   color: baseColor,
@@ -511,5 +416,184 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         ],
       ),
     );
+  }
+
+  // payments
+  Future<void> makePayment(
+      String recipientName,
+      String amount,
+      DocumentReference jobId,
+      DocumentReference payedBy,
+      DocumentReference payedTo,
+      payType) async {
+    try {
+      setState(() {
+        isPaymentClicked = true;
+      });
+      paymentIntent = await createPaymentIntent(amount, 'INR');
+      //Payment Sheet
+      await Stripe.instance
+          .initPaymentSheet(
+              paymentSheetParameters: SetupPaymentSheetParameters(
+                  paymentIntentClientSecret: paymentIntent!['client_secret'],
+                  // applePay: const PaymentSheetApplePay(merchantCountryCode: '+92',),
+                  googlePay: const PaymentSheetGooglePay(
+                      testEnv: true,
+                      currencyCode: "INR",
+                      merchantCountryCode: "IN"),
+                  style: ThemeMode.dark,
+                  merchantDisplayName: recipientName))
+          .then((value) {});
+
+      ///now finally display payment sheeet
+      displayPaymentSheet(amount, jobId, payedBy, payedTo, payType);
+    } catch (e, s) {
+      print('exception:$e$s');
+    }
+  }
+
+  displayPaymentSheet(String amount, DocumentReference jobId,
+      DocumentReference payedBy, DocumentReference payedTo, payType) async {
+    try {
+      await Stripe.instance.presentPaymentSheet().then((value) {
+// successful payment then update database
+        try {
+          PaymentModal payModal = PaymentModal(
+              amountPaid: amount,
+              jobId: jobId,
+              payedBy: payedBy,
+              payedTo: payedTo,
+              paymentTime: DateTime.now(),
+              payedFor: 'Premium service',
+              applicationRevenue: amount);
+
+          Map<String, dynamic> paymentData = payModal.toJson();
+          _firestore.collection('payments').add(paymentData).then((value) {
+            DocumentReference paymentId =
+                _firestore.collection('payments').doc(value.id);
+// update user
+            payedBy.get().then((userDoc) {
+              if (userDoc.exists) {
+                Map<String, dynamic> paymentLogs =
+                    userDoc.data() as Map<String, dynamic>;
+                List<dynamic> payLogs = paymentLogs['paymentLogs'];
+                payLogs.add(paymentId);
+
+                payedBy.update({'paymentLogs': payLogs}).then((_) {
+                  print('Payment ID added to paymentLogs: $paymentId');
+                }).catchError((error) {
+                  print('Error updating user document: $error');
+                });
+              } else {
+                // Handle the case where the user document doesn't exist
+                print('User document does not exist');
+              }
+            }).catchError((error) {
+              // Handle any errors that occur when retrieving the user document
+              print('Error retrieving user document: $error');
+            });
+          }).catchError((error) {
+            // Handle any errors that occur when adding a document to the "payments" collection
+            print('Error adding document to payments collection: $error');
+          });
+        } catch (e) {
+          logger.e(e);
+        }
+
+        _firestore.collection('users').doc(payedBy.id).update({
+          'subscription': {'last_payment': DateTime.now(), 'type': payType}
+        });
+
+        showDialog(
+            context: context,
+            builder: (_) => const AlertDialog(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Column(
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            size: 30,
+                            color: Colors.green,
+                          ),
+                          Text("Payment Successfull"),
+                        ],
+                      ),
+                    ],
+                  ),
+                ));
+        paymentIntent = null;
+        setState(() {
+          isPaymentClicked = false;
+        });
+      }).onError((error, stackTrace) {
+        setState(() {
+          isPaymentClicked = false;
+        });
+        print('Error is:--->$error $stackTrace');
+      });
+    } on StripeException catch (e) {
+      print('Error is:---> $e');
+      setState(() {
+        isPaymentClicked = false;
+      });
+      showDialog(
+          context: context,
+          builder: (_) => const AlertDialog(
+                content: Text("Cancelled "),
+              ));
+    } catch (e) {
+      print('$e');
+    }
+  }
+
+  //  Future<Map<String, dynamic>>
+  createPaymentIntent(String amount, String currency) async {
+    try {
+      String SECRET_KEY =
+          "sk_test_51NpN8rSJaMBnAdU7Rwr9dgYxVZ4yk3J8lQNazKj0hBv3Vn98yphDtEZ1rNY9hR6I6D4mDpcJKjoO2XbZE0Y5u5Se00Fey7EJwx";
+      Map<String, dynamic> body = {
+        'amount': calculateAmount(amount),
+        'currency': currency,
+        'payment_method_types[]': 'card'
+      };
+
+      var response = await http.post(
+        Uri.parse('https://api.stripe.com/v1/payment_intents'),
+        headers: {
+          'Authorization': 'Bearer $SECRET_KEY',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: body,
+      );
+      print('Payment Intent Body->>> ${response.body.toString()}');
+      return jsonDecode(response.body);
+    } catch (err) {
+      print('err charging user: ${err.toString()}');
+    }
+  }
+
+  calculateAmount(String amount) {
+    final calculatedAmout = (int.parse(amount)) * 100;
+    return calculatedAmout.toString();
+  }
+
+  dialogInit() {
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(5)),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                ],
+              ),
+            ));
   }
 }

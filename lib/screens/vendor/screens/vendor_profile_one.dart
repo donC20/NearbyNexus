@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
 import 'package:NearbyNexus/screens/common_screens/gmaps.dart';
+import 'package:NearbyNexus/screens/vendor/screens/subscriptionDetails.dart';
 import 'package:NearbyNexus/screens/vendor/screens/subscription_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
   String email = "";
   bool isFetching = true;
   bool isimageFetched = true;
+  Map<String, dynamic> fetchedData = {};
   @override
   void initState() {
     super.initState();
@@ -45,15 +47,15 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
     DocumentSnapshot snapshot =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();
     if (snapshot.exists) {
-      Map<String, dynamic> fetchedData =
-          snapshot.data() as Map<String, dynamic>;
-
       // Assing admin data to the UI
       setState(() {
+        fetchedData = snapshot.data() as Map<String, dynamic>;
+
         imageLink = fetchedData['image'] ??
             "https://firebasestorage.googleapis.com/v0/b/nearbynexus1.appspot.com/o/profile_images%2Ficons8-user-default-96.png?alt=media&token=0ffd4c8b-fc40-4f19-a457-1ef1e0ba6ae5";
         nameLoginned = fetchedData['name'];
         email = fetchedData['emailId']['id'];
+
         isFetching = false;
         isimageFetched = false;
       });
@@ -185,29 +187,59 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                       ),
                     ),
                   ),
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    width: 300,
-                    height: 70,
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SubscriptionScreen()));
-                      },
-                      label: Text(
-                        "Upgrade to premium",
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSecondary),
-                      ),
-                      icon: SvgPicture.asset(
-                        'assets/icons/svg/crown-svgrepo-com.svg',
-                        height: 30,
-                        width: 30,
-                      ),
-                    ),
-                  ),
+                  fetchedData['subscription']['type'] == 'free'
+                      ? Container(
+                          padding: EdgeInsets.all(10),
+                          width: 300,
+                          height: 70,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          SubscriptionScreen()));
+                            },
+                            label: Text(
+                              "Upgrade to premium",
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSecondary),
+                            ),
+                            icon: SvgPicture.asset(
+                              'assets/icons/svg/crown-svgrepo-com.svg',
+                              height: 30,
+                              width: 30,
+                            ),
+                          ),
+                        )
+                      : Container(
+                          padding: EdgeInsets.all(10),
+                          width: 300,
+                          height: 70,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          SubscriptionDetails()));
+                            },
+                            label: Text(
+                              "View current plan",
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSecondary),
+                            ),
+                            icon: SvgPicture.asset(
+                              'assets/icons/svg/crown-svgrepo-com.svg',
+                              height: 30,
+                              width: 30,
+                            ),
+                          ),
+                        ),
                   Divider(
                     color: const Color.fromARGB(87, 158, 158, 158),
                   ),
