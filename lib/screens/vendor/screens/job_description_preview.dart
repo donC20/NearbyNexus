@@ -645,6 +645,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
         isPressDelay = true;
       });
 
+      
+
       await FirebaseFirestore.instance
           .collection('users')
           .doc(await VendorCommonFn().getUserUIDFromSharedPreferences())

@@ -116,7 +116,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           ? SafeArea(
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.all(1),
+                  padding: const EdgeInsets.all(15.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -134,8 +134,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                         height: 25,
                       ),
                       SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
+                        scrollDirection: Axis.vertical,
+                        child: Column(
                           children: [
                             priceContainer(
                                 '0',
@@ -147,7 +147,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                                 'free',
                                 Colors.black),
                             SizedBox(
-                              width: 15,
+                              height: 15,
                             ),
                             priceContainer(
                                 '499.0',
@@ -159,7 +159,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                                 'premium_platinum',
                                 Colors.white),
                             SizedBox(
-                              width: 15,
+                              height: 15,
                             ),
                             priceContainer(
                                 '1999.0',
@@ -189,7 +189,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   Widget priceContainer(price, planType, subPlan, pricedOn, backgroundColor,
       borderColor, selected, baseColor) {
     return Container(
-      width: MediaQuery.of(context).size.width - 80,
+      width: MediaQuery.of(context).size.width,
       constraints: BoxConstraints(minHeight: 450),
       padding: EdgeInsets.all(18),
       decoration: BoxDecoration(

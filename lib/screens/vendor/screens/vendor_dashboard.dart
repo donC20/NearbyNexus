@@ -3,7 +3,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:NearbyNexus/components/avatar_of_user.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/screens/vendor/screens/initial_kyc_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -37,7 +39,8 @@ class _VendorDashboardState extends State<VendorDashboard> {
   Color selectedColor = Colors.black;
   bool kycStatus = false;
   var logger = Logger();
-
+  Map<String, dynamic> fetchedData = {};
+  bool isPageLoading = true;
   @override
   void initState() {
     super.initState();
@@ -53,19 +56,13 @@ class _VendorDashboardState extends State<VendorDashboard> {
   }
 
   Future<void> FetchUserData() async {
-    final SharedPreferences sharedPreferences =
-        await SharedPreferences.getInstance();
-    var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ?? '');
-
     setState(() {
-      uid = initData['uid'];
+      uid = ApiFunctions.user!.uid;
     });
     DocumentSnapshot snapshot =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();
     if (snapshot.exists) {
-      Map<String, dynamic> fetchedData =
-          snapshot.data() as Map<String, dynamic>;
+      fetchedData = snapshot.data() as Map<String, dynamic>;
 
       // Assing admin data to the UI
       setState(() {
@@ -74,6 +71,7 @@ class _VendorDashboardState extends State<VendorDashboard> {
         nameLoginned = fetchedData['name'];
         isimageFetched = false;
         kycStatus = fetchedData['kyc']['verified'];
+        isPageLoading = false;
       });
       summaryContainerStream();
     }
@@ -135,371 +133,410 @@ class _VendorDashboardState extends State<VendorDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(
-          "Dashboard",
-        ),
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, "vendor_notification");
-              },
-              icon: Icon(
-                Icons.notifications,
-              )),
-          UserLoadingAvatar(
-            userImage: imageLink,
-            width: 30,
-            height: 30,
-            onTap: () {
-              Navigator.pushNamed(context, "vendor_profile_one");
-            },
-          ),
-          SizedBox(
-            width: 15,
-          )
-        ],
-      ),
-      body: isimageFetched == true
-          ? Container(
-              margin: EdgeInsets.only(right: 10),
-              decoration: BoxDecoration(color: Colors.black),
-              child: Center(
-                child: LoadingAnimationWidget.fallingDot(
-                  color: Colors.white,
-                  size: 30,
+    return isPageLoading
+        ? Container(
+            margin: EdgeInsets.only(right: 10),
+            decoration: BoxDecoration(color: Colors.black),
+            child: Center(
+              child: LoadingAnimationWidget.fallingDot(
+                color: Colors.white,
+                size: 30,
+              ),
+            ))
+        : Scaffold(
+            backgroundColor: Theme.of(context).colorScheme.background,
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              title: Text(
+                "Dashboard",
+              ),
+              actions: [
+                IconButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, "vendor_notification");
+                    },
+                    icon: Icon(
+                      Icons.notifications,
+                    )),
+                InkWell(
+                  onTap: () =>
+                      Navigator.pushNamed(context, "vendor_profile_one"),
+                  child: AvatarOfUser(
+                    imageLink: imageLink,
+                    height: 35,
+                    width: 35,
+                    userPlan: fetchedData['subscription']['type'],
+                  ),
                 ),
-              ))
-          : RefreshIndicator(
-              key: _refreshIndicatorKey,
-              triggerMode: RefreshIndicatorTriggerMode.anywhere,
-              onRefresh: _refreshData,
-              child: StreamBuilder<dynamic>(
-                stream: summaryContainerStream(),
-                builder:
-                    (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.active) {
-                    if (snapshot.hasData) {
-                      Map<String, dynamic> summaryData = snapshot.data;
-                      List<dynamic> userReferences =
-                          summaryData['userReferences'];
-                      List<Bricks> brickData = [
-                        Bricks(
-                            icon: Icons.bar_chart_rounded,
-                            countData: summaryData['all'],
-                            type: 'All Jobs'),
-                        Bricks(
-                            icon: EvaIcons.activity,
-                            countData: summaryData['active'],
-                            type: 'Active Jobs'),
-                        Bricks(
-                            icon: Icons.cancel,
-                            countData: summaryData['rejected'],
-                            type: 'Rejected Jobs'),
-                        Bricks(
-                            icon: Icons.check_circle_outline,
-                            countData: summaryData['jobCompletedCount'],
-                            type: 'Completed'),
-                      ];
-                      // Use summaryData in your UI
-                      return Padding(
-                        padding: const EdgeInsets.only(left: 10.0, right: 10.0),
-                        child: ListView(
-                          children: [
-                            SizedBox(
-                              height: 15,
-                            ),
-                            SizedBox(
-                              height: 90,
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                itemBuilder: (BuildContext context, int index) {
-                                  var containerData = brickData[index];
-                                  return StatContainers(
-                                      containerData.icon,
-                                      containerData.countData,
-                                      containerData.type);
-                                },
-                                separatorBuilder:
-                                    (BuildContext context, int index) {
-                                  return SizedBox(width: 15);
-                                },
-                                itemCount: brickData.length,
-                              ),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            // KYC container
-                            Visibility(
-                              visible: !kycStatus,
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 20.0),
-                                child: Container(
-                                  padding: EdgeInsets.all(15),
-                                  width: MediaQuery.sizeOf(context).width,
-                                  height: 150,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                          color: Color.fromARGB(
-                                              81, 255, 255, 255)),
-                                      color: Color.fromARGB(45, 255, 255, 255),
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: Stack(
-                                    children: [
-                                      Text(
-                                        'Take a moment to\ncomplete KYC.',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 18,
-                                            fontFamily: GoogleFonts.aBeeZee()
-                                                .fontFamily,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Positioned(
-                                        bottom: -30,
-                                        right: 0,
-                                        child: Image.asset(
-                                          'assets/images/man_with_key.png',
-                                          width: 180,
-                                          height: 180,
-                                          fit: BoxFit.cover,
+                SizedBox(
+                  width: 15,
+                )
+              ],
+            ),
+            body: isimageFetched == true
+                ? Container(
+                    margin: EdgeInsets.only(right: 10),
+                    decoration: BoxDecoration(color: Colors.black),
+                    child: Center(
+                      child: LoadingAnimationWidget.fallingDot(
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ))
+                : RefreshIndicator(
+                    key: _refreshIndicatorKey,
+                    triggerMode: RefreshIndicatorTriggerMode.anywhere,
+                    onRefresh: _refreshData,
+                    child: StreamBuilder<dynamic>(
+                      stream: summaryContainerStream(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<dynamic> snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.active) {
+                          if (snapshot.hasData) {
+                            Map<String, dynamic> summaryData = snapshot.data;
+                            List<dynamic> userReferences =
+                                summaryData['userReferences'];
+                            List<Bricks> brickData = [
+                              Bricks(
+                                  icon: Icons.bar_chart_rounded,
+                                  countData: summaryData['all'],
+                                  type: 'All Jobs'),
+                              Bricks(
+                                  icon: EvaIcons.activity,
+                                  countData: summaryData['active'],
+                                  type: 'Active Jobs'),
+                              Bricks(
+                                  icon: Icons.cancel,
+                                  countData: summaryData['rejected'],
+                                  type: 'Rejected Jobs'),
+                              Bricks(
+                                  icon: Icons.check_circle_outline,
+                                  countData: summaryData['jobCompletedCount'],
+                                  type: 'Completed'),
+                            ];
+                            // Use summaryData in your UI
+                            return Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 10.0, right: 10.0),
+                              child: ListView(
+                                children: [
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  SizedBox(
+                                    height: 90,
+                                    child: ListView.separated(
+                                      scrollDirection: Axis.horizontal,
+                                      itemBuilder:
+                                          (BuildContext context, int index) {
+                                        var containerData = brickData[index];
+                                        return StatContainers(
+                                            containerData.icon,
+                                            containerData.countData,
+                                            containerData.type);
+                                      },
+                                      separatorBuilder:
+                                          (BuildContext context, int index) {
+                                        return SizedBox(width: 15);
+                                      },
+                                      itemCount: brickData.length,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  // KYC container
+                                  Visibility(
+                                    visible: !kycStatus,
+                                    child: Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 20.0),
+                                      child: Container(
+                                        padding: EdgeInsets.all(15),
+                                        width: MediaQuery.sizeOf(context).width,
+                                        height: 150,
+                                        decoration: BoxDecoration(
+                                            border: Border.all(
+                                                color: Color.fromARGB(
+                                                    81, 255, 255, 255)),
+                                            color: Color.fromARGB(
+                                                45, 255, 255, 255),
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        child: Stack(
+                                          children: [
+                                            Text(
+                                              'Take a moment to\ncomplete KYC.',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18,
+                                                  fontFamily:
+                                                      GoogleFonts.aBeeZee()
+                                                          .fontFamily,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                            Positioned(
+                                              bottom: -30,
+                                              right: 0,
+                                              child: Image.asset(
+                                                'assets/images/man_with_key.png',
+                                                width: 180,
+                                                height: 180,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            Positioned(
+                                              bottom: 10,
+                                              child: ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              KYCInstructionScreen()),
+                                                    );
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.white),
+                                                  child: Text(
+                                                    "I'm ready",
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.black),
+                                                  )),
+                                            )
+                                          ],
                                         ),
                                       ),
-                                      Positioned(
-                                        bottom: 10,
-                                        child: ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        KYCInstructionScreen()),
-                                              );
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.white),
-                                            child: Text(
-                                              "I'm ready",
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.black),
-                                            )),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            newJobsContainer(context, summaryData['newJobs']),
-
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Text(
-                              "Explore more",
-                              style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.onSecondary,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 12,
-                                  fontFamily: GoogleFonts.play().fontFamily),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-
-                            Container(
-                              padding: EdgeInsets.all(15),
-                              decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSecondaryContainer,
-                                  border: Border.all(
-                                      color:
-                                          Color.fromARGB(255, 186, 186, 186)),
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Wrap(
-                                alignment: WrapAlignment.start,
-                                spacing: 38,
-                                runSpacing: 40,
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, "payment_vendor_log");
-                                    },
-                                    child: cardItems(
-                                      Icons.payment,
-                                      "Payments",
-                                      "payment_vendor_log",
-                                      context,
-                                      () {},
-                                      Colors.blueAccent,
                                     ),
                                   ),
-                                  InkWell(
-                                    key: Key('job_logs_btn'),
-                                    onTap: () {
-                                      Navigator.pushNamed(context, "job_logs");
-                                    },
-                                    child: cardItems(Icons.history, "Job log",
-                                        "job_logs", context, () {}, Colors.red),
+                                  newJobsContainer(
+                                      context, summaryData['newJobs']),
+
+                                  SizedBox(
+                                    height: 15,
                                   ),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, "add_services_screen");
-                                    },
-                                    child: cardItems(
-                                      Icons.design_services,
-                                      "Add services",
-                                      "add_services_screen",
-                                      context,
-                                      () {},
-                                      Theme.of(context).colorScheme.onSecondary,
-                                    ),
+                                  Text(
+                                    "Explore more",
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSecondary,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 12,
+                                        fontFamily:
+                                            GoogleFonts.play().fontFamily),
                                   ),
-                                  activityStatusTapped == true
-                                      ? InkWell(
-                                          key: Key('set_offline'),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+
+                                  Container(
+                                    padding: EdgeInsets.all(15),
+                                    decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSecondaryContainer,
+                                        border: Border.all(
+                                            color: Color.fromARGB(
+                                                255, 186, 186, 186)),
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: Wrap(
+                                      alignment: WrapAlignment.start,
+                                      spacing: 38,
+                                      runSpacing: 40,
+                                      children: [
+                                        InkWell(
                                           onTap: () {
-                                            setState(() {
-                                              activityStatusTapped = false;
-                                            });
-                                            _firestore
-                                                .collection('users')
-                                                .doc(uid)
-                                                .update({
-                                              'activityStatus': 'available'
-                                            });
+                                            Navigator.pushNamed(
+                                                context, "payment_vendor_log");
                                           },
                                           child: cardItems(
-                                            Icons.online_prediction,
-                                            "Go online",
-                                            "",
+                                            Icons.payment,
+                                            "Payments",
+                                            "payment_vendor_log",
                                             context,
                                             () {},
-                                            Colors.green,
+                                            Colors.blueAccent,
                                           ),
-                                        )
-                                      : InkWell(
+                                        ),
+                                        InkWell(
+                                          key: Key('job_logs_btn'),
                                           onTap: () {
-                                            setState(() {
-                                              activityStatusTapped = true;
-                                            });
-                                            _firestore
-                                                .collection('users')
-                                                .doc(uid)
-                                                .update(
-                                                    {'activityStatus': 'busy'});
+                                            Navigator.pushNamed(
+                                                context, "job_logs");
                                           },
                                           child: cardItems(
-                                              Icons.wifi_off,
-                                              "Go offline",
+                                              Icons.history,
+                                              "Job log",
+                                              "job_logs",
+                                              context,
+                                              () {},
+                                              Colors.red),
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            Navigator.pushNamed(
+                                                context, "add_services_screen");
+                                          },
+                                          child: cardItems(
+                                            Icons.design_services,
+                                            "Add services",
+                                            "add_services_screen",
+                                            context,
+                                            () {},
+                                            Theme.of(context)
+                                                .colorScheme
+                                                .onSecondary,
+                                          ),
+                                        ),
+                                        activityStatusTapped == true
+                                            ? InkWell(
+                                                key: Key('set_offline'),
+                                                onTap: () {
+                                                  setState(() {
+                                                    activityStatusTapped =
+                                                        false;
+                                                  });
+                                                  _firestore
+                                                      .collection('users')
+                                                      .doc(uid)
+                                                      .update({
+                                                    'activityStatus':
+                                                        'available'
+                                                  });
+                                                },
+                                                child: cardItems(
+                                                  Icons.online_prediction,
+                                                  "Go online",
+                                                  "",
+                                                  context,
+                                                  () {},
+                                                  Colors.green,
+                                                ),
+                                              )
+                                            : InkWell(
+                                                onTap: () {
+                                                  setState(() {
+                                                    activityStatusTapped = true;
+                                                  });
+                                                  _firestore
+                                                      .collection('users')
+                                                      .doc(uid)
+                                                      .update({
+                                                    'activityStatus': 'busy'
+                                                  });
+                                                },
+                                                child: cardItems(
+                                                    Icons.wifi_off,
+                                                    "Go offline",
+                                                    "",
+                                                    context,
+                                                    () {},
+                                                    Colors.amber),
+                                              ),
+                                        InkWell(
+                                          onTap: () {
+                                            Navigator.pushNamed(context,
+                                                "/view_saved_jobs_screen");
+                                          },
+                                          child: cardItems(
+                                              Icons.bookmark,
+                                              "Saved jobs",
                                               "",
                                               context,
                                               () {},
-                                              Colors.amber),
+                                              Theme.of(context)
+                                                  .colorScheme
+                                                  .onSecondary),
                                         ),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(
-                                          context, "/view_saved_jobs_screen");
-                                    },
-                                    child: cardItems(
-                                        Icons.bookmark,
-                                        "Saved jobs",
-                                        "",
-                                        context,
-                                        () {},
-                                        Theme.of(context)
+                                        InkWell(
+                                          onTap: () {
+                                            Navigator.pushNamed(context,
+                                                "/view_my_applications_screen");
+                                          },
+                                          child: cardItems(
+                                              Icons.book_sharp,
+                                              "My applications",
+                                              "",
+                                              context,
+                                              () {},
+                                              Color.fromARGB(
+                                                  255, 122, 255, 82)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  Text(
+                                    "Recent peoples",
+                                    style: TextStyle(
+                                        color: Theme.of(context)
                                             .colorScheme
-                                            .onSecondary),
+                                            .onSecondary,
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 12,
+                                        fontFamily:
+                                            GoogleFonts.play().fontFamily),
                                   ),
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.pushNamed(context,
-                                          "/view_my_applications_screen");
-                                    },
-                                    child: cardItems(
-                                        Icons.book_sharp,
-                                        "My applications",
-                                        "",
-                                        context,
-                                        () {},
-                                        Color.fromARGB(255, 122, 255, 82)),
+                                  SizedBox(
+                                    height: 15,
                                   ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Wrap(
+                                      alignment: WrapAlignment.start,
+                                      spacing: 20,
+                                      runSpacing: 20,
+                                      children: userReferences
+                                          .toSet()
+                                          .map<Widget>((userReference) {
+                                        String userId = userReference.id;
+                                        return StreamBuilder<DocumentSnapshot>(
+                                          stream: _firestore
+                                              .collection('users')
+                                              .doc(userId)
+                                              .snapshots(),
+                                          builder: (BuildContext context,
+                                              AsyncSnapshot<DocumentSnapshot>
+                                                  userSnapshot) {
+                                            if (userSnapshot.connectionState ==
+                                                ConnectionState.active) {
+                                              if (userSnapshot.hasData) {
+                                                String imageUrl =
+                                                    userSnapshot.data?['image'];
+                                                String userName =
+                                                    userSnapshot.data?['name'];
+
+                                                return recentUsers(
+                                                    imageUrl, userName);
+                                              }
+                                            }
+                                            return SizedBox();
+                                          },
+                                        );
+                                      }).toList(),
+                                    ),
+                                  )
                                 ],
                               ),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Text(
-                              "Recent peoples",
-                              style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.onSecondary,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 12,
-                                  fontFamily: GoogleFonts.play().fontFamily),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Wrap(
-                                alignment: WrapAlignment.start,
-                                spacing: 20,
-                                runSpacing: 20,
-                                children: userReferences
-                                    .toSet()
-                                    .map<Widget>((userReference) {
-                                  String userId = userReference.id;
-                                  return StreamBuilder<DocumentSnapshot>(
-                                    stream: _firestore
-                                        .collection('users')
-                                        .doc(userId)
-                                        .snapshots(),
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot<DocumentSnapshot>
-                                            userSnapshot) {
-                                      if (userSnapshot.connectionState ==
-                                          ConnectionState.active) {
-                                        if (userSnapshot.hasData) {
-                                          String imageUrl =
-                                              userSnapshot.data?['image'];
-                                          String userName =
-                                              userSnapshot.data?['name'];
-
-                                          return recentUsers(
-                                              imageUrl, userName);
-                                        }
-                                      }
-                                      return SizedBox();
-                                    },
-                                  );
-                                }).toList(),
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  } else {
-                    return Container(); // or some placeholder widget
-                  }
-                },
-              ),
-            ),
-    );
+                            );
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        } else {
+                          return Container(); // or some placeholder widget
+                        }
+                      },
+                    ),
+                  ),
+          );
   }
 
   Widget StatContainers(IconData icon, counts, String type) {
