@@ -24,6 +24,8 @@ class _MyApplicationsState extends State<MyApplications> {
   String currentUser = '';
   var logger = Logger();
 
+  bool isUserLoading = true;
+
   @override
   void initState() {
     super.initState();
@@ -36,6 +38,7 @@ class _MyApplicationsState extends State<MyApplications> {
 
     setState(() {
       currentUser = userUID;
+      isUserLoading = false;
     });
   }
 
@@ -54,12 +57,16 @@ class _MyApplicationsState extends State<MyApplications> {
           "Applications",
         ),
       ),
-      body: RefreshIndicator(
-        key: _refreshIndicatorKey,
-        triggerMode: RefreshIndicatorTriggerMode.anywhere,
-        onRefresh: _refreshData,
-        child: _buildSavedJobsList(),
-      ),
+      body: isUserLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : RefreshIndicator(
+              key: _refreshIndicatorKey,
+              triggerMode: RefreshIndicatorTriggerMode.anywhere,
+              onRefresh: _refreshData,
+              child: _buildSavedJobsList(),
+            ),
     );
   }
 
@@ -122,7 +129,7 @@ class _MyApplicationsState extends State<MyApplications> {
         } else {
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: ListView.builder(
+            child: ListView.separated(
               itemCount: jobsApplied.length,
               itemBuilder: (context, index) {
                 return StreamBuilder<DocumentSnapshot>(
@@ -361,6 +368,11 @@ class _MyApplicationsState extends State<MyApplications> {
                       },
                     );
                   },
+                );
+              },
+              separatorBuilder: (BuildContext context, int index) {
+                return SizedBox(
+                  height: 15,
                 );
               },
             ),

@@ -9,10 +9,15 @@ import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/models/message.dart';
 import 'package:NearbyNexus/screens/user/screens/chatScreen/chat_screen.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
+import 'package:NearbyNexus/screens/vendor/screens/subscription_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:getwidget/components/button/gf_button.dart';
+import 'package:getwidget/shape/gf_button_shape.dart';
+import 'package:getwidget/size/gf_size.dart';
 import 'package:logger/logger.dart';
 
 class UserInbox extends StatefulWidget {
@@ -26,6 +31,7 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
   var logger = Logger();
   final searchController = TextEditingController();
   List<dynamic> userChatData = [];
+  Map<String, dynamic> currentUserData = {};
   @override
   void initState() {
     initializeUserData();
@@ -42,6 +48,7 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
       if (data.isNotEmpty) {
         setState(() {
           userChatData = data['chats'];
+          currentUserData = data;
         });
       }
     });
@@ -82,69 +89,121 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
             )
           ],
         ),
-        body: Column(
-          children: [
-            Container(
-              height: 50,
-              margin: EdgeInsets.only(left: 10, right: 10, bottom: 15, top: 10),
-              decoration: BoxDecoration(
-                  color: Color(0xFF1E1E1E),
-                  borderRadius: BorderRadius.circular(100)),
-              child: TextFormField(
-                controller: searchController,
-                keyboardType: TextInputType.text,
-                style: TextStyle(color: Colors.white, fontSize: 16),
-                decoration: InputDecoration(
-                    prefixIcon: Icon(CupertinoIcons.search,
-                        color: const Color.fromARGB(115, 255, 255, 255)),
-                    hintText: 'Search name',
-                    hintStyle: TextStyle(color: Colors.white24, fontSize: 14),
-                    border: InputBorder.none),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "You left this field empty!";
-                  }
-                  return null;
-                },
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: userChatData.length,
-                itemBuilder: (context, index) {
-                  if (userChatData.isNotEmpty) {
-                    return Column(
-                      children: [
-                        _customChatTile(userChatData[index]),
-                      ],
-                    );
-                  } else {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Image.asset(
-                          //   'assets/images/no-messages.png',
-                          //   height: 250,
-                          //   width: 250,
-                          // ),
-                          SizedBox(height: 15),
-                          Text(
-                            "No messages till now!",
-                            style: TextStyle(
-                                color:
-                                    Theme.of(context).colorScheme.onSecondary,
-                                fontSize: 18),
-                          ),
-                        ],
+        body: currentUserData['subscription']['type'] == 'free' &&
+                currentUserData['jobs_applied'].length > 1
+            ? SizedBox(
+                width: MediaQuery.sizeOf(context).width,
+                child: Padding(
+                  padding: const EdgeInsets.all(30.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/svg/crown-svgrepo-com.svg',
+                        height: 50,
+                        width: 50,
                       ),
-                    );
-                  }
-                },
-              ),
-            ),
-          ],
-        ));
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'Upgrade to continue',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      Text(
+                        'With current plan you cant\'t send direct messages please upgrade your plan to continue.',
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      GFButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SubscriptionScreen()));
+                        },
+                        text: "Upgrade",
+                        textColor: Colors.black,
+                        color: Colors.amberAccent,
+                        size: GFSize.LARGE,
+                        shape: GFButtonShape.pills,
+                        fullWidthButton: true,
+                      )
+                    ],
+                  ),
+                ),
+              )
+            : Column(
+                children: [
+                  // Container(
+                  //   height: 50,
+                  //   margin: EdgeInsets.only(left: 10, right: 10, bottom: 15, top: 10),
+                  //   decoration: BoxDecoration(
+                  //       color: Color(0xFF1E1E1E),
+                  //       borderRadius: BorderRadius.circular(100)),
+                  //   child: TextFormField(
+                  //     controller: searchController,
+                  //     keyboardType: TextInputType.text,
+                  //     style: TextStyle(color: Colors.white, fontSize: 16),
+                  //     decoration: InputDecoration(
+                  //         prefixIcon: Icon(CupertinoIcons.search,
+                  //             color: const Color.fromARGB(115, 255, 255, 255)),
+                  //         hintText: 'Search name',
+                  //         hintStyle: TextStyle(color: Colors.white24, fontSize: 14),
+                  //         border: InputBorder.none),
+                  //     validator: (value) {
+                  //       if (value!.isEmpty) {
+                  //         return "You left this field empty!";
+                  //       }
+                  //       return null;
+                  //     },
+                  //   ),
+                  // ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: userChatData.length,
+                      itemBuilder: (context, index) {
+                        if (userChatData.isNotEmpty) {
+                          return Column(
+                            children: [
+                              _customChatTile(userChatData[index]),
+                            ],
+                          );
+                        } else {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Image.asset(
+                                //   'assets/images/no-messages.png',
+                                //   height: 250,
+                                //   width: 250,
+                                // ),
+                                SizedBox(height: 15),
+                                Text(
+                                  "No messages till now!",
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondary,
+                                      fontSize: 18),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ));
   }
 
   Widget _customChatTile(chatUser) {

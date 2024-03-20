@@ -2,9 +2,15 @@
 
 import 'package:NearbyNexus/components/bottom_sheet_contents.dart';
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
+import 'package:NearbyNexus/screens/vendor/screens/subscription_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:getwidget/components/button/gf_button.dart';
+import 'package:getwidget/shape/gf_button_shape.dart';
+import 'package:getwidget/size/gf_size.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
@@ -24,6 +30,7 @@ class _SearchScreenServicesState extends State<SearchScreenServices> {
   bool showErrorDp = false;
   bool isLoading = false;
   bool isLoadingList = true;
+  Map<String, dynamic> fetchedData = {};
   var l = Logger();
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> _searchResults = [];
@@ -32,6 +39,7 @@ class _SearchScreenServicesState extends State<SearchScreenServices> {
   void initState() {
     super.initState();
     _onSearchChanged();
+    fetchUserData();
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -39,8 +47,21 @@ class _SearchScreenServicesState extends State<SearchScreenServices> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     setState(() {
-      uid = Provider.of<UserProvider>(context, listen: false).uid;
+      uid = ApiFunctions.user!.uid;
     });
+  }
+
+  Future<void> fetchUserData() async {
+    String uid = ApiFunctions.user!.uid;
+    DocumentSnapshot snapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    if (snapshot.exists) {
+      // Assign admin data to the UI
+      setState(() {
+        fetchedData = snapshot.data() as Map<String, dynamic>;
+        isLoading = false;
+      });
+    }
   }
 
   Future<bool> _onBackPressed() async {
@@ -328,7 +349,129 @@ class _SearchScreenServicesState extends State<SearchScreenServices> {
                                           )
                                         : IconButton(
                                             onPressed: () {
-                                              _addToSelectedItems(result);
+                                              fetchedData['subscription']
+                                                              ['type'] ==
+                                                          'free' &&
+                                                      _selectedItems.length > 0
+                                                  ? showDialog(
+                                                      context: context,
+                                                      builder:
+                                                          (_) => AlertDialog(
+                                                                content: Column(
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  children: [
+                                                                    Column(
+                                                                      children: [
+                                                                        SvgPicture
+                                                                            .asset(
+                                                                          'assets/icons/svg/crown-svgrepo-com.svg',
+                                                                          height:
+                                                                              50,
+                                                                          width:
+                                                                              50,
+                                                                        ),
+                                                                        SizedBox(
+                                                                          height:
+                                                                              10,
+                                                                        ),
+                                                                        Text(
+                                                                          'Upgrade to continue',
+                                                                          style: TextStyle(
+                                                                              fontSize: 18,
+                                                                              fontWeight: FontWeight.bold),
+                                                                        ),
+                                                                        SizedBox(
+                                                                          height:
+                                                                              15,
+                                                                        ),
+                                                                        Text(
+                                                                            'With current plan you can add 1 service.'),
+                                                                        SizedBox(
+                                                                          height:
+                                                                              15,
+                                                                        ),
+                                                                        GFButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.push(context,
+                                                                                MaterialPageRoute(builder: (context) => SubscriptionScreen()));
+                                                                          },
+                                                                          text:
+                                                                              "Upgrade",
+                                                                          textColor:
+                                                                              Colors.black,
+                                                                          color:
+                                                                              Colors.amberAccent,
+                                                                          size:
+                                                                              GFSize.LARGE,
+                                                                          shape:
+                                                                              GFButtonShape.pills,
+                                                                          fullWidthButton:
+                                                                              true,
+                                                                        )
+                                                                      ],
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ))
+                                                  : fetchedData['subscription']
+                                                                  ['type'] ==
+                                                              'premium_platinum' &&
+                                                          _selectedItems
+                                                                  .length >
+                                                              4
+                                                      ? showDialog(
+                                                          context: context,
+                                                          builder:
+                                                              (_) =>
+                                                                  AlertDialog(
+                                                                    content:
+                                                                        Column(
+                                                                      mainAxisSize:
+                                                                          MainAxisSize
+                                                                              .min,
+                                                                      children: [
+                                                                        Column(
+                                                                          children: [
+                                                                            SvgPicture.asset(
+                                                                              'assets/icons/svg/crown-svgrepo-com.svg',
+                                                                              height: 50,
+                                                                              width: 50,
+                                                                            ),
+                                                                            SizedBox(
+                                                                              height: 10,
+                                                                            ),
+                                                                            Text(
+                                                                              'Upgrade to continue',
+                                                                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                                                            ),
+                                                                            SizedBox(
+                                                                              height: 15,
+                                                                            ),
+                                                                            Text('With current plan you can add 5 services.'),
+                                                                            SizedBox(
+                                                                              height: 15,
+                                                                            ),
+                                                                            GFButton(
+                                                                              onPressed: () {
+                                                                                Navigator.push(context, MaterialPageRoute(builder: (context) => SubscriptionScreen()));
+                                                                              },
+                                                                              text: "Upgrade",
+                                                                              textColor: Colors.black,
+                                                                              color: Colors.amberAccent,
+                                                                              size: GFSize.LARGE,
+                                                                              shape: GFButtonShape.pills,
+                                                                              fullWidthButton: true,
+                                                                            )
+                                                                          ],
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ))
+                                                      : _addToSelectedItems(
+                                                          result);
                                             },
                                             icon: const Icon(
                                               Icons.add,

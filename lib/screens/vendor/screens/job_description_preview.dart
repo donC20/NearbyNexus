@@ -9,11 +9,13 @@ import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:NearbyNexus/screens/vendor/screens/gmap_view.dart';
+import 'package:NearbyNexus/screens/vendor/screens/subscription_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:custom_sliding_segmented_control/custom_sliding_segmented_control.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:logger/logger.dart';
 
@@ -627,12 +629,123 @@ class _JobDetailPageState extends State<JobDetailPage> {
             print("Error: $e"); // Handle the error as needed
           }
         } else {
-          Navigator.pushNamed(context, "/bid_for_job",
-              arguments: {"post_id": docId});
+          !isApplied &&
+                  currentUserData['subscription']['type'] == 'free' &&
+                  currentUserData['jobs_applied'].length > 1
+              ? showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Column(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/icons/svg/crown-svgrepo-com.svg',
+                                  height: 50,
+                                  width: 50,
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  'Upgrade to continue',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                Text(
+                                    'With current plan you can apply 2 jobs / month.'),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                GFButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                SubscriptionScreen()));
+                                  },
+                                  text: "Upgrade",
+                                  textColor: Colors.black,
+                                  color: Colors.amberAccent,
+                                  size: GFSize.LARGE,
+                                  shape: GFButtonShape.pills,
+                                  fullWidthButton: true,
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      ))
+              : !isApplied &&
+                      currentUserData['subscription']['type'] ==
+                          'premium_platinum' &&
+                      currentUserData['jobs_applied'].length > 9
+                  ? showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Column(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/icons/svg/crown-svgrepo-com.svg',
+                                  height: 50,
+                                  width: 50,
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  'Upgrade to continue',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                Text(
+                                    'With current plan you can apply 10 jobs / month.'),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                GFButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                SubscriptionScreen()));
+                                  },
+                                  text: "Upgrade",
+                                  textColor: Colors.black,
+                                  color: Colors.amberAccent,
+                                  size: GFSize.LARGE,
+                                  shape: GFButtonShape.pills,
+                                  fullWidthButton: true,
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      ))
+                  : Navigator.pushNamed(context, "/bid_for_job",
+                      arguments: {"post_id": docId});
         }
       },
       text: isApplied ? 'View application' : 'Apply',
-      color: KColors.primary,
+      color: !isApplied &&
+              currentUserData['subscription']['type'] == 'free' &&
+              currentUserData['jobs_applied'].length > 1
+          ? Colors.amber
+          : KColors.primary,
       shape: GFButtonShape.pills,
       size: GFSize.MEDIUM,
     );
@@ -644,8 +757,6 @@ class _JobDetailPageState extends State<JobDetailPage> {
       setState(() {
         isPressDelay = true;
       });
-
-      
 
       await FirebaseFirestore.instance
           .collection('users')

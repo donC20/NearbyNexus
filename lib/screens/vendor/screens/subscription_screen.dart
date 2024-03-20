@@ -43,10 +43,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       'icon': Icons.check_circle,
       'text': 'One Service allowed',
     },
-    {
-      'icon': Icons.close,
-      'text': 'Contact info disabled',
-    },
+    // {
+    //   'icon': Icons.close,
+    //   'text': 'Contact info disabled',
+    // },
   ];
 
   List<Map<String, dynamic>> infoOnPlatinumSub = [
@@ -62,10 +62,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       'icon': Icons.check_circle,
       'text': 'Upto 5 services allowed',
     },
-    {
-      'icon': Icons.close,
-      'text': 'Contact info disabled',
-    },
+    // {
+    //   'icon': Icons.close,
+    //   'text': 'Contact info disabled',
+    // },
   ];
   List<Map<String, dynamic>> infoOnGoldSub = [
     {
@@ -80,10 +80,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       'icon': Icons.check_circle,
       'text': 'Upto 5 services',
     },
-    {
-      'icon': Icons.check_circle_sharp,
-      'text': 'Contact info enabled',
-    },
+    // {
+    //   'icon': Icons.check_circle_sharp,
+    //   'text': 'Contact info enabled',
+    // },
   ];
   bool isLoading = true;
 

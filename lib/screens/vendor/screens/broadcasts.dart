@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:NearbyNexus/components/avatar_of_user.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/screens/vendor/bloc/bloc/vendor_bloc.dart';
@@ -243,13 +244,15 @@ class _BroadcastPageState extends State<BroadcastPage> {
                   if (currentUserData.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: UserLoadingAvatar(
-                        userImage: currentUserData["image"],
-                        width: 35,
-                        height: 35,
-                        onTap: () {
-                          Navigator.pushNamed(context, "vendor_profile_one");
-                        },
+                      child: InkWell(
+                        onTap: () =>
+                            Navigator.pushNamed(context, "vendor_profile_one"),
+                        child: AvatarOfUser(
+                          imageLink: currentUserData["image"],
+                          height: 35,
+                          width: 35,
+                          userPlan: currentUserData['subscription']['type'],
+                        ),
                       ),
                     ),
                 ],
