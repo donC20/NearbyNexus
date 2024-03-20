@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_print
 
 import 'dart:io';
 
@@ -8,21 +8,24 @@ import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/models/message.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
+import 'package:NearbyNexus/screens/vendor/screens/subscription_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:getwidget/getwidget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 
 class ChatScreen extends StatefulWidget {
   final String userId;
-  const ChatScreen({super.key, required this.userId});
+
+  const ChatScreen({Key? key, required this.userId}) : super(key: key);
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
@@ -30,109 +33,213 @@ class _ChatScreenState extends State<ChatScreen> {
 
   var logger = Logger();
 
-  //for storing all messages
   List<Message> _list = [];
-
-  //for handling message text changes
   final _textController = TextEditingController();
-
-  //showEmoji -- for storing value of showing or hiding emoji
-  //isUploading -- for checking if image is uploading or not?
   bool _showEmoji = false, _isUploading = false, _isSending = false;
+  Future<void> deleteCollection(String path) async {
+    var collectionRef = FirebaseFirestore.instance.collection(path);
+    var batchSize = 10;
+
+    await collectionRef.get().then((querySnapshot) async {
+      if (querySnapshot.size == 0) return;
+
+      var batch = FirebaseFirestore.instance.batch();
+      querySnapshot.docs.forEach((document) {
+        batch.delete(document.reference);
+      });
+
+      await batch.commit();
+
+      // Recursively call deleteCollection until the collection is empty
+      await deleteCollection(path);
+    });
+  }
+
+  Future<bool> _onBackPressed() async {
+    // back pressed button event
+
+    return (await showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Column(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/svg/crown-svgrepo-com.svg',
+                      height: 50,
+                      width: 50,
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Upgrade to continue',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 15),
+                    Text(
+                      'Your messages will be cleared after viewing, Upgrade to keep the message history.',
+                      textAlign: TextAlign.justify,
+                    ),
+                    SizedBox(height: 15),
+                    GFButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SubscriptionScreen(),
+                          ),
+                        );
+                      },
+                      text: "Upgrade",
+                      textColor: Colors.black,
+                      color: Colors.amberAccent,
+                      size: GFSize.LARGE,
+                      shape: GFButtonShape.pills,
+                      fullWidthButton: true,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    GFButton(
+                      onPressed: () async {
+                        await deleteCollection(
+                                'chats/${ApiFunctions.getConversationID(widget.userId)}/messages')
+                            .then((value) => Navigator.of(context).pop(true));
+//                         FirebaseFirestore.instance
+//                             .collection('chats')
+//                             .doc()
+//                             .delete();
+//                         DocumentReference documentReference = FirebaseFirestore
+//                             .instance
+//                             .collection('chats')
+//                             .doc(ApiFunctions.getConversationID(widget.userId));
+
+// // Call the delete method to remove the document
+//                         documentReference.delete().then((_) {
+//                           Navigator.of(context).pop(true);
+
+//                           print('Document successfully deleted');
+//                         }).catchError((error) {
+//                           print('Error deleting document: $error');
+//                         });
+                      },
+                      text: "Clear",
+                      textColor: Colors.white,
+                      color: Colors.red,
+                      size: GFSize.LARGE,
+                      shape: GFButtonShape.pills,
+                      fullWidthButton: true,
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+        )) ??
+        false;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: AppBar(
-        elevation: 1,
-        automaticallyImplyLeading: false,
-        flexibleSpace: SafeArea(child: _appBar()),
-      ),
-      body: Builder(
-        builder: (BuildContext context) {
-          // Initialize mq within the Builder widget
-          mq = MediaQuery.of(context).size;
-          return Column(
-            children: [
-              Expanded(
-                child: StreamBuilder(
-                  stream: ApiFunctions.getAllMessages(widget.userId),
-                  builder: (context, snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.waiting:
-                        return SizedBox(); // Return an empty widget while waiting for data
-                      case ConnectionState.none:
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      case ConnectionState.active:
-                      case ConnectionState.done:
-                        final data = snapshot.data?.docs;
-                        logger.e(data);
-                        _list = data
-                                ?.map((e) => Message.fromJson(e.data()))
-                                .toList() ??
-                            [];
-                        if (_list.isNotEmpty) {
-                          return ListView.builder(
-                            reverse: true,
-                            itemCount: _list.length,
-                            padding: EdgeInsets.only(top: 10),
-                            physics: const BouncingScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return MessageCard(
-                                message: _list[index],
-                                isSent: _isSending,
-                              );
-                            },
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        appBar: AppBar(
+          elevation: 1,
+          automaticallyImplyLeading: false,
+          flexibleSpace: SafeArea(child: _appBar()),
+        ),
+        body: Builder(
+          builder: (BuildContext context) {
+            mq = MediaQuery.of(context).size;
+            return Column(
+              children: [
+                Expanded(
+                  child: StreamBuilder(
+                    stream: ApiFunctions.getAllMessages(widget.userId),
+                    builder: (context, snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return SizedBox();
+                        case ConnectionState.none:
+                          return Center(
+                            child: CircularProgressIndicator(),
                           );
-                        } else {
-                          return const Center(
-                            child: Text(
-                              'Say Hii! 👋',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20,
+                        case ConnectionState.active:
+                        case ConnectionState.done:
+                          final data = snapshot.data?.docs;
+                          logger.e(data);
+                          _list = data
+                                  ?.map((e) => Message.fromJson(e.data()))
+                                  .toList() ??
+                              [];
+                          if (_list.isNotEmpty) {
+                            return ListView.builder(
+                              reverse: true,
+                              itemCount: _list.length,
+                              padding: EdgeInsets.only(top: 10),
+                              physics: const BouncingScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return MessageCard(
+                                  message: _list[index],
+                                  isSent: _isSending,
+                                );
+                              },
+                            );
+                          } else {
+                            return const Center(
+                              child: Text(
+                                'Say Hii! 👋',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                ),
                               ),
-                            ),
-                          );
-                        }
-                    }
-                  },
+                            );
+                          }
+                      }
+                    },
+                  ),
                 ),
-              ),
-              if (_isUploading)
-                const Align(
+                if (_isUploading)
+                  const Align(
                     alignment: Alignment.centerRight,
                     child: Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-                        child: CircularProgressIndicator(strokeWidth: 2))),
-              _chatInput(),
-              //show emojis on keyboard emoji button click & vice versa
-              if (_showEmoji)
-                SizedBox(
-                  height: mq.height * .35,
-                  child: EmojiPicker(
-                    textEditingController: _textController,
-                    config: Config(
-                      height: 256,
-                      checkPlatformCompatibility: true,
-                      emojiViewConfig: EmojiViewConfig(
-                          // Issue: https://github.com/flutter/flutter/issues/28894
-                          emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0)),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 20,
+                      ),
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                   ),
-                )
-            ],
-          );
-        },
+                _chatInput(),
+                if (_showEmoji)
+                  SizedBox(
+                    height: mq.height * .35,
+                    child: EmojiPicker(
+                      textEditingController: _textController,
+                      config: Config(
+                        height: 256,
+                        checkPlatformCompatibility: true,
+                        emojiViewConfig: EmojiViewConfig(
+                          emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 
-// app bar
   Widget _appBar() {
     return StreamBuilder<Map<String, dynamic>>(
       stream: VendorCommonFn().streamUserData(
@@ -158,14 +265,15 @@ class _ChatScreenState extends State<ChatScreen> {
             onTap: () {},
             child: Row(
               children: [
-                // Back button
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(
-                    CupertinoIcons.back,
-                  ),
+                // IconButton(
+                //   onPressed: () => Navigator.pop(context),
+                //   icon: Icon(
+                //     CupertinoIcons.back,
+                //   ),
+                // ),
+                SizedBox(
+                  width: 20,
                 ),
-                // User profile picture
                 ClipRRect(
                   borderRadius: BorderRadius.circular(100),
                   child: CachedNetworkImage(
@@ -174,19 +282,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     fit: BoxFit.cover,
                     imageUrl: img,
                     errorWidget: (context, url, error) =>
-                        const CircleAvatar(child: Icon(CupertinoIcons.person)),
+                        CircleAvatar(child: Icon(CupertinoIcons.person)),
                   ),
                 ),
-
-                // Add some space
                 const SizedBox(width: 10),
-
-                // User name & online status
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // User name
                     Text(
                       userName,
                       style: TextStyle(
@@ -195,20 +298,17 @@ class _ChatScreenState extends State<ChatScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-
-                    // Add some space
-
-                    // Online status
                     Text(
                       isOnline
                           ? 'Online'
                           : MyDateUtil.getLastActiveTime(
                               context: context, lastActive: last_seen),
                       style: TextStyle(
-                          fontSize: 13,
-                          color: isOnline
-                              ? Colors.green
-                              : Color.fromRGBO(220, 220, 220, 1)),
+                        fontSize: 13,
+                        color: isOnline
+                            ? Colors.green
+                            : Color.fromRGBO(220, 220, 220, 1),
+                      ),
                     ),
                   ],
                 )

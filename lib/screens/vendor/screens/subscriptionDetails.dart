@@ -142,6 +142,99 @@ class _SubscriptionDetailsState extends State<SubscriptionDetails> {
                             Theme.of(context).colorScheme.onSecondaryContainer),
                     child: Column(
                       children: [
+                        fetchedData['subscription']['type'] == 'free'
+                            ? Column(
+                                children: [
+                                  Text(
+                                    'Plan summary',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  ),
+                                  ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    leading: Icon(
+                                      Icons.build_rounded,
+                                      size: 18,
+                                    ),
+                                    trailing: Text(
+                                        '${2 - fetchedData['jobs_applied'].length} / 2'),
+                                    title: Text(
+                                      'Jobs left',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14),
+                                    ),
+                                  ),
+                                  ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    leading: Icon(
+                                      Icons.room_service_outlined,
+                                      size: 18,
+                                    ),
+                                    trailing: Text(
+                                        '${1 - fetchedData['services'].length} / 1'),
+                                    title: Text(
+                                      'Services left',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : fetchedData['subscription']['type'] ==
+                                    'premium_platinum'
+                                ? Column(
+                                    children: [
+                                      Text(
+                                        'Plan summary',
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(
+                                        height: 15,
+                                      ),
+                                      ListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        leading: Icon(
+                                          Icons.build_rounded,
+                                          size: 18,
+                                        ),
+                                        trailing: Text(
+                                            '${10 - fetchedData['jobs_applied'].length} / 10'),
+                                        title: Text(
+                                          'Jobs left',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14),
+                                        ),
+                                      ),
+                                      ListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        leading: Icon(
+                                          Icons.room_service_outlined,
+                                          size: 18,
+                                        ),
+                                        trailing: Text(
+                                            '${5 - fetchedData['services'].length} / 5'),
+                                        title: Text(
+                                          'Services left',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : SizedBox(),
+                        SizedBox(
+                          height: 15,
+                        ),
                         Text(
                           'Your plan expires in',
                           style: TextStyle(
@@ -204,9 +297,7 @@ class _SubscriptionDetailsState extends State<SubscriptionDetails> {
                                       : 'UPGRADE',
                                   style: TextStyle(
                                       fontSize: 12,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
+                                      color: Colors.white,
                                       fontWeight: FontWeight.bold),
                                 ),
                               ],
@@ -298,5 +389,4 @@ class _SubscriptionDetailsState extends State<SubscriptionDetails> {
       ),
     );
   }
-
 }

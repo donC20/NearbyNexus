@@ -71,12 +71,6 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         appBar: AppBar(
-          leading: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Icon(
-              CupertinoIcons.back,
-            ),
-          ),
           title: Text(
             "Inbox",
             style: TextStyle(fontSize: 16),
@@ -261,10 +255,10 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
             final msgData = snapshot.data?.docs
                 as List<QueryDocumentSnapshot<Map<String, dynamic>>>?;
             final list =
-                msgData?.map((e) => Message.fromJson(e.data())).toList() ?? [];
-            Message? _message;
-            if (list.isNotEmpty) {
-              _message = list[0];
+                msgData?.map((e) => Message.fromJson(e.data())).toList();
+            Message? message;
+            if (list != null && list.isNotEmpty) {
+              message = list[0];
             }
 
             return ListTile(
@@ -286,7 +280,7 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
                 style:
                     TextStyle(color: Theme.of(context).colorScheme.onSecondary),
               ),
-              subtitle: _message?.type == Type.image
+              subtitle: message?.type == Type.image
                   ? Row(
                       children: [
                         Icon(
@@ -306,7 +300,7 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
                   : RichText(
                       maxLines: 1,
                       text: TextSpan(children: [
-                        if (_message?.fromId == ApiFunctions.user?.uid)
+                        if (message?.fromId == ApiFunctions.user?.uid)
                           TextSpan(
                             text: 'You ~ ',
                             style: TextStyle(
@@ -315,8 +309,7 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
                           ),
                         TextSpan(
                           text: UtilityFunctions()
-                                  .truncateText(_message!.msg, 30) ??
-                              "Hey, there!",
+                              .truncateText(message?.msg ?? "Hey, there!", 30),
                           style: TextStyle(
                               color: Theme.of(context).colorScheme.onTertiary,
                               fontSize: 12),
@@ -327,9 +320,9 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Text(
-                    _message != null
+                    message != null
                         ? MyDateUtil.getFormattedTime(
-                            context: context, time: _message.sent)
+                            context: context, time: message.sent)
                         : '',
                     style: TextStyle(
                         fontSize: 13,
