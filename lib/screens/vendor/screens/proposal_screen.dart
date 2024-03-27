@@ -196,27 +196,27 @@ class _ProposalScreenState extends State<ProposalScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Row(
-                            children: [
-                              Icon(
-                                CupertinoIcons.money_dollar_circle,
-                                color: Color.fromARGB(255, 7, 160, 48),
-                                size: 18.0,
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                UtilityFunctions().shortScaleNumbers(20),
-                                style: TextStyle(
-                                  fontSize: 12.0,
-                                ),
-                              ),
-                            ],
-                          ),
+                          // SizedBox(
+                          //   width: 10,
+                          // ),
+                          // Row(
+                          //   children: [
+                          //     Icon(
+                          //       CupertinoIcons.money_dollar_circle,
+                          //       color: Color.fromARGB(255, 7, 160, 48),
+                          //       size: 18.0,
+                          //     ),
+                          //     SizedBox(
+                          //       width: 5,
+                          //     ),
+                          //     Text(
+                          //       UtilityFunctions().shortScaleNumbers(20),
+                          //       style: TextStyle(
+                          //         fontSize: 12.0,
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
                           SizedBox(
                             width: 10,
                           ),

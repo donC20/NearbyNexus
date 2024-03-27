@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, prefer_const_constructors, prefer_const_literals_to_create_immutables, unused_element, avoid_unnecessary_containers
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
@@ -263,10 +264,28 @@ class _MyApplicationsState extends State<MyApplications> {
                                               ),
                                               TextSpan(
                                                 text:
-                                                    ", ${UtilityFunctions().findTimeDifference(jobData["jobPostDate"])}",
+                                                    ", ${UtilityFunctions().convertTimestampToDateString(applicationDataMap["applicationPostedTime"])}",
                                                 style: TextStyle(
                                                   fontSize: 14,
                                                 ),
+                                              ),
+                                              TextSpan(
+                                                text:
+                                                    " ${jobData['expiryDate'].toDate().isBefore(DateTime.now()) ? 'Expired' : applicationDataMap["status"] == 'accepted' ? UtilityFunctions.convertToSenenceCase(applicationDataMap["status"]) : UtilityFunctions.convertToSenenceCase(applicationDataMap["status"])}",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: jobData['expiryDate']
+                                                            .toDate()
+                                                            .isBefore(
+                                                                DateTime.now())
+                                                        ? Colors.red
+                                                        : applicationDataMap[
+                                                                    "status"] ==
+                                                                'accepted'
+                                                            ? Colors.green
+                                                            : Colors.blueAccent,
+                                                    fontWeight:
+                                                        FontWeight.bold),
                                               ),
                                             ],
                                           ),
@@ -314,6 +333,22 @@ class _MyApplicationsState extends State<MyApplications> {
                                         ),
                                         // Add a custom connecting line
                                       ),
+                                      // Positioned(
+                                      //     // left: 75,
+                                      //     right: 0,
+                                      //     bottom: 0,
+                                      //     child: Container(
+                                      //       padding: EdgeInsets.all(5),
+                                      //       decoration: BoxDecoration(
+                                      //           borderRadius:
+                                      //               BorderRadius.circular(5),
+                                      //           color: Colors.green),
+                                      //       child: Text(
+                                      //         applicationDataMap["status"],
+                                      //         style: TextStyle(
+                                      //             color: Colors.white),
+                                      //       ),
+                                      //     )),
                                       Positioned(
                                         left: 30,
                                         top: 56,

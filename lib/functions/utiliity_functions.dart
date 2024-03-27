@@ -150,23 +150,32 @@ class UtilityFunctions {
     sharedPreferences.remove(key);
   }
 
-// Time stamp to date
   String convertTimestampToDateString(Timestamp timestamp) {
-    // if (timestamp != null) {
-    //   DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
-    //     timestamp.seconds * 1000 + timestamp.nanoseconds ~/ 1000000,
-    //   );
-
-    //   // Format the DateTime as a string without the time part
-    //   return "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
-    // } else {
-    //   return null;
-    // }
     DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(
       timestamp.seconds * 1000 + timestamp.nanoseconds ~/ 1000000,
     );
-    // Format the DateTime as a string without the time part
-    return "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}";
+
+    // Define a list of month names
+    List<String> monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ];
+
+    // Get the month name
+    String monthName = monthNames[dateTime.month - 1];
+
+    // Format the DateTime as a string in the specified format
+    return "${dateTime.day.toString().padLeft(2, '0')} $monthName ${dateTime.year}";
   }
 
 // format date
@@ -177,6 +186,15 @@ class UtilityFunctions {
 // Covert to coma separated list
   String convertListToCommaSeparatedString(List<dynamic> items) {
     return items.join(', ');
+  }
+
+  // sentence case
+  static String convertToSenenceCase(String text) {
+    String newStr = '';
+    String firstCharacter = text[0].toUpperCase();
+    String remaining = text.substring(1);
+    newStr = firstCharacter + remaining;
+    return newStr;
   }
 
 // pick date

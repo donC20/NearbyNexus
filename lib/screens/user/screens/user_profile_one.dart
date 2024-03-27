@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
@@ -162,9 +163,15 @@ class _UserProfileOneState extends State<UserProfileOne> {
                       style: TextStyle(fontSize: 14),
                     ),
                     trailing: OutlinedButton.icon(
-                      onPressed: () {
+                      onPressed: () async {
                         Provider.of<CommonProvider>(context, listen: false)
                             .toggleTheme();
+
+                        Theme.of(context).brightness == Brightness.dark
+                            ? await UtilityFunctions()
+                                .sharedPreferenceCreator('theme', 'dark')
+                            : await UtilityFunctions()
+                                .sharedPreferenceCreator('theme', 'light');
                       },
                       label: Text(
                         Theme.of(context).brightness == Brightness.dark

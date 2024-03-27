@@ -212,6 +212,12 @@ class _FinalSubmitFormVendorState extends State<FinalSubmitFormVendor> {
       Map<String, dynamic> userData = user.toJson();
       String uid = vendorInitialData?['uid'];
       await FirebaseFirestore.instance
+          .collection('app_config')
+          .doc('notifications')
+          .update({
+        'new_users': FieldValue.arrayUnion([uid])
+      });
+      await FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
           .set(userData)

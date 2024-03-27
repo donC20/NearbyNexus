@@ -534,8 +534,15 @@ class _MyJobPostsState extends State<MyJobPosts> {
           tableRows(
             icon: Icons.calendar_month,
             title: "Posted on",
-            value:
-                UtilityFunctions().findTimeDifference(postData['jobPostDate']),
+            value: UtilityFunctions()
+                .convertTimestampToDateString(postData['jobPostDate']),
+          ),
+          gap_10,
+          tableRows(
+            icon: Icons.timer,
+            title: "Expires on",
+            value: UtilityFunctions()
+                .convertTimestampToDateString(postData['expiryDate']),
           ),
           gap_10,
           _buildExpansionTile(),

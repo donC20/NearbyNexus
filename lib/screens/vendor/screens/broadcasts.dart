@@ -339,12 +339,13 @@ class _BroadcastPageState extends State<BroadcastPage> {
                                   Map<String, dynamic> postedUserData =
                                       snapshot.data!;
                                   return customCard(
-                                    searchGlobalResults[index],
-                                    context,
-                                    postedUserData,
-                                    vendorBloc,
-                                    docId,
-                                  );
+                                      searchGlobalResults[index],
+                                      context,
+                                      postedUserData,
+                                      vendorBloc,
+                                      docId,
+                                      searchGlobalResults[index]
+                                          ['jobPostedBy']);
                                 } else {
                                   return Text('No data available');
                                 }
@@ -423,12 +424,12 @@ class _BroadcastPageState extends State<BroadcastPage> {
                                   Map<String, dynamic> postedUserData =
                                       snapshot.data!;
                                   return customCard(
-                                    fetchData,
-                                    context,
-                                    postedUserData,
-                                    vendorBloc,
-                                    docId,
-                                  );
+                                      fetchData,
+                                      context,
+                                      postedUserData,
+                                      vendorBloc,
+                                      docId,
+                                      fetchData['jobPostedBy']);
                                 } else {
                                   return Text('No data available');
                                 }
@@ -452,7 +453,7 @@ class _BroadcastPageState extends State<BroadcastPage> {
   }
 
   Widget customCard(fetch, BuildContext context, postedByData,
-      VendorBloc vendorBloc, String docId) {
+      VendorBloc vendorBloc, String docId, postedUserId) {
     return Padding(
       padding: const EdgeInsets.only(top: 20, left: 10, right: 10, bottom: 10),
       child: InkWell(
@@ -461,7 +462,8 @@ class _BroadcastPageState extends State<BroadcastPage> {
           Navigator.pushNamed(context, '/job_detail_page', arguments: {
             'job_data': fetch,
             'posted_user': postedByData,
-            'post_id': docId
+            'post_id': docId,
+            'posted_user_id': postedUserId
           });
         },
         child: Container(

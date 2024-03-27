@@ -238,7 +238,7 @@ class _UserDashboardMState extends State<UserDashboardM> {
                               "See all the jobs that are currently active."),
                           cardItems(
                               Icons.work_history,
-                              "Pending Jobs",
+                              "Pending Requests",
                               "user_pending_requets",
                               context,
                               () {},

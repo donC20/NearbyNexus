@@ -158,7 +158,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
               ),
             ),
           ),
-          _apply(context, argument['post_id']),
+          _apply(context, argument['post_id'], argument['posted_user_id']),
           IconButton(
               onPressed: () async {
                 try {
@@ -582,7 +582,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
     ]);
   }
 
-  Widget _apply(BuildContext context, docId) {
+  Widget _apply(BuildContext context, docId, postedUserID) {
     return GFButton(
       onPressed: () async {
         if (isApplied) {
@@ -687,57 +687,59 @@ class _JobDetailPageState extends State<JobDetailPage> {
                           'premium_platinum' &&
                       currentUserData['jobs_applied'].length > 9
                   ? showDialog(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Column(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                SvgPicture.asset(
-                                  'assets/icons/svg/crown-svgrepo-com.svg',
-                                  height: 50,
-                                  width: 50,
+                                Column(
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/icons/svg/crown-svgrepo-com.svg',
+                                      height: 50,
+                                      width: 50,
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text(
+                                      'Upgrade to continue',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(
+                                      height: 15,
+                                    ),
+                                    Text(
+                                        'With current plan you can apply 10 jobs / month.'),
+                                    SizedBox(
+                                      height: 15,
+                                    ),
+                                    GFButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SubscriptionScreen()));
+                                      },
+                                      text: "Upgrade",
+                                      textColor: Colors.black,
+                                      color: Colors.amberAccent,
+                                      size: GFSize.LARGE,
+                                      shape: GFButtonShape.pills,
+                                      fullWidthButton: true,
+                                    )
+                                  ],
                                 ),
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  'Upgrade to continue',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(
-                                  height: 15,
-                                ),
-                                Text(
-                                    'With current plan you can apply 10 jobs / month.'),
-                                SizedBox(
-                                  height: 15,
-                                ),
-                                GFButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                SubscriptionScreen()));
-                                  },
-                                  text: "Upgrade",
-                                  textColor: Colors.black,
-                                  color: Colors.amberAccent,
-                                  size: GFSize.LARGE,
-                                  shape: GFButtonShape.pills,
-                                  fullWidthButton: true,
-                                )
                               ],
                             ),
-                          ],
-                        ),
-                      ))
-                  : Navigator.pushNamed(context, "/bid_for_job",
-                      arguments: {"post_id": docId});
+                          ))
+                  : Navigator.pushNamed(context, "/bid_for_job", arguments: {
+                      "post_id": docId,
+                      'posted_user_id': postedUserID
+                    });
         }
       },
       text: isApplied ? 'View application' : 'Apply',

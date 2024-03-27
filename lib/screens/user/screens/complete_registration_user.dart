@@ -196,6 +196,13 @@ class _CompleteRegistrationByUserState
       Map<String, dynamic> userData = user.toJson();
       String uid = userTransferdData['uid'];
       await FirebaseFirestore.instance
+          .collection('app_config')
+          .doc('notifications')
+          .update({
+        'new_users': FieldValue.arrayUnion([uid])
+      });
+
+      await FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
           .set(userData)

@@ -23,8 +23,9 @@ class _BidForJobState extends State<BidForJob> {
   // bool
   bool isSubmitting = false;
 
-// logger
+  // logger
   var logger = Logger();
+
   //Date time
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
@@ -32,8 +33,9 @@ class _BidForJobState extends State<BidForJob> {
   // controllers
   final bidAmountController = TextEditingController();
   final descriptionController = TextEditingController();
+  int amount = 0;
 
-// String
+  // String
 
   // fn()
   // date picking
@@ -75,163 +77,183 @@ class _BidForJobState extends State<BidForJob> {
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     logger.d(argument);
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ShaderMask(
-                      shaderCallback: (Rect bounds) {
-                        return LinearGradient(
-                          colors: [Colors.blue, Colors.purple],
-                        ).createShader(bounds);
-                      },
-                      child: Text(
-                        'Job Proposal',
-                        style: TextStyle(
-                          fontSize: 35,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+      backgroundColor: Theme.of(context).colorScheme.background,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return LinearGradient(
+                        colors: [Colors.blue, Colors.purple],
+                      ).createShader(bounds);
+                    },
+                    child: Text(
+                      'Job Proposal',
+                      style: TextStyle(
+                        fontSize: 35,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
-                    Text(
-                      "Show your interest for the job post.",
+                  ),
+                  Text(
+                    "Show your interest for the job post.",
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    customInput(
+                      title: "Your bid amount (per day)",
+                      hintText: "What's your bid amount",
+                      prefixIcon: Icons.attach_money,
+                      controller: bidAmountController,
+                      textInputType: TextInputType.number,
+                      onChanged: (value) {
+                        setState(() {
+                          amount = int.tryParse(value) ?? 0;
+                        });
+                      },
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "Bid amount can't be empty!";
+                        }
+                        return null;
+                      },
+                    ),
+                    if (amount > 10000)
+                      Text(
+                        'Please enter an amount less than 10,000',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    SizedBox(height: 20),
+                    customInput(
+                      title: "Describe your proposal",
+                      hintText: "What makes you fit for this job?",
+                      prefixIcon: Icons.description,
+                      controller: descriptionController,
+                      textInputType: TextInputType.multiline,
+                      maxLines: null,
+                      validator: (value) {
+                        if (value!.isEmpty || value.length < 10) {
+                          return "Please provide a detailed proposal (min 100 characters)!";
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      customInput(
-                        title: "Your bid amount",
-                        hintText: "What's your bid amount",
-                        prefixIcon: Icons.attach_money,
-                        controller: bidAmountController,
-                        textInputType: TextInputType.number,
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return "Bid amount can't be empty!";
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 20),
-                      customInput(
-                        title: "Describe your proposal",
-                        hintText: "What makes you fit for this job?",
-                        prefixIcon: Icons.description,
-                        controller: descriptionController,
-                        textInputType: TextInputType.multiline,
-                        maxLines: null,
-                        validator: (value) {
-                          if (value!.isEmpty || value.length < 10) {
-                            return "Please provide a detailed proposal (min 100 characters)!";
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 50),
-                GFButton(
-                  onPressed: isSubmitting
-                      ? null
-                      : () async {
-                          setState(() {
-                            isSubmitting = true;
-                          });
+              ),
+              SizedBox(height: 50),
+              GFButton(
+                onPressed: isSubmitting
+                    ? null
+                    : () async {
+                        setState(() {
+                          isSubmitting = true;
+                        });
 
-                          ApplicationModel myApplication = ApplicationModel(
-                            applicantId: await VendorCommonFn()
-                                .getUserUIDFromSharedPreferences(),
-                            proposalDescription: descriptionController.text,
-                            applicationPostedTime: DateTime.now(),
-                            bidAmount: bidAmountController.text,
-                            jobId: argument['post_id'],
-                          );
+                        ApplicationModel myApplication = ApplicationModel(
+                          applicantId: await VendorCommonFn()
+                              .getUserUIDFromSharedPreferences(),
+                          proposalDescription: descriptionController.text,
+                          applicationPostedTime: DateTime.now(),
+                          bidAmount: bidAmountController.text,
+                          jobId: argument['post_id'],
+                          jobPostedBy: argument['posted_user_id'],
+                        );
 
-                          if (_formKey.currentState!.validate()) {
-                            try {
-                              // Convert ApplicationModel to JSON format
-                              Map<String, dynamic> applicationData =
-                                  myApplication.toJson();
+                        if (_formKey.currentState!.validate() &&
+                            amount < 10000) {
+                          try {
+                            // Convert ApplicationModel to JSON format
+                            Map<String, dynamic> applicationData =
+                                myApplication.toJson();
 
-                              // Add application document to _applicationsCollection
-                              DocumentReference applicationDocRef =
-                                  await _applicationsCollection
-                                      .add(applicationData);
+                            // Add application document to _applicationsCollection
+                            DocumentReference applicationDocRef =
+                                await _applicationsCollection
+                                    .add(applicationData);
 
-                              // Get the document ID of the newly added application
-                              String applicationId = applicationDocRef.id;
+                            // Get the document ID of the newly added application
+                            String applicationId = applicationDocRef.id;
 
-                              // Show snackbar to indicate successful addition
-                              UtilityFunctions().showSnackbar(
-                                "Application added successfully",
-                                Colors.green,
-                                context,
-                              );
+                            // Show snackbar to indicate successful addition
+                            UtilityFunctions().showSnackbar(
+                              "Application added successfully",
+                              Colors.green,
+                              context,
+                            );
 
-                              // Update the job_post document with the application ID
-                              await FirebaseFirestore.instance
-                                  .collection('job_posts')
-                                  .doc(argument[
-                                      'post_id']) // Use the appropriate document ID
-                                  .update({
-                                'applications':
-                                    FieldValue.arrayUnion([applicationId])
-                              });
-                              // Update the users document with the application ID
-                              await FirebaseFirestore.instance
-                                  .collection('users')
-                                  .doc(currentUser)
-                                  .update({
-                                'jobs_applied':
-                                    FieldValue.arrayUnion([applicationId])
-                              });
-                              await FirebaseFirestore.instance
-                                  .collection('users')
-                                  .doc(currentUser)
-                                  .update({
-                                'jobs_applied_list':
-                                    FieldValue.arrayUnion([argument['post_id']])
-                              });
-                            } catch (e) {
-                              UtilityFunctions().showSnackbar(
-                                "Error: $e",
-                                const Color.fromARGB(255, 175, 76, 76),
-                                context,
-                              );
-                            } finally {
-                              setState(() {
-                                isSubmitting = false;
-                              });
-                            }
-                          } else {
-                            logger.f('errr');
+                            // Update the job_post document with the application ID
+                            await FirebaseFirestore.instance
+                                .collection('job_posts')
+                                .doc(argument['post_id'])
+                                .update({
+                              'applications':
+                                  FieldValue.arrayUnion([applicationId])
+                            });
+                            // Update the users document with the application ID
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(currentUser)
+                                .update({
+                              'jobs_applied':
+                                  FieldValue.arrayUnion([applicationId])
+                            });
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(currentUser)
+                                .update({
+                              'jobs_applied_list':
+                                  FieldValue.arrayUnion([argument['post_id']])
+                            });
+                            Navigator.pushReplacementNamed(
+                                context, "/success_screen",
+                                arguments: {
+                                  "content":
+                                      "Congrats 🎉, \nYour proposal is submitted",
+                                  "navigation": "/job_detail_page"
+                                });
+                          } catch (e) {
+                            UtilityFunctions().showSnackbar(
+                              "Error: $e",
+                              const Color.fromARGB(255, 175, 76, 76),
+                              context,
+                            );
+                          } finally {
                             setState(() {
                               isSubmitting = false;
                             });
                           }
-                        },
-                  shape: GFButtonShape.pills,
-                  text: "Submit",
-                  size: GFSize.LARGE,
-                  fullWidthButton: true,
-                ),
-              ],
-            ),
+                        } else {
+                          logger.f('errr');
+                          setState(() {
+                            isSubmitting = false;
+                          });
+                        }
+                      },
+                shape: GFButtonShape.pills,
+                text: "Submit",
+                size: GFSize.LARGE,
+                fullWidthButton: true,
+              ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   Widget customInput({
@@ -242,6 +264,7 @@ class _BidForJobState extends State<BidForJob> {
     required TextInputType textInputType,
     int? maxLines,
     String? Function(String?)? validator,
+    ValueChanged<String>? onChanged,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,7 +290,8 @@ class _BidForJobState extends State<BidForJob> {
               prefixIcon: Icon(prefixIcon, color: Colors.white),
               border: InputBorder.none,
             ),
-            validator: validator,
+            onChanged: onChanged,
+            validator: validator != null ? (value) => validator(value!) : null,
           ),
         ),
         SizedBox(height: 10),

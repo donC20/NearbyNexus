@@ -4,6 +4,7 @@ import 'package:NearbyNexus/components/global_bottom_navigation.dart';
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/config/themes/theme.dart';
 import 'package:NearbyNexus/functions/api_functions.dart';
+import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
@@ -97,14 +98,14 @@ void main() async {
       name: 'Chats');
   print('\nNotification Channel Result: $result');
   // FirebaseMessaging.onBackgroundMessage(
-  //     allNotify.firebaseMessagingBackgroundHandler); 
+  //     allNotify.firebaseMessagingBackgroundHandler);
   // allNotify.requestMonitor();
   // final firebaseNotifications = FirebaseNotifications(); // Create an instance
   // await firebaseNotifications.initNotifications();
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   Stripe.publishableKey =
       "pk_test_51NpN8rSJaMBnAdU7brX75geJWwHJ7OQnD9Aq9fZFaZFehX8ERy1w1yskGN1O0EOACM2am8XUjsAOkIr26U35YDSe00DbSFVmLl";
-      await Stripe.instance.applySettings();
+  await Stripe.instance.applySettings();
   final userProvider = UserProvider(); // Create an instance of UserProvider
   userProvider.setUid(); // Retrieve and set the uid
 
@@ -116,7 +117,7 @@ void main() async {
   );
   // DependencyInjection.init();
 }
-     
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatefulWidget {

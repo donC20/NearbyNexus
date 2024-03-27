@@ -1,5 +1,6 @@
 class ApplicationModel {
   final String applicantId;
+  final String jobPostedBy;
   final String jobId;
   final String proposalDescription;
   final DateTime applicationPostedTime;
@@ -8,6 +9,7 @@ class ApplicationModel {
 
   ApplicationModel({
     required this.applicantId,
+    required this.jobPostedBy,
     required this.jobId,
     required this.proposalDescription,
     required this.applicationPostedTime,
@@ -18,6 +20,7 @@ class ApplicationModel {
   toJson() {
     return {
       "applicant_id": applicantId,
+      "jobPostedBy": jobPostedBy,
       "jobId": jobId,
       "proposal_description": proposalDescription,
       "applicationPostedTime": applicationPostedTime,

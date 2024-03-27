@@ -177,8 +177,18 @@ class _CreateJobPostState extends State<CreateJobPost> {
     );
 
     // firebase actions
-    await _jobPostCollection.add(jobPostData.toJson()).then((_) {
-      // Data added successfully, set isFormSubmitting to false
+    await _jobPostCollection.add(jobPostData.toJson()).then((value) async {
+      // Get the document ID of the newly added document
+      String newDocumentId = value.id;
+
+      // Update app_config document with the new document ID
+      await FirebaseFirestore.instance
+          .collection('app_config')
+          .doc('notifications')
+          .update({
+        'new_jobs': FieldValue.arrayUnion([newDocumentId])
+      });
+
       setState(() {
         isFormSubmitting = false;
         Navigator.pushReplacementNamed(context, "/success_screen", arguments: {
@@ -232,7 +242,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
                       textInputType: TextInputType.name),
                   // Budget input field
                   customInput(
-                      title: "Budget (in months)",
+                      title: "Budget (per day)",
                       hintText: "What's your job budget?",
                       prefixIcon: Icons.currency_rupee,
                       controller: budgetController,

@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class JobPostModel {
   String? jobTitle;
   String? jobDescription;
@@ -13,6 +12,7 @@ class JobPostModel {
   List<dynamic>? skills;
   dynamic preferredLocation;
   bool isWithdrawn = false;
+  Map<String, dynamic>? status = {};
 
   JobPostModel(
       {required this.jobTitle,
@@ -25,6 +25,7 @@ class JobPostModel {
       this.applications,
       required this.skills,
       required this.preferredLocation,
+      this.status,
       isWithdrawn = false});
 
   Map<String, dynamic> toJson() {
@@ -40,6 +41,7 @@ class JobPostModel {
       'skills': skills,
       'preferredLocation': preferredLocation,
       'isWithdrawn': isWithdrawn,
+      'status': {'isActive': true, 'reason': ''}
     };
   }
 }

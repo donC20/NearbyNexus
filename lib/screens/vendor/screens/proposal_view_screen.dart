@@ -22,6 +22,7 @@ class ProposalViewScreen extends StatefulWidget {
 class _ProposalViewScreenState extends State<ProposalViewScreen> {
   // logger
   var logger = Logger();
+  bool isActionInvoked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +112,24 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                                 : SizedBox(),
                           ],
                         ),
+                        trailing: GFButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => ChatScreen(
+                                          userId: argument['proposal']
+                                              ['applicant_id'],
+                                        )));
+                          },
+                          shape: GFButtonShape.pills,
+                          size: GFSize.MEDIUM,
+                          icon: Icon(
+                            Icons.message_rounded,
+                            color: Colors.white,
+                          ),
+                          text: 'Chat',
+                        ),
                         subtitle: Row(
                           children: [
                             Row(
@@ -128,27 +147,27 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Row(
-                              children: [
-                                Icon(
-                                  CupertinoIcons.money_dollar_circle,
-                                  color: Color.fromARGB(255, 7, 160, 48),
-                                  size: 18.0,
-                                ),
-                                SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  UtilityFunctions().shortScaleNumbers(20),
-                                  style: TextStyle(
-                                    fontSize: 12.0,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            // SizedBox(
+                            //   width: 10,
+                            // ),
+                            // Row(
+                            //   children: [
+                            //     Icon(
+                            //       CupertinoIcons.money_dollar_circle,
+                            //       color: Color.fromARGB(255, 7, 160, 48),
+                            //       size: 18.0,
+                            //     ),
+                            //     SizedBox(
+                            //       width: 5,
+                            //     ),
+                            //     Text(
+                            //       UtilityFunctions().shortScaleNumbers(20),
+                            //       style: TextStyle(
+                            //         fontSize: 12.0,
+                            //       ),
+                            //     ),
+                            //   ],
+                            // ),
                             SizedBox(
                               width: 10,
                             ),
@@ -293,52 +312,81 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         docData!["status"] == "pending"
-                            ? GFButton(
-                                onPressed: () async {
-                                  updateStatus(argument, context,
-                                      "Successfully accepted", "accept");
-                                },
-                                shape: GFButtonShape.pills,
-                                size: GFSize.MEDIUM,
-                                color: Colors.green,
-                                icon: Icon(
-                                  Icons.handshake,
-                                  color: Colors.white,
+                            ? SizedBox(
+                                width: MediaQuery.sizeOf(context).width - 50,
+                                height: 50,
+                                child: GFButton(
+                                  onPressed: () async {
+                                    updateStatus(argument, context,
+                                        "Successfully accepted", "accepted");
+                                  },
+                                  shape: GFButtonShape.pills,
+                                  size: GFSize.LARGE,
+                                  fullWidthButton: true,
+                                  color: Colors.green,
+                                  icon: Icon(
+                                    Icons.handshake,
+                                    color: Colors.white,
+                                  ),
+                                  text: 'Accept offer',
                                 ),
-                                text: 'Accept offer',
                               )
                             : docData["status"] == "accepted"
-                                ? GFButton(
-                                    onPressed: () async {
-                                      updateStatus(argument, context,
-                                          "Successfully revoked", "revoked");
-                                    },
-                                    shape: GFButtonShape.pills,
-                                    size: GFSize.MEDIUM,
-                                    color: Colors.red,
-                                    icon: Icon(
-                                      Icons.handshake,
-                                      color: Colors.white,
+                                ? SizedBox(
+                                    width:
+                                        MediaQuery.sizeOf(context).width - 50,
+                                    height: 50,
+                                    child: GFButton(
+                                      onPressed: () async {
+                                        updateStatus(argument, context,
+                                            "Successfully revoked", "revoked");
+                                      },
+                                      shape: GFButtonShape.pills,
+                                      size: GFSize.LARGE,
+                                      fullWidthButton: true,
+                                      color: Colors.red,
+                                      icon: Icon(
+                                        Icons.handshake,
+                                        color: Colors.white,
+                                      ),
+                                      text: 'Revoke offer',
                                     ),
-                                    text: 'Revoke offer',
                                   )
                                 : docData["status"] == "revoked"
-                                    ? GFButton(
-                                        onPressed: () async {
-                                          updateStatus(
-                                              argument,
-                                              context,
-                                              "Successfully revoked",
-                                              "accepted");
-                                        },
-                                        shape: GFButtonShape.pills,
-                                        size: GFSize.MEDIUM,
-                                        color: Colors.green,
-                                        icon: Icon(
-                                          Icons.handshake,
-                                          color: Colors.white,
+                                    ? SizedBox(
+                                        width:
+                                            MediaQuery.sizeOf(context).width -
+                                                50,
+                                        height: 50,
+                                        child: GFButton(
+                                          onPressed: () async {
+                                            updateStatus(
+                                                argument,
+                                                context,
+                                                "Reconsidered application",
+                                                "accepted");
+                                          },
+                                          shape: GFButtonShape.pills,
+                                          size: GFSize.LARGE,
+                                          fullWidthButton: true,
+                                          color: Colors.blue,
+                                          icon: Icon(
+                                            Icons.handshake,
+                                            color: Colors.white,
+                                          ),
+                                          text: 'Reconsider',
+                                          child: isActionInvoked
+                                              ? CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                )
+                                              : Text(
+                                                  'Reconsider',
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
                                         ),
-                                        text: 'Reconsider',
                                       )
                                     : SizedBox(),
                         // GFButton(
@@ -358,24 +406,24 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
                         //   ),
                         //   text: 'Not interested',
                         // ),
-                        GFButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => ChatScreen(
-                                          userId: argument['proposal']
-                                              ['applicant_id'],
-                                        )));
-                          },
-                          shape: GFButtonShape.pills,
-                          size: GFSize.MEDIUM,
-                          icon: Icon(
-                            Icons.message_rounded,
-                            color: Colors.white,
-                          ),
-                          text: 'Chat',
-                        ),
+                        // GFButton(
+                        //   onPressed: () {
+                        //     Navigator.push(
+                        //         context,
+                        //         MaterialPageRoute(
+                        //             builder: (_) => ChatScreen(
+                        //                   userId: argument['proposal']
+                        //                       ['applicant_id'],
+                        //                 )));
+                        //   },
+                        //   shape: GFButtonShape.pills,
+                        //   size: GFSize.MEDIUM,
+                        //   icon: Icon(
+                        //     Icons.message_rounded,
+                        //     color: Colors.white,
+                        //   ),
+                        //   text: 'Chat',
+                        // ),
                       ],
                     ),
                   );
@@ -394,89 +442,93 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
     return DateFormat('dd MMM yyyy')
         .format(dateTime); // Format the DateTime object
   }
-}
 
-dialogContent(BuildContext context, message) {
-  return Stack(
-    children: <Widget>[
-      Container(
-        padding: EdgeInsets.only(
-          top: 20,
-          bottom: 20,
-          left: 20,
-          right: 20,
-        ),
-        margin: EdgeInsets.only(top: 20),
-        decoration: new BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.circular(10.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 10.0,
-              offset: const Offset(0.0, 10.0),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // To make the card compact
-          children: <Widget>[
-            Text(
-              'Success!',
-              style: TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.w700,
+  dialogContent(BuildContext context, message) {
+    return Stack(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.only(
+            top: 20,
+            bottom: 20,
+            left: 20,
+            right: 20,
+          ),
+          margin: EdgeInsets.only(top: 20),
+          decoration: new BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(10.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10.0,
+                offset: const Offset(0.0, 10.0),
               ),
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16.0,
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // To make the card compact
+            children: <Widget>[
+              Text(
+                'Success!',
+                style: TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.green),
               ),
-            ),
-            SizedBox(height: 24.0),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // To close the dialog
-                },
-                child: Text(
-                  'OK',
-                  style: TextStyle(
-                    color: Colors.blue,
-                    fontSize: 16.0,
+              SizedBox(height: 16.0),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16.0, color: Colors.black),
+              ),
+              SizedBox(height: 24.0),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // To close the dialog
+                  },
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 16.0,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
-updateStatus(argument, BuildContext context, message, status) async {
-  await FirebaseFirestore.instance
-      .collection('applications')
-      .doc(argument['application_id'])
-      .update({"status": status}).then((value) => {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return Dialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  elevation: 0,
-                  backgroundColor: Colors.transparent,
-                  child: dialogContent(context, message),
-                );
-              },
-            )
-          });
+  updateStatus(argument, BuildContext context, message, status) async {
+    setState(() {
+      isActionInvoked = true;
+    });
+    await FirebaseFirestore.instance
+        .collection('applications')
+        .doc(argument['application_id'])
+        .update({"status": status}).then((value) => {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    elevation: 0,
+                    backgroundColor: Colors.transparent,
+                    child: dialogContent(context, message),
+                  );
+                },
+              ),
+              setState(() {
+                isActionInvoked = false;
+              })
+            });
+  }
 }
