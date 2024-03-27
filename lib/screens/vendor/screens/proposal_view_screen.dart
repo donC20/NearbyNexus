@@ -512,7 +512,12 @@ class _ProposalViewScreenState extends State<ProposalViewScreen> {
     await FirebaseFirestore.instance
         .collection('applications')
         .doc(argument['application_id'])
-        .update({"status": status}).then((value) => {
+        .update({
+      "status": status,
+      'acceptedOn': DateTime.now(),
+      'completion': '0',
+      'log': 'started'
+    }).then((value) => {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {

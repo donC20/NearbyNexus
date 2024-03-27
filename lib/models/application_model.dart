@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+
 class ApplicationModel {
   final String applicantId;
-  final String jobPostedBy;
+  final DocumentReference jobPostedBy;
   final String jobId;
   final String proposalDescription;
   final DateTime applicationPostedTime;
