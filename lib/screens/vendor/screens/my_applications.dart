@@ -22,6 +22,7 @@ class MyApplications extends StatefulWidget {
 
 class _MyApplicationsState extends State<MyApplications> {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey();
+  TextEditingController _controller = TextEditingController();
   String currentUser = '';
   var logger = Logger();
 
@@ -235,7 +236,7 @@ class _MyApplicationsState extends State<MyApplications> {
                                   constraints: BoxConstraints(
                                     minHeight: 250,
                                     maxHeight:
-                                        300, // Set a minimum height for the card
+                                        350, // Set a minimum height for the card
                                   ),
                                   child: Stack(
                                     children: [
@@ -271,7 +272,7 @@ class _MyApplicationsState extends State<MyApplications> {
                                               ),
                                               TextSpan(
                                                 text:
-                                                    " ${jobData['expiryDate'].toDate().isBefore(DateTime.now()) ? 'Expired' : applicationDataMap["status"] == 'accepted' ? UtilityFunctions.convertToSenenceCase(applicationDataMap["status"]) : UtilityFunctions.convertToSenenceCase(applicationDataMap["status"])}",
+                                                    " ${jobData['expiryDate'].toDate().isBefore(DateTime.now()) ? 'Expired' : UtilityFunctions.convertToSenenceCase(applicationDataMap["status"])}",
                                                 style: TextStyle(
                                                     fontSize: 14,
                                                     color: jobData['expiryDate']
@@ -295,6 +296,7 @@ class _MyApplicationsState extends State<MyApplications> {
                                           userImage: jobPostedByData['image'],
                                         ),
                                         trailing: PopupMenuButton<String>(
+                                          color: Colors.white,
                                           position: PopupMenuPosition.under,
                                           itemBuilder: (BuildContext context) =>
                                               <PopupMenuEntry<String>>[
@@ -318,6 +320,31 @@ class _MyApplicationsState extends State<MyApplications> {
                                                 ],
                                               ),
                                             ),
+                                            applicationDataMap["status"] ==
+                                                    'accepted'
+                                                ? PopupMenuItem<String>(
+                                                    value: 'update status',
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.update,
+                                                          color: Colors.blue,
+                                                          size: 18,
+                                                        ),
+                                                        SizedBox(width: 15),
+                                                        Text(
+                                                          'Update completion status',
+                                                          style: TextStyle(
+                                                            color: Colors.blue,
+                                                            fontSize: 14,
+                                                          ),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  )
+                                                : PopupMenuItem<String>(
+                                                    child: SizedBox(),
+                                                  ),
                                           ],
                                           onSelected: (String value) {
                                             // Handle the selected option
@@ -328,27 +355,101 @@ class _MyApplicationsState extends State<MyApplications> {
                                                     jobId,
                                                     context);
                                                 break;
+                                              case 'update status':
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (_) => AlertDialog(
+                                                    title: Text(
+                                                      'What percentage of your job is completed (in %)',
+                                                      style: TextStyle(
+                                                          fontSize: 14),
+                                                    ),
+                                                    content: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: <Widget>[
+                                                        TextField(
+                                                          controller:
+                                                              _controller,
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .number,
+                                                          decoration:
+                                                              InputDecoration(
+                                                            labelText:
+                                                                'Enter a value between 1% and 100%',
+                                                            border:
+                                                                OutlineInputBorder(),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    actions: <Widget>[
+                                                      ElevatedButton(
+                                                        onPressed: () async {
+                                                          String newValue =
+                                                              _controller.text;
+                                                          if (newValue
+                                                                  .isNotEmpty &&
+                                                              int.tryParse(
+                                                                      newValue) !=
+                                                                  null &&
+                                                              int.parse(
+                                                                      newValue) >=
+                                                                  1 &&
+                                                              int.parse(
+                                                                      newValue) <=
+                                                                  100) {
+                                                            await FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'applications')
+                                                                .doc(
+                                                                    jobsApplied[
+                                                                        index])
+                                                                .update({
+                                                              'completion':
+                                                                  newValue
+                                                            }).then((value) =>
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop());
+                                                            // Close the dialog
+                                                          } else {
+                                                            // Show error message if input is invalid
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              SnackBar(
+                                                                content: Text(
+                                                                  'Please enter a valid percentage between 1 and 100',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
+                                                        child: Text('Update'),
+                                                      ),
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop(); // Close the dialog
+                                                        },
+                                                        child: Text('Cancel'),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+
+                                                break;
                                             }
                                           },
                                         ),
                                         // Add a custom connecting line
                                       ),
-                                      // Positioned(
-                                      //     // left: 75,
-                                      //     right: 0,
-                                      //     bottom: 0,
-                                      //     child: Container(
-                                      //       padding: EdgeInsets.all(5),
-                                      //       decoration: BoxDecoration(
-                                      //           borderRadius:
-                                      //               BorderRadius.circular(5),
-                                      //           color: Colors.green),
-                                      //       child: Text(
-                                      //         applicationDataMap["status"],
-                                      //         style: TextStyle(
-                                      //             color: Colors.white),
-                                      //       ),
-                                      //     )),
                                       Positioned(
                                         left: 30,
                                         top: 56,

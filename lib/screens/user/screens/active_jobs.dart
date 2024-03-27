@@ -585,7 +585,8 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
                                                               .update({
                                                             'canceledOn':
                                                                 DateTime.now(),
-                                                            'log': 'canceled'
+                                                            'log': 'canceled',
+                                                            'status': 'canceled'
                                                           });
                                                         },
                                                         child: Text('OK'),
