@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, avoid_print, unused_element, sized_box_for_whitespace
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, avoid_print, unused_element, sized_box_for_whitespace, must_be_immutable
 
 import 'dart:convert';
 
@@ -15,13 +15,13 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateJobPost extends StatefulWidget {
-  const CreateJobPost({super.key});
+  String openedFor;
+  CreateJobPost({super.key, this.openedFor = 'create'});
 
   @override
   State<CreateJobPost> createState() => _CreateJobPostState();
@@ -32,7 +32,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
   late final FirebaseFirestore _firestore;
   late final CollectionReference<Map<String, dynamic>> _jobPostCollection;
   late final CollectionReference<Map<String, dynamic>> _usersCollection;
-
+  TextEditingController searchController = TextEditingController();
   // init
   @override
   void initState() {
@@ -74,7 +74,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
   List<dynamic> selectedSkillList = [];
   dynamic prefferedLocations;
   List<Map<String, dynamic>> resultList = [];
-
+  Map<String, dynamic> updateData = {};
   //Date time
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
@@ -143,16 +143,9 @@ class _CreateJobPostState extends State<CreateJobPost> {
     });
   }
 
-  void broadcastPost(
-    jobTitle,
-    jobDescription,
-    expiryDate,
-    expiryTime,
-    budget,
-    jobPostedBy,
-    skills,
-    preferredLocation,
-  ) async {
+  void broadcastPost(jobTitle, jobDescription, expiryDate, expiryTime, budget,
+      jobPostedBy, skills, preferredLocation,
+      {jobId = ''}) async {
     setState(() {
       isFormSubmitting = true;
     });
@@ -177,32 +170,64 @@ class _CreateJobPostState extends State<CreateJobPost> {
     );
 
     // firebase actions
-    await _jobPostCollection.add(jobPostData.toJson()).then((value) async {
-      // Get the document ID of the newly added document
-      String newDocumentId = value.id;
 
-      // Update app_config document with the new document ID
-      await FirebaseFirestore.instance
-          .collection('app_config')
-          .doc('notifications')
-          .update({
-        'new_jobs': FieldValue.arrayUnion([newDocumentId])
-      });
+    if (widget.openedFor == 'update') {
+      // Assuming you have the document ID to update stored in some variable, let's call it jobIdToUpdate
+      String jobIdToUpdate =
+          jobId; // Replace 'your_document_id' with the actual document ID
 
-      setState(() {
-        isFormSubmitting = false;
-        Navigator.pushReplacementNamed(context, "/success_screen", arguments: {
-          "content": "Congrats 🎉, \nYour post is published.",
-          "navigation": "/view_my_job_post"
+      // Create a reference to the document to update
+      DocumentReference docRef =
+          FirebaseFirestore.instance.collection('job_posts').doc(jobIdToUpdate);
+      // Convert job post data to JSON
+      Map<String, dynamic> updatedData = jobPostData.toJson();
+
+      // Update the document in Firestore
+      await docRef.update(updatedData).then((value) async {
+        setState(() {
+          isFormSubmitting = false;
+          Navigator.pushReplacementNamed(context, "/success_screen",
+              arguments: {
+                "content": "Congrats 🎉, \nYour post is updated.",
+                "navigation": "/view_my_job_post"
+              });
+        });
+      }).catchError((error) {
+        // Handle the error if needed
+        print("Error updating data in Firebase: $error");
+        setState(() {
+          isFormSubmitting = false;
         });
       });
-    }).catchError((error) {
-      // Handle the error if needed
-      print("Error adding data to Firebase: $error");
-      setState(() {
-        isFormSubmitting = false;
+    } else {
+      await _jobPostCollection.add(jobPostData.toJson()).then((value) async {
+        // Get the document ID of the newly added document
+        String newDocumentId = value.id;
+
+        // Update app_config document with the new document ID
+        await FirebaseFirestore.instance
+            .collection('app_config')
+            .doc('notifications')
+            .update({
+          'new_jobs': FieldValue.arrayUnion([newDocumentId])
+        });
+
+        setState(() {
+          isFormSubmitting = false;
+          Navigator.pushReplacementNamed(context, "/success_screen",
+              arguments: {
+                "content": "Congrats 🎉, \nYour post is published.",
+                "navigation": "/view_my_job_post"
+              });
+        });
+      }).catchError((error) {
+        // Handle the error if needed
+        print("Error adding data to Firebase: $error");
+        setState(() {
+          isFormSubmitting = false;
+        });
       });
-    });
+    }
   }
 
   // Define a callback function to update the state
@@ -220,7 +245,18 @@ class _CreateJobPostState extends State<CreateJobPost> {
   @override
   Widget build(BuildContext context) {
     final commonProvider = Provider.of<CommonProvider>(context);
-    logger.f("This is the location $prefferedLocations");
+    // logger.f("This is the location $prefferedLocations");
+    if (widget.openedFor == 'update') {
+      setState(() {
+        updateData =
+            ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+        // logger.e(updateData);
+        titleController.text = updateData['jobData']['jobTitle'];
+        budgetController.text = updateData['jobData']['budget'].toString();
+        selectedSkillList = updateData['jobData']['skills'];
+        selectedDate = updateData['jobData']['expiryDate'].toDate();
+      });
+    }
 
     return Scaffold(
       backgroundColor: Color(0xFF0F1014),
@@ -248,6 +284,42 @@ class _CreateJobPostState extends State<CreateJobPost> {
                       controller: budgetController,
                       textInputType: TextInputType.number),
                   // Skills input field
+                  // SizedBox(
+                  //   height: 100,
+                  //   child: Column(
+                  //     crossAxisAlignment: CrossAxisAlignment.stretch,
+                  //     children: [
+                  //       Padding(
+                  //         padding: EdgeInsets.all(8.0),
+                  //         child: TextField(
+                  //           controller: searchController,
+                  //           onChanged: (value) async {
+                  //             list = await ApiFunctions.fetchSkillsList(value);
+                  //             logger.f(list);
+                  //           },
+                  //           decoration: InputDecoration(
+                  //             hintText: 'Search for skills...',
+                  //             hintStyle: TextStyle(color: Colors.white),
+                  //             border: OutlineInputBorder(),
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       Expanded(
+                  //         child: Card(
+                  //           margin: EdgeInsets.all(8.0),
+                  //           child: ListView.builder(
+                  //             itemCount: list.length,
+                  //             itemBuilder: (context, index) {
+                  //               return ListTile(
+                  //                 title: Text(list[index]),
+                  //               );
+                  //             },
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -261,12 +333,19 @@ class _CreateJobPostState extends State<CreateJobPost> {
                       GFSearchBar(
                         padding: EdgeInsets.all(0),
                         searchList: list,
-                        searchQueryBuilder: (query, list) {
-                          return list
-                              .where((item) => item
-                                  .toLowerCase()
-                                  .contains(query.toLowerCase()))
-                              .toList();
+                        searchQueryBuilder: (query, list) async {
+                          try {
+                            final skills =
+                                await ApiFunctions.fetchSkillsList(query);
+                            return skills
+                                .where((item) => item
+                                    .toLowerCase()
+                                    .contains(query.toLowerCase()))
+                                .toList();
+                          } catch (error) {
+                            print('Error fetching skills: $error');
+                            return []; // Return an empty list if there's an error
+                          }
                         },
                         overlaySearchListItemBuilder: (item) {
                           return ListTile(
@@ -311,8 +390,46 @@ class _CreateJobPostState extends State<CreateJobPost> {
                       SizedBox(
                         height: 5,
                       ),
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        width: MediaQuery.of(context).size.width - 10,
+                        child: Wrap(
+                          spacing: 8.0, // Spacing between chips
+                          runSpacing: 4.0, // Spacing between lines of chips
+                          children: selectedSkillList.map((e) {
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedSkillList.remove(e);
+                                });
+                              },
+                              child: Chip(
+                                label: Text(
+                                  e,
+                                  style: TextStyle(
+                                      color: Colors.white), // Text color
+                                ),
+                                padding: EdgeInsets.all(2),
+                                deleteIcon: Icon(
+                                  Icons.remove_circle,
+                                  color: Colors.red,
+                                ),
+                                onDeleted: () {
+                                  setState(() {
+                                    selectedSkillList.remove(e);
+                                  });
+                                },
+                                backgroundColor: const Color.fromARGB(255, 59,
+                                    59, 59), // Background color of the chip
+                                shape: StadiumBorder(), // Stadium-shaped border
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ],
                   ),
+
                   // Preffered location
                   Column(
                     children: [
@@ -519,10 +636,15 @@ class _CreateJobPostState extends State<CreateJobPost> {
                   Padding(
                     padding: const EdgeInsets.only(
                         left: 10.0, right: 10.0, bottom: 5.0, top: 10),
-                    child: commonProvider.isDescriptionAdded
+                    child: widget.openedFor == 'update'
                         ? GFButton(
-                            onPressed: () {
+                            onPressed: () async {
                               // Navigator.pushNamed(context, "/quill_page");
+                              await UtilityFunctions.updateSharedPreference(
+                                  'descriptionController',
+                                  updateData['jobData']['jobDescription']);
+                              logger.e(
+                                  'html value is ${updateData['jobData']['jobDescription']}');
                               showModalBottomSheet(
                                 context: context,
                                 enableDrag: false,
@@ -546,32 +668,59 @@ class _CreateJobPostState extends State<CreateJobPost> {
                             size: GFSize.LARGE,
                             color: Colors.green,
                           )
-                        : GFButton(
-                            onPressed: () {
-                              // Navigator.pushNamed(context, "/quill_page");
-                              showModalBottomSheet(
-                                context: context,
-                                enableDrag: false,
-                                useSafeArea: true,
-                                isDismissible: false,
-                                isScrollControlled: true,
-                                builder: (BuildContext context) {
-                                  return JobDescriptionEditor(
-                                    isOpenforEdit: false,
+                        : commonProvider.isDescriptionAdded
+                            ? GFButton(
+                                onPressed: () {
+                                  // Navigator.pushNamed(context, "/quill_page");
+                                  showModalBottomSheet(
+                                    context: context,
+                                    enableDrag: false,
+                                    useSafeArea: true,
+                                    isDismissible: false,
+                                    isScrollControlled: true,
+                                    builder: (BuildContext context) {
+                                      return JobDescriptionEditor(
+                                        isOpenforEdit: true,
+                                      );
+                                    },
                                   );
                                 },
-                              );
-                            },
-                            icon: Icon(
-                              Icons.add,
-                              color: Colors.white,
-                            ),
-                            text: "Add description",
-                            shape: GFButtonShape.pills,
-                            fullWidthButton: true,
-                            size: GFSize.LARGE,
-                            color: Color(0xFF1E1E1E),
-                          ),
+                                icon: Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                ),
+                                text: "Edit Description",
+                                shape: GFButtonShape.pills,
+                                fullWidthButton: true,
+                                size: GFSize.LARGE,
+                                color: Colors.green,
+                              )
+                            : GFButton(
+                                onPressed: () {
+                                  // Navigator.pushNamed(context, "/quill_page");
+                                  showModalBottomSheet(
+                                    context: context,
+                                    enableDrag: false,
+                                    useSafeArea: true,
+                                    isDismissible: false,
+                                    isScrollControlled: true,
+                                    builder: (BuildContext context) {
+                                      return JobDescriptionEditor(
+                                        isOpenforEdit: false,
+                                      );
+                                    },
+                                  );
+                                },
+                                icon: Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                ),
+                                text: "Add description",
+                                shape: GFButtonShape.pills,
+                                fullWidthButton: true,
+                                size: GFSize.LARGE,
+                                color: Color(0xFF1E1E1E),
+                              ),
                   ),
 
                   Container(
@@ -596,7 +745,7 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                       prefferedLocations == "") {
                                     SnackBar snackBar = UtilityFunctions()
                                         .snackBarOpener(
-                                            "Missing Fields",
+                                            "Missing Fields - skill list",
                                             "Some of the fields are empty!",
                                             ContentType.failure,
                                             Colors.red,
@@ -609,7 +758,21 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                           await UtilityFunctions()
                                               .fetchFromSharedPreference(
                                                   "descriptionController");
-                                      broadcastPost(
+
+                                      if (widget.openedFor == 'update') {
+                                        broadcastPost(
+                                            titleController.text,
+                                            description,
+                                            selectedDate,
+                                            selectedTime,
+                                            budgetController.text,
+                                            _usersCollection.doc(uid),
+                                            selectedSkillList,
+                                            prefferedLocations,
+                                            jobId: updateData['jobData']
+                                                ['documentId']);
+                                      } else {
+                                        broadcastPost(
                                           titleController.text,
                                           description,
                                           selectedDate,
@@ -617,7 +780,9 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                           budgetController.text,
                                           _usersCollection.doc(uid),
                                           selectedSkillList,
-                                          prefferedLocations);
+                                          prefferedLocations,
+                                        );
+                                      }
                                       // remove the data after successfull insertion
                                       UtilityFunctions()
                                           .deleteFromSharedPreferences(
@@ -672,13 +837,19 @@ class _CreateJobPostState extends State<CreateJobPost> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Icon(
-                                              Icons.emergency_share_rounded,
+                                              widget.openedFor == 'update'
+                                                  ? Icons.edit
+                                                  : Icons
+                                                      .emergency_share_rounded,
                                               color: Colors.white,
                                             ),
                                             SizedBox(
                                               width: 5,
                                             ),
-                                            Text('Broadcast',
+                                            Text(
+                                                widget.openedFor == 'update'
+                                                    ? 'Update'
+                                                    : 'Broadcast',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontWeight:

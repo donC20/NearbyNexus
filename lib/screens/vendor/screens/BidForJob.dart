@@ -128,6 +128,9 @@ class _BidForJobState extends State<BidForJob> {
                         if (value!.isEmpty) {
                           return "Bid amount can't be empty!";
                         }
+                        if (value.contains('.')) {
+                          return "Please enter a valid amount without decimals";
+                        }
                         return null;
                       },
                     ),

@@ -49,6 +49,7 @@ class _JobDescriptionEditorState extends State<JobDescriptionEditor> {
     });
     String? html = await UtilityFunctions()
         .fetchFromSharedPreference("descriptionController");
+    logger.e('html value is $html');
     if (html != null) {
       List<Map<String, dynamic>> delta = Document.fromHtml(html)
           .toJson()

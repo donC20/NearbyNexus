@@ -2,6 +2,7 @@
 
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
+import 'package:NearbyNexus/screens/user/screens/create_job_post.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -168,14 +169,16 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                   itemBuilder: (context, index) {
                                     Map<String, dynamic> postData =
                                         jobPosts[index];
+
                                     List<dynamic> totalApplicants = [];
                                     int applicantsCount = 0;
 
-                                    if (postData['applicants'] != null &&
-                                        postData['applicants']
+                                    if (postData['applications'] != null &&
+                                        postData['applications']
                                             is List<dynamic> &&
-                                        postData['applicants'].isNotEmpty) {
-                                      totalApplicants = postData['applicants'];
+                                        postData['applications'].isNotEmpty) {
+                                      totalApplicants =
+                                          postData['applications'];
                                       applicantsCount = totalApplicants.length;
                                     } else {
                                       applicantsCount = 0;
@@ -223,7 +226,6 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                       .doc(currentUser))
                               .where("expiryDate",
                                   isLessThanOrEqualTo: Timestamp.now())
-                              .where("isWithdrawn", isEqualTo: true)
                               .snapshots(),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
@@ -278,10 +280,11 @@ class _MyJobPostsState extends State<MyJobPosts> {
                                   List<dynamic> totalApplicants = [];
                                   int applicantsCount = 0;
 
-                                  if (postData['applicants'] != null &&
-                                      postData['applicants'] is List<dynamic> &&
-                                      postData['applicants'].isNotEmpty) {
-                                    totalApplicants = postData['applicants'];
+                                  if (postData['applications'] != null &&
+                                      postData['applications']
+                                          is List<dynamic> &&
+                                      postData['applications'].isNotEmpty) {
+                                    totalApplicants = postData['applications'];
                                     applicantsCount = totalApplicants.length;
                                   } else {
                                     applicantsCount = 0;
@@ -498,9 +501,33 @@ class _MyJobPostsState extends State<MyJobPosts> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text(
-            postData['jobTitle'],
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                UtilityFunctions.convertToSenenceCase(postData['jobTitle']),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              GFButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreateJobPost(openedFor: 'update'),
+                      settings: RouteSettings(arguments: {'jobData': postData}),
+                    ),
+                  );
+                },
+                shape: GFButtonShape.pills,
+                color: Color.fromARGB(255, 148, 0, 239),
+                icon: Icon(
+                  Icons.edit_document,
+                  size: 18,
+                  color: Colors.white,
+                ),
+                text: 'Update',
+              )
+            ],
           ),
           gap_10,
           Divider(color: theme.colorScheme.outline),

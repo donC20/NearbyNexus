@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -258,6 +259,11 @@ class _UserProfileOneState extends State<UserProfileOne> {
                           await SharedPreferences.getInstance();
                       sharedpreferences.remove("userSessionData");
                       sharedpreferences.remove("uid");
+                      await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(ApiFunctions.user!.uid)
+                          .update({'online': false});
+                      // ignore: use_build_context_synchronously
                       Navigator.pushNamedAndRemoveUntil(
                           context, "login_screen", (route) => false);
                       await _googleSignIn.signOut();

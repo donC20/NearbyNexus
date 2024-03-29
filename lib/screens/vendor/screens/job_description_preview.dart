@@ -503,23 +503,25 @@ class _JobDetailPageState extends State<JobDetailPage> {
               Text("Location")
             ],
           ),
-          GFButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => GmapView(
-                          userLocation: argument["job_data"]
-                              ["preferredLocation"])));
-            },
-            icon: Icon(CupertinoIcons.map),
-            text: "Open in map",
-            shape: GFButtonShape.pills,
-            color: Theme.of(context).colorScheme.onTertiary,
-            textStyle:
-                TextStyle(color: Theme.of(context).colorScheme.onSecondary),
-            type: GFButtonType.outline,
-          )
+          argument["job_data"]["preferredLocation"] != null
+              ? GFButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => GmapView(
+                                userLocation: argument["job_data"]
+                                    ["preferredLocation"])));
+                  },
+                  icon: Icon(CupertinoIcons.map),
+                  text: "Open in map",
+                  shape: GFButtonShape.pills,
+                  color: Theme.of(context).colorScheme.onTertiary,
+                  textStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary),
+                  type: GFButtonType.outline,
+                )
+              : Text('Remote / WFH')
         ],
       ),
       Column(

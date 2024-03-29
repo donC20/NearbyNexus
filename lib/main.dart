@@ -223,7 +223,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         //---------------------------- main--------------------------------
 
         // user
-        "/create_job_post": (context) => const CreateJobPost(),
+        "/create_job_post": (context) => CreateJobPost(),
         "/view_my_job_post": (context) => MyJobPosts(),
         "/user_inbox": (context) => const UserInbox(),
         // vendor

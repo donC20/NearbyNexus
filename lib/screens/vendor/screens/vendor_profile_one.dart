@@ -3,11 +3,13 @@
 import 'dart:convert';
 
 import 'package:NearbyNexus/components/bottom_g_nav.dart';
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
 import 'package:NearbyNexus/screens/common_screens/gmaps.dart';
 import 'package:NearbyNexus/screens/vendor/screens/subscriptionDetails.dart';
 import 'package:NearbyNexus/screens/vendor/screens/subscription_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -308,8 +310,13 @@ class _VendorProfileOneState extends State<VendorProfileOne> {
                           await SharedPreferences.getInstance();
                       sharedpreferences.remove("userSessionData");
                       sharedpreferences.remove("uid");
+                      await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(ApiFunctions.user!.uid)
+                          .update({'online': false});
                       Navigator.pushNamedAndRemoveUntil(
                           context, "login_screen", (route) => false);
+
                       await _googleSignIn.signOut();
                     },
                     child: ListTile(

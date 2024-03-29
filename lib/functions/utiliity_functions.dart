@@ -128,6 +128,14 @@ class UtilityFunctions {
     }
   }
 
+  static Future<void> updateSharedPreference(
+      String key, String newValue) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Update the value associated with the key descriptionController
+    prefs.setString(key, newValue);
+  }
+
 // fetch from shared preference
 
   Future<dynamic> fetchFromSharedPreference(String key) async {

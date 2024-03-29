@@ -101,6 +101,31 @@ class ApiFunctions {
     }
   }
 
+// Search skills  api
+  static Future<List<dynamic>> fetchSkillsList(String query) async {
+    var log = Logger();
+    final url = Uri.parse('https://api.apilayer.com/skills?q=$query');
+
+    // Define custom headers
+    Map<String, String> headers = {
+      'apikey': 'WWcLopBMNQ3ALjrD0MPv0SEA316SK3tA',
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        return data;
+      } else {
+        throw Exception('Failed to load skills');
+      }
+    } catch (error) {
+      throw Exception('Error fetching skills: $error');
+    }
+  }
+
   // get current location
   static Future<Map<String, double>> getCurrentLocation() async {
     try {
