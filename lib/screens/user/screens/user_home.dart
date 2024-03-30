@@ -429,7 +429,7 @@ Widget onLocationServices(yrCurrentLocation) {
 }
 
 Widget offLocationServices() {
-  return StreamBuilder(
+  return StreamBuilder<QuerySnapshot>(
     stream: FirebaseFirestore.instance
         .collection('users')
         .where('userType', isEqualTo: 'vendor')
@@ -437,7 +437,7 @@ Widget offLocationServices() {
         .snapshots(),
     builder: (context, snapshot) {
       if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
+        return Center(child: CircularProgressIndicator());
       }
       if (snapshot.hasError) {
         return Text('Error: ${snapshot.error}');
@@ -446,11 +446,13 @@ Widget offLocationServices() {
 
       return ListView.separated(
         itemBuilder: (context, index) {
-          Map<String, dynamic> userData = userDocumentData[index].data();
+          Map<String, dynamic> userData =
+              userDocumentData[index].data() as Map<String, dynamic>;
           String docId = userDocumentData[index].id;
           return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: vendorDisplayTile(context, userData, docId));
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: vendorDisplayTile(context, userData, docId),
+          );
         },
         separatorBuilder: (context, index) {
           return Divider(
@@ -465,7 +467,19 @@ Widget offLocationServices() {
   );
 }
 
-Widget vendorDisplayTile(BuildContext context, userData, docId) {
+Widget vendorDisplayTile(
+    BuildContext context, Map<String, dynamic>? userData, String docId) {
+  if (userData == null) {
+    return Container(); // Return an empty container if userData is null
+  }
+
+  List<dynamic>? services = userData['services'];
+  double? actualRating = userData['actualRating'];
+  String? name = userData['name'];
+  String? image = userData['image'];
+  String? geoLocation = userData['geoLocation'];
+  String? about = userData['about'];
+
   return Container(
     padding: EdgeInsets.all(15),
     width: MediaQuery.of(context).size.width,
@@ -492,7 +506,9 @@ Widget vendorDisplayTile(BuildContext context, userData, docId) {
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: convertToSentenceCase(userData['services'][0]),
+                    text: services != null && services.isNotEmpty
+                        ? convertToSentenceCase(services[0])
+                        : '',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSecondary,
                       fontSize: 16,
@@ -500,8 +516,9 @@ Widget vendorDisplayTile(BuildContext context, userData, docId) {
                     ),
                   ),
                   TextSpan(
-                    text:
-                        ' ( + ${userData['services'].length.toString()} more )',
+                    text: services != null && services.length > 1
+                        ? ' ( + ${services.length - 1} more )'
+                        : '',
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 14,
@@ -536,7 +553,7 @@ Widget vendorDisplayTile(BuildContext context, userData, docId) {
                   ),
                   SizedBox(width: 5),
                   Text(
-                    userData['actualRating'].toString(),
+                    actualRating != null ? actualRating.toString() : '',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 12,
@@ -553,11 +570,11 @@ Widget vendorDisplayTile(BuildContext context, userData, docId) {
         ),
         ExpansionTile(
           onExpansionChanged: (value) {},
-          leading: UserLoadingAvatar(userImage: userData['image']),
+          leading: UserLoadingAvatar(userImage: image ?? ''),
           title: Row(
             children: [
               Text(
-                userData['name'],
+                name ?? '',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
@@ -567,7 +584,7 @@ Widget vendorDisplayTile(BuildContext context, userData, docId) {
             ],
           ),
           subtitle: Text(
-            userData['geoLocation'],
+            geoLocation ?? '',
             style: TextStyle(
               color: Theme.of(context).colorScheme.onTertiary,
               fontSize: 10,
@@ -607,35 +624,13 @@ Widget vendorDisplayTile(BuildContext context, userData, docId) {
           ),
           children: [
             Text(
-              userData['about'],
+              about ?? '',
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
               ),
             ),
-            // Padding(
-            //   padding: const EdgeInsets.only(left: 10.0),
-            //   child: Row(
-            //     children: [
-            //       Icon(
-            //         Icons.work_history,
-            //         color: Colors.blueGrey,
-            //       ),
-            //       SizedBox(
-            //         width: 5,
-            //       ),
-            //       Text(
-            //         '${userData['paymentLogs'].length.toString()} works done',
-            //         style: TextStyle(
-            //           color: const Color.fromARGB(122, 0, 0, 0),
-            //           fontSize: 12,
-            //           fontWeight: FontWeight.w300,
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // )
           ],
         ),
       ],

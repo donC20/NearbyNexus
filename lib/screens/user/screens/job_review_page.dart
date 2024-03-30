@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:NearbyNexus/components/functions_utils.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/models/payment_modal.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -130,6 +131,8 @@ class _JobReviewPageState extends State<JobReviewPage> {
 // successful payment then update database
         try {
           // _firestore.collection('app_config').doc('service_charges').get();
+          int newAmount = int.parse(amount);
+          double revenue = newAmount / 3;
           PaymentModal payModal = PaymentModal(
               amountPaid: amount,
               jobId: jobId,
@@ -137,7 +140,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
               payedTo: payedTo,
               paymentTime: DateTime.now(),
               payedFor: 'Direct service',
-              applicationRevenue: '89');
+              applicationRevenue: revenue.toString());
           setState(() {
             jobLogs.add("paid");
           });
@@ -204,13 +207,41 @@ class _JobReviewPageState extends State<JobReviewPage> {
             'status': 'finished',
             'dateRequested': DateTime.now()
           });
+
           // Navigator.popAndPushNamed(context, "rate_user_screen");
           Navigator.popAndPushNamed(context, "rate_user_screen",
               arguments: {"uid": payedTo.id, "jobId": jobId.id});
         } catch (e) {
           logger.e(e);
         }
+        _firestore
+            .collection('users')
+            .doc(payedTo.id)
+            .snapshots()
+            .listen((recepentEvent) {
+          if (recepentEvent.exists) {
+            var recepentData = recepentEvent
+                .data(); // Assuming recipient data is stored in the document
+            _firestore
+                .collection('users')
+                .doc(ApiFunctions.user!.uid)
+                .snapshots()
+                .listen((payee) {
+              if (payee.exists) {
+                var payeeData = payee
+                    .data(); // Assuming payee data is stored in the document
+                String amount =
+                    ''; // Assuming 'amount' is defined somewhere in your code
 
+                ApiFunctions.sendPushNotificationCustom(
+                    msg: '${payeeData!['name']} has payed you $amount',
+                    channelId: 'payment',
+                    recepentData: recepentData,
+                    sendToUserId: payedTo);
+              }
+            });
+          }
+        });
         showDialog(
             context: context,
             builder: (_) => const AlertDialog(
@@ -921,10 +952,8 @@ class _JobReviewPageState extends State<JobReviewPage> {
         CheckboxListTile(
           title: Text(
             "Yes, I confirm that the above job is reviewed & stands completed.",
-            style: TextStyle(fontSize: 14, color: Colors.white),
+            style: TextStyle(fontSize: 14),
           ),
-          checkColor: Colors.black,
-          activeColor: Colors.white,
           value: isChecked,
           onChanged: (newValue) {
             setState(() {
@@ -986,6 +1015,7 @@ class _JobReviewPageState extends State<JobReviewPage> {
                             Icon(
                               Icons.currency_rupee,
                               size: 18,
+                              color: Colors.white,
                             ),
                             Text(
                               "${documentData['wage']}", // ₹ is the Unicode character for the rupee symbol

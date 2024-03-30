@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
 import 'package:NearbyNexus/components/bottom_sheet_contents.dart';
-import 'package:NearbyNexus/config/sessions/user_session_init.dart';
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
 import 'package:NearbyNexus/screens/vendor/screens/subscription_screen.dart';
@@ -14,7 +13,6 @@ import 'package:getwidget/size/gf_size.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart';
 
 class SearchScreenServices extends StatefulWidget {
   const SearchScreenServices({super.key});

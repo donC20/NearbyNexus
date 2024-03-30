@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/screens/user/screens/chatScreen/user_inbox.dart';
 import 'package:NearbyNexus/screens/user/screens/user_dashboard_m.dart';
 import 'package:NearbyNexus/screens/user/screens/user_home.dart';

@@ -1,10 +1,7 @@
 // ignore_for_file: avoid_print, unused_element
 
-import 'package:NearbyNexus/components/global_bottom_navigation.dart';
 import 'package:NearbyNexus/config/sessions/user_session_init.dart';
-import 'package:NearbyNexus/config/themes/theme.dart';
 import 'package:NearbyNexus/functions/api_functions.dart';
-import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
 import 'package:NearbyNexus/screens/admin/dashboard.dart';
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
@@ -61,7 +58,6 @@ import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
-import 'config/themes/app_theme.dart';
 import 'screens/admin/screens/add_data.dart';
 import 'screens/vendor/screens/vendor_portfolio.dart';
 import 'screens/vendor/screens/registration_vendor_one.dart';

@@ -11,7 +11,6 @@ import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dar
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:getwidget/getwidget.dart';
 import 'package:logger/logger.dart';
 
 class BroadcastPage extends StatefulWidget {

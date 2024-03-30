@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 
-import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/screens/user/components/vendor_review_container.dart';
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

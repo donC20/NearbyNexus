@@ -332,8 +332,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             modernCircularProgressBar(
-                                summaryData['jobCompletedCount'] as double ??
-                                    1.0,
+                                summaryData['jobCompletedCount'] as double,
                                 "Jobs done",
                                 1000,
                                 false,

@@ -103,7 +103,6 @@ class ApiFunctions {
 
 // Search skills  api
   static Future<List<dynamic>> fetchSkillsList(String query) async {
-    var log = Logger();
     final url = Uri.parse('https://api.apilayer.com/skills?q=$query');
 
     // Define custom headers
@@ -161,6 +160,38 @@ class ApiFunctions {
         },
         "data": {
           "userId": "User ID: $sendToUser",
+          "msg": msg,
+        },
+      };
+
+      var res = await post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
+          headers: {
+            HttpHeaders.contentTypeHeader: 'application/json',
+            HttpHeaders.authorizationHeader:
+                'key=AAAAgTRiW7I:APA91bG-IvGm5BDzeHD0STBGHl_L75MTm5wnqv21AoHIStyKHKIWUL71B45ovT3bidjDJ4GuB9SgDDQjJ-gjoDpDXmiPuON7ADwMTK0KU3eVXqw0eKjOYcuBTl0IRlmOu78iXBVIXVIu'
+          },
+          body: jsonEncode(body));
+      logger.e('Response status: ${res.statusCode}');
+      logger.f('Response body: ${res.body}');
+    } catch (e) {
+      logger.i('\nsendPushNotificationE: $e');
+    }
+  }
+
+  // for sending push notification
+  static Future<void> sendPushNotificationCustom({required recepentData,required sendToUserId, required String msg,required String channelId}) async {
+    var logger = Logger();
+
+    try {
+      final body = {
+        "to": recepentData['pushToken'],
+        "notification": {
+          "title": recepentData['name'], //our name should be send
+          "body": msg,
+          "android_channel_id": channelId
+        },
+        "data": {
+          "userId": "User ID: $sendToUserId",
           "msg": msg,
         },
       };

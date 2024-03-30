@@ -26,10 +26,8 @@ class _UpdateUserProfileState extends State<UpdateUserProfile> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _formKeyName = GlobalKey<FormState>();
-  final GlobalKey<FormState> _formKeyPhone = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
   Timer? emailVerificationTimer;
 // timer
 

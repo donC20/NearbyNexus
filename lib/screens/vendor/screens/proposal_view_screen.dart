@@ -2,7 +2,6 @@
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
-import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/screens/user/screens/chatScreen/chat_screen.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

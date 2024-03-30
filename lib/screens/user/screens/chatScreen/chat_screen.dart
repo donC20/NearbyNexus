@@ -38,7 +38,6 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _showEmoji = false, _isUploading = false, _isSending = false;
   Future<void> deleteCollection(String path) async {
     var collectionRef = FirebaseFirestore.instance.collection(path);
-    var batchSize = 10;
 
     await collectionRef.get().then((querySnapshot) async {
       if (querySnapshot.size == 0) return;

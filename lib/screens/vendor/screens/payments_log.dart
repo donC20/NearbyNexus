@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 
-import 'package:NearbyNexus/components/bottom_g_nav.dart';
 import 'package:NearbyNexus/components/pdf_api.dart';
 import 'package:NearbyNexus/components/pdf_drawer.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';

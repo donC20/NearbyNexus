@@ -3,7 +3,6 @@
 import 'package:NearbyNexus/components/my_date_util.dart';
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
-import 'package:NearbyNexus/misc/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -197,7 +196,7 @@ class _MessageCardState extends State<MessageCard> {
                       onTap: () async {
                         if (widget.message.msg != null) {
                           await Clipboard.setData(
-                                  ClipboardData(text: widget.message.msg!))
+                                  ClipboardData(text: widget.message.msg))
                               .then((value) {
                             //for hiding bottom sheet
                             Navigator.pop(context);

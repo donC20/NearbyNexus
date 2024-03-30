@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, use_build_context_synchronously, unused_element
 
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
-import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/models/application_model.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

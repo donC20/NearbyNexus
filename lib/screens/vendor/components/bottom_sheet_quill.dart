@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_private_types_in_public_api, use_build_context_synchronously, unused_element, avoid_print
 
-import 'dart:convert';
 
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/providers/common_provider.dart';
@@ -32,7 +31,6 @@ class _JobDescriptionEditorState extends State<JobDescriptionEditor> {
 
   stt.SpeechToText? _speech;
   bool _isListening = false;
-  String _text = 'Press the button and start speaking';
 
   @override
   void initState() {

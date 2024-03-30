@@ -1,13 +1,12 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_private_types_in_public_api
 
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/screens/vendor/screens/subscription_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SubscriptionDetails extends StatefulWidget {
-  const SubscriptionDetails({Key? key}) : super(key: key);
+  const SubscriptionDetails({super.key});
 
   @override
   _SubscriptionDetailsState createState() => _SubscriptionDetailsState();

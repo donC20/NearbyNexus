@@ -15,6 +15,7 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
+// ignore: must_be_immutable
 class AuthDoor extends StatefulWidget {
   final String emailText;
   final String newEmail;

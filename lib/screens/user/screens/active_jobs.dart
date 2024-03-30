@@ -3,7 +3,6 @@
 import 'dart:convert';
 
 import 'package:NearbyNexus/components/avatar_of_user.dart';
-import 'package:NearbyNexus/components/user_avatar_loader.dart';
 import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/models/payment_modal.dart';
@@ -16,7 +15,6 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:getwidget/components/button/gf_button.dart';
 import 'package:getwidget/shape/gf_button_shape.dart';
-import 'package:getwidget/size/gf_size.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -346,311 +344,137 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
           return Center(
             child: Text('Error: ${snapshot.error}'),
           );
+        } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Center(
+            child: Text('No jobs available'),
+          );
         } else {
-          // get application data
+          // Get application data
           List<DocumentSnapshot<Map<String, dynamic>>> documents =
               snapshot.data!.docs;
           return ListView.separated(
             itemBuilder: (BuildContext context, int index) {
-              // single snapshot of application data
+              // Single snapshot of application data
               var currentDoc = documents[index];
+              var currentDocId = documents[index].id;
               return StreamBuilder<Map<String, dynamic>>(
-                  stream: VendorCommonFn().streamUserData(
-                      uidParam: FirebaseFirestore.instance
-                          .collection('users')
-                          .doc(documents[index]['applicant_id'])),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text('Error: ${snapshot.error}'),
-                      );
-                    } else {
-                      // /get applicant data
-                      //
-                      Map<String, dynamic> postedUser =
-                          snapshot.data as Map<String, dynamic>;
-                      //
-                      //
-                      return StreamBuilder<Map<String, dynamic>>(
-                          stream: VendorCommonFn().streamDocumentsData(
-                              colectionId: 'job_posts',
-                              uidParam: documents[index]['jobId']),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            } else if (snapshot.hasError) {
-                              return Center(
-                                child: Text('Error: ${snapshot.error}'),
-                              );
-                            } else {
-                              Map<String, dynamic> jobData =
-                                  snapshot.data as Map<String, dynamic>;
-                              logger.f(jobData);
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  width: MediaQuery.sizeOf(context).width,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color:
-                                            Color.fromARGB(43, 158, 158, 158)),
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSecondaryContainer,
-                                    boxShadow: Theme.of(context).brightness ==
-                                            Brightness.dark
-                                        ? [] // Empty list for no shadow in dark theme
-                                        : [
-                                            BoxShadow(
-                                              color:
-                                                  Color.fromARGB(38, 67, 65, 65)
-                                                      .withOpacity(0.5),
-                                              blurRadius: 20,
-                                              spreadRadius: 1,
-                                            ),
-                                          ],
+                stream: VendorCommonFn().streamUserData(
+                    uidParam: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(documents[index]['applicant_id'])),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else {
+                    // Get applicant data
+                    Map<String, dynamic> postedUser =
+                        snapshot.data as Map<String, dynamic>;
+                    return StreamBuilder<Map<String, dynamic>>(
+                      stream: VendorCommonFn().streamDocumentsData(
+                          colectionId: 'job_posts',
+                          uidParam: documents[index]['jobId']),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        } else {
+                          Map<String, dynamic> jobData =
+                              snapshot.data as Map<String, dynamic>;
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              width: MediaQuery.sizeOf(context).width,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: Color.fromARGB(43, 158, 158, 158)),
+                                borderRadius: BorderRadius.circular(10),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSecondaryContainer,
+                                boxShadow: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? []
+                                    : [
+                                        BoxShadow(
+                                          color: Color.fromARGB(38, 67, 65, 65)
+                                              .withOpacity(0.5),
+                                          blurRadius: 20,
+                                          spreadRadius: 1,
+                                        ),
+                                      ],
+                              ),
+                              child: Column(
+                                children: [
+                                  ListTile(
+                                    title: Text(
+                                      UtilityFunctions.convertToSenenceCase(
+                                        jobData['jobTitle'],
+                                      ),
+                                    ),
+                                    trailing: Text(
+                                        '${currentDoc['bid_amount']} / day'),
+                                    titleTextStyle: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSecondary),
                                   ),
-                                  child: Column(
-                                    children: [
-                                      ListTile(
-                                        title: Text(
-                                          UtilityFunctions.convertToSenenceCase(
-                                            jobData['jobTitle'],
-                                          ),
-                                        ),
-                                        trailing: Text(
-                                            '${currentDoc['bid_amount']} / day'),
-                                        titleTextStyle: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSecondary),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 8.0,
-                                            right: 8.0,
-                                            top: 0,
-                                            bottom: 10),
-                                        child: Divider(
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(15.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8.0),
+                                    child: Divider(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text('Applicant'),
+                                        Row(
                                           children: [
-                                            Text('Applicant'),
-                                            Row(
-                                              children: [
-                                                AvatarOfUser(
-                                                  imageLink:
-                                                      postedUser['image'],
-                                                  width: 25,
-                                                  height: 25,
-                                                ),
-                                                SizedBox(
-                                                  width: 5,
-                                                ),
-                                                Text(postedUser['name']),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(15.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text('Accepted on'),
-                                            Text(UtilityFunctions()
-                                                .convertTimestampToDateString(
-                                                    currentDoc['acceptedOn']))
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(15.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text('Completion'),
-                                            Stack(
-                                              alignment: Alignment.center,
-                                              children: [
-                                                SizedBox(
-                                                  width:
-                                                      50, // Adjust the size of the circular progress indicator as needed
-                                                  height:
-                                                      50, // Adjust the size of the circular progress indicator as needed
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                    value: double.tryParse(
-                                                            currentDoc[
-                                                                'completion'])! /
-                                                        100, // Value normalized to be between 0.0 and 1.0
-                                                    strokeWidth:
-                                                        4, // Adjust the stroke width as needed
-                                                    backgroundColor: Colors
-                                                            .grey[
-                                                        300], // Adjust the background color as needed
-                                                    valueColor:
-                                                        AlwaysStoppedAnimation<
-                                                            Color>(
-                                                      Colors
-                                                          .blue, // Adjust the progress color as needed
-                                                    ),
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '${currentDoc['completion']}%',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            GFButton(
-                                              onPressed: () async {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (_) => AlertDialog(
-                                                    content: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Column(
-                                                          children: [
-                                                            Icon(
-                                                              Icons
-                                                                  .dangerous_sharp,
-                                                              size: 30,
-                                                              color:
-                                                                  Colors.amber,
-                                                            ),
-                                                            Text("Warning"),
-                                                          ],
-                                                        ),
-                                                        SizedBox(height: 20),
-                                                        Text(
-                                                            "Are you sure you want to cancel? This action can't be undone."),
-                                                      ],
-                                                    ),
-                                                    actions: <Widget>[
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          // Add functionality for the "Cancel" button here
-                                                          Navigator.of(context)
-                                                              .pop(); // Close the dialog
-                                                        },
-                                                        child: Text('Cancel'),
-                                                      ),
-                                                      TextButton(
-                                                        onPressed: () async {
-                                                          await FirebaseFirestore
-                                                              .instance
-                                                              .collection(
-                                                                  'applications')
-                                                              .doc(documents[
-                                                                      index]
-                                                                  .id)
-                                                              .update({
-                                                            'canceledOn':
-                                                                DateTime.now(),
-                                                            'log': 'canceled',
-                                                            'status': 'canceled'
-                                                          });
-                                                        },
-                                                        child: Text('OK'),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
-                                              },
-                                              shape: GFButtonShape.pills,
-                                              color: Colors.red,
-                                              text: 'Cancel',
+                                            AvatarOfUser(
+                                              imageLink: postedUser['image'],
+                                              width: 25,
+                                              height: 25,
                                             ),
                                             SizedBox(
-                                              width: 15,
+                                              width: 5,
                                             ),
-                                            GFButton(
-                                              onPressed: () {
-                                                // var startDate =
-                                                //     currentDoc['acceptedOn']
-                                                //         .toDate();
-                                                // var endDate = DateTime.now();
-
-                                                // var differenceInDays = endDate
-                                                //     .difference(startDate)
-                                                //     .inDays;
-                                                // var amountTopay =
-                                                //     differenceInDays *
-                                                //         int.parse(currentDoc[
-                                                //             'bid_amount']);
-                                                makePayment(
-                                                    'vendor',
-                                                    currentDoc['bid_amount'],
-                                                    FirebaseFirestore.instance
-                                                        .collection('users')
-                                                        .doc(currentDoc[
-                                                            'jobId']),
-                                                    FirebaseFirestore.instance
-                                                        .collection('users')
-                                                        .doc(ApiFunctions
-                                                            .user!.uid),
-                                                    FirebaseFirestore.instance
-                                                        .collection('users')
-                                                        .doc(documents[index]
-                                                            ['applicant_id']),
-                                                    'Job posts');
-                                              },
-                                              shape: GFButtonShape.pills,
-                                              color: Colors.blue,
-                                              text: 'Pay user',
-                                            )
+                                            Text(postedUser['name']),
                                           ],
                                         ),
-                                      ),
-                                      SizedBox(
-                                        height: 15,
-                                      )
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              );
-                            }
-                          });
-                    }
-                  });
+                                  // Add more UI components here
+                                  // ....
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  }
+                },
+              );
             },
             itemCount: documents.length,
             separatorBuilder: (BuildContext context, int index) {
@@ -669,7 +493,8 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
       DocumentReference jobId,
       DocumentReference payedBy,
       DocumentReference payedTo,
-      payType) async {
+      payType,
+      currentDocId) async {
     try {
       setState(() {
         isPaymentClicked = true;
@@ -690,14 +515,20 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
           .then((value) {});
 
       ///now finally display payment sheeet
-      displayPaymentSheet(amount, jobId, payedBy, payedTo, payType);
+      displayPaymentSheet(
+          amount, jobId, payedBy, payedTo, payType, currentDocId);
     } catch (e, s) {
       print('exception:$e$s');
     }
   }
 
-  displayPaymentSheet(String amount, DocumentReference jobId,
-      DocumentReference payedBy, DocumentReference payedTo, payType) async {
+  displayPaymentSheet(
+      String amount,
+      DocumentReference jobId,
+      DocumentReference payedBy,
+      DocumentReference payedTo,
+      payType,
+      currentDocId) async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) {
 // successful payment then update database
@@ -745,10 +576,39 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
         } catch (e) {
           logger.e(e);
         }
+        _firestore
+            .collection('users')
+            .doc(payedTo.id)
+            .snapshots()
+            .listen((recepentEvent) {
+          if (recepentEvent.exists) {
+            var recepentData = recepentEvent
+                .data(); // Assuming recipient data is stored in the document
+            _firestore
+                .collection('users')
+                .doc(ApiFunctions.user!.uid)
+                .snapshots()
+                .listen((payee) {
+              if (payee.exists) {
+                var payeeData = payee
+                    .data(); // Assuming payee data is stored in the document
+                String amount =
+                    ''; // Assuming 'amount' is defined somewhere in your code
 
-        _firestore.collection('users').doc(payedBy.id).update({
-          'subscription': {'last_payment': DateTime.now(), 'type': payType}
+                ApiFunctions.sendPushNotificationCustom(
+                    msg: '${payeeData!['name']} has payed you $amount',
+                    channelId: 'payment',
+                    recepentData: recepentData,
+                    sendToUserId: payedTo);
+              }
+            });
+          }
         });
+
+        _firestore
+            .collection('applications')
+            .doc(currentDocId)
+            .update({'log': 'completed', 'status': 'completed'});
 
         showDialog(
             context: context,

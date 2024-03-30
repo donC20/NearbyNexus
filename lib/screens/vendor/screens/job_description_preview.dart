@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:NearbyNexus/components/my_date_util.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
-import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/functions/utiliity_functions.dart';
 import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/screens/vendor/functions/vendor_common_functions.dart';
