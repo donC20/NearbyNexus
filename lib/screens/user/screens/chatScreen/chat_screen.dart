@@ -55,6 +55,31 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  bool isUserLoading = true;
+  Map<String, dynamic> currentUserData = {};
+
+  @override
+  void initState() {
+    initializeUserData();
+    super.initState();
+  }
+
+  Future<void> initializeUserData() async {
+    VendorCommonFn()
+        .streamDocumentsData(
+      colectionId: 'users',
+      uidParam: ApiFunctions.user!.uid,
+    )
+        .listen((data) {
+      if (data.isNotEmpty) {
+        setState(() {
+          currentUserData = data;
+          isUserLoading = false;
+        });
+      }
+    });
+  }
+
   Future<bool> _onBackPressed() async {
     // back pressed button event
 
@@ -109,23 +134,6 @@ class _ChatScreenState extends State<ChatScreen> {
                         await deleteCollection(
                                 'chats/${ApiFunctions.getConversationID(widget.userId)}/messages')
                             .then((value) => Navigator.of(context).pop(true));
-//                         FirebaseFirestore.instance
-//                             .collection('chats')
-//                             .doc()
-//                             .delete();
-//                         DocumentReference documentReference = FirebaseFirestore
-//                             .instance
-//                             .collection('chats')
-//                             .doc(ApiFunctions.getConversationID(widget.userId));
-
-// // Call the delete method to remove the document
-//                         documentReference.delete().then((_) {
-//                           Navigator.of(context).pop(true);
-
-//                           print('Document successfully deleted');
-//                         }).catchError((error) {
-//                           print('Error deleting document: $error');
-//                         });
                       },
                       text: "Clear",
                       textColor: Colors.white,
@@ -143,10 +151,19 @@ class _ChatScreenState extends State<ChatScreen> {
         false;
   }
 
+  Future<bool> free() async {
+    // back pressed button event
+
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: _onBackPressed,
+      onWillPop: currentUserData['userType'] == 'vendor' &&
+              currentUserData['subscription']['type'] == 'free'
+          ? _onBackPressed
+          : free,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         appBar: AppBar(
@@ -154,88 +171,91 @@ class _ChatScreenState extends State<ChatScreen> {
           automaticallyImplyLeading: false,
           flexibleSpace: SafeArea(child: _appBar()),
         ),
-        body: Builder(
-          builder: (BuildContext context) {
-            mq = MediaQuery.of(context).size;
-            return Column(
-              children: [
-                Expanded(
-                  child: StreamBuilder(
-                    stream: ApiFunctions.getAllMessages(widget.userId),
-                    builder: (context, snapshot) {
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return SizedBox();
-                        case ConnectionState.none:
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        case ConnectionState.active:
-                        case ConnectionState.done:
-                          final data = snapshot.data?.docs;
-                          logger.e(data);
-                          _list = data
-                                  ?.map((e) => Message.fromJson(e.data()))
-                                  .toList() ??
-                              [];
-                          if (_list.isNotEmpty) {
-                            return ListView.builder(
-                              reverse: true,
-                              itemCount: _list.length,
-                              padding: EdgeInsets.only(top: 10),
-                              physics: const BouncingScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                return MessageCard(
-                                  message: _list[index],
-                                  isSent: _isSending,
+        body: isUserLoading
+            ? Center(child: CircularProgressIndicator())
+            : Builder(
+                builder: (BuildContext context) {
+                  mq = MediaQuery.of(context).size;
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: StreamBuilder(
+                          stream: ApiFunctions.getAllMessages(widget.userId),
+                          builder: (context, snapshot) {
+                            switch (snapshot.connectionState) {
+                              case ConnectionState.waiting:
+                                return SizedBox();
+                              case ConnectionState.none:
+                                return Center(
+                                  child: CircularProgressIndicator(),
                                 );
-                              },
-                            );
-                          } else {
-                            return const Center(
-                              child: Text(
-                                'Say Hii! 👋',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            );
-                          }
-                      }
-                    },
-                  ),
-                ),
-                if (_isUploading)
-                  const Align(
-                    alignment: Alignment.centerRight,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 20,
-                      ),
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-                _chatInput(),
-                if (_showEmoji)
-                  SizedBox(
-                    height: mq.height * .35,
-                    child: EmojiPicker(
-                      textEditingController: _textController,
-                      config: Config(
-                        height: 256,
-                        checkPlatformCompatibility: true,
-                        emojiViewConfig: EmojiViewConfig(
-                          emojiSizeMax: 32 * (Platform.isIOS ? 1.30 : 1.0),
+                              case ConnectionState.active:
+                              case ConnectionState.done:
+                                final data = snapshot.data?.docs;
+                                logger.e(data);
+                                _list = data
+                                        ?.map((e) => Message.fromJson(e.data()))
+                                        .toList() ??
+                                    [];
+                                if (_list.isNotEmpty) {
+                                  return ListView.builder(
+                                    reverse: true,
+                                    itemCount: _list.length,
+                                    padding: EdgeInsets.only(top: 10),
+                                    physics: const BouncingScrollPhysics(),
+                                    itemBuilder: (context, index) {
+                                      return MessageCard(
+                                        message: _list[index],
+                                        isSent: _isSending,
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  return const Center(
+                                    child: Text(
+                                      'Say Hii! 👋',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  );
+                                }
+                            }
+                          },
                         ),
                       ),
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
+                      if (_isUploading)
+                        const Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 20,
+                            ),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                      _chatInput(),
+                      if (_showEmoji)
+                        SizedBox(
+                          height: mq.height * .35,
+                          child: EmojiPicker(
+                            textEditingController: _textController,
+                            config: Config(
+                              height: 256,
+                              checkPlatformCompatibility: true,
+                              emojiViewConfig: EmojiViewConfig(
+                                emojiSizeMax:
+                                    32 * (Platform.isIOS ? 1.30 : 1.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
       ),
     );
   }

@@ -1,22 +1,18 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names, sort_child_properties_last, avoid_print
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:NearbyNexus/components/avatar_of_user.dart';
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
 import 'package:NearbyNexus/functions/api_functions.dart';
-import 'package:NearbyNexus/misc/colors.dart';
 import 'package:NearbyNexus/screens/vendor/screens/initial_kyc_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:logger/logger.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class VendorDashboard extends StatefulWidget {
   const VendorDashboard({super.key});
@@ -78,29 +74,42 @@ class _VendorDashboardState extends State<VendorDashboard> {
   }
 
   Stream<dynamic> summaryContainerStream() {
-    StreamController<dynamic> controller = StreamController<dynamic>();
+    StreamController<dynamic> controller =
+        StreamController<dynamic>.broadcast();
 
-    // Ensure uid is not null or empty
-    if (uid.isNotEmpty) {
-      _firestore
-          .collection('service_actions')
-          .where('referencePath',
+    if (uid.isEmpty) {
+      controller.addError("Error: uid is null or empty");
+      controller.close();
+      return controller.stream;
+    }
+
+    final subscription1 = _firestore
+        .collection('service_actions')
+        .where('referencePath',
+            isEqualTo: _firestore.collection('users').doc(uid))
+        .snapshots()
+        .listen((event) {
+      final subscription2 = _firestore
+          .collection('applications')
+          .where('jobPostedBy',
               isEqualTo: _firestore.collection('users').doc(uid))
           .snapshots()
-          .listen((event) {
+          .listen((newEvent) {
+        logger.f(newEvent.docs);
         int all = event.size;
-
         int jobCompletedCount =
             event.docs.where((doc) => doc['clientStatus'] == 'finished').length;
         int active =
             event.docs.where((doc) => doc['status'] == 'accepted').length;
-        int rejected =
-            event.docs.where((doc) => doc['status'] == 'rejected').length;
+        int postsActive =
+            newEvent.docs.where((doc) => doc['status'] == 'accepted').length;
+        int rejected = event.docs
+            .where((doc) =>
+                doc['status'] == 'rejected' || doc['status'] == 'user rejected')
+            .length;
         int newJobs = event.docs.where((doc) => doc['status'] == 'new').length;
 
         List<dynamic> userReferences = [];
-
-        // Get all userReference values
         for (var doc in event.docs) {
           var userReference = doc['userReference'];
           if (userReference != null) {
@@ -110,19 +119,33 @@ class _VendorDashboardState extends State<VendorDashboard> {
 
         Map<String, dynamic> summaryData = {
           "all": all,
-          "active": active,
+          "active": active + postsActive,
           "rejected": rejected,
           "jobCompletedCount": jobCompletedCount,
           "newJobs": newJobs,
           "userReferences": userReferences,
         };
 
-        print(summaryData);
         controller.add(summaryData);
+      }, onError: (error) {
+        // Handle any errors from the second subscription
+        controller.addError(error);
+        // No need to close the controller here to allow for recovery or additional data
       });
-    } else {
-      print("Error: uid is null or empty");
-    }
+
+      // Clean up the second subscription when the controller is closed
+      controller.onCancel = () => subscription2.cancel();
+    }, onError: (error) {
+      // Handle any errors from the first subscription
+      controller.addError(error);
+      controller.close();
+    });
+
+    // Ensure we clean up the first subscription when the controller is closed
+    // This is set outside the first subscription's listener to ensure it's always added
+    controller.onCancel = () {
+      subscription1.cancel();
+    };
 
     return controller.stream;
   }

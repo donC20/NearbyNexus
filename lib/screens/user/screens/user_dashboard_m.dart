@@ -84,14 +84,14 @@ class _UserDashboardMState extends State<UserDashboardM> {
 
         // Calculate total wage where paymentStatus is 'paid'
         QuerySnapshot wageSnapshot = await _firestore
-            .collection('service_actions')
-            .where('userReference',
+            .collection('payments')
+            .where('payedBy',
                 isEqualTo: _firestore.collection('users').doc(uid))
-            .where('paymentStatus', isEqualTo: 'paid')
+            .where('payedFor', isNotEqualTo: 'Premium service')
             .get();
 
-        double totalWage = wageSnapshot.docs
-            .fold(0, (sum, doc) => sum + (double.parse(doc['wage'] ?? '0')));
+        double totalWage = wageSnapshot.docs.fold(
+            0, (sum, doc) => sum + (double.parse(doc['amountPaid'] ?? '0')));
 
         Map<String, dynamic> summaryData = {
           "all": all,
