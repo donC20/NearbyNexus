@@ -25,6 +25,7 @@ class VendorModel {
   final List<DocumentReference> paymentLogs;
   final bool online;
   final String? pushToken;
+  final String registrationStatus;
   final last_seen;
 
   final List<DocumentReference> allRatings;
@@ -38,6 +39,7 @@ class VendorModel {
       required this.kyc,
       required this.phone,
       required this.image,
+      required this.registrationStatus,
       required this.userType,
       required this.status,
       required this.unavailableDays,
@@ -87,6 +89,7 @@ class VendorModel {
       "online": online,
       "last_seen": last_seen,
       "pushToken": pushToken,
+      "registrationStatus": registrationStatus,
       "subscription": {'type': 'free', 'last_payment': DateTime.now()}
     };
   }

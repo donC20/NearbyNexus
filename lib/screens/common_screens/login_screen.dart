@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:NearbyNexus/components/global_bottom_navigation.dart';
+import 'package:NearbyNexus/screens/common_screens/continueAccCreation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,10 @@ class _LoginScreenState extends State<LoginScreen> {
   // snack bar
   void showSnackbar(String message, Color backgroundColor) {
     final snackBar = SnackBar(
-      content: Text(message),
+      content: Text(
+        message,
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      ),
       backgroundColor: backgroundColor,
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -76,36 +80,51 @@ class _LoginScreenState extends State<LoginScreen> {
           if (data.containsKey('userType')) {
             String userType = data['userType'];
 
-            // ?share preferences instance creation
-            final SharedPreferences sharedpreferences =
-                await SharedPreferences.getInstance();
-            Map<String, dynamic> userSessionData = {
-              'uid': uid,
-              'userType': userType,
-            };
-            sharedpreferences.setString(
-                "userSessionData", json.encode(userSessionData));
-            // ?End of SharedPreferences
-            if (userType == "admin") {
-              Navigator.popAndPushNamed(context, "admin_screen");
-            } else if (userType == "vendor" || userType == "general_user") {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => GlobalBottomNavigation(userType: userType),
-                ),
-              );
-            } else {
+            if (data['registrationStatus'] == 'started') {
               setState(() {
                 isLoading = false;
-                isButtonDisabled = false;
               });
-              showSnackbar(":) Sorry we are unable to proccess your request! ",
-                  Colors.red);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          ContinueAccCreation()));
+            } else {
+              // ?share preferences instance creation
+              final SharedPreferences sharedpreferences =
+                  await SharedPreferences.getInstance();
+              Map<String, dynamic> userSessionData = {
+                'uid': uid,
+                'userType': userType,
+              };
+              sharedpreferences.setString(
+                  "userSessionData", json.encode(userSessionData));
+              // ?End of SharedPreferences
+              if (userType == "admin") {
+                Navigator.popAndPushNamed(context, "admin_screen");
+              } else if (userType == "vendor" || userType == "general_user") {
+                setState(() {
+                  isLoading = false;
+                });
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => GlobalBottomNavigation(userType: userType),
+                  ),
+                );
+              } else {
+                setState(() {
+                  isLoading = false;
+                  isButtonDisabled = false;
+                });
+                showSnackbar(
+                    ":) Sorry we are unable to proccess your request! ",
+                    Colors.red);
+              }
+              showSnackbar("Login successful", Colors.green);
+              emailController.clear();
+              passController.clear();
             }
-            showSnackbar("Login successful", Colors.green);
-            emailController.clear();
-            passController.clear();
           } else {
             print('User Type not found in the document');
           }
@@ -132,7 +151,8 @@ class _LoginScreenState extends State<LoginScreen> {
         errorMessage =
             "The password is invalid or the user does not have a password.";
       } else {
-        errorMessage = "Error from login: ${error.toString()}";
+        errorMessage = "Something went wrong";
+        print(error.toString());
       }
       setState(() {
         isLoading = false;

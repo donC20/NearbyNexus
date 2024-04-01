@@ -17,9 +17,10 @@ class UserModel {
   final String? pushToken;
   final last_seen;
   final bool online;
+  final String registrationStatus;
   final List<String>? userFavourites;
 
-   UserModel(
+  UserModel(
       {this.id,
       required this.address,
       required this.paymentLogs,
@@ -29,6 +30,7 @@ class UserModel {
       required this.name,
       required this.emailId,
       required this.phone,
+      required this.registrationStatus,
       required this.image,
       required this.userType,
       required this.userFavourites,
@@ -55,7 +57,8 @@ class UserModel {
       "iamRated": iamRated,
       "online": online,
       "last_seen": last_seen,
-      "pushToken": pushToken
+      "pushToken": pushToken,
+      'registrationStatus': registrationStatus
     };
   }
 }

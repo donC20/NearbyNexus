@@ -285,10 +285,6 @@ class _NewJobsState extends State<NewJobs> {
           ))
         ],
       ),
-      bottomNavigationBar: BottomGNav(
-        activePage: 5,
-        isSelectable: true,
-      ),
     );
   }
 }

@@ -177,7 +177,7 @@ class _CompleteRegistrationByUserState
           name: name,
           emailId: {
             "id": emailId,
-            "verified": true,
+            "verified": false,
           },
           phone: {
             "number": phone,
@@ -192,7 +192,8 @@ class _CompleteRegistrationByUserState
           paymentVerified: false,
           about: '',
           userFavourites: [],
-          iamRated: []);
+          iamRated: [],
+          registrationStatus: 'finished');
       Map<String, dynamic> userData = user.toJson();
       String uid = userTransferdData['uid'];
       await FirebaseFirestore.instance

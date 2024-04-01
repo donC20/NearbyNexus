@@ -10,6 +10,7 @@ import 'package:NearbyNexus/screens/common_screens/terms_nd_conditions.dart';
 import 'package:NearbyNexus/screens/user/components/view_job_details.dart';
 import 'package:NearbyNexus/screens/user/screens/active_jobs.dart';
 import 'package:NearbyNexus/screens/user/screens/chatScreen/user_inbox.dart';
+import 'package:NearbyNexus/screens/user/screens/complete_registration_user.dart';
 import 'package:NearbyNexus/screens/user/screens/create_job_post.dart';
 import 'package:NearbyNexus/screens/user/screens/favorites.dart';
 import 'package:NearbyNexus/screens/user/screens/job_history.dart';
@@ -216,6 +217,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         "user_pending_requets": (context) => const RequestsPendingUser(),
         "/user_job_history": (context) => const UserJobHistory(),
         "/my_favourites": (context) => const MyFavourites(),
+        "/complete_registration_user": (context) =>
+            const CompleteRegistrationByUser(),
         //---------------------------- main--------------------------------
 
         // user

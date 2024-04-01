@@ -2,6 +2,7 @@
 
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _fieldKey = GlobalKey<FormState>();
   final GlobalKey<DropdownButton2State<String>> _dropdownKey = GlobalKey();
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-
+  final _firebaseUsers = FirebaseFirestore.instance.collection('users');
   bool showError = false;
   bool isLoading = false;
   bool isButtonDisabled = false;
@@ -63,18 +64,29 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           showSnackbar("An verification mail has sent to your email address.",
               const Color.fromARGB(255, 244, 212, 54));
         }
-
         Map<String, dynamic> userData = {
           'uid': uid,
           'email': email,
           'userType': userType!['value'],
           'loginType': 'normal'
         };
+        // create points
+        await _firebaseUsers.doc(uid).set({
+          'emailId': {
+            "id": email,
+            "verified": false,
+          },
+          'status': 'active',
+          'userType': userType['value'],
+          'loginType': 'normal',
+          'registrationStatus': 'started'
+        });
+
         setState(() {
           isLoading = false;
         });
         userType['value'] == "general_user"
-            ? Navigator.popAndPushNamed(context, "complete_registration_user",
+            ? Navigator.popAndPushNamed(context, "/complete_registration_user",
                 arguments: userData)
             : userType['value'] == "vendor"
                 ? Navigator.popAndPushNamed(
@@ -88,6 +100,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         setState(() {
           isLoading = false;
         });
+
         showSnackbar("An account with this mail id already exists",
             const Color.fromARGB(255, 244, 54, 54));
       }
@@ -153,6 +166,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             'name': googleuser.displayName,
             'loginType': 'google'
           };
+          await _firebaseUsers.doc(googleuser.uid).set({
+            'emailId': {
+              "id": googleuser.email,
+              "verified": true,
+            },
+            'status': 'active',
+            'userType': selectedRadio,
+            'loginType': 'google',
+            'registrationStatus': 'started'
+          });
           selectedRadio == "general_user"
               ? Navigator.popAndPushNamed(context, "complete_registration_user",
                   arguments: userData)
