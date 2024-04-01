@@ -463,8 +463,162 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
                                       ],
                                     ),
                                   ),
-                                  // Add more UI components here
-                                  // ....
+                                  Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text('Accepted on'),
+                                        Text(UtilityFunctions()
+                                            .convertTimestampToDateString(
+                                                currentDoc['acceptedOn']))
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(15.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Text('Completion'),
+                                        Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            SizedBox(
+                                              width:
+                                                  50, // Adjust the size of the circular progress indicator as needed
+                                              height:
+                                                  50, // Adjust the size of the circular progress indicator as needed
+                                              child: CircularProgressIndicator(
+                                                value: double.tryParse(
+                                                        currentDoc[
+                                                            'completion'])! /
+                                                    100, // Value normalized to be between 0.0 and 1.0
+                                                strokeWidth:
+                                                    4, // Adjust the stroke width as needed
+                                                backgroundColor: Colors.grey[
+                                                    300], // Adjust the background color as needed
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(
+                                                  Colors
+                                                      .blue, // Adjust the progress color as needed
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              '${currentDoc['completion']}%',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        GFButton(
+                                          onPressed: () async {
+                                            showDialog(
+                                              context: context,
+                                              builder: (_) => AlertDialog(
+                                                content: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Column(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.dangerous_sharp,
+                                                          size: 30,
+                                                          color: Colors.amber,
+                                                        ),
+                                                        Text("Warning"),
+                                                      ],
+                                                    ),
+                                                    SizedBox(height: 20),
+                                                    Text(
+                                                        "Are you sure you want to cancel? This action can't be undone."),
+                                                  ],
+                                                ),
+                                                actions: <Widget>[
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      // Add functionality for the "Cancel" button here
+                                                      Navigator.of(context)
+                                                          .pop(); // Close the dialog
+                                                    },
+                                                    child: Text('Cancel'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () async {
+                                                      await FirebaseFirestore
+                                                          .instance
+                                                          .collection(
+                                                              'applications')
+                                                          .doc(documents[index]
+                                                              .id)
+                                                          .update({
+                                                        'canceledOn':
+                                                            DateTime.now(),
+                                                        'log': 'canceled',
+                                                        'status': 'canceled'
+                                                      });
+                                                    },
+                                                    child: Text('OK'),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                          shape: GFButtonShape.pills,
+                                          color: Colors.red,
+                                          text: 'Cancel',
+                                        ),
+                                        SizedBox(
+                                          width: 15,
+                                        ),
+                                        GFButton(
+                                          onPressed: () {
+                                            makePayment(
+                                                'vendor',
+                                                currentDoc['bid_amount'],
+                                                FirebaseFirestore.instance
+                                                    .collection('users')
+                                                    .doc(currentDoc['jobId']),
+                                                FirebaseFirestore.instance
+                                                    .collection('users')
+                                                    .doc(
+                                                        ApiFunctions.user!.uid),
+                                                FirebaseFirestore.instance
+                                                    .collection('users')
+                                                    .doc(documents[index]
+                                                        ['applicant_id']),
+                                                'Job posts',
+                                                currentDocId);
+                                          },
+                                          shape: GFButtonShape.pills,
+                                          color: Colors.blue,
+                                          text: 'Pay user',
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 15,
+                                  )
                                 ],
                               ),
                             ),
