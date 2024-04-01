@@ -31,10 +31,11 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
   List<dynamic> userChatData = [];
   Map<String, dynamic> currentUserData = {};
   bool isUserLoading = true;
+
   @override
   void initState() {
-    initializeUserData();
     super.initState();
+    initializeUserData();
   }
 
   Future<void> initializeUserData() async {
@@ -44,9 +45,16 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
       uidParam: ApiFunctions.user!.uid,
     )
         .listen((data) {
-      if (data.isNotEmpty) {
+      if (data.isNotEmpty && data['chats'] != null) {
         setState(() {
-          userChatData = data['chats'];
+          userChatData = List.from(data['chats']);
+          currentUserData = data;
+          isUserLoading = false;
+        });
+      } else {
+        // Handle case where 'chats' is null or not present
+        setState(() {
+          userChatData = [];
           currentUserData = data;
           isUserLoading = false;
         });
@@ -57,140 +65,132 @@ class _UserInboxState extends State<UserInbox> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
-        appBar: AppBar(
-          title: Text(
-            "Inbox",
-            style: TextStyle(fontSize: 16),
-          ),
-          titleSpacing: 125,
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 10.0),
-              child: UserAvatarLoader(),
-            )
-          ],
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: AppBar(
+        title: Text(
+          "Inbox",
+          style: TextStyle(fontSize: 16),
         ),
-        body: isUserLoading
-            ? Center(child: CircularProgressIndicator())
-            : currentUserData['userType'] == 'vendor' &&
-                    currentUserData['subscription']['type'] == 'free' &&
-                    currentUserData['jobs_applied'].length > 1
-                ? SizedBox(
-                    width: MediaQuery.sizeOf(context).width,
-                    child: Padding(
-                      padding: const EdgeInsets.all(30.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/icons/svg/crown-svgrepo-com.svg',
-                            height: 50,
-                            width: 50,
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            'Upgrade to continue',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Text(
-                            'With current plan you cant\'t send direct messages please upgrade your plan to continue.',
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          GFButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          SubscriptionScreen()));
-                            },
-                            text: "Upgrade",
-                            textColor: Colors.black,
-                            color: Colors.amberAccent,
-                            size: GFSize.LARGE,
-                            shape: GFButtonShape.pills,
-                            fullWidthButton: true,
-                          )
-                        ],
-                      ),
-                    ),
-                  )
-                : Column(
-                    children: [
-                      // Container(
-                      //   height: 50,
-                      //   margin: EdgeInsets.only(left: 10, right: 10, bottom: 15, top: 10),
-                      //   decoration: BoxDecoration(
-                      //       color: Color(0xFF1E1E1E),
-                      //       borderRadius: BorderRadius.circular(100)),
-                      //   child: TextFormField(
-                      //     controller: searchController,
-                      //     keyboardType: TextInputType.text,
-                      //     style: TextStyle(color: Colors.white, fontSize: 16),
-                      //     decoration: InputDecoration(
-                      //         prefixIcon: Icon(CupertinoIcons.search,
-                      //             color: const Color.fromARGB(115, 255, 255, 255)),
-                      //         hintText: 'Search name',
-                      //         hintStyle: TextStyle(color: Colors.white24, fontSize: 14),
-                      //         border: InputBorder.none),
-                      //     validator: (value) {
-                      //       if (value!.isEmpty) {
-                      //         return "You left this field empty!";
-                      //       }
-                      //       return null;
-                      //     },
-                      //   ),
-                      // ),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: userChatData.length,
-                          itemBuilder: (context, index) {
-                            if (userChatData.isNotEmpty) {
-                              return Column(
-                                children: [
-                                  _customChatTile(userChatData[index]),
-                                ],
-                              );
-                            } else {
-                              return Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    // Image.asset(
-                                    //   'assets/images/no-messages.png',
-                                    //   height: 250,
-                                    //   width: 250,
-                                    // ),
-                                    SizedBox(height: 15),
-                                    Text(
-                                      "No messages till now!",
-                                      style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSecondary,
-                                          fontSize: 18),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ));
+        titleSpacing: 125,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 10.0),
+            child: UserAvatarLoader(),
+          )
+        ],
+      ),
+      body: isUserLoading
+          ? Center(child: CircularProgressIndicator())
+          : buildInboxBody(),
+    );
   }
+
+  Widget buildInboxBody() {
+    if (currentUserData['userType'] == 'vendor' &&
+        currentUserData['subscription']['type'] == 'free') {
+      return buildSubscriptionUpgradeUI();
+    } else if (userChatData.isEmpty) {
+      return buildNoMessagesUI();
+    } else {
+      return buildChatList();
+    }
+  }
+
+  Widget buildSubscriptionUpgradeUI() {
+    // Your subscription upgrade UI here.
+    return Padding(
+      padding: const EdgeInsets.all(30.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            'assets/icons/svg/crown-svgrepo-com.svg',
+            height: 50,
+            width: 50,
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            'Upgrade to continue',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          Text(
+            'With current plan you cant\'t send direct messages please upgrade your plan to continue.',
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          GFButton(
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SubscriptionScreen()));
+            },
+            text: "Upgrade",
+            textColor: Colors.black,
+            color: Colors.amberAccent,
+            size: GFSize.LARGE,
+            shape: GFButtonShape.pills,
+            fullWidthButton: true,
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildNoMessagesUI() {
+    return Center(
+      child: Text(
+        "No chats available.",
+        style: TextStyle(fontSize: 18),
+      ),
+    );
+  }
+
+  Widget buildChatList() {
+    return ListView.builder(
+      itemCount: userChatData.length,
+      itemBuilder: (context, index) {
+        // Your chat list item UI here.
+        if (userChatData.isNotEmpty) {
+          return Column(
+            children: [
+              _customChatTile(userChatData[index]),
+            ],
+          );
+        } else {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/images/no-messages.png',
+                  height: 250,
+                  width: 250,
+                ),
+                SizedBox(height: 15),
+                Text(
+                  "No messages till now!",
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: 18),
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  // Your other methods and widget builders like _customChatTile and UserCircleAvatar...
 
   Widget _customChatTile(chatUser) {
     return StreamBuilder(

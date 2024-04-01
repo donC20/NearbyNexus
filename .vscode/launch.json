@@ -21,12 +21,7 @@
             "request":"launch",
             "type": "dart",
             "deviceId": "emulator-5554"
-        },  {
-            "name":"gt-I900",
-            "request":"launch",
-            "type": "dart",
-            "deviceId": "32305a56c186b069"
-        },
+        }, 
     ],
     "compounds": [
         {
