@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:NearbyNexus/screens/admin/screens/user_list_admin.dart';
+import 'package:NearbyNexus/screens/common_screens/reportUser.dart';
 import 'package:NearbyNexus/screens/user/components/vendor_review_container.dart';
 import 'package:NearbyNexus/screens/user/screens/chatScreen/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -316,7 +317,24 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
                                     : Icons.favorite_border,
                                 color: Colors.white,
                                 size: 25,
-                              ))
+                              )),
+                          IconButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (BuildContext context) {
+                                      return ReportUser(
+                                          userTobeReported: vendorId);
+                                    },
+                                  ),
+                                );
+                              },
+                              icon: Icon(
+                                Icons.report_sharp,
+                                color: Colors.red,
+                                size: 25,
+                              )),
                         ],
                       ),
                     ),
