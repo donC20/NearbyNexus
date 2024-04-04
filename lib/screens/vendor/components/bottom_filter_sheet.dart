@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:NearbyNexus/functions/api_functions.dart';
 
 class FilterContainer extends StatefulWidget {
   final Function(int filtecount) filterCount;
@@ -72,7 +73,7 @@ class _FilterContainerState extends State<FilterContainer> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Theme.of(context).colorScheme.onSecondaryContainer,
+      color: Colors.white,
       padding: EdgeInsets.all(16.0),
       child: ListView(
         children: [
@@ -153,24 +154,13 @@ class _FilterContainerState extends State<FilterContainer> {
                   });
                 },
               ),
-              Text('Fixed Cost'),
-              SizedBox(width: 16.0),
-              Checkbox(
-                value: hourlyCostSelected,
-                onChanged: (bool? value) {
-                  setState(() {
-                    hourlyCostSelected = value ?? false;
-                    fixedCostSelected = false;
-                  });
-                },
-              ),
-              Text('Hourly Cost'),
+              Text('Daily Cost'),
             ],
           ),
           if (fixedCostSelected || hourlyCostSelected) ...[
             SizedBox(height: 16.0),
             Text(
-              'Enter ${fixedCostSelected ? 'Fixed' : 'Hourly'} Cost Range',
+              'Enter Daily Cost Range',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 8.0),
@@ -198,55 +188,110 @@ class _FilterContainerState extends State<FilterContainer> {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 8.0),
-          SingleChildScrollView(
-            child: GFSearchBar(
-              padding: EdgeInsets.all(0),
-              searchList: list,
-              searchQueryBuilder: (query, list) {
-                return list
-                    .where((item) =>
-                        item.toLowerCase().contains(query.toLowerCase()))
-                    .toList();
-              },
-              overlaySearchListItemBuilder: (item) {
-                return ListTile(
-                  trailing: selectedSkillList.contains(item)
-                      ? Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                        )
-                      : SizedBox(),
-                  title: Text(
-                    item,
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: const Color.fromARGB(255, 0, 0, 0)),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Skills required",
+                style: TextStyle(color: Colors.white54),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              GFSearchBar(
+                padding: EdgeInsets.all(0),
+                searchList: list,
+                searchQueryBuilder: (query, list) async {
+                  try {
+                    final skills = await ApiFunctions.fetchSkillsList(query);
+                    return skills
+                        .where((item) =>
+                            item.toLowerCase().contains(query.toLowerCase()))
+                        .toList();
+                  } catch (error) {
+                    print('Error fetching skills: $error');
+                    return []; // Return an empty list if there's an error
+                  }
+                },
+                overlaySearchListItemBuilder: (item) {
+                  return ListTile(
+                    trailing: selectedSkillList.contains(item)
+                        ? Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                          )
+                        : SizedBox(),
+                    title: Text(
+                      item,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: const Color.fromARGB(255, 0, 0, 0)),
+                    ),
+                  );
+                },
+                onItemSelected: (item) {
+                  setState(() {
+                    selectedSkillList.contains(item)
+                        ? selectedSkillList.remove(item)
+                        : selectedSkillList.add(item);
+                  });
+                },
+                searchBoxInputDecoration: InputDecoration(
+                  hintText: 'Skills required for this job ?',
+                  hintStyle: TextStyle(color: Colors.white24, fontSize: 14),
+                  filled: true,
+                  fillColor: Color(0xFF1E1E1E),
+                  contentPadding: EdgeInsets.all(16),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: const Color.fromARGB(115, 255, 255, 255),
                   ),
-                );
-              },
-              onItemSelected: (item) {
-                setState(() {
-                  selectedSkillList.contains(item)
-                      ? selectedSkillList.remove(item)
-                      : selectedSkillList.add(item);
-                });
-              },
-              searchBoxInputDecoration: InputDecoration(
-                hintText: 'Skills required for this job ?',
-                hintStyle: TextStyle(color: Colors.white24, fontSize: 14),
-                filled: true,
-                fillColor: Color(0xFF1E1E1E),
-                contentPadding: EdgeInsets.all(16),
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: const Color.fromARGB(115, 255, 255, 255),
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
-            ),
+              SizedBox(
+                height: 5,
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                width: MediaQuery.of(context).size.width - 10,
+                child: Wrap(
+                  spacing: 8.0, // Spacing between chips
+                  runSpacing: 4.0, // Spacing between lines of chips
+                  children: selectedSkillList.map((e) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedSkillList.remove(e);
+                        });
+                      },
+                      child: Chip(
+                        label: Text(
+                          e,
+                          style: TextStyle(color: Colors.white), // Text color
+                        ),
+                        padding: EdgeInsets.all(2),
+                        deleteIcon: Icon(
+                          Icons.remove_circle,
+                          color: Colors.red,
+                        ),
+                        onDeleted: () {
+                          setState(() {
+                            selectedSkillList.remove(e);
+                          });
+                        },
+                        backgroundColor: const Color.fromARGB(
+                            255, 59, 59, 59), // Background color of the chip
+                        shape: StadiumBorder(), // Stadium-shaped border
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           ),
         ],
       ),

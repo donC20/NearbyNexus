@@ -74,7 +74,6 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
           totalRating = vendorData['actualRating'].toDouble();
           dpImage = vendorData['image'];
           geoLocation = vendorData['geoLocation'];
-          isFetching = false;
           serviceList = vendorData['services'];
           languages = vendorData['languages'] ?? [];
           about = vendorData['about'];
@@ -145,6 +144,7 @@ class _VendorPortfolioState extends State<VendorPortfolio> {
           "newJobs": newJobs,
           "userReferences": userReferences,
         };
+        isFetching = false;
       });
       // print(summaryData);
       // controller.add(summaryData);

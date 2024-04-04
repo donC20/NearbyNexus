@@ -474,7 +474,7 @@ Widget vendorDisplayTile(
   }
 
   List<dynamic>? services = userData['services'];
-  double? actualRating = userData['actualRating'];
+  double? actualRating = userData['actualRating'].toDouble();
   String? name = userData['name'];
   String? image = userData['image'];
   String? geoLocation = userData['geoLocation'];

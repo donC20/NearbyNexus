@@ -507,7 +507,7 @@ class _BroadcastPageState extends State<BroadcastPage> {
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).colorScheme.onSecondary)),
                     TextSpan(
-                        text: " / hour",
+                        text: " / day",
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
