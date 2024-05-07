@@ -25,21 +25,21 @@ class _JobLogTimelineState extends State<JobLogTimeline> {
   @override
   void initState() {
     super.initState();
-    initUser();
-  }
-
-  void initUser() async {
-    setState(() {
-      uid = ModalRoute.of(context)!.settings.arguments as String;
-    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // setState(() {
+    initUser();
+  }
 
-    // });
+  void initUser() async {
+    // Ensure that context is not null
+    Map<String, dynamic> parsedUid =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    setState(() {
+      uid = parsedUid['docId'];
+    });
   }
 
   @override
@@ -82,19 +82,115 @@ class _JobLogTimelineState extends State<JobLogTimeline> {
               return ListView.builder(
                 itemCount: history.length,
                 itemBuilder: (context, index) {
+                  final isLastItem = index == history.length - 1;
+
+                  IconData iconData;
+                  Color iconColor;
+                  String labelText;
+                  String labelTextforUser;
+
+                  switch (history[index]) {
+                    case "new_job":
+                      iconData = Icons.work;
+                      iconColor = Colors.blue;
+                      labelText = "New job received";
+                      labelTextforUser = "You have requested a service";
+                      break;
+                    case "negotiate":
+                      iconData = Icons.money;
+                      iconColor = Colors.orange;
+                      labelText = "Negotiated the job";
+                      labelTextforUser = "Provider have negotiated the amount";
+                      break;
+                    case "user negotiated":
+                      iconData = Icons.attach_money;
+                      iconColor = Colors.orange;
+                      labelText = "User negotiated the price";
+                      labelTextforUser = "You have negotiated the amount";
+
+                      break;
+                    case "rejected":
+                      iconData = Icons.close;
+                      iconColor = Colors.red;
+                      labelText = "Declined the request";
+                      labelTextforUser = "Provider declined the request";
+
+                      break;
+                    case "user rejected":
+                      iconData = Icons.remove_circle;
+                      iconColor = Colors.red;
+                      labelText = "User removed the request";
+                      labelTextforUser = "You have revoked the service";
+
+                      break;
+                    case "completed":
+                      iconData = Icons.check_circle;
+                      iconColor = Colors.green;
+                      labelText = "Tagged the job as completed";
+                      labelTextforUser =
+                          "Provider tagged the job as completed.";
+
+                      break;
+                    case "finished":
+                      iconData = Icons.check_circle;
+                      iconColor = Colors.green;
+                      labelText = "Job is complete";
+                      labelTextforUser = "You have agreed that job is complete";
+
+                      break;
+                    case "unfinished":
+                      iconData = Icons.highlight_off;
+                      iconColor = Colors.red;
+                      labelText = "Job is not complete";
+                      labelTextforUser =
+                          "You have tagged the job is not complete.";
+
+                      break;
+                    case "paid":
+                      iconData = Icons.attach_money;
+                      iconColor = Colors.blue;
+                      labelText = "User has paid you";
+                      labelTextforUser = "You have paid them.";
+
+                      break;
+                    case "accepted":
+                      iconData = Icons.thumb_up;
+                      iconColor = Colors.green;
+                      labelText = "Agreed to the terms";
+                      labelTextforUser =
+                          "The provider has accepted your request.";
+
+                      break;
+                    case "user accepted":
+                      iconData = Icons.thumb_up;
+                      iconColor = Colors.green;
+                      labelText = "User accepted your request";
+                      labelTextforUser =
+                          "You have accepted to the providers terms";
+
+                      break;
+                    default:
+                      iconData = Icons.info;
+                      iconColor = Colors.grey;
+                      labelText = "Unknown";
+                      labelTextforUser = "Unknown";
+                  }
+
                   return TimelineTile(
                     axis: TimelineAxis.vertical,
                     indicatorStyle: IndicatorStyle(
-                      color: Colors.green,
+                      color: isLastItem && history[index] == "paid"
+                          ? Colors.blue
+                          : iconColor,
                       height: 30,
                       width: 30,
                       iconStyle: IconStyle(
                         color: Colors.white,
-                        iconData: Icons.check,
+                        iconData: iconData,
                       ),
                     ),
                     isFirst: index == 0 ? true : false,
-                    // isLast: index == -1 ? true : false,
+                    isLast: isLastItem,
                     beforeLineStyle:
                         LineStyle(color: Colors.grey, thickness: 1),
                     afterLineStyle: LineStyle(color: Colors.grey, thickness: 1),
@@ -105,16 +201,16 @@ class _JobLogTimelineState extends State<JobLogTimeline> {
                           width: 30,
                         ),
                         Container(
-                          padding: EdgeInsets.all(10),
+                          padding: EdgeInsets.all(15),
                           margin: EdgeInsets.only(top: 5, bottom: 30),
                           width: 280,
                           decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
                             boxShadow: [
                               BoxShadow(blurRadius: 1, color: Colors.grey),
                             ],
                             color: Colors.white,
                           ),
-                          // Optionally, you can add constraints like this:
                           constraints: BoxConstraints(
                             minHeight: 50, // Minimum height
                             maxHeight: 200, // Maximum height
@@ -122,84 +218,23 @@ class _JobLogTimelineState extends State<JobLogTimeline> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              logData['from'] == 'vendor'
-                                  ? Text(
-                                      history[index] == "new_job"
-                                          ? "New job received"
-                                          : history[index] == "negotiate"
-                                              ? "You have negotiated the job"
-                                              : history[index] ==
-                                                      "user negotiated"
-                                                  ? "You user has negotiated the price"
-                                                  : history[index] == "rejected"
-                                                      ? "You declined the request"
-                                                      : history[index] ==
-                                                              "user rejeted"
-                                                          ? "User has removed the request"
-                                                          : history[index] ==
-                                                                  "completed"
-                                                              ? "You tagged the job as completed."
-                                                              : history[index] ==
-                                                                      "finished"
-                                                                  ? "The user has accepted & job is complete"
-                                                                  : history[index] ==
-                                                                          "unfinished"
-                                                                      ? "User tagged the job is not complete."
-                                                                      : history[index] ==
-                                                                              "paid"
-                                                                          ? "The user has paid you."
-                                                                          : history[index] == "user accepted"
-                                                                              ? "The user has accepted your request."
-                                                                              : history[index] == "accepted"
-                                                                                  ? "You have agreed to the terms"
-                                                                                  : "",
-                                      style: TextStyle(
-                                          color: const Color.fromARGB(
-                                              255, 61, 61, 61),
-                                          fontWeight: FontWeight.bold),
-                                    )
-                                  : Text(
-                                      history[index] == "new_job"
-                                          ? "You have requested a service"
-                                          : history[index] == "negotiate"
-                                              ? "Provider have negotiated the amount"
-                                              : history[index] ==
-                                                      "user negotiated"
-                                                  ? "You have negotiated the amount"
-                                                  : history[index] == "rejected"
-                                                      ? "Provider declined the request"
-                                                      : history[index] ==
-                                                              "user rejected"
-                                                          ? "You have revoked the service"
-                                                          : history[index] ==
-                                                                  "completed"
-                                                              ? "Provider tagged the job as completed."
-                                                              : history[index] ==
-                                                                      "finished"
-                                                                  ? "You have agreed that job is complete"
-                                                                  : history[index] ==
-                                                                          "unfinished"
-                                                                      ? "You have tagged the job is not complete."
-                                                                      : history[index] ==
-                                                                              "paid"
-                                                                          ? "You have paid an amount."
-                                                                          : history[index] == "accepted"
-                                                                              ? "The provider has accepted your request."
-                                                                              : history[index] == "user accepted"
-                                                                                  ? "You have accepted to the providers terms"
-                                                                                  : "",
-                                      style: TextStyle(
-                                          color: const Color.fromARGB(
-                                              255, 61, 61, 61),
-                                          fontWeight: FontWeight.bold),
-                                    ),
+                              Text(
+                                logData['from'] == 'vendor'
+                                    ? labelText
+                                    : labelTextforUser,
+                                style: TextStyle(
+                                  color: const Color.fromARGB(255, 61, 61, 61),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               Text(
                                 timeStampConverter(
                                     documentData['dateRequested']),
                                 style: TextStyle(
-                                    color: Color.fromARGB(142, 61, 61, 61),
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 12),
+                                  color: Color.fromARGB(142, 61, 61, 61),
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 12,
+                                ),
                               ),
                             ],
                           ),

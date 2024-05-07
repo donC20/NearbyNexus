@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:NearbyNexus/components/bottom_g_nav.dart';
+import 'package:NearbyNexus/functions/api_functions.dart';
 import 'package:NearbyNexus/screens/user/components/vendor_review_container.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -81,8 +82,9 @@ class _NewJobsState extends State<NewJobs> {
             stream: _firestore
                 .collection('service_actions')
                 .where('referencePath',
-                    isEqualTo:
-                        FirebaseFirestore.instance.collection('users').doc(uid))
+                    isEqualTo: FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(ApiFunctions.user?.uid))
                 .where('status', isEqualTo: 'new')
                 .snapshots(),
             builder:

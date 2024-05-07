@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:NearbyNexus/components/user_circle_avatar.dart';
@@ -56,6 +57,8 @@ class _ViewRequestsState extends State<ViewRequests> {
     fetchRequestData(docIds['dataReference']);
   }
 
+  StreamSubscription<DocumentSnapshot>? subscription;
+
   void initUser() async {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
@@ -105,7 +108,10 @@ class _ViewRequestsState extends State<ViewRequests> {
     setState(() {
       isloadingPage = true;
     });
-    _service_actions_collection
+
+    // Initialize subscription variable
+
+    subscription = _service_actions_collection
         .doc(requestDataRef)
         .snapshots()
         .listen((DocumentSnapshot snapshot) {
@@ -117,7 +123,17 @@ class _ViewRequestsState extends State<ViewRequests> {
           isloadingPage = false;
         });
       }
+
+      // Cancel the subscription when no longer needed
+      subscription!.cancel();
     });
+  }
+
+  @override
+  void dispose() {
+    // Cancel the subscription when the widget is disposed
+    subscription!.cancel();
+    super.dispose();
   }
 
   String timeStampConverter(Timestamp timeAndDate) {
