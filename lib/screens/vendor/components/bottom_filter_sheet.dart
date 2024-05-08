@@ -42,29 +42,33 @@ class _FilterContainerState extends State<FilterContainer> {
     final data =
         await UtilityFunctions().fetchFromSharedPreference('filterList');
 
-    Map<String, dynamic>? filterData;
-    filterData = json.decode(data);
-    logger.f('frommshare pref $filterData');
-    if (filterData != null) {
-      setState(() {
-        minValueController.text = filterData!['minValue'].toString();
-        maxValueController.text = filterData['maxValue'].toString();
-        selectedSkillList = List<dynamic>.from(filterData['skillList']);
-      });
-      if (filterData['minValue'].toString().isNotEmpty &&
-          filterData['maxValue'].toString().isNotEmpty) {
+    if (data != null) {
+      Map<String, dynamic>? filterData;
+      filterData = json.decode(data);
+      logger.f('frommshare pref $filterData');
+      if (filterData != null) {
         setState(() {
-          fixedCostSelected = true;
+          minValueController.text = filterData!['minValue'].toString();
+          maxValueController.text = filterData['maxValue'].toString();
+          selectedSkillList = List<dynamic>.from(filterData['skillList']);
         });
-      }
-      // Get minValue, maxValue, and skillList from the parsedData map
-      String minValue = filterData['minValue'].toString();
-      String maxValue = filterData['maxValue'].toString();
-      List<dynamic> skillList = List<dynamic>.from(filterData['skillList']);
+        if (filterData['minValue'].toString().isNotEmpty &&
+            filterData['maxValue'].toString().isNotEmpty) {
+          setState(() {
+            fixedCostSelected = true;
+          });
+        }
+        // Get minValue, maxValue, and skillList from the parsedData map
+        String minValue = filterData['minValue'].toString();
+        String maxValue = filterData['maxValue'].toString();
+        List<dynamic> skillList = List<dynamic>.from(filterData['skillList']);
 
-      logger.f('minValue: $minValue');
-      logger.f('maxValue: $maxValue');
-      logger.f('skillList: $skillList');
+        logger.f('minValue: $minValue');
+        logger.f('maxValue: $maxValue');
+        logger.f('skillList: $skillList');
+      } else {
+        logger.e('frommshare pref has no data');
+      }
     } else {
       logger.e('frommshare pref has no data');
     }

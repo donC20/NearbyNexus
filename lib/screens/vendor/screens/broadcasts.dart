@@ -52,13 +52,13 @@ class _BroadcastPageState extends State<BroadcastPage> {
     final data =
         await UtilityFunctions().fetchFromSharedPreference('filterList');
 
-    Map<String, dynamic>? filterData;
+    Map<String, dynamic> filterData;
     logger.f('frommshare pref $data');
 
     if (data != null) {
       filterData = json.decode(data) ?? {};
 
-      logger.f(filterData!['maxValue']);
+      logger.f(filterData['maxValue']);
       final snapshot = await FirebaseFirestore.instance
           .collection('job_posts')
           .where('budget',

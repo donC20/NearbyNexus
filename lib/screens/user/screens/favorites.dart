@@ -87,7 +87,7 @@ class _MyFavouritesState extends State<MyFavourites> {
                 return Center(
                   child: Text(
                     "No favorites found",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
+                    style: TextStyle(fontSize: 18),
                   ),
                 );
               }

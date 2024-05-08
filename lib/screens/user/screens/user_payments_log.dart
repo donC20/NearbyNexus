@@ -152,9 +152,13 @@ class _PaymentUserLogScreenState extends State<PaymentUserLogScreen> {
                                           title: Text(
                                             data['serviceName'],
                                             style: TextStyle(
+                                                color: Colors.green,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          subtitle: Text(data['userName']),
+                                          subtitle: Text(
+                                            data['userName'],
+                                            style: TextStyle(color: Colors.red),
+                                          ),
                                           trailing: Text(
                                             "\u20B9${payData?['amountPaid']}",
                                             style: TextStyle(

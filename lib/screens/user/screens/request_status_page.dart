@@ -78,7 +78,10 @@ class _RequestStatusPageState extends State<RequestStatusPage> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: Text("Request status"),
+        title: Text(
+          "Request status",
+          style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

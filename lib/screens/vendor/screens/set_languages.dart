@@ -20,25 +20,18 @@ class SetSpeakLanguages extends StatefulWidget {
 }
 
 class _SetSpeakLanguagesState extends State<SetSpeakLanguages> {
-  var logger = Logger();
   final TextEditingController _searchController = TextEditingController();
-  List<dynamic> resultList = [];
-  List<dynamic> searchList = [];
-  List<dynamic> selectedList = [];
+  List<String> resultList = [];
+  List<String> searchList = [];
+  List<String> selectedList = [];
 
   String uid = '';
   bool isFetchingList = true;
-
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    // Future.delayed(Duration(seconds: 0), () {
-    //   setState(() {
-    //     uid = Provider.of<UserProvider>(context, listen: false).uid!;
-    //   });
-    // });
     initUser();
   }
 
@@ -46,7 +39,7 @@ class _SetSpeakLanguagesState extends State<SetSpeakLanguages> {
     final SharedPreferences sharedPreferences =
         await SharedPreferences.getInstance();
     var userLoginData = sharedPreferences.getString("userSessionData");
-    var initData = json.decode(userLoginData ??'');
+    var initData = json.decode(userLoginData ?? '');
     setState(() {
       uid = initData['uid'];
     });
@@ -63,6 +56,7 @@ class _SetSpeakLanguagesState extends State<SetSpeakLanguages> {
     setState(() {
       isFetchingList = true;
     });
+
     const apiKey = '6451cd2838mshaa799c052193673p158fa6jsn14d05424a21d';
 
     final headers = {
@@ -90,28 +84,21 @@ class _SetSpeakLanguagesState extends State<SetSpeakLanguages> {
           isFetchingList = false;
         });
       }
-      logger.d(resultList);
     } else {
       // Handle errors here.
-      logger.d('Error: ${response.statusCode}');
+      debugPrint('Error: ${response.statusCode}');
     }
   }
-
-  // search
 
   void filterLanguages(String query) {
     setState(() {
       if (query.isNotEmpty) {
-        setState(() {
-          searchList = resultList
-              .where((language) =>
-                  language.toLowerCase().contains(query.toLowerCase()))
-              .toList();
-        });
+        searchList = resultList
+            .where((language) =>
+                language.toLowerCase().contains(query.toLowerCase()))
+            .toList();
       } else {
-        setState(() {
-          searchList = resultList;
-        });
+        searchList = resultList;
       }
     });
   }
@@ -140,14 +127,13 @@ class _SetSpeakLanguagesState extends State<SetSpeakLanguages> {
         Map<String, dynamic> vendorData =
             snapshot.data() as Map<String, dynamic>;
         setState(() {
-          selectedList = vendorData['languages'];
+          selectedList = List<String>.from(vendorData['languages'] ?? []);
         });
       }
     });
-    logger.d(selectedList);
   }
 
-  Future<void> updateLang(lists) async {
+  Future<void> updateLang(List<String> lists) async {
     try {
       await FirebaseFirestore.instance
           .collection('users')
@@ -158,7 +144,7 @@ class _SetSpeakLanguagesState extends State<SetSpeakLanguages> {
         selectedList.clear();
       });
     } catch (e) {
-      logger.d('Error removing service: $e');
+      debugPrint('Error removing service: $e');
     }
   }
 
@@ -193,159 +179,164 @@ class _SetSpeakLanguagesState extends State<SetSpeakLanguages> {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 55,
-              child: TextFormField(
-                keyboardType: TextInputType.text,
-                controller: _searchController,
-                style: GoogleFonts.poppins(
-                    color: const Color.fromARGB(255, 238, 238, 238)),
-                decoration: InputDecoration(
-                  hintText: "Search your relevant languages",
-                  hintStyle: const TextStyle(
-                      fontSize: 14, color: Color.fromARGB(114, 255, 255, 255)),
-                  contentPadding: const EdgeInsets.only(left: 25, bottom: 35),
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(
-                      color: Color.fromARGB(74, 158, 158, 158),
+      body: isFetchingList
+          ? Center(
+              child: LoadingAnimationWidget.waveDots(
+                  color: Colors.white, size: 50),
+            )
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 55,
+                    child: TextFormField(
+                      keyboardType: TextInputType.text,
+                      controller: _searchController,
+                      style: GoogleFonts.poppins(
+                          color: const Color.fromARGB(255, 238, 238, 238)),
+                      decoration: InputDecoration(
+                        hintText: "Search your relevant languages",
+                        hintStyle: const TextStyle(
+                            fontSize: 14,
+                            color: Color.fromARGB(114, 255, 255, 255)),
+                        contentPadding:
+                            const EdgeInsets.only(left: 25, bottom: 35),
+                        labelStyle: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(74, 158, 158, 158),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(74, 158, 158, 158),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                            color: Color.fromARGB(74, 158, 158, 158),
+                          ),
+                        ),
+                        suffixIcon:
+                            const Icon(Icons.search, color: Colors.grey),
+                      ),
+                      onChanged: (value) {
+                        filterLanguages(value);
+                      },
                     ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(
-                      color: Color.fromARGB(74, 158, 158, 158),
-                    ),
+                  SizedBox(
+                    height: 10,
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(
-                      color: Color.fromARGB(74, 158, 158, 158),
-                    ),
-                  ),
-                  suffixIcon: const Icon(Icons.search, color: Colors.grey),
-                ),
-                onChanged: (value) {
-                  filterLanguages(value);
-                },
-              ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: isFetchingList
-                    ? Center(
-                        child: LoadingAnimationWidget.waveDots(
-                            color: Colors.white, size: 50),
-                      )
-                    : searchList.isEmpty
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SvgPicture.asset(
-                                "assets/images/vector/curiosity.svg",
-                                width: 300,
-                                height: 300,
-                              ),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              Text(
-                                "Sorry, ${_searchController.text} not found!",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: searchList.isEmpty
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(
+                                  "assets/images/vector/curiosity.svg",
+                                  width: 300,
+                                  height: 300,
                                 ),
-                              ),
-                            ],
-                          )
-                        : Expanded(
-                            child: ListView.separated(
-                              itemCount: searchList.length,
-                              itemBuilder: (context, index) {
-                                final language = searchList[index];
-                                final firstLetter = language[0].toUpperCase() +
-                                    language[1].toLowerCase();
-                                final containerColor = isSelected(language)
-                                    ? Colors.green
-                                    : getRandomColor();
-                                final bodyColor = isSelected(language)
-                                    ? Color.fromARGB(40, 161, 250, 255)
-                                    : Colors.black;
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                Text(
+                                  "Sorry, ${_searchController.text} not found!",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Expanded(
+                              child: ListView.separated(
+                                itemCount: searchList.length,
+                                itemBuilder: (context, index) {
+                                  final language = searchList[index];
+                                  final firstLetter =
+                                      language[0].toUpperCase() +
+                                          language[1].toLowerCase();
+                                  final containerColor = isSelected(language)
+                                      ? Colors.green
+                                      : getRandomColor();
+                                  final bodyColor = isSelected(language)
+                                      ? Color.fromARGB(40, 161, 250, 255)
+                                      : Colors.black;
 
-                                return DecoratedBox(
-                                  decoration: BoxDecoration(
-                                      color: bodyColor,
-                                      borderRadius: BorderRadius.circular(10)),
-                                  child: ListTile(
-                                    leading: Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: containerColor,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(50)),
-                                      ),
-                                      child: isSelected(language)
-                                          ? Icon(
-                                              Icons.check,
-                                              color: Colors.white,
-                                              size: 30,
-                                            )
-                                          : Center(
-                                              child: Text(
-                                                firstLetter,
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
+                                  return DecoratedBox(
+                                    decoration: BoxDecoration(
+                                        color: bodyColor,
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: ListTile(
+                                      leading: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          color: containerColor,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(50)),
+                                        ),
+                                        child: isSelected(language)
+                                            ? Icon(
+                                                Icons.check,
+                                                color: Colors.white,
+                                                size: 30,
+                                              )
+                                            : Center(
+                                                child: Text(
+                                                  firstLetter,
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
+                                      ),
+                                      title: Text(
+                                        language,
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 16),
+                                      ),
+                                      trailing: Icon(
+                                        Icons.arrow_forward_ios_outlined,
+                                        color: const Color.fromARGB(
+                                            135, 255, 255, 255),
+                                        size: 14,
+                                      ),
+                                      onTap: () {
+                                        toggleSelection(language);
+                                      },
                                     ),
-                                    title: Text(
-                                      language,
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 16),
-                                    ),
-                                    trailing: Icon(
-                                      Icons.arrow_forward_ios_outlined,
-                                      color: const Color.fromARGB(
-                                          135, 255, 255, 255),
-                                      size: 14,
-                                    ),
-                                    onTap: () {
-                                      toggleSelection(language);
-                                    },
-                                  ),
-                                );
-                              },
-                              separatorBuilder:
-                                  (BuildContext context, int index) {
-                                return Divider(
-                                  color:
-                                      const Color.fromARGB(92, 158, 158, 158),
-                                );
-                              },
+                                  );
+                                },
+                                separatorBuilder:
+                                    (BuildContext context, int index) {
+                                  return Divider(
+                                    color:
+                                        const Color.fromARGB(92, 158, 158, 158),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(right: 25, bottom: 15),
         child: Row(
@@ -379,7 +370,6 @@ class _SetSpeakLanguagesState extends State<SetSpeakLanguages> {
           ],
         ),
       ),
-      
     );
   }
 }

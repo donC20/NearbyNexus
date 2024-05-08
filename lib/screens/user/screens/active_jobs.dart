@@ -115,6 +115,7 @@ class _UserActiveJobsState extends State<UserActiveJobs> {
                   isEqualTo:
                       FirebaseFirestore.instance.collection('users').doc(uid))
               .where('status', whereNotIn: [
+              'finished',
               'new',
               'completed',
               'user rejected'
